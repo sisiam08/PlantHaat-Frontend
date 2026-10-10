@@ -568,7 +568,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerApplicationDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get the seller application",
@@ -591,7 +611,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerApplicationDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update the seller application",
@@ -616,7 +656,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerDocumentDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Attach an uploaded document to the application",
@@ -655,7 +715,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerApplicationDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Submit the application for admin review",
@@ -670,7 +750,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerPayoutAccountDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List payout accounts (masked)",
@@ -693,7 +796,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerPayoutAccountDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add a payout account (number encrypted at rest)",
@@ -732,7 +855,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get the seller's shop",
@@ -755,7 +898,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create or update the seller's shop",
@@ -780,7 +943,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Enable vacation mode",
@@ -793,7 +976,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Disable vacation mode",
@@ -808,7 +1011,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DeliveryZoneDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List delivery zones",
@@ -831,7 +1057,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DeliveryZoneDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a delivery zone",
@@ -865,7 +1111,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DeliveryZoneDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a delivery zone",
@@ -902,7 +1168,34 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerProductListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the seller's products",
@@ -925,7 +1218,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a product (starts as DRAFT)",
@@ -949,7 +1262,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get one of the seller's products",
@@ -981,7 +1314,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a product",
@@ -1037,7 +1390,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Activate/submit or deactivate a product",
@@ -1071,7 +1444,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add a variant",
@@ -1113,7 +1506,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a variant",
@@ -1177,7 +1590,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/VariantStockDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Adjust stock (delta or set) and log the change",
@@ -1211,7 +1644,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add a product image",
@@ -1253,7 +1706,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a product image",
@@ -1283,7 +1756,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerProductDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Delete a product image",
@@ -2242,7 +2735,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerShopOrderDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the seller's shop orders",
@@ -2281,7 +2801,7 @@
                       "example": true
                     },
                     "data": {
-                      "$ref": "#/components/schemas/OrderDetailDto"
+                      "$ref": "#/components/schemas/SellerShopOrderDto"
                     }
                   }
                 }
@@ -2320,7 +2840,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopOrderDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Advance a shop order's status",
@@ -2372,7 +2912,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerCancellationRequestDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List cancellation requests for the seller's shop",
@@ -2406,7 +2973,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CancellationRespondResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Approve or reject a cancellation request",
@@ -3363,7 +3950,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerReviewListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List reviews for the seller's shop",
@@ -3397,7 +4011,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reply to a review (one reply, editable)",
@@ -3431,7 +4065,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewReportDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Report a review for admin moderation",
@@ -3733,7 +4387,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerComplaintListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List complaints for the seller's shop",
@@ -3757,7 +4438,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get one of the seller's complaints",
@@ -3791,7 +4492,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Respond to a complaint",
@@ -4420,7 +5141,7 @@
                       "example": true
                     },
                     "data": {
-                      "$ref": "#/components/schemas/AnalyticsOverviewDto"
+                      "$ref": "#/components/schemas/AdminAnalyticsOverviewDto"
                     }
                   }
                 }
@@ -6322,6 +7043,158 @@
         "type": "object",
         "properties": {}
       },
+      "SellerDocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NID_FRONT",
+              "NID_BACK",
+              "TRADE_LICENSE",
+              "NURSERY_PHOTO",
+              "OTHER"
+            ]
+          },
+          "fileKey": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sellerProfileId",
+          "type",
+          "fileKey",
+          "createdAt"
+        ]
+      },
+      "SellerShopRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status"
+        ]
+      },
+      "SellerApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerType": {
+            "type": "string",
+            "enum": [
+              "NURSERY",
+              "INDIVIDUAL_GROWER",
+              "RESELLER"
+            ]
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "tradeLicenseNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessAddress": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SUSPENDED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerDocumentDto"
+            }
+          },
+          "shop": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SellerShopRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "sellerType",
+          "businessName",
+          "contactPhone",
+          "tradeLicenseNo",
+          "businessAddress",
+          "status",
+          "rejectionReason",
+          "submittedAt",
+          "reviewedAt",
+          "verifiedAt",
+          "documents",
+          "shop"
+        ]
+      },
       "UpdateApplicationDto": {
         "type": "object",
         "properties": {
@@ -6374,6 +7247,44 @@
           "fileKey"
         ]
       },
+      "SellerPayoutAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountMasked": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "method",
+          "accountName",
+          "accountMasked",
+          "isDefault",
+          "createdAt"
+        ]
+      },
       "CreatePayoutAccountDto": {
         "type": "object",
         "properties": {
@@ -6403,6 +7314,112 @@
           "method",
           "accountName",
           "accountNumber"
+        ]
+      },
+      "SellerShopDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ]
+          },
+          "isOnVacation": {
+            "type": "boolean"
+          },
+          "vacationUntil": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "vacationMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "ratingCount": {
+            "type": "number"
+          },
+          "approvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "description",
+          "logoUrl",
+          "bannerUrl",
+          "phone",
+          "district",
+          "address",
+          "latitude",
+          "longitude",
+          "status",
+          "isOnVacation",
+          "vacationUntil",
+          "vacationMessage",
+          "ratingAvg",
+          "ratingCount",
+          "approvedAt",
+          "createdAt"
         ]
       },
       "UpdateShopDto": {
@@ -6454,6 +7471,83 @@
             "example": "Back after Eid"
           }
         }
+      },
+      "DistrictRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string"
+          },
+          "division": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameBn",
+          "division"
+        ]
+      },
+      "DeliveryZoneDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isNationwide": {
+            "type": "boolean"
+          },
+          "charge": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "freeDeliveryAbove": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "estimatedDaysMin": {
+            "type": "number"
+          },
+          "estimatedDaysMax": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "districts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistrictRefDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isNationwide",
+          "charge",
+          "freeDeliveryAbove",
+          "estimatedDaysMin",
+          "estimatedDaysMax",
+          "isActive",
+          "districts",
+          "createdAt"
+        ]
       },
       "CreateDeliveryZoneDto": {
         "type": "object",
@@ -6530,6 +7624,591 @@
             "example": 3
           }
         }
+      },
+      "SellerVariantSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "stockQty": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "price",
+          "stockQty",
+          "isActive"
+        ]
+      },
+      "SellerProductImageSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "isPrimary"
+        ]
+      },
+      "SellerProductCategorySummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "SellerProductListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "careInstructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "lightRequirement": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "FULL_SUN",
+              "PARTIAL_SHADE",
+              "SHADE",
+              "BRIGHT_INDIRECT",
+              "LOW_LIGHT"
+            ]
+          },
+          "wateringFrequency": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "DAILY",
+              "EVERY_2_3_DAYS",
+              "WEEKLY",
+              "FORTNIGHTLY",
+              "MINIMAL"
+            ]
+          },
+          "careDifficulty": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "EASY",
+              "MODERATE",
+              "HARD"
+            ]
+          },
+          "isIndoor": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isPetSafe": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "matureHeightCm": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "careDetails": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "ACTIVE",
+              "INACTIVE",
+              "REJECTED",
+              "REMOVED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "minPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "maxPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "inStock": {
+            "type": "boolean"
+          },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "ratingCount": {
+            "type": "number"
+          },
+          "soldCount": {
+            "type": "number"
+          },
+          "viewCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerVariantSummaryDto"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerProductImageSummaryDto"
+            }
+          },
+          "category": {
+            "$ref": "#/components/schemas/SellerProductCategorySummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "shopId",
+          "categoryId",
+          "name",
+          "nameBn",
+          "slug",
+          "scientificName",
+          "description",
+          "careInstructions",
+          "lightRequirement",
+          "wateringFrequency",
+          "careDifficulty",
+          "isIndoor",
+          "isPetSafe",
+          "matureHeightCm",
+          "tags",
+          "careDetails",
+          "status",
+          "rejectionReason",
+          "publishedAt",
+          "minPrice",
+          "maxPrice",
+          "inStock",
+          "ratingAvg",
+          "ratingCount",
+          "soldCount",
+          "viewCount",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "variants",
+          "images",
+          "category"
+        ]
+      },
+      "SellerProductCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameBn",
+          "slug"
+        ]
+      },
+      "SellerVariantDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "sizeLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "heightCm": {
+            "type": "number",
+            "nullable": true
+          },
+          "potType": {
+            "type": "string",
+            "nullable": true
+          },
+          "potSizeInch": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "price": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "compareAtPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "stockQty": {
+            "type": "number"
+          },
+          "lowStockThreshold": {
+            "type": "number"
+          },
+          "weightGrams": {
+            "type": "number",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "sku",
+          "name",
+          "sizeLabel",
+          "heightCm",
+          "potType",
+          "potSizeInch",
+          "price",
+          "compareAtPrice",
+          "stockQty",
+          "lowStockThreshold",
+          "weightGrams",
+          "isActive",
+          "sortOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SellerProductImageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "altText": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "url",
+          "altText",
+          "sortOrder",
+          "isPrimary",
+          "createdAt"
+        ]
+      },
+      "SellerProductDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "scientificName": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "careInstructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "lightRequirement": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "FULL_SUN",
+              "PARTIAL_SHADE",
+              "SHADE",
+              "BRIGHT_INDIRECT",
+              "LOW_LIGHT"
+            ]
+          },
+          "wateringFrequency": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "DAILY",
+              "EVERY_2_3_DAYS",
+              "WEEKLY",
+              "FORTNIGHTLY",
+              "MINIMAL"
+            ]
+          },
+          "careDifficulty": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "EASY",
+              "MODERATE",
+              "HARD"
+            ]
+          },
+          "isIndoor": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isPetSafe": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "matureHeightCm": {
+            "type": "number",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "careDetails": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "ACTIVE",
+              "INACTIVE",
+              "REJECTED",
+              "REMOVED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "maxPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "inStock": {
+            "type": "boolean"
+          },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "ratingCount": {
+            "type": "number"
+          },
+          "soldCount": {
+            "type": "number"
+          },
+          "viewCount": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "$ref": "#/components/schemas/SellerProductCategoryDto"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerVariantDto"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerProductImageDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameBn",
+          "scientificName",
+          "slug",
+          "description",
+          "careInstructions",
+          "lightRequirement",
+          "wateringFrequency",
+          "careDifficulty",
+          "isIndoor",
+          "isPetSafe",
+          "matureHeightCm",
+          "tags",
+          "careDetails",
+          "status",
+          "rejectionReason",
+          "minPrice",
+          "maxPrice",
+          "inStock",
+          "ratingAvg",
+          "ratingCount",
+          "soldCount",
+          "viewCount",
+          "publishedAt",
+          "createdAt",
+          "category",
+          "variants",
+          "images"
+        ]
       },
       "CreateProductDto": {
         "type": "object",
@@ -6816,6 +8495,25 @@
             "default": 0
           }
         }
+      },
+      "VariantStockDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "stockQty": {
+            "type": "number"
+          },
+          "lowStockThreshold": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "stockQty",
+          "lowStockThreshold"
+        ]
       },
       "AdjustStockDto": {
         "type": "object",
@@ -7496,6 +9194,458 @@
           "reason"
         ]
       },
+      "SellerOrderItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string"
+          },
+          "variantName": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "lineTotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "commissionRate": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "commissionAmount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderId",
+          "productId",
+          "variantId",
+          "productName",
+          "variantName",
+          "imageUrl",
+          "unitPrice",
+          "quantity",
+          "lineTotal",
+          "commissionRate",
+          "commissionAmount",
+          "createdAt"
+        ]
+      },
+      "SellerOrderStatusHistoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "fromStatus": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "toStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "changedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "changedByRole": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderId",
+          "fromStatus",
+          "toStatus",
+          "changedById",
+          "changedByRole",
+          "note",
+          "createdAt"
+        ]
+      },
+      "SellerOrderPaymentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "PIPRAPAY",
+              "BKASH",
+              "NAGAD",
+              "CARD",
+              "BANK_TRANSFER"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "providerTxnId": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerPayload": {
+            "type": "object",
+            "nullable": true
+          },
+          "paidAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "failedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "failureReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "shopOrderId",
+          "method",
+          "provider",
+          "status",
+          "amount",
+          "currency",
+          "providerTxnId",
+          "providerPayload",
+          "paidAt",
+          "failedAt",
+          "failureReason",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OrderShopRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "SellerOrderRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "PIPRAPAY",
+              "BKASH",
+              "NAGAD",
+              "CARD",
+              "BANK_TRANSFER"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "orderNumber",
+          "customerId",
+          "paymentMethod"
+        ]
+      },
+      "SellerShopOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderNumber": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "subtotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "deliveryCharge": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "total": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "commissionAmount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "sellerNetAmount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "courierName": {
+            "type": "string",
+            "nullable": true
+          },
+          "trackingCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedDeliveryFrom": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "estimatedDeliveryTo": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "sellerNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "packedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "shippedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "deliveredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "cancelledBy": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN",
+              "SYSTEM"
+            ]
+          },
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerOrderItemDto"
+            }
+          },
+          "statusHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerOrderStatusHistoryDto"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerOrderPaymentDto"
+            }
+          },
+          "shop": {
+            "$ref": "#/components/schemas/OrderShopRefDto"
+          },
+          "order": {
+            "$ref": "#/components/schemas/SellerOrderRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderNumber",
+          "orderId",
+          "shopId",
+          "status",
+          "subtotal",
+          "deliveryCharge",
+          "total",
+          "commissionAmount",
+          "sellerNetAmount",
+          "courierName",
+          "trackingCode",
+          "estimatedDeliveryFrom",
+          "estimatedDeliveryTo",
+          "sellerNote",
+          "confirmedAt",
+          "packedAt",
+          "shippedAt",
+          "deliveredAt",
+          "cancelledAt",
+          "cancelledBy",
+          "cancelReason",
+          "createdAt",
+          "updatedAt",
+          "items",
+          "statusHistory",
+          "payments",
+          "shop",
+          "order"
+        ]
+      },
       "TransitionOrderDto": {
         "type": "object",
         "properties": {
@@ -7533,6 +9683,113 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "SellerCancellationShopOrderRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderNumber": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "total": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderNumber",
+          "status",
+          "total"
+        ]
+      },
+      "SellerCancellationRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "requestedById": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "respondedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "responseNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "respondedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "shopOrder": {
+            "$ref": "#/components/schemas/SellerCancellationShopOrderRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderId",
+          "requestedById",
+          "reason",
+          "status",
+          "respondedById",
+          "responseNote",
+          "respondedAt",
+          "createdAt",
+          "shopOrder"
+        ]
+      },
+      "CancellationRespondResultDto": {
+        "type": "object",
+        "properties": {
+          "handled": {
+            "type": "boolean",
+            "example": true
+          },
+          "approved": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "handled",
+          "approved"
         ]
       },
       "RespondCancellationDto": {
@@ -7707,6 +9964,151 @@
           "note"
         ]
       },
+      "SellerLedgerEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ORDER_EARNING",
+              "COD_COMMISSION_DUE",
+              "PAYOUT",
+              "DUES_PAYMENT",
+              "REFUND_REVERSAL",
+              "ADJUSTMENT"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string (positive = owed to seller)"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sellerProfileId",
+          "shopOrderId",
+          "payoutId",
+          "type",
+          "amount",
+          "description",
+          "createdById",
+          "createdAt"
+        ]
+      },
+      "SellerPayoutDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "payoutNumber": {
+            "type": "string"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PROCESSING",
+              "PAID",
+              "FAILED"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "accountMasked": {
+            "type": "string",
+            "nullable": true
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "periodFrom": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "periodTo": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "processedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "processedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "payoutNumber",
+          "sellerProfileId",
+          "amount",
+          "status",
+          "method",
+          "accountMasked",
+          "reference",
+          "note",
+          "periodFrom",
+          "periodTo",
+          "processedById",
+          "processedAt",
+          "createdAt"
+        ]
+      },
       "SellerEarningsDto": {
         "type": "object",
         "properties": {
@@ -7717,13 +10119,13 @@
           "ledger": {
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/SellerLedgerEntryDto"
             }
           },
           "payouts": {
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/SellerPayoutDto"
             }
           }
         },
@@ -7813,6 +10215,195 @@
           }
         }
       },
+      "ReviewImageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reviewId",
+          "url"
+        ]
+      },
+      "ReviewProductRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "SellerReviewListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VISIBLE",
+              "HIDDEN"
+            ]
+          },
+          "sellerReply": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerRepliedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewImageDto"
+            }
+          },
+          "product": {
+            "$ref": "#/components/schemas/ReviewProductRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "shopId",
+          "customerId",
+          "orderItemId",
+          "rating",
+          "title",
+          "comment",
+          "status",
+          "sellerReply",
+          "sellerRepliedAt",
+          "createdAt",
+          "updatedAt",
+          "images",
+          "product"
+        ]
+      },
+      "ReviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VISIBLE",
+              "HIDDEN"
+            ]
+          },
+          "sellerReply": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerRepliedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "shopId",
+          "customerId",
+          "orderItemId",
+          "rating",
+          "title",
+          "comment",
+          "status",
+          "sellerReply",
+          "sellerRepliedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "ReplyReviewDto": {
         "type": "object",
         "properties": {
@@ -7822,6 +10413,54 @@
         },
         "required": [
           "reply"
+        ]
+      },
+      "ReviewReportDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string"
+          },
+          "reporterId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "RESOLVED_HIDDEN",
+              "RESOLVED_KEPT"
+            ]
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "reviewId",
+          "reporterId",
+          "reason",
+          "status",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt"
         ]
       },
       "ReportReviewDto": {
@@ -7897,6 +10536,289 @@
         },
         "required": [
           "body"
+        ]
+      },
+      "ComplaintAttachmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "complaintId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "complaintId",
+          "url",
+          "createdAt"
+        ]
+      },
+      "ComplaintShopRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "SellerComplaintListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SELLER_RESPONDED",
+              "UNDER_REVIEW",
+              "RESOLVED_REFUND",
+              "RESOLVED_REPLACEMENT",
+              "REJECTED",
+              "CLOSED"
+            ]
+          },
+          "resolutionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintAttachmentDto"
+            }
+          },
+          "shop": {
+            "$ref": "#/components/schemas/ComplaintShopRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "shopOrderId",
+          "orderItemId",
+          "customerId",
+          "shopId",
+          "type",
+          "description",
+          "status",
+          "resolutionNote",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "updatedAt",
+          "attachments",
+          "shop"
+        ]
+      },
+      "ComplaintCommentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "complaintId": {
+            "type": "string"
+          },
+          "authorId": {
+            "type": "string"
+          },
+          "authorRole": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN"
+            ]
+          },
+          "body": {
+            "type": "string"
+          },
+          "isInternal": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "complaintId",
+          "authorId",
+          "authorRole",
+          "body",
+          "isInternal",
+          "createdAt"
+        ]
+      },
+      "SellerComplaintDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SELLER_RESPONDED",
+              "UNDER_REVIEW",
+              "RESOLVED_REFUND",
+              "RESOLVED_REPLACEMENT",
+              "REJECTED",
+              "CLOSED"
+            ]
+          },
+          "resolutionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintAttachmentDto"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "shopOrderId",
+          "orderItemId",
+          "customerId",
+          "shopId",
+          "type",
+          "description",
+          "status",
+          "resolutionNote",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "updatedAt",
+          "attachments",
+          "comments"
         ]
       },
       "UpdateComplaintStatusDto": {
@@ -8151,7 +11073,7 @@
           }
         }
       },
-      "AnalyticsOverviewDto": {
+      "AnalyticsResolvedRangeDto": {
         "type": "object",
         "properties": {
           "from": {
@@ -8161,21 +11083,185 @@
           "to": {
             "type": "string",
             "format": "date-time"
-          },
-          "metrics": {
-            "type": "object",
-            "description": "Aggregated metrics (shape varies by audience)"
           }
         },
         "required": [
           "from",
-          "to",
-          "metrics"
+          "to"
+        ]
+      },
+      "SellerAnalyticsTopProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "soldCount": {
+            "type": "number"
+          },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "soldCount",
+          "ratingAvg"
+        ]
+      },
+      "SellerAnalyticsLowStockDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stockQty": {
+            "type": "number"
+          },
+          "lowStockThreshold": {
+            "type": "number"
+          },
+          "product": {
+            "type": "object",
+            "example": {
+              "name": "Monstera Deliciosa"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stockQty",
+          "lowStockThreshold",
+          "product"
+        ]
+      },
+      "SellerAnalyticsRatingDto": {
+        "type": "object",
+        "properties": {
+          "avg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "avg",
+          "count"
+        ]
+      },
+      "SellerAnalyticsDailySeriesDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-10-10"
+          },
+          "orders": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "date",
+          "orders",
+          "revenue"
+        ]
+      },
+      "AnalyticsOverviewDto": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "$ref": "#/components/schemas/AnalyticsResolvedRangeDto"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "ordersByStatus": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "example": {
+              "PENDING": 3,
+              "DELIVERED": 10
+            },
+            "description": "Order counts keyed by OrderStatus"
+          },
+          "deliveredOrders": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "commissionPaid": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "averageOrderValue": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerAnalyticsTopProductDto"
+            }
+          },
+          "lowStock": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerAnalyticsLowStockDto"
+            }
+          },
+          "rating": {
+            "$ref": "#/components/schemas/SellerAnalyticsRatingDto"
+          },
+          "dailySeries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerAnalyticsDailySeriesDto"
+            }
+          }
+        },
+        "required": [
+          "range",
+          "sellerProfileId",
+          "shopId",
+          "ordersByStatus",
+          "deliveredOrders",
+          "revenue",
+          "commissionPaid",
+          "averageOrderValue",
+          "topProducts",
+          "lowStock",
+          "rating",
+          "dailySeries"
         ]
       },
       "SellerDashboardDto": {
         "type": "object",
         "properties": {
+          "sellerProfileId": {
+            "type": "string"
+          },
           "pendingOrders": {
             "type": "number"
           },
@@ -8187,9 +11273,169 @@
           }
         },
         "required": [
+          "sellerProfileId",
           "pendingOrders",
           "unreadNotifications",
           "lowStockVariants"
+        ]
+      },
+      "AdminAnalyticsTopShopDto": {
+        "type": "object",
+        "properties": {
+          "shop": {
+            "type": "object",
+            "nullable": true,
+            "example": {
+              "id": "3f1c9b2e-0000-0000-0000-000000000000",
+              "name": "Green Valley",
+              "slug": "green-valley"
+            }
+          },
+          "total": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "shop",
+          "total"
+        ]
+      },
+      "AdminAnalyticsTopProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "soldCount": {
+            "type": "number"
+          },
+          "shop": {
+            "type": "object",
+            "example": {
+              "name": "Green Valley"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "soldCount",
+          "shop"
+        ]
+      },
+      "AdminAnalyticsTopDistrictDto": {
+        "type": "object",
+        "properties": {
+          "district": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "district",
+          "count"
+        ]
+      },
+      "AdminAnalyticsDailySeriesDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-10-10"
+          },
+          "orders": {
+            "type": "number"
+          },
+          "gmv": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "date",
+          "orders",
+          "gmv"
+        ]
+      },
+      "AdminAnalyticsOverviewDto": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "$ref": "#/components/schemas/AnalyticsResolvedRangeDto"
+          },
+          "gmv": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "orderCount": {
+            "type": "number"
+          },
+          "commissionEarned": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "newCustomers": {
+            "type": "number"
+          },
+          "newSellers": {
+            "type": "number"
+          },
+          "pendingApprovals": {
+            "type": "number"
+          },
+          "cancellationRate": {
+            "type": "number",
+            "description": "Percentage (0-100)"
+          },
+          "complaintRate": {
+            "type": "number",
+            "description": "Percentage (0-100)"
+          },
+          "topShops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsTopShopDto"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsTopProductDto"
+            }
+          },
+          "topDistricts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsTopDistrictDto"
+            }
+          },
+          "dailySeries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsDailySeriesDto"
+            }
+          }
+        },
+        "required": [
+          "range",
+          "gmv",
+          "orderCount",
+          "commissionEarned",
+          "newCustomers",
+          "newSellers",
+          "pendingApprovals",
+          "cancellationRate",
+          "complaintRate",
+          "topShops",
+          "topProducts",
+          "topDistricts",
+          "dailySeries"
         ]
       },
       "CreateAdminUserDto": {

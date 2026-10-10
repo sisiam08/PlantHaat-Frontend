@@ -1447,5 +1447,253 @@
     "goToDashboard": "Dashboard",
     "signedInAs": "Signed in as {name}",
     "storefront": "Storefront"
+  },
+  "static": {
+    "common": {
+      "learnMore": "Learn more",
+      "contactUs": "Contact us",
+      "getStarted": "Get started",
+      "backToHome": "Back to home"
+    },
+    "about": {
+      "metaTitle": "About us",
+      "metaDescription": "PlantHaat is Bangladesh's trusted online marketplace connecting verified nurseries and plant lovers.",
+      "title": "About us",
+      "lead": "PlantHaat is a trusted online marketplace for plant lovers in Bangladesh, where verified nurseries and small growers sell plants directly.",
+      "missionTitle": "Our mission",
+      "missionBody": "We connect buyers with verified sellers across the country to bring greenery into every home — through easy shopping, transparent prices and reliable delivery.",
+      "valuesTitle": "Our values",
+      "values": [
+        {
+          "title": "Trust",
+          "body": "Every seller and nursery is verified so you can shop with confidence."
+        },
+        {
+          "title": "Transparency",
+          "body": "Prices, stock and delivery charges are shown clearly — no hidden costs."
+        },
+        {
+          "title": "Care",
+          "body": "Special packaging and fast delivery so plants arrive safe and healthy."
+        }
+      ],
+      "trustTitle": "Why PlantHaat",
+      "trustBody": "Cash on delivery, plant-safe packaging and nationwide delivery — all in one place.",
+      "ctaTitle": "Find your plant today",
+      "ctaBody": "Pick your favourite from thousands of plants.",
+      "ctaButton": "Browse plants"
+    },
+    "howItWorks": {
+      "metaTitle": "How it works",
+      "metaDescription": "From order to delivery at PlantHaat — the whole process in a few simple steps.",
+      "title": "How it works",
+      "lead": "From choosing a plant to doorstep delivery — in just a few steps.",
+      "steps": [
+        {
+          "title": "Find a plant",
+          "body": "Browse and filter by category, price, light and care needs to find your favourite."
+        },
+        {
+          "title": "Pick a variant",
+          "body": "Compare size, pot and price, then add your chosen variant to the cart."
+        },
+        {
+          "title": "Order with cash on delivery",
+          "body": "Enter your address, confirm the order and pay when the plant arrives."
+        },
+        {
+          "title": "Give it care",
+          "body": "Follow the care guide after delivery to keep your green friend thriving."
+        }
+      ],
+      "buyersTitle": "For buyers",
+      "buyers": [
+        "Shop from verified sellers and nurseries",
+        "Cash on delivery — get the plant first, pay later",
+        "Stock and price are confirmed before delivery",
+        "Review after delivery, and complain if something is wrong"
+      ],
+      "sellersTitle": "For sellers",
+      "sellers": [
+        "Open a shop and sell plants for free",
+        "Set your own delivery zones and charges",
+        "Track orders, stock and earnings in one dashboard",
+        "Get paid with commission on every sale"
+      ],
+      "faqTitle": "Frequently asked questions",
+      "faqs": [
+        {
+          "q": "How long does delivery take?",
+          "a": "Usually 2–5 working days, depending on your district and the seller's delivery zone."
+        },
+        {
+          "q": "How do I pay?",
+          "a": "Cash on delivery only for now — pay when you receive the plant."
+        },
+        {
+          "q": "What if the plant arrives damaged?",
+          "a": "File a complaint with photos within 48 hours of delivery and we will help quickly."
+        },
+        {
+          "q": "Can I cancel or return?",
+          "a": "Orders can be cancelled directly before confirmation; see the refund policy for details."
+        }
+      ],
+      "ctaTitle": "Start buying plants",
+      "ctaButton": "Browse plants"
+    },
+    "sellWithUs": {
+      "metaTitle": "Sell with us",
+      "metaDescription": "Start selling plants online as a nursery or small grower on PlantHaat and reach buyers across Bangladesh.",
+      "title": "Sell with us",
+      "lead": "Bring your nursery or home-grown collection to plant lovers all over the country.",
+      "benefitsTitle": "Why sell on PlantHaat",
+      "benefits": [
+        {
+          "title": "Buyers nationwide",
+          "body": "Reach plant lovers in every district of Bangladesh."
+        },
+        {
+          "title": "Control your delivery",
+          "body": "Set your own delivery zones, charges and timelines."
+        },
+        {
+          "title": "Easy management",
+          "body": "Handle products, stock, orders and reviews from one dashboard."
+        },
+        {
+          "title": "Clear earnings",
+          "body": "See revenue, commission and payments for every sale."
+        }
+      ],
+      "stepsTitle": "How to get started",
+      "steps": [
+        "Create an account and register as a seller",
+        "Add your business and shop details plus required documents",
+        "Set delivery zones and upload your first plant",
+        "Once verified, start taking orders"
+      ],
+      "requirementsTitle": "What you need",
+      "requirements": [
+        "A valid mobile number and email",
+        "Your shop or nursery address",
+        "National ID (and a trade licence if you have one)",
+        "At least one delivery zone and one active plant"
+      ],
+      "ctaTitle": "Become a seller today",
+      "ctaBody": "Registration is completely free. You can start selling after verification.",
+      "ctaButton": "Join as a seller",
+      "ctaSecondary": "Learn more"
+    },
+    "contact": {
+      "metaTitle": "Contact",
+      "metaDescription": "PlantHaat support — phone, email and seller support details.",
+      "title": "Contact",
+      "lead": "Questions, support or feedback — we are here to help.",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email",
+      "hoursLabel": "Support hours",
+      "hoursValue": "Every day, 9:00 AM – 9:00 PM",
+      "addressLabel": "Address",
+      "addressValue": "Dhaka, Bangladesh",
+      "sellerSupportTitle": "Seller support",
+      "sellerSupportBody": "For help with your seller account, delivery zones or payments, get in touch with us.",
+      "sellerSupportCta": "Join as a seller",
+      "helpTitle": "Quick help",
+      "helpBody": "If something is wrong with an order, email us with your order number and photos and we will help quickly."
+    },
+    "policies": {
+      "metaTitle": "Policies",
+      "metaDescription": "PlantHaat terms, privacy, refund and delivery policies.",
+      "updated": "Last updated: October 2026",
+      "terms": {
+        "title": "Terms of service",
+        "intro": "Please read these terms before using PlantHaat.",
+        "sections": [
+          {
+            "title": "Accounts",
+            "body": "Create an account with accurate information and keep your password private. You are responsible for all activity on your account."
+          },
+          {
+            "title": "Orders and pricing",
+            "body": "Prices and stock are shown from the server and verified when an order is confirmed. We may cancel an order before it is confirmed."
+          },
+          {
+            "title": "Seller responsibilities",
+            "body": "Sellers are responsible for accurate information, healthy plants and on-time delivery. No shop is activated without verification."
+          },
+          {
+            "title": "Prohibited activity",
+            "body": "Fraud, false information or selling restricted plants may result in account suspension."
+          }
+        ]
+      },
+      "privacy": {
+        "title": "Privacy policy",
+        "intro": "We respect your personal information and only collect what we need to provide the service.",
+        "sections": [
+          {
+            "title": "Information we collect",
+            "body": "Name, phone, email and address — to process orders and deliver them."
+          },
+          {
+            "title": "How we use it",
+            "body": "To fulfil orders, provide support, prevent fraud and improve the service. We do not sell your data."
+          },
+          {
+            "title": "Cookies",
+            "body": "We use essential cookies to remember your language and keep you signed in."
+          },
+          {
+            "title": "Your rights",
+            "body": "You can request to view, correct or delete your information."
+          }
+        ]
+      },
+      "refundCancellation": {
+        "title": "Refund & cancellation policy",
+        "intro": "We handle refunds and cancellations fairly and transparently.",
+        "sections": [
+          {
+            "title": "Cancelling an order",
+            "body": "Customers can cancel directly while an order is PENDING. Once it is CONFIRMED or PACKED, you can request a cancellation that the seller approves."
+          },
+          {
+            "title": "Damaged or wrong plants",
+            "body": "File a complaint with photos within 48 hours of delivery. After verification we offer a refund or replacement."
+          },
+          {
+            "title": "Refunds",
+            "body": "Approved refunds are returned through the original or an agreed payment method, usually within 3–7 working days."
+          },
+          {
+            "title": "What is not covered",
+            "body": "Plants damaged through customer neglect, or complaints filed long after delivery, are not eligible."
+          }
+        ]
+      },
+      "delivery": {
+        "title": "Delivery policy",
+        "intro": "Plants are delivered carefully all across Bangladesh.",
+        "sections": [
+          {
+            "title": "Delivery time",
+            "body": "Usually 2–5 working days, depending on the district and the seller's delivery zone."
+          },
+          {
+            "title": "Delivery charges",
+            "body": "Charges are set by the seller's delivery zones and shown clearly at checkout."
+          },
+          {
+            "title": "Packaging",
+            "body": "Special packaging is used so plants arrive safe and healthy."
+          },
+          {
+            "title": "If delivery fails",
+            "body": "If you do not receive your plant in the estimated time, tell us with your order number and we will coordinate with the seller."
+          }
+        ]
+      }
+    }
   }
 }

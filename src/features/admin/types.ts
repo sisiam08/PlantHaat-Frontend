@@ -2,7 +2,12 @@
  * Admin console types hand-written from the backend DTOs/services, because the
  * OpenAPI spec has no (or only partial) response schemas for most admin
  * endpoints (see FRONTEND_CONTEXT.md §9 backend change request #6).
+ *
+ * Exception: the analytics overview now has a generated schema, so it is
+ * re-exported from `components["schemas"]["AdminAnalyticsOverviewDto"]`.
  */
+
+import type { components } from "@/lib/api/schema";
 
 export type SellerStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
 export type SellerType = "NURSERY" | "INDIVIDUAL_GROWER" | "RESELLER";
@@ -76,26 +81,7 @@ export type HomepageSectionType =
 
 /* ───────────────────────── Dashboard / analytics ───────────────────────── */
 
-export interface AdminAnalyticsOverview {
-  range: { from: string; to: string };
-  gmv: string | number;
-  orderCount: number;
-  commissionEarned: string | number;
-  newCustomers: number;
-  newSellers: number;
-  pendingApprovals: number;
-  cancellationRate: number;
-  complaintRate: number;
-  topShops: { shop: { id: string; name: string; slug: string } | null; total: string | number }[];
-  topProducts: {
-    id: string;
-    name: string;
-    soldCount: number;
-    shop: { name: string };
-  }[];
-  topDistricts: { district: string; count: number }[];
-  dailySeries: { date: string; orders: number; gmv: string | number }[];
-}
+export type AdminAnalyticsOverview = components["schemas"]["AdminAnalyticsOverviewDto"];
 
 /* ───────────────────────── Sellers ───────────────────────── */
 

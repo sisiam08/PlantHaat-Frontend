@@ -2533,6 +2533,42 @@ export interface components {
             count: number;
         };
         UpdateSettingsDto: Record<string, never>;
+        SellerDocumentDto: {
+            id: string;
+            sellerProfileId: string;
+            /** @enum {string} */
+            type: "NID_FRONT" | "NID_BACK" | "TRADE_LICENSE" | "NURSERY_PHOTO" | "OTHER";
+            fileKey: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerShopRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+        };
+        SellerApplicationDto: {
+            id: string;
+            /** @enum {string} */
+            sellerType: "NURSERY" | "INDIVIDUAL_GROWER" | "RESELLER";
+            businessName: string;
+            contactPhone: string;
+            tradeLicenseNo: string | null;
+            businessAddress: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+            rejectionReason: string | null;
+            /** Format: date-time */
+            submittedAt: string | null;
+            /** Format: date-time */
+            reviewedAt: string | null;
+            /** Format: date-time */
+            verifiedAt: string | null;
+            documents: components["schemas"]["SellerDocumentDto"][];
+            shop: components["schemas"]["SellerShopRefDto"] | null;
+        };
         UpdateApplicationDto: {
             /** @example Green Valley Nursery */
             businessName?: string;
@@ -2551,6 +2587,16 @@ export interface components {
             /** @description Key returned by POST /uploads/documents */
             fileKey: string;
         };
+        SellerPayoutAccountDto: {
+            id: string;
+            /** @enum {string} */
+            method: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+            accountName: string;
+            accountMasked: string;
+            isDefault: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
         CreatePayoutAccountDto: {
             /** @enum {string} */
             method: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
@@ -2560,6 +2606,34 @@ export interface components {
             accountNumber: string;
             /** @example false */
             isDefault?: boolean;
+        };
+        SellerShopDto: {
+            id: string;
+            name: string;
+            slug: string;
+            description: string | null;
+            logoUrl: string | null;
+            bannerUrl: string | null;
+            phone: string | null;
+            district: string | null;
+            address: string | null;
+            /** @description Decimal as string */
+            latitude: string | null;
+            /** @description Decimal as string */
+            longitude: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+            isOnVacation: boolean;
+            /** Format: date-time */
+            vacationUntil: string | null;
+            vacationMessage: string | null;
+            /** @description Decimal as string */
+            ratingAvg: string;
+            ratingCount: number;
+            /** Format: date-time */
+            approvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         UpdateShopDto: {
             /** @example Green Valley Nursery */
@@ -2582,6 +2656,27 @@ export interface components {
             until?: string;
             /** @example Back after Eid */
             message?: string;
+        };
+        DistrictRefDto: {
+            id: number;
+            name: string;
+            nameBn: string;
+            division: string;
+        };
+        DeliveryZoneDto: {
+            id: string;
+            name: string;
+            isNationwide: boolean;
+            /** @description Decimal as string */
+            charge: string;
+            /** @description Decimal as string */
+            freeDeliveryAbove: string | null;
+            estimatedDaysMin: number;
+            estimatedDaysMax: number;
+            isActive: boolean;
+            districts: components["schemas"]["DistrictRefDto"][];
+            /** Format: date-time */
+            createdAt: string;
         };
         CreateDeliveryZoneDto: {
             /** @example Dhaka metro */
@@ -2614,6 +2709,149 @@ export interface components {
             estimatedDaysMin?: number;
             /** @example 3 */
             estimatedDaysMax?: number;
+        };
+        SellerVariantSummaryDto: {
+            id: string;
+            /** @description Decimal as string */
+            price: string;
+            stockQty: number;
+            isActive: boolean;
+        };
+        SellerProductImageSummaryDto: {
+            id: string;
+            url: string;
+            isPrimary: boolean;
+        };
+        SellerProductCategorySummaryDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        SellerProductListItemDto: {
+            id: string;
+            shopId: string;
+            categoryId: string;
+            name: string;
+            nameBn: string | null;
+            slug: string;
+            scientificName: string | null;
+            description: string;
+            careInstructions: string | null;
+            /** @enum {string|null} */
+            lightRequirement: "FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT" | null;
+            /** @enum {string|null} */
+            wateringFrequency: "DAILY" | "EVERY_2_3_DAYS" | "WEEKLY" | "FORTNIGHTLY" | "MINIMAL" | null;
+            /** @enum {string|null} */
+            careDifficulty: "EASY" | "MODERATE" | "HARD" | null;
+            isIndoor: boolean | null;
+            isPetSafe: boolean | null;
+            matureHeightCm: number | null;
+            tags: string[];
+            careDetails: Record<string, never> | null;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_REVIEW" | "ACTIVE" | "INACTIVE" | "REJECTED" | "REMOVED";
+            rejectionReason: string | null;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** @description Decimal as string */
+            minPrice: string | null;
+            /** @description Decimal as string */
+            maxPrice: string | null;
+            inStock: boolean;
+            /** @description Decimal as string */
+            ratingAvg: string;
+            ratingCount: number;
+            soldCount: number;
+            viewCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: string | null;
+            variants: components["schemas"]["SellerVariantSummaryDto"][];
+            images: components["schemas"]["SellerProductImageSummaryDto"][];
+            category: components["schemas"]["SellerProductCategorySummaryDto"];
+        };
+        SellerProductCategoryDto: {
+            id: string;
+            name: string;
+            nameBn: string | null;
+            slug: string;
+        };
+        SellerVariantDto: {
+            id: string;
+            productId: string;
+            sku: string | null;
+            name: string;
+            sizeLabel: string | null;
+            heightCm: number | null;
+            potType: string | null;
+            /** @description Decimal as string */
+            potSizeInch: string | null;
+            /** @description Decimal as string */
+            price: string;
+            /** @description Decimal as string */
+            compareAtPrice: string | null;
+            stockQty: number;
+            lowStockThreshold: number;
+            weightGrams: number | null;
+            isActive: boolean;
+            sortOrder: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SellerProductImageDto: {
+            id: string;
+            productId: string;
+            url: string;
+            altText: string | null;
+            sortOrder: number;
+            isPrimary: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerProductDetailDto: {
+            id: string;
+            name: string;
+            nameBn: string | null;
+            scientificName: string | null;
+            slug: string;
+            description: string;
+            careInstructions: string | null;
+            /** @enum {string|null} */
+            lightRequirement: "FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT" | null;
+            /** @enum {string|null} */
+            wateringFrequency: "DAILY" | "EVERY_2_3_DAYS" | "WEEKLY" | "FORTNIGHTLY" | "MINIMAL" | null;
+            /** @enum {string|null} */
+            careDifficulty: "EASY" | "MODERATE" | "HARD" | null;
+            isIndoor: boolean | null;
+            isPetSafe: boolean | null;
+            matureHeightCm: number | null;
+            tags: string[];
+            careDetails: Record<string, never> | null;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_REVIEW" | "ACTIVE" | "INACTIVE" | "REJECTED" | "REMOVED";
+            rejectionReason: string | null;
+            /** @description Decimal as string */
+            minPrice: string | null;
+            /** @description Decimal as string */
+            maxPrice: string | null;
+            inStock: boolean;
+            /** @description Decimal as string */
+            ratingAvg: string;
+            ratingCount: number;
+            soldCount: number;
+            viewCount: number;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            category: components["schemas"]["SellerProductCategoryDto"];
+            variants: components["schemas"]["SellerVariantDto"][];
+            images: components["schemas"]["SellerProductImageDto"][];
         };
         CreateProductDto: {
             categoryId: string;
@@ -2730,6 +2968,11 @@ export interface components {
             isActive: boolean;
             /** @default 0 */
             sortOrder: number;
+        };
+        VariantStockDto: {
+            id: string;
+            stockQty: number;
+            lowStockThreshold: number;
         };
         AdjustStockDto: {
             /**
@@ -2926,6 +3169,123 @@ export interface components {
             /** @example Changed my mind */
             reason: string;
         };
+        SellerOrderItemDto: {
+            id: string;
+            shopOrderId: string;
+            productId: string | null;
+            variantId: string | null;
+            productName: string;
+            variantName: string;
+            imageUrl: string | null;
+            /** @description Decimal as string */
+            unitPrice: string;
+            quantity: number;
+            /** @description Decimal as string */
+            lineTotal: string;
+            /** @description Decimal as string */
+            commissionRate: string;
+            /** @description Decimal as string */
+            commissionAmount: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerOrderStatusHistoryDto: {
+            id: string;
+            shopOrderId: string;
+            /** @enum {string|null} */
+            fromStatus: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY" | null;
+            /** @enum {string} */
+            toStatus: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            changedById: string | null;
+            /** @enum {string|null} */
+            changedByRole: "CUSTOMER" | "SELLER" | "ADMIN" | null;
+            note: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerOrderPaymentDto: {
+            id: string;
+            orderId: string;
+            shopOrderId: string | null;
+            /** @enum {string} */
+            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            provider: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+            /** @description Decimal as string */
+            amount: string;
+            currency: string;
+            providerTxnId: string | null;
+            providerPayload: Record<string, never> | null;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            failedAt: string | null;
+            failureReason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        OrderShopRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        SellerOrderRefDto: {
+            id: string;
+            orderNumber: string;
+            customerId: string;
+            /** @enum {string} */
+            paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+        };
+        SellerShopOrderDto: {
+            id: string;
+            shopOrderNumber: string;
+            orderId: string;
+            shopId: string;
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            /** @description Decimal as string */
+            subtotal: string;
+            /** @description Decimal as string */
+            deliveryCharge: string;
+            /** @description Decimal as string */
+            total: string;
+            /** @description Decimal as string */
+            commissionAmount: string;
+            /** @description Decimal as string */
+            sellerNetAmount: string;
+            courierName: string | null;
+            trackingCode: string | null;
+            /** Format: date-time */
+            estimatedDeliveryFrom: string | null;
+            /** Format: date-time */
+            estimatedDeliveryTo: string | null;
+            sellerNote: string | null;
+            /** Format: date-time */
+            confirmedAt: string | null;
+            /** Format: date-time */
+            packedAt: string | null;
+            /** Format: date-time */
+            shippedAt: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            /** @enum {string|null} */
+            cancelledBy: "CUSTOMER" | "SELLER" | "ADMIN" | "SYSTEM" | null;
+            cancelReason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            items: components["schemas"]["SellerOrderItemDto"][];
+            statusHistory: components["schemas"]["SellerOrderStatusHistoryDto"][];
+            payments: components["schemas"]["SellerOrderPaymentDto"][];
+            shop: components["schemas"]["OrderShopRefDto"];
+            order: components["schemas"]["SellerOrderRefDto"];
+        };
         TransitionOrderDto: {
             /** @enum {string} */
             status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
@@ -2936,6 +3296,35 @@ export interface components {
             estimatedDeliveryTo?: string;
             /** @description Restock on cancellation (default false) */
             restock?: boolean;
+        };
+        SellerCancellationShopOrderRefDto: {
+            id: string;
+            shopOrderNumber: string;
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            /** @description Decimal as string */
+            total: string;
+        };
+        SellerCancellationRequestDto: {
+            id: string;
+            shopOrderId: string;
+            requestedById: string;
+            reason: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+            respondedById: string | null;
+            responseNote: string | null;
+            /** Format: date-time */
+            respondedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            shopOrder: components["schemas"]["SellerCancellationShopOrderRefDto"];
+        };
+        CancellationRespondResultDto: {
+            /** @example true */
+            handled: boolean;
+            /** @example true */
+            approved: boolean;
         };
         RespondCancellationDto: {
             approve: boolean;
@@ -2992,11 +3381,48 @@ export interface components {
             amount: number;
             note: string;
         };
+        SellerLedgerEntryDto: {
+            id: string;
+            sellerProfileId: string;
+            shopOrderId: string | null;
+            payoutId: string | null;
+            /** @enum {string} */
+            type: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT";
+            /** @description Decimal as string (positive = owed to seller) */
+            amount: string;
+            description: string | null;
+            createdById: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerPayoutDto: {
+            id: string;
+            payoutNumber: string;
+            sellerProfileId: string;
+            /** @description Decimal as string */
+            amount: string;
+            /** @enum {string} */
+            status: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+            /** @enum {string|null} */
+            method: "BKASH" | "NAGAD" | "ROCKET" | "BANK" | null;
+            accountMasked: string | null;
+            reference: string | null;
+            note: string | null;
+            /** Format: date-time */
+            periodFrom: string | null;
+            /** Format: date-time */
+            periodTo: string | null;
+            processedById: string | null;
+            /** Format: date-time */
+            processedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
         SellerEarningsDto: {
             /** @description Decimal as string (positive = owed to seller) */
             balance: string;
-            ledger: Record<string, never>[];
-            payouts: Record<string, never>[];
+            ledger: components["schemas"]["SellerLedgerEntryDto"][];
+            payouts: components["schemas"]["SellerPayoutDto"][];
         };
         RejectRefundDto: {
             note?: string;
@@ -3020,8 +3446,71 @@ export interface components {
             comment?: string;
             images?: string[];
         };
+        ReviewImageDto: {
+            id: string;
+            reviewId: string;
+            url: string;
+        };
+        ReviewProductRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        SellerReviewListItemDto: {
+            id: string;
+            productId: string;
+            shopId: string;
+            customerId: string;
+            orderItemId: string;
+            rating: number;
+            title: string | null;
+            comment: string | null;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            sellerReply: string | null;
+            /** Format: date-time */
+            sellerRepliedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            images: components["schemas"]["ReviewImageDto"][];
+            product: components["schemas"]["ReviewProductRefDto"];
+        };
+        ReviewDto: {
+            id: string;
+            productId: string;
+            shopId: string;
+            customerId: string;
+            orderItemId: string;
+            rating: number;
+            title: string | null;
+            comment: string | null;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            sellerReply: string | null;
+            /** Format: date-time */
+            sellerRepliedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         ReplyReviewDto: {
             reply: string;
+        };
+        ReviewReportDto: {
+            id: string;
+            reviewId: string;
+            reporterId: string;
+            reason: string;
+            /** @enum {string} */
+            status: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         ReportReviewDto: {
             reason: string;
@@ -3042,6 +3531,75 @@ export interface components {
             body: string;
             /** @description Admin-only internal note */
             isInternal?: boolean;
+        };
+        ComplaintAttachmentDto: {
+            id: string;
+            complaintId: string;
+            url: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ComplaintShopRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        SellerComplaintListItemDto: {
+            id: string;
+            ticketNumber: string;
+            shopOrderId: string;
+            orderItemId: string | null;
+            customerId: string;
+            shopId: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+            resolutionNote: string | null;
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attachments: components["schemas"]["ComplaintAttachmentDto"][];
+            shop: components["schemas"]["ComplaintShopRefDto"];
+        };
+        ComplaintCommentResponseDto: {
+            id: string;
+            complaintId: string;
+            authorId: string;
+            /** @enum {string} */
+            authorRole: "CUSTOMER" | "SELLER" | "ADMIN";
+            body: string;
+            isInternal: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerComplaintDetailDto: {
+            id: string;
+            ticketNumber: string;
+            shopOrderId: string;
+            orderItemId: string | null;
+            customerId: string;
+            shopId: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+            resolutionNote: string | null;
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attachments: components["schemas"]["ComplaintAttachmentDto"][];
+            comments: components["schemas"]["ComplaintCommentResponseDto"][];
         };
         UpdateComplaintStatusDto: {
             /** @enum {string} */
@@ -3121,18 +3679,127 @@ export interface components {
             publishedAt?: string;
             expiresAt?: string;
         };
-        AnalyticsOverviewDto: {
+        AnalyticsResolvedRangeDto: {
             /** Format: date-time */
             from: string;
             /** Format: date-time */
             to: string;
-            /** @description Aggregated metrics (shape varies by audience) */
-            metrics: Record<string, never>;
+        };
+        SellerAnalyticsTopProductDto: {
+            id: string;
+            name: string;
+            soldCount: number;
+            /** @description Decimal as string */
+            ratingAvg: string;
+        };
+        SellerAnalyticsLowStockDto: {
+            id: string;
+            name: string;
+            stockQty: number;
+            lowStockThreshold: number;
+            /**
+             * @example {
+             *       "name": "Monstera Deliciosa"
+             *     }
+             */
+            product: Record<string, never>;
+        };
+        SellerAnalyticsRatingDto: {
+            /** @description Decimal as string */
+            avg: string;
+            count: number;
+        };
+        SellerAnalyticsDailySeriesDto: {
+            /** @example 2026-10-10 */
+            date: string;
+            orders: number;
+            /** @description Decimal as string */
+            revenue: string;
+        };
+        AnalyticsOverviewDto: {
+            range: components["schemas"]["AnalyticsResolvedRangeDto"];
+            sellerProfileId: string;
+            shopId: string;
+            /**
+             * @description Order counts keyed by OrderStatus
+             * @example {
+             *       "PENDING": 3,
+             *       "DELIVERED": 10
+             *     }
+             */
+            ordersByStatus: {
+                [key: string]: number;
+            };
+            deliveredOrders: number;
+            /** @description Decimal as string */
+            revenue: string;
+            /** @description Decimal as string */
+            commissionPaid: string;
+            /** @description Decimal as string */
+            averageOrderValue: string;
+            topProducts: components["schemas"]["SellerAnalyticsTopProductDto"][];
+            lowStock: components["schemas"]["SellerAnalyticsLowStockDto"][];
+            rating: components["schemas"]["SellerAnalyticsRatingDto"];
+            dailySeries: components["schemas"]["SellerAnalyticsDailySeriesDto"][];
         };
         SellerDashboardDto: {
+            sellerProfileId: string;
             pendingOrders: number;
             unreadNotifications: number;
             lowStockVariants: number;
+        };
+        AdminAnalyticsTopShopDto: {
+            /**
+             * @example {
+             *       "id": "3f1c9b2e-0000-0000-0000-000000000000",
+             *       "name": "Green Valley",
+             *       "slug": "green-valley"
+             *     }
+             */
+            shop: Record<string, never> | null;
+            /** @description Decimal as string */
+            total: string;
+        };
+        AdminAnalyticsTopProductDto: {
+            id: string;
+            name: string;
+            soldCount: number;
+            /**
+             * @example {
+             *       "name": "Green Valley"
+             *     }
+             */
+            shop: Record<string, never>;
+        };
+        AdminAnalyticsTopDistrictDto: {
+            district: string;
+            count: number;
+        };
+        AdminAnalyticsDailySeriesDto: {
+            /** @example 2026-10-10 */
+            date: string;
+            orders: number;
+            /** @description Decimal as string */
+            gmv: string;
+        };
+        AdminAnalyticsOverviewDto: {
+            range: components["schemas"]["AnalyticsResolvedRangeDto"];
+            /** @description Decimal as string */
+            gmv: string;
+            orderCount: number;
+            /** @description Decimal as string */
+            commissionEarned: string;
+            newCustomers: number;
+            newSellers: number;
+            pendingApprovals: number;
+            /** @description Percentage (0-100) */
+            cancellationRate: number;
+            /** @description Percentage (0-100) */
+            complaintRate: number;
+            topShops: components["schemas"]["AdminAnalyticsTopShopDto"][];
+            topProducts: components["schemas"]["AdminAnalyticsTopProductDto"][];
+            topDistricts: components["schemas"]["AdminAnalyticsTopDistrictDto"][];
+            dailySeries: components["schemas"]["AdminAnalyticsDailySeriesDto"][];
         };
         CreateAdminUserDto: {
             email: string;
@@ -3682,7 +4349,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerApplicationDto"];
+                    };
+                };
             };
         };
     };
@@ -3703,7 +4376,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerApplicationDto"];
+                    };
+                };
             };
         };
     };
@@ -3724,7 +4403,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerDocumentDto"];
+                    };
+                };
             };
         };
     };
@@ -3760,7 +4445,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerApplicationDto"];
+                    };
+                };
             };
         };
     };
@@ -3777,7 +4468,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPayoutAccountDto"][];
+                    };
+                };
             };
         };
     };
@@ -3798,7 +4495,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPayoutAccountDto"];
+                    };
+                };
             };
         };
     };
@@ -3834,7 +4537,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopDto"];
+                    };
+                };
             };
         };
     };
@@ -3855,7 +4564,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopDto"];
+                    };
+                };
             };
         };
     };
@@ -3876,7 +4591,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopDto"];
+                    };
+                };
             };
         };
     };
@@ -3893,7 +4614,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopDto"];
+                    };
+                };
             };
         };
     };
@@ -3910,7 +4637,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["DeliveryZoneDto"][];
+                    };
+                };
             };
         };
     };
@@ -3931,7 +4664,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["DeliveryZoneDto"];
+                    };
+                };
             };
         };
     };
@@ -3973,7 +4712,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["DeliveryZoneDto"];
+                    };
+                };
             };
         };
     };
@@ -3990,7 +4735,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -4011,7 +4763,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4030,7 +4788,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4072,7 +4836,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4095,7 +4865,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4118,7 +4894,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4162,7 +4944,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4185,7 +4973,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["VariantStockDto"];
+                    };
+                };
             };
         };
     };
@@ -4208,7 +5002,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4228,7 +5028,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4252,7 +5058,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerProductDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -4685,7 +5497,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopOrderDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -4708,7 +5527,7 @@ export interface operations {
                     "application/json": {
                         /** @example true */
                         success: boolean;
-                        data: components["schemas"]["OrderDetailDto"];
+                        data: components["schemas"]["SellerShopOrderDto"];
                     };
                 };
             };
@@ -4733,7 +5552,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopOrderDto"];
+                    };
+                };
             };
         };
     };
@@ -4754,7 +5579,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerCancellationRequestDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -4777,7 +5609,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CancellationRespondResultDto"];
+                    };
+                };
             };
         };
     };
@@ -5362,7 +6200,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerReviewListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5385,7 +6230,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewDto"];
+                    };
+                };
             };
         };
     };
@@ -5408,7 +6259,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewReportDto"];
+                    };
+                };
             };
         };
     };
@@ -5594,7 +6451,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerComplaintListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5613,7 +6477,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -5636,7 +6506,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ComplaintCommentResponseDto"];
+                    };
+                };
             };
         };
     };
@@ -6078,7 +6954,7 @@ export interface operations {
                     "application/json": {
                         /** @example true */
                         success: boolean;
-                        data: components["schemas"]["AnalyticsOverviewDto"];
+                        data: components["schemas"]["AdminAnalyticsOverviewDto"];
                     };
                 };
             };

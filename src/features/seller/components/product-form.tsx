@@ -427,7 +427,11 @@ function ImagesCard({ product }: { product: SellerProductView }) {
     setUploading(true);
     try {
       const stored = await uploadsApi.image(file, "product");
-      await sellerApi.addImage(product.id, { url: stored.url, isPrimary: product.images.length === 0 });
+      await sellerApi.addImage(product.id, {
+        url: stored.url,
+        isPrimary: product.images.length === 0,
+        sortOrder: product.images.length,
+      });
       await refresh();
       toast.success(t("imageAdded"));
     } catch (error) {
@@ -691,7 +695,7 @@ function VariantForm({
 
   const save = useMutation({
     mutationFn: () => {
-      const input: UpdateVariantInput = {
+      const base = {
         name: name.trim(),
         price: Number(price),
         compareAtPrice: compareAt.trim() === "" ? undefined : Number(compareAt),
@@ -699,15 +703,14 @@ function VariantForm({
         sizeLabel: sizeLabel.trim() || undefined,
         potType: potType.trim() || undefined,
         isActive,
-      };
+      } satisfies UpdateVariantInput;
       if (variant) {
-        return sellerApi.updateVariant(productId, variant.id, input);
+        return sellerApi.updateVariant(productId, variant.id, base);
       }
       return sellerApi.addVariant(productId, {
-        ...input,
-        name: name.trim(),
-        price: Number(price),
+        ...base,
         stockQty: Number(stock),
+        sortOrder: 0,
       });
     },
     onSuccess: () => {
