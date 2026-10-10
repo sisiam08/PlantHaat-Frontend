@@ -3,10 +3,17 @@ import { getTranslations } from "next-intl/server";
 
 const LINKS = [
   { href: "/seller/dashboard", key: "dashboard" },
-  { href: "/seller/apply", key: "apply" },
+  { href: "/seller/products", key: "products" },
+  { href: "/seller/orders", key: "orders" },
+  { href: "/seller/cancellation-requests", key: "cancellations" },
+  { href: "/seller/reviews", key: "reviews" },
+  { href: "/seller/complaints", key: "complaints" },
+  { href: "/seller/earnings", key: "earnings" },
+  { href: "/seller/analytics", key: "analytics" },
   { href: "/seller/shop", key: "shop" },
   { href: "/seller/delivery-zones", key: "zones" },
   { href: "/seller/payout-accounts", key: "payouts" },
+  { href: "/seller/apply", key: "apply" },
 ] as const;
 
 export async function SellerNav() {
