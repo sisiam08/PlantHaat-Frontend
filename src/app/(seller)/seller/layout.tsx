@@ -1,5 +1,14 @@
 import type { ReactNode } from "react";
 
-export default function SellerLayout({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-dvh flex-1 flex-col bg-background">{children}</div>;
+import { VerificationBanner } from "@/features/auth/components/verification-banner";
+import { requireSession } from "@/server/session";
+
+export default async function SellerLayout({ children }: { children: ReactNode }) {
+  await requireSession(["SELLER", "ADMIN"]);
+  return (
+    <div className="flex min-h-dvh flex-1 flex-col bg-background">
+      <VerificationBanner />
+      {children}
+    </div>
+  );
 }

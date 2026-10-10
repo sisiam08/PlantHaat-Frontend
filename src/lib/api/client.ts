@@ -1,5 +1,6 @@
-import axios, { type AxiosRequestConfig, type AxiosError } from "axios";
+import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 
+import { refreshOnce } from "@/lib/auth/refresh";
 import {
   ApiError,
   isErrorEnvelope,
@@ -21,6 +22,12 @@ export const api = axios.create({
   allowAbsoluteUrls: false,
   paramsSerializer: { indexes: null },
 });
+
+const AUTH_URL_PREFIX = "/auth/";
+
+function isAuthUrl(url: string | undefined): boolean {
+  return typeof url === "string" && url.startsWith(AUTH_URL_PREFIX);
+}
 
 export function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) {
@@ -44,14 +51,33 @@ export function toApiError(error: unknown): ApiError {
   return new ApiError("UNKNOWN", 0, undefined, error instanceof Error ? error.message : undefined);
 }
 
-// Normalize every failed response into an ApiError. Cancellations are re-thrown.
 api.interceptors.response.use(
   (response) => response,
-  (error: unknown) => {
+  async (error: unknown) => {
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }
-    return Promise.reject(toApiError(error));
+
+    const apiError = toApiError(error);
+    const axiosError = error as AxiosError;
+    const config = axiosError.config as AxiosRequestConfig | undefined;
+
+    const shouldRefresh =
+      apiError.status === 401 &&
+      (apiError.code === "TOKEN_EXPIRED" || apiError.code === "UNAUTHENTICATED") &&
+      config !== undefined &&
+      !config._retried &&
+      !isAuthUrl(config.url);
+
+    if (shouldRefresh && config) {
+      config._retried = true;
+      const refreshed = await refreshOnce();
+      if (refreshed) {
+        return api.request(config);
+      }
+    }
+
+    return Promise.reject(apiError);
   },
 );
 

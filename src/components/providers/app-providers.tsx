@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/features/auth/auth-provider";
 import { QueryProvider } from "./query-provider";
 
 export function AppProviders({
@@ -19,10 +20,12 @@ export function AppProviders({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryProvider>
-        <TooltipProvider delayDuration={200}>
-          {children}
-          <Toaster position="top-center" richColors />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider delayDuration={200}>
+            {children}
+            <Toaster position="top-center" richColors />
+          </TooltipProvider>
+        </AuthProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );
