@@ -111,7 +111,6 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
 export const config = {
   matcher: [
-    "/cart/:path*",
     "/checkout/:path*",
     "/orders/:path*",
     "/account/:path*",

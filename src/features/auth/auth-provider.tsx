@@ -15,6 +15,7 @@ import {
 
 import { queryKeys } from "@/lib/api/query-keys";
 import type { PublicUser, Role } from "@/lib/api/types";
+import { mergeGuestCart } from "@/features/cart/merge";
 import { broadcastAuth, subscribeAuth } from "@/lib/auth/broadcast";
 import { refreshOnce } from "@/lib/auth/refresh";
 import { authApi, type LoginInput, type RegisterInput, type RegisterSellerInput } from "./api";
@@ -113,37 +114,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [clearSession, queryClient]);
 
+  const onAuthenticated = useCallback(
+    async (user: PublicUser, accessTokenExpiresAt: number) => {
+      applySession(user, accessTokenExpiresAt);
+      try {
+        await mergeGuestCart();
+      } catch {
+        // Guest-cart merge is best-effort; a failure must not block login.
+      }
+      broadcastAuth("refresh");
+      router.refresh();
+      return user;
+    },
+    [applySession, router],
+  );
+
   const login = useCallback(
     async (input: LoginInput) => {
       const session = await authApi.login(input);
-      applySession(session.user, session.accessTokenExpiresAt);
-      broadcastAuth("refresh");
-      router.refresh();
-      return session.user;
+      return onAuthenticated(session.user, session.accessTokenExpiresAt);
     },
-    [applySession, router],
+    [onAuthenticated],
   );
 
   const register = useCallback(
     async (input: RegisterInput) => {
       const session = await authApi.register(input);
-      applySession(session.user, session.accessTokenExpiresAt);
-      broadcastAuth("refresh");
-      router.refresh();
-      return session.user;
+      return onAuthenticated(session.user, session.accessTokenExpiresAt);
     },
-    [applySession, router],
+    [onAuthenticated],
   );
 
   const registerSeller = useCallback(
     async (input: RegisterSellerInput) => {
       const session = await authApi.registerSeller(input);
-      applySession(session.user, session.accessTokenExpiresAt);
-      broadcastAuth("refresh");
-      router.refresh();
-      return session.user;
+      return onAuthenticated(session.user, session.accessTokenExpiresAt);
     },
-    [applySession, router],
+    [onAuthenticated],
   );
 
   const logout = useCallback(async () => {

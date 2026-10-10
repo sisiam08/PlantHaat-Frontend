@@ -138,7 +138,15 @@ export default async function ProductPage({
           <StarRating value={product.ratingAvg} count={product.ratingCount} />
         </div>
 
-        <VariantPicker variants={variants} locale={locale} />
+        <VariantPicker
+          variants={variants}
+          product={{
+            productName: product.name,
+            slug: product.slug,
+            imageUrl: images[0]?.url ?? null,
+            shopName: shop.name,
+          }}
+        />
 
         <Separator />
 

@@ -177,5 +177,75 @@
   "home": {
     "newArrivals": "নতুন এসেছে",
     "featured": "ফিচারড"
+  },
+  "cart": {
+    "title": "কার্ট",
+    "empty": "আপনার কার্ট খালি।",
+    "emptyHint": "পছন্দের গাছ যোগ করুন।",
+    "continueShopping": "গাছ দেখুন",
+    "subtotal": "সাবটোটাল",
+    "delivery": "ডেলিভারি চার্জ",
+    "grandTotal": "সর্বমোট",
+    "checkout": "চেকআউট করুন",
+    "loginToCheckout": "চেকআউট করতে লগ ইন করুন",
+    "guestNote": "কার্টে যোগ করা হয়েছে। দাম ও স্টক লগ ইন করার সময় নিশ্চিত হবে।",
+    "remove": "সরান",
+    "added": "কার্টে যোগ হয়েছে।",
+    "addFailed": "কার্টে যোগ করা যায়নি।",
+    "resolveIssues": "প্রথমে সমস্যাগুলো ঠিক করুন।",
+    "issues": {
+      "OUT_OF_STOCK": "স্টকে নেই",
+      "INSUFFICIENT_STOCK": "পর্যাপ্ত স্টক নেই",
+      "PRODUCT_UNAVAILABLE": "পণ্যটি এখন পাওয়া যাচ্ছে না",
+      "VARIANT_UNAVAILABLE": "এই ভেরিয়েন্টটি এখন পাওয়া যাচ্ছে না",
+      "SHOP_UNAVAILABLE": "দোকানটি এখন পাওয়া যাচ্ছে না",
+      "SHOP_ON_VACATION": "দোকানটি এখন ছুটিতে"
+    }
+  },
+  "checkout": {
+    "title": "চেকআউট",
+    "address": "ডেলিভারি ঠিকানা",
+    "addNewAddress": "নতুন ঠিকানা যোগ করুন",
+    "recipientName": "প্রাপকের নাম",
+    "phone": "মোবাইল নম্বর",
+    "district": "জেলা",
+    "area": "এলাকা",
+    "addressLine": "বিস্তারিত ঠিকানা",
+    "postalCode": "পোস্ট কোড",
+    "saveAddress": "ঠিকানা সংরক্ষণ করুন",
+    "payment": "পেমেন্ট",
+    "cod": "ক্যাশ অন ডেলিভারি",
+    "codNote": "পণ্য হাতে পেয়ে নগদ পরিশোধ করুন।",
+    "summary": "সারসংক্ষেপ",
+    "delivery": "ডেলিভারি",
+    "total": "সর্বমোট",
+    "placeOrder": "অর্ডার নিশ্চিত করুন",
+    "submitting": "অর্ডার দেওয়া হচ্ছে…",
+    "backToCart": "কার্টে ফিরে যান",
+    "orderPlaced": "অর্ডার সফল হয়েছে।"
+  },
+  "orders": {
+    "title": "আমার অর্ডার",
+    "empty": "কোনো অর্ডার নেই।",
+    "startShopping": "কেনাকাটা শুরু করুন",
+    "viewDetails": "বিস্তারিত",
+    "delivery": "ডেলিভারি চার্জ",
+    "total": "সর্বমোট",
+    "cancel": "অর্ডার বাতিল করুন",
+    "cancelConfirm": "আপনি কি নিশ্চিত এই অর্ডারটি বাতিল করতে চান?",
+    "cancelConfirmNo": "না",
+    "cancellationRequest": "বাতিলের অনুরোধ",
+    "cancellationReason": "বাতিলের কারণ",
+    "submitCancellation": "অনুরোধ পাঠান",
+    "cancellationRequested": "বাতিলের অনুরোধ পাঠানো হয়েছে।",
+    "status": {
+      "PENDING": "অপেক্ষমাণ",
+      "CONFIRMED": "নিশ্চিত",
+      "PACKED": "প্যাক হয়েছে",
+      "SHIPPED": "পাঠানো হয়েছে",
+      "DELIVERED": "ডেলিভার হয়েছে",
+      "CANCELLED": "বাতিল",
+      "FAILED_DELIVERY": "ডেলিভারি ব্যর্থ"
+    }
   }
 }

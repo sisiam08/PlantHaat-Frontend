@@ -177,5 +177,75 @@
   "home": {
     "newArrivals": "New arrivals",
     "featured": "Featured"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "emptyHint": "Add some plants to get started.",
+    "continueShopping": "Browse plants",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery",
+    "grandTotal": "Total",
+    "checkout": "Checkout",
+    "loginToCheckout": "Log in to checkout",
+    "guestNote": "Log in to save your cart; prices and stock are confirmed after login.",
+    "remove": "Remove",
+    "added": "Added to cart",
+    "addFailed": "Could not add to cart",
+    "resolveIssues": "Resolve the issues before checking out",
+    "issues": {
+      "OUT_OF_STOCK": "Out of stock",
+      "INSUFFICIENT_STOCK": "Not enough stock",
+      "PRODUCT_UNAVAILABLE": "This product is unavailable",
+      "SHOP_UNAVAILABLE": "This shop is unavailable",
+      "SHOP_ON_VACATION": "This shop is on vacation",
+      "VARIANT_UNAVAILABLE": "This variant is unavailable"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "address": "Delivery address",
+    "addNewAddress": "Add new address",
+    "recipientName": "Recipient name",
+    "phone": "Mobile number",
+    "district": "District",
+    "area": "Area",
+    "addressLine": "Address line",
+    "postalCode": "Postal code",
+    "saveAddress": "Save address",
+    "payment": "Payment",
+    "cod": "Cash on delivery",
+    "codNote": "Pay in cash when the order is delivered.",
+    "summary": "Order summary",
+    "delivery": "Delivery",
+    "total": "Total",
+    "placeOrder": "Place order",
+    "submitting": "Placing order…",
+    "backToCart": "Back to cart",
+    "orderPlaced": "Order placed"
+  },
+  "orders": {
+    "title": "My orders",
+    "empty": "No orders yet",
+    "startShopping": "Browse plants",
+    "viewDetails": "View details",
+    "cancel": "Cancel order",
+    "cancelConfirm": "Are you sure you want to cancel this order?",
+    "cancelConfirmNo": "No",
+    "cancellationRequest": "Request cancellation",
+    "cancellationReason": "Reason",
+    "submitCancellation": "Send request",
+    "cancellationRequested": "Cancellation requested",
+    "delivery": "Delivery",
+    "total": "Total",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PACKED": "Packed",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "FAILED_DELIVERY": "Failed delivery"
+    }
   }
 }
