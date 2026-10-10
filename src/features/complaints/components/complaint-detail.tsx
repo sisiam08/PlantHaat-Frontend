@@ -71,6 +71,31 @@ export function ComplaintDetail({ id }: { id: string }) {
         </CardContent>
       </Card>
 
+      {(complaint.attachments ?? []).length > 0 ? (
+        <section className="grid gap-2">
+          <h2 className="text-lg font-semibold">{t("attachmentsTitle")}</h2>
+          <div className="flex flex-wrap gap-2">
+            {(complaint.attachments ?? []).map((attachment) => (
+              <a
+                key={attachment.url}
+                href={attachment.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block size-24 overflow-hidden rounded-xl border border-border/60"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={attachment.url}
+                  alt=""
+                  className="size-full object-cover"
+                  loading="lazy"
+                />
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="grid gap-3">
         <h2 className="text-lg font-semibold">{t("conversation")}</h2>
         {(complaint.comments ?? []).length === 0 ? (

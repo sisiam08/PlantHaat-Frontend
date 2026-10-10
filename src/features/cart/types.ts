@@ -24,6 +24,8 @@ export interface CartShopView {
   items: CartItemView[];
   subtotal: string;
   deliveryCharge: string | null;
+  /** Present when the cart API returns the zone's free-delivery threshold. */
+  freeDeliveryAbove?: string | null;
 }
 
 export interface CartView {

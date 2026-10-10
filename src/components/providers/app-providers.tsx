@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/features/auth/auth-provider";
+import { RealtimeBridge } from "@/features/realtime/realtime-bridge";
 import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
 
@@ -28,6 +29,7 @@ export function AppProviders({
       <NextIntlClientProvider locale={locale} messages={messages}>
         <QueryProvider>
           <AuthProvider>
+            <RealtimeBridge />
             <TooltipProvider delayDuration={200}>
               {children}
               <Toaster position="top-center" richColors />

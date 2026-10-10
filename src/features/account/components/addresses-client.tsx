@@ -27,7 +27,7 @@ export function AddressesClient() {
   const list = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
-    queryFn: () => apiGet<District[]>("/catalog/districts").then((result) => result.data),
+    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
     staleTime: 60 * 60 * 1000,
   });
 

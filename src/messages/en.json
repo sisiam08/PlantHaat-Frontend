@@ -88,7 +88,8 @@
     "DELIVERY_ZONE_CONFLICT": "A selected district is already covered by another active zone.",
     "UPLOAD_INVALID_TYPE": "That file type is not allowed.",
     "UPLOAD_TOO_LARGE": "The file is too large.",
-    "EMAIL_ALREADY_VERIFIED": "Your email is already verified."
+    "EMAIL_ALREADY_VERIFIED": "Your email is already verified.",
+    "COMPLAINT_ATTACHMENT_REQUIRED": "Add at least one photo for this complaint type."
   },
   "auth": {
     "email": "Email",
@@ -182,7 +183,21 @@
     "comingSoon": "Coming soon",
     "outOfStock": "Out of stock",
     "inStock": "{count} in stock",
-    "care": "Care",
+    "care": {
+      "FULL_SUN": "Full sun",
+      "PARTIAL_SHADE": "Partial shade",
+      "SHADE": "Shade",
+      "BRIGHT_INDIRECT": "Bright indirect",
+      "LOW_LIGHT": "Low light",
+      "DAILY": "Daily",
+      "EVERY_2_3_DAYS": "Every 2–3 days",
+      "WEEKLY": "Weekly",
+      "FORTNIGHTLY": "Fortnightly",
+      "MINIMAL": "Minimal",
+      "EASY": "Easy",
+      "MODERATE": "Moderate",
+      "HARD": "Hard"
+    },
     "light": "Light",
     "watering": "Watering",
     "difficulty": "Difficulty",
@@ -197,7 +212,8 @@
     "verified": "Verified seller",
     "deliveryTitle": "Delivery",
     "deliveryBody": "2–5 days depending on district; cash on delivery available.",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "careTitle": "Care"
   },
   "shop": {
     "title": "Shop",
@@ -251,6 +267,14 @@
       "SHOP_UNAVAILABLE": "This shop is unavailable",
       "SHOP_ON_VACATION": "This shop is on vacation",
       "VARIANT_UNAVAILABLE": "This variant is unavailable"
+    },
+    "deliveryDistrict": "Delivery district",
+    "selectDistrict": "Select a district",
+    "districtHint": "Choose a district to estimate delivery charges.",
+    "notDelivering": "This shop does not deliver to this district.",
+    "freeDelivery": {
+      "remaining": "{count, plural, =0 {Free delivery unlocked} one {{amount} away from free delivery} other {{amount} away from free delivery}}",
+      "progress": "{percent}% of the way to free delivery"
     }
   },
   "checkout": {
@@ -366,7 +390,16 @@
     "comment": "Comment",
     "submit": "Submit review",
     "submitted": "Thanks for your review",
-    "sellerReplied": "Seller replied"
+    "sellerReplied": "Seller replied",
+    "edit": "Edit",
+    "delete": "Delete",
+    "editTitle": "Edit your review",
+    "deleteTitle": "Delete this review?",
+    "deleteDescription": "This review will be permanently removed. This cannot be undone.",
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "updated": "Review updated",
+    "deleted": "Review deleted"
   },
   "complaints": {
     "title": "Complaints",
@@ -404,7 +437,16 @@
       "NOT_DELIVERED": "Not delivered",
       "LATE_DELIVERY": "Late delivery",
       "OTHER": "Other"
-    }
+    },
+    "attachmentsTitle": "Attached photos",
+    "attachments": "Photos",
+    "attachmentsHint": "Add up to 5 photos (JPG or PNG, max 5 MB each).",
+    "attachmentsRequired": "At least one photo is required for this complaint type.",
+    "addPhoto": "Add photo",
+    "uploading": "Uploading…",
+    "removePhoto": "Remove photo",
+    "uploadInvalid": "Only image files are allowed.",
+    "uploadTooLarge": "Each photo must be 5 MB or smaller."
   },
   "seller": {
     "nav": {

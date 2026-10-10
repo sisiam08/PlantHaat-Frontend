@@ -4,17 +4,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/auth-provider";
+import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
+import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 import { cartApi } from "../api";
 import { removeGuestLine, setGuestQuantity } from "../guest-cart";
-import type { CartItemView, CartView } from "../types";
+import type { CartItemView, CartShopView, CartView } from "../types";
 import { useGuestCart } from "../use-guest-cart";
 
 export function CartClient() {
@@ -74,16 +78,26 @@ function ServerCart() {
   const t = useTranslations("cart");
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const cart = useQuery({ queryKey: queryKeys.cart, queryFn: () => cartApi.get() });
+  const [districtId, setDistrictId] = useState<number | "">("");
+
+  const cartKey = [...queryKeys.cart, districtId === "" ? 0 : districtId];
+  const cart = useQuery({
+    queryKey: cartKey,
+    queryFn: () => cartApi.get(districtId === "" ? undefined : districtId),
+  });
+  const districts = useQuery({
+    queryKey: queryKeys.catalog.districts,
+    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
+  });
 
   const update = useMutation({
     mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number }) =>
       quantity <= 0 ? cartApi.removeItem(variantId) : cartApi.putItem(variantId, quantity),
-    onSuccess: (data: CartView) => queryClient.setQueryData(queryKeys.cart, data),
+    onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
   });
   const remove = useMutation({
     mutationFn: (variantId: string) => cartApi.removeItem(variantId),
-    onSuccess: (data: CartView) => queryClient.setQueryData(queryKeys.cart, data),
+    onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
   });
 
   if (cart.isLoading) {
@@ -95,30 +109,89 @@ function ServerCart() {
 
   const view = cart.data;
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <div className="grid gap-4">
-        {view.shops.map((shop) => (
-          <Card key={shop.shopId} className="rounded-2xl">
-            <CardContent className="grid gap-3">
-              <Link href={`/shops/${shop.shopSlug}`} className="font-semibold hover:underline">
-                {shop.shopName}
-              </Link>
-              {shop.items.map((item) => (
-                <CartLine
-                  key={item.variantId}
-                  item={item}
-                  locale={locale}
-                  onQuantity={(next) => update.mutate({ variantId: item.variantId, quantity: next })}
-                  onRemove={() => remove.mutate(item.variantId)}
-                  issueLabel={(code) => t(`issues.${code}`)}
-                  removeLabel={t("remove")}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+    <div className="grid gap-4">
+      <div className="grid gap-1.5 sm:max-w-xs">
+        <Label htmlFor="cart-district">{t("deliveryDistrict")}</Label>
+        <select
+          id="cart-district"
+          value={districtId}
+          onChange={(event) =>
+            setDistrictId(event.target.value === "" ? "" : Number(event.target.value))
+          }
+          className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+        >
+          <option value="">{t("selectDistrict")}</option>
+          {(districts.data ?? []).map((district) => (
+            <option key={district.id} value={district.id}>
+              {locale === "bn" ? district.nameBn : district.name}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground">{t("districtHint")}</p>
       </div>
-      <CartSummary view={view} locale={locale} />
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="grid gap-4">
+          {view.shops.map((shop) => (
+            <Card key={shop.shopId} className="rounded-2xl">
+              <CardContent className="grid gap-3">
+                <Link href={`/shops/${shop.shopSlug}`} className="font-semibold hover:underline">
+                  {shop.shopName}
+                </Link>
+                {districtId !== "" && shop.deliveryCharge === null ? (
+                  <p className="text-xs text-destructive">{t("notDelivering")}</p>
+                ) : null}
+                <FreeDeliveryProgress shop={shop} locale={locale} />
+                {shop.items.map((item) => (
+                  <CartLine
+                    key={item.variantId}
+                    item={item}
+                    locale={locale}
+                    onQuantity={(next) =>
+                      update.mutate({ variantId: item.variantId, quantity: next })
+                    }
+                    onRemove={() => remove.mutate(item.variantId)}
+                    issueLabel={(code) => t(`issues.${code}`)}
+                    removeLabel={t("remove")}
+                  />
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <CartSummary view={view} locale={locale} />
+      </div>
+    </div>
+  );
+}
+
+function FreeDeliveryProgress({ shop, locale }: { shop: CartShopView; locale: string }) {
+  const t = useTranslations("cart");
+  if (shop.freeDeliveryAbove === null || shop.freeDeliveryAbove === undefined) {
+    return null;
+  }
+  const threshold = Number(shop.freeDeliveryAbove);
+  const subtotal = Number(shop.subtotal);
+  if (!Number.isFinite(threshold) || threshold <= 0 || !Number.isFinite(subtotal)) {
+    return null;
+  }
+  const remaining = Math.max(0, threshold - subtotal);
+  const percent = Math.min(100, Math.round((subtotal / threshold) * 100));
+
+  return (
+    <div className="grid gap-1">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-primary transition-[width]"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {t("freeDelivery.remaining", {
+          count: Math.ceil(remaining),
+          amount: formatBdt(remaining, locale),
+        })}
+      </p>
     </div>
   );
 }

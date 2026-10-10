@@ -40,16 +40,6 @@ interface DetailShop {
   isOnVacation?: boolean;
 }
 
-function humanize(value: string | null | undefined): string {
-  if (!value) {
-    return "—";
-  }
-  return value
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -86,10 +76,13 @@ export default async function ProductPage({
   const variants = product.variants as unknown as (VariantView & { sizeLabel?: string | null })[];
   const shop = product.shop as unknown as DetailShop;
 
+  const careLabel = (value: string | null | undefined): string =>
+    value ? t(`care.${value}`) : "—";
+
   const careItems = [
-    { icon: Sun, label: t("light"), value: humanize(product.lightRequirement) },
-    { icon: Droplets, label: t("watering"), value: humanize(product.wateringFrequency) },
-    { icon: Gauge, label: t("difficulty"), value: humanize(product.careDifficulty) },
+    { icon: Sun, label: t("light"), value: careLabel(product.lightRequirement) },
+    { icon: Droplets, label: t("watering"), value: careLabel(product.wateringFrequency) },
+    { icon: Gauge, label: t("difficulty"), value: careLabel(product.careDifficulty) },
     { icon: Home, label: t("indoor"), value: product.isIndoor ? "✓" : "—" },
     { icon: PawPrint, label: t("petSafe"), value: product.isPetSafe ? "✓" : "—" },
     {
@@ -205,7 +198,7 @@ export default async function ProductPage({
         </section>
 
         <section className="grid content-start gap-3">
-          <h2 className="font-heading text-xl font-semibold">{t("care")}</h2>
+          <h2 className="font-heading text-xl font-semibold">{t("careTitle")}</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {careItems.map((item) => (
               <div

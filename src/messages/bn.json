@@ -88,7 +88,8 @@
     "DELIVERY_ZONE_CONFLICT": "নির্বাচিত জেলা ইতিমধ্যে অন্য একটি সক্রিয় এলাকায় আছে।",
     "UPLOAD_INVALID_TYPE": "শুধু নির্দিষ্ট ফাইল ধরন অনুমোদিত।",
     "UPLOAD_TOO_LARGE": "ফাইলটি খুব বড়।",
-    "EMAIL_ALREADY_VERIFIED": "আপনার ইমেইল ইতিমধ্যে যাচাইকৃত।"
+    "EMAIL_ALREADY_VERIFIED": "আপনার ইমেইল ইতিমধ্যে যাচাইকৃত।",
+    "COMPLAINT_ATTACHMENT_REQUIRED": "এই ধরনের অভিযোগের জন্য অন্তত একটি ছবি দিন।"
   },
   "auth": {
     "email": "ইমেইল",
@@ -182,7 +183,21 @@
     "comingSoon": "শীঘ্রই আসছে",
     "outOfStock": "স্টকে নেই",
     "inStock": "{count}টি স্টকে",
-    "care": "পরিচর্যা",
+    "care": {
+      "FULL_SUN": "পূর্ণ রোদ",
+      "PARTIAL_SHADE": "আংশিক ছায়া",
+      "SHADE": "ছায়া",
+      "BRIGHT_INDIRECT": "উজ্জ্বল পরোক্ষ আলো",
+      "LOW_LIGHT": "কম আলো",
+      "DAILY": "প্রতিদিন",
+      "EVERY_2_3_DAYS": "প্রতি ২–৩ দিনে",
+      "WEEKLY": "সপ্তাহে একবার",
+      "FORTNIGHTLY": "দুই সপ্তাহে একবার",
+      "MINIMAL": "খুব কম",
+      "EASY": "সহজ",
+      "MODERATE": "মাঝারি",
+      "HARD": "কঠিন"
+    },
     "light": "আলো",
     "watering": "পানি",
     "difficulty": "কঠিনতা",
@@ -197,7 +212,8 @@
     "verified": "যাচাইকৃত বিক্রেতা",
     "deliveryTitle": "ডেলিভারি",
     "deliveryBody": "জেলা অনুযায়ী ২–৫ দিন; ক্যাশ অন ডেলিভারি উপলব্ধ।",
-    "gallery": "ছবি"
+    "gallery": "ছবি",
+    "careTitle": "পরিচর্যা"
   },
   "shop": {
     "title": "দোকান",
@@ -251,6 +267,14 @@
       "VARIANT_UNAVAILABLE": "এই ভেরিয়েন্টটি এখন পাওয়া যাচ্ছে না",
       "SHOP_UNAVAILABLE": "দোকানটি এখন পাওয়া যাচ্ছে না",
       "SHOP_ON_VACATION": "দোকানটি এখন ছুটিতে"
+    },
+    "deliveryDistrict": "ডেলিভারি জেলা",
+    "selectDistrict": "জেলা নির্বাচন করুন",
+    "districtHint": "ডেলিভারি চার্জ অনুমানের জন্য জেলা বাছাই করুন।",
+    "notDelivering": "এই দোকান এই জেলায় ডেলিভারি দেয় না।",
+    "freeDelivery": {
+      "remaining": "{count, plural, =0 {ফ্রি ডেলিভারি চালু হয়েছে} one {ফ্রি ডেলিভারির জন্য আরও {amount}} other {ফ্রি ডেলিভারির জন্য আরও {amount}}}",
+      "progress": "ফ্রি ডেলিভারির {percent}% পথ পেরিয়েছেন"
     }
   },
   "checkout": {
@@ -366,7 +390,16 @@
     "comment": "মন্তব্য",
     "submit": "রিভিউ পাঠান",
     "submitted": "রিভিউয়ের জন্য ধন্যবাদ",
-    "sellerReplied": "বিক্রেতার জবাব"
+    "sellerReplied": "বিক্রেতার জবাব",
+    "edit": "সম্পাদনা",
+    "delete": "মুছে ফেলুন",
+    "editTitle": "আপনার রিভিউ সম্পাদনা করুন",
+    "deleteTitle": "রিভিউটি মুছে ফেলবেন?",
+    "deleteDescription": "রিভিউটি স্থায়ীভাবে মুছে যাবে। এটি ফিরিয়ে আনা যাবে না।",
+    "cancel": "বাতিল",
+    "save": "পরিবর্তন সংরক্ষণ",
+    "updated": "রিভিউ হালনাগাদ হয়েছে",
+    "deleted": "রিভিউ মুছে ফেলা হয়েছে"
   },
   "complaints": {
     "title": "অভিযোগ",
@@ -404,7 +437,16 @@
       "NOT_DELIVERED": "ডেলিভারি হয়নি",
       "LATE_DELIVERY": "বিলম্বিত ডেলিভারি",
       "OTHER": "অন্যান্য"
-    }
+    },
+    "attachmentsTitle": "সংযুক্ত ছবি",
+    "attachments": "ছবি",
+    "attachmentsHint": "সর্বোচ্চ ৫টি ছবি (JPG বা PNG, প্রতিটি সর্বোচ্চ ৫ MB)।",
+    "attachmentsRequired": "এই ধরনের অভিযোগের জন্য অন্তত একটি ছবি প্রয়োজন।",
+    "addPhoto": "ছবি যোগ করুন",
+    "uploading": "আপলোড হচ্ছে…",
+    "removePhoto": "ছবি সরান",
+    "uploadInvalid": "শুধু ছবি ফাইল অনুমোদিত।",
+    "uploadTooLarge": "প্রতিটি ছবি ৫ MB বা কম হতে হবে।"
   },
   "seller": {
     "nav": {
