@@ -1,8 +1,10 @@
 import "server-only";
 
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { serverEnv, siteOrigins } from "@/env/server";
+import { tagsForMutation } from "../cache-tags";
 import { accessTokenExpiresAt } from "../jwt";
 import { refreshSession } from "../refresh";
 import { applyBackendSetCookies, authCookieOptions } from "../cookies";
@@ -156,6 +158,13 @@ export async function handleGatewayRequest(
   // Auth/mutation responses must never be cached by shared caches.
   if (isAuthPath || method !== "GET") {
     response.headers.set("Cache-Control", "private, no-store");
+  }
+
+  // Invalidate cached catalog data after a successful mutation.
+  if (method !== "GET" && upstream.status < 400) {
+    for (const tag of tagsForMutation(path, method)) {
+      revalidateTag(tag, "max");
+    }
   }
 
   return response;

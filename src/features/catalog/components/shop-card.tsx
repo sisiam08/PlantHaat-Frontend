@@ -1,0 +1,45 @@
+import { Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+import { Card } from "@/components/ui/card";
+
+export interface ShopCardData {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+  district?: string | null;
+  ratingAvg?: string | number | null;
+  ratingCount?: number | null;
+  productCount?: number | null;
+}
+
+export function ShopCard({ shop }: { shop: ShopCardData }) {
+  return (
+    <Card className="rounded-2xl p-0 transition-shadow hover:shadow-md">
+      <Link href={`/shops/${shop.slug}`} className="flex items-center gap-4 p-4">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-muted/40">
+          {shop.logoUrl ? (
+            <Image src={shop.logoUrl} alt={shop.name} fill sizes="64px" className="object-cover" />
+          ) : null}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate font-medium">{shop.name}</p>
+          {shop.district ? (
+            <p className="text-xs text-muted-foreground">{shop.district}</p>
+          ) : null}
+          <p className="mt-1 inline-flex items-center gap-1 text-sm">
+            <Star aria-hidden className="size-3.5 fill-cta text-cta" />
+            {Number(shop.ratingAvg ?? 0).toFixed(1)}
+            {typeof shop.productCount === "number" ? (
+              <span className="ml-2 text-xs text-muted-foreground">
+                {shop.productCount}
+              </span>
+            ) : null}
+          </p>
+        </div>
+      </Link>
+    </Card>
+  );
+}
