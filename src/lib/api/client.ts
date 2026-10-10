@@ -1,0 +1,76 @@
+import axios, { type AxiosRequestConfig, type AxiosError } from "axios";
+
+import {
+  ApiError,
+  isErrorEnvelope,
+  unwrap,
+  type ApiResult,
+  type SuccessEnvelope,
+} from "./common";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    /** Internal flag used by the refresh interceptor to retry a request once. */
+    _retried?: boolean;
+  }
+}
+
+export const api = axios.create({
+  baseURL: "/api/v1",
+  timeout: 15000,
+  allowAbsoluteUrls: false,
+  paramsSerializer: { indexes: null },
+});
+
+export function toApiError(error: unknown): ApiError {
+  if (error instanceof ApiError) {
+    return error;
+  }
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<unknown>;
+    const status = axiosError.response?.status ?? 0;
+    const body = axiosError.response?.data;
+    if (isErrorEnvelope(body)) {
+      return new ApiError(body.error.code, status || body.statusCode, body.error.details, body.error.message);
+    }
+    if (axiosError.code === "ECONNABORTED" || axiosError.code === "ETIMEDOUT") {
+      return new ApiError("TIMEOUT", status);
+    }
+    if (!axiosError.response) {
+      return new ApiError("NETWORK_ERROR", 0);
+    }
+    return new ApiError(`HTTP_${status}`, status);
+  }
+  return new ApiError("UNKNOWN", 0, undefined, error instanceof Error ? error.message : undefined);
+}
+
+// Normalize every failed response into an ApiError. Cancellations are re-thrown.
+api.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+    return Promise.reject(toApiError(error));
+  },
+);
+
+export async function request<T>(config: AxiosRequestConfig): Promise<ApiResult<T>> {
+  const response = await api.request<SuccessEnvelope<T>>(config);
+  return unwrap(response.data);
+}
+
+export const apiGet = <T>(url: string, config?: AxiosRequestConfig) =>
+  request<T>({ ...config, method: "GET", url });
+
+export const apiPost = <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+  request<T>({ ...config, method: "POST", url, data });
+
+export const apiPut = <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+  request<T>({ ...config, method: "PUT", url, data });
+
+export const apiPatch = <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+  request<T>({ ...config, method: "PATCH", url, data });
+
+export const apiDelete = <T>(url: string, config?: AxiosRequestConfig) =>
+  request<T>({ ...config, method: "DELETE", url });

@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PlantHaat Frontend
 
-## Getting Started
+Next.js (App Router) storefront, seller dashboard and admin console for
+PlantHaat, consuming the backend API through a Backend-for-Frontend (BFF).
 
-First, run the development server:
+See `../FRONTEND_DESIGN.md` (spec) and `../FRONTEND_CONTEXT.md` (working rules +
+progress log).
+
+## Architecture (BFF)
+
+The browser never calls the backend directly. Three paths:
+
+1. **Server Components → backend** via `src/server/backend.ts` (`serverApi`).
+2. **Client Components → `/api/v1/*` Route Handler gateway** (`src/app/api/v1/[...path]/route.ts`)
+   → backend. The gateway forwards `Authorization: Bearer` and translates the
+   backend's `ph_at`/`ph_rt` `Set-Cookie` headers into Next-origin cookies.
+3. **Realtime socket → backend directly** (ticket-authenticated, §3.6).
+
+`src/proxy.ts` (Next 16's `middleware`) refreshes the session before private
+routes render. Tokens live only in httpOnly cookies owned by the Next.js origin.
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local   # fill values (API_INTERNAL_URL etc.)
+npm run api:types            # regenerate src/lib/api/schema.d.ts (already committed)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The backend must be running (default `http://localhost:5000`). Its
+`CORS_ORIGINS`/`APP_URL` should include `http://localhost:3000`, and if
+`BFF_SHARED_SECRET` is set there, set the same value in `.env.local`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the dev server (Turbopack) |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run lint` / `npm run typecheck` | ESLint / `tsc --noEmit` |
+| `npm run format` / `format:check` | Prettier |
+| `npm run api:types` | Generate API types from `openapi/openapi.json` |
+| `npm test` / `test:watch` | Vitest (unit/component) |
+| `npm run test:e2e` | Playwright |
 
-## Learn More
+## Conventions
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Server Components by default; `"use client"` only where interactivity needs it.
+- Money may arrive as strings — display with `Intl.NumberFormat`, never compute
+  prices as truth.
+- All user-facing text goes through next-intl (`bn` default, `en`).
+- UI primitives come from shadcn/ui (installed via its CLI); colors are design
+  tokens only.

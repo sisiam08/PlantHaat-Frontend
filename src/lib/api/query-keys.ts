@@ -1,0 +1,74 @@
+export const queryKeys = {
+  auth: {
+    me: ["auth", "me"] as const,
+    sessions: ["auth", "sessions"] as const,
+  },
+  catalog: {
+    home: ["catalog", "home"] as const,
+    categories: ["catalog", "categories"] as const,
+    districts: ["catalog", "districts"] as const,
+    products: (filters: Record<string, unknown>) => ["catalog", "products", filters] as const,
+    product: (slug: string) => ["catalog", "product", slug] as const,
+    productReviews: (slug: string) => ["catalog", "product-reviews", slug] as const,
+    shops: (filters: Record<string, unknown>) => ["catalog", "shops", filters] as const,
+    shop: (slug: string) => ["catalog", "shop", slug] as const,
+    shopProducts: (slug: string, filters: Record<string, unknown>) =>
+      ["catalog", "shop-products", slug, filters] as const,
+  },
+  cart: ["cart"] as const,
+  checkout: ["checkout"] as const,
+  orders: (filters?: Record<string, unknown>) => ["orders", filters ?? {}] as const,
+  order: (id: string) => ["orders", id] as const,
+  addresses: ["addresses"] as const,
+  wishlist: (filters?: Record<string, unknown>) => ["wishlist", filters ?? {}] as const,
+  notifications: (filters?: Record<string, unknown>) =>
+    ["notifications", filters ?? {}] as const,
+  notificationsUnreadCount: ["notifications", "unread-count"] as const,
+  complaints: (filters?: Record<string, unknown>) => ["complaints", filters ?? {}] as const,
+  complaint: (id: string) => ["complaints", id] as const,
+  seller: {
+    dashboard: ["seller", "dashboard"] as const,
+    application: ["seller", "application"] as const,
+    shop: ["seller", "shop"] as const,
+    deliveryZones: ["seller", "delivery-zones"] as const,
+    payoutAccounts: ["seller", "payout-accounts"] as const,
+    products: (filters?: Record<string, unknown>) =>
+      ["seller", "products", filters ?? {}] as const,
+    product: (id: string) => ["seller", "product", id] as const,
+    orders: (filters?: Record<string, unknown>) => ["seller", "orders", filters ?? {}] as const,
+    order: (id: string) => ["seller", "order", id] as const,
+    cancellationRequests: ["seller", "cancellation-requests"] as const,
+    reviews: (filters?: Record<string, unknown>) => ["seller", "reviews", filters ?? {}] as const,
+    complaints: (filters?: Record<string, unknown>) =>
+      ["seller", "complaints", filters ?? {}] as const,
+    earnings: ["seller", "earnings"] as const,
+    analytics: (range?: Record<string, unknown>) =>
+      ["seller", "analytics", range ?? {}] as const,
+  },
+  admin: {
+    sellers: (filters?: Record<string, unknown>) => ["admin", "sellers", filters ?? {}] as const,
+    seller: (id: string) => ["admin", "seller", id] as const,
+    shops: (filters?: Record<string, unknown>) => ["admin", "shops", filters ?? {}] as const,
+    products: (filters?: Record<string, unknown>) => ["admin", "products", filters ?? {}] as const,
+    categories: ["admin", "categories"] as const,
+    users: (filters?: Record<string, unknown>) => ["admin", "users", filters ?? {}] as const,
+    user: (id: string) => ["admin", "user", id] as const,
+    orders: (filters?: Record<string, unknown>) => ["admin", "orders", filters ?? {}] as const,
+    payments: (filters?: Record<string, unknown>) => ["admin", "payments", filters ?? {}] as const,
+    complaints: (filters?: Record<string, unknown>) =>
+      ["admin", "complaints", filters ?? {}] as const,
+    refunds: (filters?: Record<string, unknown>) => ["admin", "refunds", filters ?? {}] as const,
+    reviewReports: (filters?: Record<string, unknown>) =>
+      ["admin", "review-reports", filters ?? {}] as const,
+    commissionRules: (filters?: Record<string, unknown>) =>
+      ["admin", "commission-rules", filters ?? {}] as const,
+    payouts: (filters?: Record<string, unknown>) => ["admin", "payouts", filters ?? {}] as const,
+    banners: ["admin", "banners"] as const,
+    homepageSections: ["admin", "homepage-sections"] as const,
+    announcements: (filters?: Record<string, unknown>) =>
+      ["admin", "announcements", filters ?? {}] as const,
+    settings: ["admin", "settings"] as const,
+    auditLogs: (filters?: Record<string, unknown>) => ["admin", "audit-logs", filters ?? {}] as const,
+    analytics: (range?: Record<string, unknown>) => ["admin", "analytics", range ?? {}] as const,
+  },
+} as const;
