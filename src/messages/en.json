@@ -246,7 +246,8 @@
       "DELIVERED": "Delivered",
       "CANCELLED": "Cancelled",
       "FAILED_DELIVERY": "Failed delivery"
-    }
+    },
+    "reportProblem": "Report a problem"
   },
   "account": {
     "title": "My account",
@@ -305,5 +306,53 @@
     "unread": "{count, plural, =0 {No unread} one {# unread} other {# unread}}",
     "markRead": "Mark read",
     "markAllRead": "Mark all read"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "empty": "No reviews yet",
+    "writeReview": "Write a review",
+    "rating": "Rating",
+    "comment": "Comment",
+    "submit": "Submit review",
+    "submitted": "Thanks for your review",
+    "sellerReplied": "Seller replied"
+  },
+  "complaints": {
+    "title": "Complaints",
+    "empty": "No complaints yet",
+    "newTitle": "Open a complaint",
+    "missingOrder": "Missing order reference",
+    "type": "Type",
+    "selectType": "Select a type",
+    "description": "Description",
+    "submit": "Submit complaint",
+    "submitted": "Complaint submitted",
+    "viewDetails": "View details",
+    "resolution": "Resolution",
+    "conversation": "Conversation",
+    "noMessages": "No messages yet",
+    "commentPlaceholder": "Write a message",
+    "send": "Send",
+    "validation": {
+      "type": "Select a complaint type",
+      "description": "Describe the issue in at least 10 characters"
+    },
+    "status": {
+      "OPEN": "Open",
+      "SELLER_RESPONDED": "Seller responded",
+      "UNDER_REVIEW": "Under review",
+      "RESOLVED_REFUND": "Resolved (refund)",
+      "RESOLVED_REPLACEMENT": "Resolved (replacement)",
+      "REJECTED": "Rejected",
+      "CLOSED": "Closed"
+    },
+    "types": {
+      "DAMAGED_PLANT": "Damaged plant",
+      "WRONG_ITEM": "Wrong item",
+      "NOT_AS_DESCRIBED": "Not as described",
+      "NOT_DELIVERED": "Not delivered",
+      "LATE_DELIVERY": "Late delivery",
+      "OTHER": "Other"
+    }
   }
 }

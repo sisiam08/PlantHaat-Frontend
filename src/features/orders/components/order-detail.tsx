@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
+import { ReviewForm } from "@/features/reviews/components/review-form";
 import { formatDateTime } from "@/lib/format/date";
 import { formatBdt } from "@/lib/format/money";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -176,13 +178,18 @@ function ShopOrderCard({
           </p>
         ) : null}
 
-        <div className="grid gap-1">
+        <div className="grid gap-2">
           {shopOrder.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span>
-                {item.productName} · {item.variantName} × {item.quantity}
-              </span>
-              <span>{formatBdt(item.lineTotal, locale)}</span>
+            <div key={item.id} className="grid gap-2">
+              <div className="flex justify-between text-sm">
+                <span>
+                  {item.productName} · {item.variantName} × {item.quantity}
+                </span>
+                <span>{formatBdt(item.lineTotal, locale)}</span>
+              </div>
+              {shopOrder.status === "DELIVERED" ? (
+                <ReviewForm orderItemId={item.id} productName={item.productName} />
+              ) : null}
             </div>
           ))}
         </div>
@@ -207,6 +214,11 @@ function ShopOrderCard({
         {shopOrder.status === "CONFIRMED" || shopOrder.status === "PACKED" ? (
           <Button variant="outline" onClick={onRequest}>
             {t("cancellationRequest")}
+          </Button>
+        ) : null}
+        {shopOrder.status !== "CANCELLED" ? (
+          <Button asChild variant="ghost" size="sm">
+            <Link href={`/complaints/new?shopOrderId=${shopOrder.id}`}>{t("reportProblem")}</Link>
           </Button>
         ) : null}
       </CardContent>

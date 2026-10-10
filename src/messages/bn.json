@@ -246,7 +246,8 @@
       "DELIVERED": "ডেলিভার হয়েছে",
       "CANCELLED": "বাতিল",
       "FAILED_DELIVERY": "ডেলিভারি ব্যর্থ"
-    }
+    },
+    "reportProblem": "সমস্যা জানান"
   },
   "account": {
     "title": "আমার অ্যাকাউন্ট",
@@ -305,5 +306,53 @@
     "unread": "{count, plural, =0 {অপঠিত নেই} other {# টি অপঠিত}}",
     "markRead": "পঠিত করুন",
     "markAllRead": "সব পঠিত করুন"
+  },
+  "reviews": {
+    "title": "রিভিউ",
+    "empty": "এখনো কোনো রিভিউ নেই",
+    "writeReview": "রিভিউ লিখুন",
+    "rating": "রেটিং",
+    "comment": "মন্তব্য",
+    "submit": "রিভিউ পাঠান",
+    "submitted": "রিভিউয়ের জন্য ধন্যবাদ",
+    "sellerReplied": "বিক্রেতার জবাব"
+  },
+  "complaints": {
+    "title": "অভিযোগ",
+    "empty": "এখনো কোনো অভিযোগ নেই",
+    "newTitle": "অভিযোগ করুন",
+    "missingOrder": "অর্ডার রেফারেন্স পাওয়া যায়নি",
+    "type": "ধরন",
+    "selectType": "একটি ধরন নির্বাচন করুন",
+    "description": "বিবরণ",
+    "submit": "অভিযোগ পাঠান",
+    "submitted": "অভিযোগ পাঠানো হয়েছে",
+    "viewDetails": "বিস্তারিত",
+    "resolution": "সমাধান",
+    "conversation": "কথোপকথন",
+    "noMessages": "এখনো কোনো বার্তা নেই",
+    "commentPlaceholder": "একটি বার্তা লিখুন",
+    "send": "পাঠান",
+    "validation": {
+      "type": "একটি অভিযোগের ধরন নির্বাচন করুন",
+      "description": "কমপক্ষে ১০ অক্ষরে সমস্যাটি বর্ণনা করুন"
+    },
+    "status": {
+      "OPEN": "খোলা",
+      "SELLER_RESPONDED": "বিক্রেতা উত্তর দিয়েছেন",
+      "UNDER_REVIEW": "পর্যালোচনাধীন",
+      "RESOLVED_REFUND": "সমাধান (ফেরত)",
+      "RESOLVED_REPLACEMENT": "সমাধান (প্রতিস্থাপন)",
+      "REJECTED": "প্রত্যাখ্যাত",
+      "CLOSED": "বন্ধ"
+    },
+    "types": {
+      "DAMAGED_PLANT": "ক্ষতিগ্রস্ত গাছ",
+      "WRONG_ITEM": "ভুল পণ্য",
+      "NOT_AS_DESCRIBED": "বর্ণনার সাথে মিল নেই",
+      "NOT_DELIVERED": "ডেলিভারি হয়নি",
+      "LATE_DELIVERY": "বিলম্বিত ডেলিভারি",
+      "OTHER": "অন্যান্য"
+    }
   }
 }

@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { StarRating } from "@/features/catalog/components/product-card";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
 import { getProduct } from "@/features/catalog/server";
+import { ReviewsList } from "@/features/reviews/components/reviews-list";
 import type { ProductDetail } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 
@@ -204,6 +205,10 @@ export default async function ProductPage({
             On vacation
           </Badge>
         ) : null}
+      </div>
+
+      <div className="lg:col-span-2">
+        <ReviewsList slug={slug} />
       </div>
 
       <script
