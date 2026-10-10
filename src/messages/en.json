@@ -60,7 +60,16 @@
     "PAYMENT_METHOD_NOT_AVAILABLE": "This payment method is not available.",
     "VALIDATION_FAILED": "Some fields are not valid.",
     "TOO_MANY_REQUESTS": "Too many requests. Please wait and try again.",
-    "CONFLICT": "Conflict; refresh the page and try again."
+    "CONFLICT": "Conflict; refresh the page and try again.",
+    "SELLER_PROFILE_MISSING": "You do not have a seller profile.",
+    "SELLER_NOT_APPROVED": "Your seller account is not approved yet.",
+    "SELLER_APPLICATION_INCOMPLETE": "Your application is incomplete — add your profile, documents, shop and delivery zone.",
+    "SELLER_APPLICATION_ALREADY_SUBMITTED": "Your application is already under review.",
+    "SELLER_ALREADY_REGISTERED": "A seller profile already exists for this account.",
+    "DELIVERY_ZONE_CONFLICT": "A selected district is already covered by another active zone.",
+    "UPLOAD_INVALID_TYPE": "That file type is not allowed.",
+    "UPLOAD_TOO_LARGE": "The file is too large.",
+    "EMAIL_ALREADY_VERIFIED": "Your email is already verified."
   },
   "auth": {
     "email": "Email",
@@ -353,6 +362,221 @@
       "NOT_DELIVERED": "Not delivered",
       "LATE_DELIVERY": "Late delivery",
       "OTHER": "Other"
+    }
+  },
+  "seller": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "apply": "Application",
+      "shop": "Shop",
+      "zones": "Delivery zones",
+      "payouts": "Payout accounts"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PENDING": "Under review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "dashboard": {
+      "title": "Seller dashboard",
+      "applicationStatus": "Application status",
+      "pendingNotice": "Your application is under review. You will be notified when a decision is made.",
+      "rejectedNotice": "Your application was rejected.",
+      "rejectionReason": "Reason: {reason}",
+      "suspendedNotice": "Your seller account is suspended.",
+      "completeApplication": "Complete your application",
+      "pendingOrders": "Pending orders",
+      "unreadNotifications": "Unread notifications",
+      "lowStock": "Low-stock variants",
+      "shopSummary": "Shop",
+      "shopName": "Name",
+      "noShop": "No shop yet",
+      "viewShop": "Manage shop",
+      "quickLinks": "Quick links",
+      "manageShop": "Manage shop",
+      "manageZones": "Delivery zones",
+      "managePayouts": "Payout accounts",
+      "onVacation": "On vacation"
+    },
+    "apply": {
+      "title": "Become a seller",
+      "subtitle": "Complete the steps below and submit for review.",
+      "steps": {
+        "business": "Business",
+        "documents": "Documents",
+        "shop": "Shop",
+        "zones": "Delivery zones",
+        "payouts": "Payout",
+        "review": "Review"
+      },
+      "stepOf": "Step {current} of {total}",
+      "back": "Back",
+      "next": "Next",
+      "save": "Save",
+      "saved": "Saved",
+      "loadError": "Could not load your application.",
+      "approvedNotice": "Your shop is live.",
+      "goToDashboard": "Go to dashboard",
+      "underReviewTitle": "Under review",
+      "underReviewBody": "Your application is being reviewed. You will get a notification once a decision is made.",
+      "refresh": "Refresh",
+      "suspendedNotice": "Your seller account is suspended. Contact support for help.",
+      "rejectedTitle": "Application rejected",
+      "rejectedBody": "Fix the details below and submit again.",
+      "business": {
+        "businessName": "Business name",
+        "sellerType": "Seller type",
+        "contactPhone": "Contact number",
+        "businessAddress": "Business address",
+        "tradeLicenseNo": "Trade license no. (optional)"
+      },
+      "types": {
+        "NURSERY": "Nursery",
+        "INDIVIDUAL_GROWER": "Individual grower",
+        "RESELLER": "Reseller"
+      },
+      "documents": {
+        "hint": "Upload your NID front and back (PDF or image, up to 10 MB).",
+        "type": "Document type",
+        "file": "File",
+        "upload": "Upload",
+        "uploading": "Uploading…",
+        "uploaded": "Document attached",
+        "removed": "Document removed",
+        "empty": "No documents attached yet.",
+        "remove": "Remove",
+        "docType": {
+          "NID_FRONT": "NID (front)",
+          "NID_BACK": "NID (back)",
+          "TRADE_LICENSE": "Trade license",
+          "NURSERY_PHOTO": "Nursery photo",
+          "OTHER": "Other"
+        }
+      },
+      "shop": {
+        "name": "Shop name",
+        "description": "Description",
+        "phone": "Phone",
+        "district": "District",
+        "address": "Address",
+        "logoUrl": "Logo",
+        "bannerUrl": "Banner",
+        "slugHint": "Your shop URL slug is generated automatically."
+      },
+      "review": {
+        "business": "Business",
+        "documents": "Documents",
+        "shop": "Shop",
+        "zones": "Delivery zones",
+        "verified": "Email verified",
+        "emailHint": "Verify your email before submitting.",
+        "missingTitle": "Before you submit",
+        "missingItems": {
+          "businessName": "Enter your business name",
+          "contactPhone": "Enter a contact number",
+          "businessAddress": "Enter a business address",
+          "documents": "Attach at least one document",
+          "shop": "Create your shop",
+          "deliveryZone": "Add at least one delivery zone"
+        },
+        "submit": "Submit application",
+        "submitting": "Submitting…",
+        "submitted": "Application submitted for review"
+      }
+    },
+    "shop": {
+      "title": "Shop",
+      "unavailable": "Create your shop first.",
+      "loadError": "Could not load your shop.",
+      "goToApply": "Go to application",
+      "name": "Shop name",
+      "description": "Description",
+      "phone": "Phone",
+      "district": "District",
+      "address": "Address",
+      "logoUrl": "Logo URL",
+      "bannerUrl": "Banner URL",
+      "save": "Save changes",
+      "saved": "Shop saved",
+      "vacation": "Vacation mode",
+      "vacationOn": "Vacation mode is on",
+      "vacationOff": "Vacation mode is off",
+      "vacationMessage": "Message",
+      "vacationUntil": "Until",
+      "enableVacation": "Enable vacation",
+      "disableVacation": "Disable vacation",
+      "vacationUpdated": "Vacation mode updated",
+      "validation": {
+        "name": "Enter at least 2 characters"
+      }
+    },
+    "zones": {
+      "title": "Delivery zones",
+      "subtitle": "Where you deliver and at what charge.",
+      "needsShop": "Create your shop first.",
+      "loadError": "Could not load delivery zones.",
+      "add": "Add zone",
+      "empty": "No delivery zones yet.",
+      "nationwideBadge": "Nationwide",
+      "chargeBadge": "Charge {amount}",
+      "freeBadge": "Free above {amount}",
+      "etaBadge": "{min}–{max} days",
+      "noneSelected": "No districts",
+      "edit": "Edit",
+      "remove": "Delete",
+      "removed": "Zone removed",
+      "formTitle": "New zone",
+      "editTitle": "Edit zone",
+      "name": "Zone name",
+      "nationwide": "Nationwide",
+      "districts": "Districts",
+      "charge": "Delivery charge (৳)",
+      "freeAbove": "Free delivery above (৳)",
+      "etaMin": "ETA min (days)",
+      "etaMax": "ETA max (days)",
+      "save": "Save zone",
+      "saved": "Zone saved",
+      "created": "Zone created",
+      "cancel": "Cancel",
+      "validation": {
+        "zoneName": "Enter a zone name",
+        "districtsRequired": "Select at least one district or enable nationwide",
+        "charge": "Enter a valid charge",
+        "etaRange": "Max days must be at least min days"
+      }
+    },
+    "payouts": {
+      "title": "Payout accounts",
+      "empty": "No payout accounts yet.",
+      "defaultBadge": "Default",
+      "remove": "Delete",
+      "add": "Add account",
+      "method": "Method",
+      "accountName": "Account holder name",
+      "accountNumber": "Account number",
+      "isDefault": "Default account",
+      "maskedNote": "The number is stored securely and shown masked.",
+      "save": "Save account",
+      "created": "Payout account added",
+      "removed": "Payout account removed",
+      "methods": {
+        "BKASH": "bKash",
+        "NAGAD": "Nagad",
+        "ROCKET": "Rocket",
+        "BANK": "Bank"
+      },
+      "validation": {
+        "accountName": "Enter the account holder name",
+        "accountNumber": "Enter the account number"
+      }
+    },
+    "validation": {
+      "businessName": "Enter at least 2 characters",
+      "phone": "Enter a valid Bangladeshi mobile number",
+      "required": "This field is required",
+      "name": "Enter at least 2 characters"
     }
   }
 }
