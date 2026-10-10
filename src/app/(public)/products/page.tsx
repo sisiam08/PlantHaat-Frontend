@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
-import { Card } from "@/components/ui/card";
 import { ProductGrid } from "@/features/catalog/components/product-card";
 import { ProductFilters, type FilterOption } from "@/features/catalog/components/product-filters";
 import { Pagination } from "@/features/catalog/components/pagination";
@@ -51,24 +50,24 @@ export default async function ProductsPage({
   }));
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[280px_1fr]">
-      <aside>
+    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[280px_1fr] lg:py-12">
+      <aside className="lg:sticky lg:top-24 lg:self-start">
         <Suspense>
           <ProductFilters categories={categoryOptions} districts={districtOptions} />
         </Suspense>
       </aside>
-      <section className="grid content-start gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <section className="grid content-start gap-6">
+        <header className="grid gap-1 border-b border-border/60 pb-4">
+          <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
             {t("results", { count: products.meta.total })}
           </p>
-        </div>
+        </header>
         {products.data.length === 0 ? (
-          <Card className="grid place-items-center gap-2 rounded-2xl p-10 text-center">
+          <div className="grid place-items-center gap-2 rounded-2xl border border-dashed border-border/60 p-12 text-center">
             <p className="font-medium">{t("empty")}</p>
             <p className="text-sm text-muted-foreground">{t("emptyHint")}</p>
-          </Card>
+          </div>
         ) : (
           <ProductGrid
             products={products.data.map(toProductCardData)}

@@ -2,8 +2,6 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Card } from "@/components/ui/card";
-
 export interface ShopCardData {
   id: string;
   name: string;
@@ -17,11 +15,17 @@ export interface ShopCardData {
 
 export function ShopCard({ shop }: { shop: ShopCardData }) {
   return (
-    <Card className="rounded-2xl p-0 transition-shadow hover:shadow-md">
+    <div className="group/card overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link href={`/shops/${shop.slug}`} className="flex items-center gap-4 p-4">
-        <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-muted/40">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
           {shop.logoUrl ? (
-            <Image src={shop.logoUrl} alt={shop.name} fill sizes="64px" className="object-cover" />
+            <Image
+              src={shop.logoUrl}
+              alt={shop.name}
+              fill
+              sizes="64px"
+              className="object-cover transition-transform duration-300 group-hover/card:scale-105 motion-reduce:transition-none"
+            />
           ) : null}
         </div>
         <div className="min-w-0">
@@ -33,13 +37,11 @@ export function ShopCard({ shop }: { shop: ShopCardData }) {
             <Star aria-hidden className="size-3.5 fill-cta text-cta" />
             {Number(shop.ratingAvg ?? 0).toFixed(1)}
             {typeof shop.productCount === "number" ? (
-              <span className="ml-2 text-xs text-muted-foreground">
-                {shop.productCount}
-              </span>
+              <span className="ml-2 text-xs text-muted-foreground">{shop.productCount}</span>
             ) : null}
           </p>
         </div>
       </Link>
-    </Card>
+    </div>
   );
 }

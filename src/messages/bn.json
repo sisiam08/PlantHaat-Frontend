@@ -24,11 +24,30 @@
     "register": "রেজিস্টার",
     "logout": "লগ আউট",
     "seller": "বিক্রেতা",
-    "admin": "অ্যাডমিন"
+    "admin": "অ্যাডমিন",
+    "products": "গাছ",
+    "shops": "দোকান",
+    "about": "আমাদের সম্পর্কে",
+    "sellWithUs": "আমাদের সাথে বিক্রি করুন"
   },
   "footer": {
     "support": "সহায়তা",
-    "contact": "যোগাযোগ"
+    "contact": "যোগাযোগ",
+    "tagline": "যাচাইকৃত নার্সারি থেকে গাছ — সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
+    "company": "প্রতিষ্ঠান",
+    "about": "আমাদের সম্পর্কে",
+    "howItWorks": "কীভাবে কাজ করে",
+    "sellWithUs": "আমাদের সাথে বিক্রি করুন",
+    "policies": "নীতিমালা",
+    "terms": "শর্তাবলী",
+    "privacy": "গোপনীয়তা নীতি",
+    "refundCancellation": "ফেরত ও বাতিল",
+    "delivery": "ডেলিভারি নীতি",
+    "phone": "ফোন",
+    "email": "ইমেইল",
+    "preferences": "পছন্দ",
+    "rights": "সর্বস্বত্ব সংরক্ষিত",
+    "madeWith": "বাংলাদেশে ভালোবাসা দিয়ে তৈরি"
   },
   "errors": {
     "generic": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
@@ -175,7 +194,10 @@
     "shop": "বিক্রেতা",
     "viewShop": "দোকান দেখুন",
     "reviews": "রিভিউ",
-    "verified": "যাচাইকৃত বিক্রেতা"
+    "verified": "যাচাইকৃত বিক্রেতা",
+    "deliveryTitle": "ডেলিভারি",
+    "deliveryBody": "জেলা অনুযায়ী ২–৫ দিন; ক্যাশ অন ডেলিভারি উপলব্ধ।",
+    "gallery": "ছবি"
   },
   "shop": {
     "title": "দোকান",
@@ -185,7 +207,27 @@
   },
   "home": {
     "newArrivals": "নতুন এসেছে",
-    "featured": "ফিচারড"
+    "featured": "ফিচারড",
+    "heroBadge": "যাচাইকৃত নার্সারি",
+    "heroTitle": "আপনার ঘর সবুজে ভরে তুলুন",
+    "heroSubtitle": "সারা বাংলাদেশে যাচাইকৃত নার্সারির গাছ — ক্যাশ অন ডেলিভারি, নিরাপদ প্যাকেজিং।",
+    "heroCta": "গাছ দেখুন",
+    "heroCtaSecondary": "দোকান ঘুরে দেখুন",
+    "trustVerified": "যাচাইকৃত বিক্রেতা",
+    "trustCod": "ক্যাশ অন ডেলিভারি",
+    "trustPackaging": "গাছ-নিরাপদ প্যাকেজিং",
+    "shopByCategory": "বিভাগ অনুযায়ী কিনুন",
+    "browseAll": "সব দেখুন",
+    "howItWorks": "কীভাবে কাজ করে",
+    "how1Title": "গাছ বাছুন",
+    "how1Body": "বিভাগ ও দাম অনুযায়ী পছন্দের গাছ খুঁজুন।",
+    "how2Title": "অর্ডার করুন",
+    "how2Body": "ঠিকানা দিয়ে ক্যাশ অন ডেলিভারিতে অর্ডার নিশ্চিত করুন।",
+    "how3Title": "হাতে পেয়ে নিন",
+    "how3Body": "নিরাপদে প্যাক করা গাছ আপনার দরজায় পৌঁছে যাবে।",
+    "sellerCtaTitle": "নার্সারি বা দোকান আছে?",
+    "sellerCtaBody": "PlantHaat-এ বিক্রেতা হয়ে সারা দেশে গাছ বিক্রি করুন।",
+    "sellerCtaButton": "বিক্রেতা হোন"
   },
   "cart": {
     "title": "কার্ট",
@@ -1366,5 +1408,44 @@
         "shopMaxPerSeller": "প্রতি বিক্রেতার সর্বোচ্চ দোকান"
       }
     }
+  },
+  "shell": {
+    "searchPlaceholder": "গাছ, দোকান বা বিভাগ খুঁজুন…",
+    "searchLabel": "খুঁজুন",
+    "searchAria": "পণ্য খুঁজুন",
+    "skipToContent": "মূল কনটেন্টে যান",
+    "menu": "মেনু",
+    "accountMenu": "একাউন্ট মেনু",
+    "account": "একাউন্ট",
+    "profile": "প্রোফাইল",
+    "myOrders": "আমার অর্ডার",
+    "wishlist": "উইশলিস্ট",
+    "notifications": "নোটিফিকেশন",
+    "cart": "কার্ট",
+    "cartAria": "কার্ট, {count} টি আইটেম",
+    "cartEmptyAria": "কার্ট",
+    "login": "লগ ইন",
+    "register": "রেজিস্টার",
+    "logout": "লগ আউট",
+    "sellerDashboard": "বিক্রেতা ড্যাশবোর্ড",
+    "adminDashboard": "অ্যাডমিন কনসোল",
+    "theme": "থিম",
+    "themeLight": "হালকা",
+    "themeDark": "গাঢ়",
+    "themeSystem": "সিস্টেম",
+    "toggleTheme": "থিম পরিবর্তন",
+    "language": "ভাষা",
+    "languageBn": "বাংলা",
+    "languageEn": "English",
+    "switchToEn": "Switch to English",
+    "switchToBn": "বাংলায় দেখুন",
+    "navLabel": "প্রধান নেভিগেশন",
+    "bottomNavLabel": "দ্রুত নেভিগেশন",
+    "openMenu": "মেনু খুলুন",
+    "closeMenu": "মেনু বন্ধ করুন",
+    "more": "আরও",
+    "goToDashboard": "ড্যাশবোর্ড",
+    "signedInAs": "{name} হিসেবে লগ ইন",
+    "storefront": "স্টোরফ্রন্ট"
   }
 }

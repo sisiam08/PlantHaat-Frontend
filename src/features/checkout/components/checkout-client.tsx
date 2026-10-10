@@ -193,7 +193,7 @@ export function CheckoutClient() {
         </section>
       </div>
 
-      <Card className="h-fit rounded-2xl lg:sticky lg:top-4">
+      <Card className="h-fit rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24">
         <CardContent className="grid gap-3">
           <h2 className="font-semibold">{t("summary")}</h2>
           {cart.isLoading ? (

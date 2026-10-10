@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { SiteShell } from "@/components/layout/site-shell";
+
 export default function PublicLayout({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-full flex-1 flex-col">{children}</div>;
+  return <SiteShell>{children}</SiteShell>;
 }

@@ -2,8 +2,6 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatPriceRange } from "@/lib/format/money";
 
@@ -62,36 +60,43 @@ export function ProductCard({
   locale: string;
 }) {
   return (
-    <Card className="group overflow-hidden rounded-2xl p-0 transition-shadow hover:shadow-md">
-      <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-square w-full overflow-hidden bg-muted/40">
+    <div className="group/card h-full overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted/40 ring-1 ring-border/40">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform group-hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover/card:scale-105 motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
             />
           ) : null}
           {!product.inStock ? (
-            <Badge variant="secondary" className="absolute left-2 top-2">
-              {name}
-            </Badge>
+            <div className="absolute inset-0 grid place-items-center bg-background/55">
+              <span className="rounded-full bg-card px-3 py-1 text-xs font-medium text-card-foreground shadow-sm">
+                {name}
+              </span>
+            </div>
           ) : null}
         </div>
-        <div className="grid gap-1 p-3">
-          <p className="line-clamp-2 text-sm font-medium leading-snug">{product.name}</p>
+        <div className="grid flex-1 content-start gap-1.5 p-3">
+          <p className="line-clamp-2 text-sm leading-snug font-medium">{product.name}</p>
           {product.nameBn ? (
             <p className="line-clamp-1 text-xs text-muted-foreground">{product.nameBn}</p>
           ) : null}
-          <p className="text-base font-semibold text-primary">
+          <p className="font-heading text-base font-semibold text-primary">
             {formatPriceRange(product.minPrice, product.maxPrice, locale)}
           </p>
-          <StarRating value={product.ratingAvg} count={product.ratingCount ?? 0} />
+          <div className="flex items-center justify-between gap-2">
+            <StarRating value={product.ratingAvg} count={product.ratingCount ?? 0} />
+          </div>
+          {product.shopName ? (
+            <p className="line-clamp-1 text-xs text-muted-foreground">{product.shopName}</p>
+          ) : null}
         </div>
       </Link>
-    </Card>
+    </div>
   );
 }
 
@@ -105,7 +110,7 @@ export function ProductGrid({
   outOfStockLabel: string;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -113,6 +118,29 @@ export function ProductGrid({
           name={outOfStockLabel}
           locale={locale}
         />
+      ))}
+    </div>
+  );
+}
+
+export function ProductRail({
+  products,
+  locale,
+  outOfStockLabel,
+}: {
+  products: ProductCardData[];
+  locale: string;
+  outOfStockLabel: string;
+}) {
+  return (
+    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
+      {products.map((product) => (
+        <div
+          key={product.id}
+          className="w-40 shrink-0 snap-start sm:w-48 md:w-auto"
+        >
+          <ProductCard product={product} name={outOfStockLabel} locale={locale} />
+        </div>
       ))}
     </div>
   );

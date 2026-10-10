@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { ProductGrid } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { parseProductQuery, type SearchParams } from "@/features/catalog/query";
@@ -50,21 +49,36 @@ export default async function ShopPage({
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
-      <Card className="overflow-hidden rounded-2xl p-0">
+    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+      <section className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
         {shop.bannerUrl ? (
-          <div className="relative h-40 w-full md:h-56">
-            <Image src={shop.bannerUrl} alt={shop.name} fill priority sizes="100vw" className="object-cover" />
+          <div className="relative h-40 w-full overflow-hidden bg-muted/40 md:h-56">
+            <Image
+              src={shop.bannerUrl}
+              alt={shop.name}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
           </div>
-        ) : null}
-        <div className="flex items-center gap-4 p-4">
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-muted/40">
+        ) : (
+          <div className="h-24 w-full bg-gradient-to-br from-primary to-primary/70 md:h-32" />
+        )}
+        <div className="flex items-center gap-4 p-4 md:p-6">
+          <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40 md:size-20">
             {shop.logoUrl ? (
-              <Image src={shop.logoUrl} alt={shop.name} fill sizes="64px" className="object-cover" />
+              <Image
+                src={shop.logoUrl}
+                alt={shop.name}
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
             ) : null}
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold">{shop.name}</h1>
+            <h1 className="font-heading truncate text-2xl font-bold">{shop.name}</h1>
             <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
               <Star aria-hidden className="size-3.5 fill-cta text-cta" />
               {Number(shop.ratingAvg).toFixed(1)} · {shop.ratingCount}
@@ -73,11 +87,11 @@ export default async function ShopPage({
           </div>
         </div>
         {shop.description ? (
-          <p className="whitespace-pre-wrap px-4 pb-4 text-sm text-muted-foreground">
+          <p className="px-4 pb-6 text-sm whitespace-pre-wrap text-muted-foreground md:px-6">
             {shop.description}
           </p>
         ) : null}
-      </Card>
+      </section>
 
       {shop.isOnVacation ? (
         <Badge variant="secondary" className="w-fit">
@@ -85,16 +99,20 @@ export default async function ShopPage({
         </Badge>
       ) : null}
 
-      <h2 className="text-lg font-semibold">{t("products")}</h2>
-      {products.data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
-      ) : (
-        <ProductGrid
-          products={products.data.map(toProductCardData)}
-          locale={locale}
-          outOfStockLabel={tp("outOfStock")}
-        />
-      )}
+      <section className="grid gap-5">
+        <h2 className="font-heading text-xl font-semibold">{t("products")}</h2>
+        {products.data.length === 0 ? (
+          <div className="grid place-items-center rounded-2xl border border-dashed border-border/60 p-12 text-center text-sm text-muted-foreground">
+            {t("noProducts")}
+          </div>
+        ) : (
+          <ProductGrid
+            products={products.data.map(toProductCardData)}
+            locale={locale}
+            outOfStockLabel={tp("outOfStock")}
+          />
+        )}
+      </section>
     </main>
   );
 }

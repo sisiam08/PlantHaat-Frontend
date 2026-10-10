@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ShopCard } from "@/features/catalog/components/shop-card";
 import { getShops } from "@/features/catalog/server";
 import type { SearchParams } from "@/features/catalog/query";
@@ -30,10 +29,14 @@ export default async function ShopsPage({
   const shops = await getShops(page);
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+      <header className="grid gap-1 border-b border-border/60 pb-4">
+        <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
+      </header>
       {shops.data.length === 0 ? (
-        <Card className="rounded-2xl p-10 text-center text-muted-foreground">{t("noProducts")}</Card>
+        <div className="grid place-items-center rounded-2xl border border-dashed border-border/60 p-12 text-center text-muted-foreground">
+          {t("noProducts")}
+        </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {shops.data.map((shop) => (

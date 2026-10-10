@@ -1,4 +1,13 @@
-import { Star } from "lucide-react";
+import {
+  Droplets,
+  Gauge,
+  Home,
+  PawPrint,
+  Ruler,
+  Star,
+  Sun,
+  Truck,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,9 +16,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { StarRating } from "@/features/catalog/components/product-card";
+import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
 import { getProduct } from "@/features/catalog/server";
 import { ReviewsList } from "@/features/reviews/components/reviews-list";
@@ -78,6 +86,19 @@ export default async function ProductPage({
   const variants = product.variants as unknown as (VariantView & { sizeLabel?: string | null })[];
   const shop = product.shop as unknown as DetailShop;
 
+  const careItems = [
+    { icon: Sun, label: t("light"), value: humanize(product.lightRequirement) },
+    { icon: Droplets, label: t("watering"), value: humanize(product.wateringFrequency) },
+    { icon: Gauge, label: t("difficulty"), value: humanize(product.careDifficulty) },
+    { icon: Home, label: t("indoor"), value: product.isIndoor ? "✓" : "—" },
+    { icon: PawPrint, label: t("petSafe"), value: product.isPetSafe ? "✓" : "—" },
+    {
+      icon: Ruler,
+      label: t("height"),
+      value: product.matureHeightCm ? `${product.matureHeightCm} cm` : "—",
+    },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -104,61 +125,54 @@ export default async function ProductPage({
   };
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 lg:grid-cols-2">
-      <div className="grid gap-3">
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted/40">
-          {images[0] ? (
-            <Image
-              src={images[0].url}
-              alt={images[0].altText ?? product.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-          ) : null}
-        </div>
-        {images.length > 1 ? (
-          <div className="grid grid-cols-4 gap-2">
-            {images.slice(0, 4).map((image) => (
-              <div
-                key={image.url}
-                className="relative aspect-square overflow-hidden rounded-xl bg-muted/40"
-              >
-                <Image src={image.url} alt={image.altText ?? product.name} fill sizes="25vw" className="object-cover" />
-              </div>
-            ))}
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <ProductGallery images={images} alt={product.name} label={t("gallery")} />
+
+        <div className="grid content-start gap-6">
+          <div className="grid gap-2">
+            <h1 className="font-heading text-3xl leading-tight font-bold">{product.name}</h1>
+            {product.nameBn ? (
+              <p className="text-muted-foreground">{product.nameBn}</p>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-3">
+              <StarRating value={product.ratingAvg} count={product.ratingCount} />
+              <Badge variant={product.inStock ? "secondary" : "destructive"}>
+                {product.inStock ? t("inStock", { count: 1 }) : t("outOfStock")}
+              </Badge>
+            </div>
           </div>
-        ) : null}
-      </div>
 
-      <div className="grid content-start gap-5">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-bold">{product.name}</h1>
-          {product.nameBn ? <p className="text-muted-foreground">{product.nameBn}</p> : null}
-          <StarRating value={product.ratingAvg} count={product.ratingCount} />
-        </div>
+          <div className="grid gap-4 lg:sticky lg:top-24">
+            <VariantPicker
+              variants={variants}
+              product={{
+                productName: product.name,
+                slug: product.slug,
+                imageUrl: images[0]?.url ?? null,
+                shopName: shop.name,
+              }}
+            />
 
-        <VariantPicker
-          variants={variants}
-          product={{
-            productName: product.name,
-            slug: product.slug,
-            imageUrl: images[0]?.url ?? null,
-            shopName: shop.name,
-          }}
-        />
+            <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-4">
+              <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
+              <div className="grid gap-0.5">
+                <p className="text-sm font-medium">{t("deliveryTitle")}</p>
+                <p className="text-sm text-muted-foreground">{t("deliveryBody")}</p>
+              </div>
+            </div>
+          </div>
 
-        <Separator />
-
-        <Card className="rounded-2xl">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t("shop")}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center gap-3">
-            <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-muted/40">
+          <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+            <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
               {shop.logoUrl ? (
-                <Image src={shop.logoUrl} alt={shop.name} fill sizes="48px" className="object-cover" />
+                <Image
+                  src={shop.logoUrl}
+                  alt={shop.name}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
               ) : null}
             </div>
             <div className="min-w-0 flex-1">
@@ -172,44 +186,44 @@ export default async function ProductPage({
             <Button asChild variant="outline" size="sm">
               <Link href={`/shops/${shop.slug}`}>{t("viewShop")}</Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
 
-        <section className="grid gap-3">
-          <h2 className="text-lg font-semibold">{t("description")}</h2>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+          {shop.isOnVacation ? (
+            <Badge variant="secondary" className="w-fit">
+              {t("outOfStock")}
+            </Badge>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-12 grid gap-10 lg:grid-cols-2">
+        <section className="grid content-start gap-3">
+          <h2 className="font-heading text-xl font-semibold">{t("description")}</h2>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
             {product.description}
           </p>
         </section>
 
-        <section className="grid gap-2">
-          <h2 className="text-lg font-semibold">{t("care")}</h2>
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <dt className="text-muted-foreground">{t("light")}</dt>
-            <dd>{humanize(product.lightRequirement)}</dd>
-            <dt className="text-muted-foreground">{t("watering")}</dt>
-            <dd>{humanize(product.wateringFrequency)}</dd>
-            <dt className="text-muted-foreground">{t("difficulty")}</dt>
-            <dd>{humanize(product.careDifficulty)}</dd>
-            <dt className="text-muted-foreground">{t("indoor")}</dt>
-            <dd>{product.isIndoor ? "✓" : "—"}</dd>
-            <dt className="text-muted-foreground">{t("petSafe")}</dt>
-            <dd>{product.isPetSafe ? "✓" : "—"}</dd>
-            <dt className="text-muted-foreground">{t("height")}</dt>
-            <dd>{product.matureHeightCm ? `${product.matureHeightCm} cm` : "—"}</dd>
-          </dl>
+        <section className="grid content-start gap-3">
+          <h2 className="font-heading text-xl font-semibold">{t("care")}</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {careItems.map((item) => (
+              <div
+                key={item.label}
+                className="grid gap-1 rounded-2xl border border-border/60 bg-card p-3 shadow-sm"
+              >
+                <item.icon aria-hidden className="size-4 text-primary" />
+                <p className="text-xs text-muted-foreground">{item.label}</p>
+                <p className="text-sm font-medium">{item.value}</p>
+              </div>
+            ))}
+          </div>
         </section>
-
-        {shop.isOnVacation ? (
-          <Badge variant="secondary" className="w-fit">
-            On vacation
-          </Badge>
-        ) : null}
       </div>
 
-      <div className="lg:col-span-2">
+      <section className="mt-12">
         <ReviewsList slug={slug} />
-      </div>
+      </section>
 
       <script
         type="application/ld+json"

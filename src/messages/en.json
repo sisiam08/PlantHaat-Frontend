@@ -24,11 +24,30 @@
     "register": "Register",
     "logout": "Log out",
     "seller": "Seller",
-    "admin": "Admin"
+    "admin": "Admin",
+    "products": "Products",
+    "shops": "Shops",
+    "about": "About",
+    "sellWithUs": "Sell with us"
   },
   "footer": {
     "support": "Support",
-    "contact": "Contact"
+    "contact": "Contact",
+    "tagline": "Plants from verified nurseries — cash on delivery across Bangladesh.",
+    "company": "Company",
+    "about": "About",
+    "howItWorks": "How it works",
+    "sellWithUs": "Sell with us",
+    "policies": "Policies",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "refundCancellation": "Refund & cancellation",
+    "delivery": "Delivery policy",
+    "phone": "Phone",
+    "email": "Email",
+    "preferences": "Preferences",
+    "rights": "All rights reserved",
+    "madeWith": "Made with care in Bangladesh"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -175,7 +194,10 @@
     "shop": "Seller",
     "viewShop": "View shop",
     "reviews": "Reviews",
-    "verified": "Verified seller"
+    "verified": "Verified seller",
+    "deliveryTitle": "Delivery",
+    "deliveryBody": "2–5 days depending on district; cash on delivery available.",
+    "gallery": "Gallery"
   },
   "shop": {
     "title": "Shop",
@@ -185,7 +207,27 @@
   },
   "home": {
     "newArrivals": "New arrivals",
-    "featured": "Featured"
+    "featured": "Featured",
+    "heroBadge": "Verified nurseries",
+    "heroTitle": "Fill your home with green",
+    "heroSubtitle": "Plants from verified nurseries across Bangladesh — cash on delivery, plant-safe packaging.",
+    "heroCta": "Browse plants",
+    "heroCtaSecondary": "Explore shops",
+    "trustVerified": "Verified sellers",
+    "trustCod": "Cash on delivery",
+    "trustPackaging": "Plant-safe packaging",
+    "shopByCategory": "Shop by category",
+    "browseAll": "View all",
+    "howItWorks": "How it works",
+    "how1Title": "Pick your plants",
+    "how1Body": "Browse by category and price to find your favourites.",
+    "how2Title": "Place your order",
+    "how2Body": "Confirm the order with your address and pay on delivery.",
+    "how3Title": "Get them delivered",
+    "how3Body": "Safely packed plants arrive at your door.",
+    "sellerCtaTitle": "Run a nursery or shop?",
+    "sellerCtaBody": "Become a seller on PlantHaat and sell plants nationwide.",
+    "sellerCtaButton": "Become a seller"
   },
   "cart": {
     "title": "Cart",
@@ -1366,5 +1408,44 @@
         "shopMaxPerSeller": "Max shops per seller"
       }
     }
+  },
+  "shell": {
+    "searchPlaceholder": "Search plants, shops or categories…",
+    "searchLabel": "Search",
+    "searchAria": "Search products",
+    "skipToContent": "Skip to content",
+    "menu": "Menu",
+    "accountMenu": "Account menu",
+    "account": "Account",
+    "profile": "Profile",
+    "myOrders": "My orders",
+    "wishlist": "Wishlist",
+    "notifications": "Notifications",
+    "cart": "Cart",
+    "cartAria": "Cart, {count} items",
+    "cartEmptyAria": "Cart",
+    "login": "Log in",
+    "register": "Register",
+    "logout": "Log out",
+    "sellerDashboard": "Seller dashboard",
+    "adminDashboard": "Admin console",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "toggleTheme": "Toggle theme",
+    "language": "Language",
+    "languageBn": "বাংলা",
+    "languageEn": "English",
+    "switchToEn": "Switch to English",
+    "switchToBn": "Switch to Bangla",
+    "navLabel": "Main navigation",
+    "bottomNavLabel": "Quick navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "more": "More",
+    "goToDashboard": "Dashboard",
+    "signedInAs": "Signed in as {name}",
+    "storefront": "Storefront"
   }
 }

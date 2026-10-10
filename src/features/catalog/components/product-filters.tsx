@@ -13,6 +13,9 @@ export interface FilterOption {
   label: string;
 }
 
+const SELECT_CLASS =
+  "h-10 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+
 export function ProductFilters({
   categories,
   districts,
@@ -45,7 +48,10 @@ export function ProductFilters({
   };
 
   return (
-    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-border bg-card p-4">
+    <form
+      onSubmit={submit}
+      className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto"
+    >
       <div className="grid gap-1.5">
         <Label htmlFor="q">{t("search")}</Label>
         <Input id="q" name="q" defaultValue={get("q")} placeholder={t("searchPlaceholder")} />
@@ -57,7 +63,7 @@ export function ProductFilters({
           id="category"
           name="category"
           defaultValue={get("category")}
-          className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+          className={SELECT_CLASS}
         >
           <option value="">{t("allCategories")}</option>
           {categories.map((option) => (
@@ -74,7 +80,7 @@ export function ProductFilters({
           id="deliversTo"
           name="deliversTo"
           defaultValue={get("deliversTo")}
-          className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+          className={SELECT_CLASS}
         >
           <option value="">{t("anywhere")}</option>
           {districts.map((option) => (
@@ -102,7 +108,7 @@ export function ProductFilters({
           id="sort"
           name="sort"
           defaultValue={get("sort") || "newest"}
-          className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+          className={SELECT_CLASS}
         >
           <option value="newest">{t("sortNewest")}</option>
           <option value="price_asc">{t("sortPriceAsc")}</option>
@@ -113,15 +119,15 @@ export function ProductFilters({
       </div>
 
       <div className="grid gap-2 text-sm">
-        <label className="inline-flex items-center gap-2">
+        <label className="inline-flex items-center gap-2 accent-primary">
           <input type="checkbox" name="inStock" value="true" defaultChecked={get("inStock") === "true"} />
           {t("inStock")}
         </label>
-        <label className="inline-flex items-center gap-2">
+        <label className="inline-flex items-center gap-2 accent-primary">
           <input type="checkbox" name="isIndoor" value="true" defaultChecked={get("isIndoor") === "true"} />
           {t("indoor")}
         </label>
-        <label className="inline-flex items-center gap-2">
+        <label className="inline-flex items-center gap-2 accent-primary">
           <input type="checkbox" name="isPetSafe" value="true" defaultChecked={get("isPetSafe") === "true"} />
           {t("petSafe")}
         </label>

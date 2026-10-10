@@ -179,7 +179,7 @@ function CartSummary({ view, locale }: { view: CartView; locale: string }) {
   const t = useTranslations("cart");
   const hasIssues = view.shops.some((shop) => shop.items.some((item) => item.issues.length > 0));
   return (
-    <Card className="rounded-2xl lg:sticky lg:top-4 lg:self-start">
+    <Card className="rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24 lg:self-start">
       <CardContent className="grid gap-3">
         <div className="flex justify-between text-sm">
           <span>{t("subtotal")}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { ShoppingBag } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import { addGuestLine } from "@/features/cart/guest-cart";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatBdt } from "@/lib/format/money";
 import { ApiError } from "@/lib/api/common";
+import { cn } from "cn";
 
 export interface VariantView {
   id: string;
@@ -70,40 +72,80 @@ export function VariantPicker({
       }
       toast.success(tCart("added"));
     } catch (error) {
-      toast.error(error instanceof ApiError && error.code === "INSUFFICIENT_STOCK" ? t("outOfStock") : tCart("addFailed"));
+      toast.error(
+        error instanceof ApiError && error.code === "INSUFFICIENT_STOCK"
+          ? t("outOfStock")
+          : tCart("addFailed"),
+      );
     } finally {
       setAdding(false);
     }
   };
 
+  const inStock = selected.stockQty > 0;
+  const outOfStock = !inStock;
+
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex flex-wrap gap-2">
-        {variants.map((variant) => (
-          <Button
-            key={variant.id}
-            type="button"
-            size="sm"
-            variant={variant.id === selected.id ? "default" : "outline"}
-            aria-pressed={variant.id === selected.id}
-            onClick={() => setSelectedId(variant.id)}
-          >
-            {variant.sizeLabel || variant.name}
-          </Button>
-        ))}
+        {variants.map((variant) => {
+          const active = variant.id === selected.id;
+          return (
+            <button
+              key={variant.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setSelectedId(variant.id)}
+              className={cn(
+                "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted",
+              )}
+            >
+              {variant.sizeLabel || variant.name}
+            </button>
+          );
+        })}
       </div>
-      <p className="text-3xl font-bold text-primary">{formatBdt(selected.price, locale)}</p>
-      <p className="text-sm text-muted-foreground">
-        {selected.stockQty > 0 ? t("inStock", { count: selected.stockQty }) : t("outOfStock")}
-      </p>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-heading text-3xl font-bold text-primary">
+          {formatBdt(selected.price, locale)}
+        </p>
+        <p className={cn("text-sm", inStock ? "text-success" : "text-destructive")}>
+          {inStock ? t("inStock", { count: selected.stockQty }) : t("outOfStock")}
+        </p>
+      </div>
       <Button
         variant="cta"
         size="lg"
-        disabled={adding || selected.stockQty <= 0}
+        className="hidden w-full md:inline-flex"
+        disabled={adding || outOfStock}
         onClick={() => void addToCart()}
       >
+        <ShoppingBag aria-hidden className="size-4" />
         {t("addToCart")}
       </Button>
+
+      <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="font-heading truncate text-lg font-bold text-primary">
+              {formatBdt(selected.price, locale)}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {selected.sizeLabel || selected.name}
+            </p>
+          </div>
+          <Button
+            variant="cta"
+            disabled={adding || outOfStock}
+            onClick={() => void addToCart()}
+          >
+            {outOfStock ? t("outOfStock") : t("addToCart")}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
