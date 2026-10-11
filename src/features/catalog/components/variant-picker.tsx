@@ -33,9 +33,11 @@ export interface ProductSnapshot {
 export function VariantPicker({
   variants,
   product,
+  embedded = false,
 }: {
   variants: VariantView[];
   product: ProductSnapshot;
+  embedded?: boolean;
 }) {
   const t = useTranslations("product");
   const tCart = useTranslations("cart");
@@ -119,7 +121,7 @@ export function VariantPicker({
       <Button
         variant="cta"
         size="lg"
-        className="hidden w-full md:inline-flex"
+        className={cn("w-full", embedded ? "inline-flex" : "hidden md:inline-flex")}
         disabled={adding || outOfStock}
         onClick={() => void addToCart()}
       >
@@ -127,25 +129,27 @@ export function VariantPicker({
         {t("addToCart")}
       </Button>
 
-      <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="font-heading truncate text-lg font-bold text-primary">
-              {formatBdt(selected.price, locale)}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {selected.sizeLabel || selected.name}
-            </p>
+      {embedded ? null : (
+        <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
+          <div className="mx-auto flex max-w-7xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="font-heading truncate text-lg font-bold text-primary">
+                {formatBdt(selected.price, locale)}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {selected.sizeLabel || selected.name}
+              </p>
+            </div>
+            <Button
+              variant="cta"
+              disabled={adding || outOfStock}
+              onClick={() => void addToCart()}
+            >
+              {outOfStock ? t("outOfStock") : t("addToCart")}
+            </Button>
           </div>
-          <Button
-            variant="cta"
-            disabled={adding || outOfStock}
-            onClick={() => void addToCart()}
-          >
-            {outOfStock ? t("outOfStock") : t("addToCart")}
-          </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -213,7 +213,9 @@
     "deliveryTitle": "Delivery",
     "deliveryBody": "2–5 days depending on district; cash on delivery available.",
     "gallery": "Gallery",
-    "careTitle": "Care"
+    "careTitle": "Care",
+    "quickView": "Quick view",
+    "viewFullDetails": "View full details"
   },
   "shop": {
     "title": "Shop",
