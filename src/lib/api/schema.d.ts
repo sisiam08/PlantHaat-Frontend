@@ -570,8 +570,28 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search/filter public products */
+        /**
+         * Search/filter public products
+         * @description Default sorts return page-based meta (`page/limit/total/totalPages`). `sort=random` returns cursor meta (`limit/nextCursor/hasMore`) with no total; pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle and `cursor` to page.
+         */
         get: operations["PublicProductsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{slug}/related": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Related products for a product (same category first) */
+        get: operations["PublicProductsController_related"];
         put?: never;
         post?: never;
         delete?: never;
@@ -640,6 +660,23 @@ export interface paths {
         };
         /** Get a public shop by slug */
         get: operations["PublicProductsController_getShop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shops/{slug}/delivery-quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Delivery quote for a shop + destination district (same zones as checkout) */
+        get: operations["PublicProductsController_deliveryQuote"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2433,6 +2470,8 @@ export interface components {
             imageUrl: string | null;
             parentId: string | null;
             sortOrder: number;
+            /** @description Visible, in-stock products; child categories are counted into the parent */
+            productCount: number;
             children: components["schemas"]["CategoryNodeDto"][];
         };
         PublicUserDto: {
@@ -3040,6 +3079,26 @@ export interface components {
             shop: components["schemas"]["ShopSummaryDto"];
             category: components["schemas"]["CategorySummaryDto"];
         };
+        CursorPaginationMetaDto: {
+            limit: number;
+            /** @description Opaque cursor for the next page */
+            nextCursor: string | null;
+            hasMore: boolean;
+        };
+        ProductShopSummaryDto: {
+            id: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            /** @description Origin district (ships from) */
+            district: string | null;
+            /** @description Seller verification badge */
+            verified: boolean;
+            /** @description Decimal as string */
+            ratingAvg: string;
+            ratingCount: number;
+            isOnVacation: boolean;
+        };
         ProductDetailDto: {
             id: string;
             name: string;
@@ -3073,7 +3132,7 @@ export interface components {
             createdAt: string;
             variants: Record<string, never>[];
             images: Record<string, never>[];
-            shop: Record<string, never>;
+            shop: components["schemas"]["ProductShopSummaryDto"];
             category: components["schemas"]["CategorySummaryDto"];
         };
         ShopListItemDto: {
@@ -3105,6 +3164,18 @@ export interface components {
             vacationMessage: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        DeliveryQuoteDto: {
+            deliverable: boolean;
+            /** @description Delivery charge as a decimal string; null when not deliverable */
+            charge: string | null;
+            /** @description Free-delivery threshold as a decimal string; null when none */
+            freeDeliveryAbove: string | null;
+            estimatedDaysMin: number | null;
+            estimatedDaysMax: number | null;
+            /** @description Matched delivery zone name */
+            zoneName: string | null;
+            codAvailable: boolean;
         };
         HomeResponseDto: {
             /** @description Active hero banners */
@@ -5088,7 +5159,11 @@ export interface operations {
                 inStock?: boolean;
                 /** @description District id the shop must deliver to */
                 deliversTo?: number;
-                sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating";
+                sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating" | "random";
+                /** @description Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket */
+                seed?: string;
+                /** @description Opaque cursor returned by `sort=random` pagination */
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -5105,7 +5180,34 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["ProductListItemDto"][];
-                        meta: components["schemas"]["PaginationMetaDto"];
+                        meta: components["schemas"]["PaginationMetaDto"] | components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    PublicProductsController_related: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ProductListItemDto"][];
                     };
                 };
             };
@@ -5207,6 +5309,34 @@ export interface operations {
             };
         };
     };
+    PublicProductsController_deliveryQuote: {
+        parameters: {
+            query: {
+                /** @description Destination district id */
+                districtId: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["DeliveryQuoteDto"];
+                    };
+                };
+            };
+        };
+    };
     PublicProductsController_shopProducts: {
         parameters: {
             query?: {
@@ -5227,7 +5357,11 @@ export interface operations {
                 inStock?: boolean;
                 /** @description District id the shop must deliver to */
                 deliversTo?: number;
-                sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating";
+                sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating" | "random";
+                /** @description Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket */
+                seed?: string;
+                /** @description Opaque cursor returned by `sort=random` pagination */
+                cursor?: string;
             };
             header?: never;
             path: {

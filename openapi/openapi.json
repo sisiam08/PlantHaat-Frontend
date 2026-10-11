@@ -1787,6 +1787,7 @@
     },
     "/api/v1/products": {
       "get": {
+        "description": "Default sorts return page-based meta (`page/limit/total/totalPages`). `sort=random` returns cursor meta (`limit/nextCursor/hasMore`) with no total; pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle and `cursor` to page.",
         "operationId": "PublicProductsController_list",
         "parameters": [
           {
@@ -1924,8 +1925,28 @@
                 "price_asc",
                 "price_desc",
                 "popular",
-                "rating"
+                "rating",
+                "random"
               ]
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "in": "query",
+            "description": "Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket",
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque cursor returned by `sort=random` pagination",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1953,7 +1974,14 @@
                       }
                     },
                     "meta": {
-                      "$ref": "#/components/schemas/PaginationMetaDto"
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/PaginationMetaDto"
+                        },
+                        {
+                          "$ref": "#/components/schemas/CursorPaginationMetaDto"
+                        }
+                      ]
                     }
                   }
                 }
@@ -1962,6 +1990,64 @@
           }
         },
         "summary": "Search/filter public products",
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/api/v1/products/{slug}/related": {
+      "get": {
+        "operationId": "PublicProductsController_related",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 12,
+              "default": 6,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductListItemDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Related products for a product (same category first)",
         "tags": [
           "Catalog"
         ]
@@ -2141,6 +2227,60 @@
         ]
       }
     },
+    "/api/v1/shops/{slug}/delivery-quote": {
+      "get": {
+        "operationId": "PublicProductsController_deliveryQuote",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "districtId",
+            "required": true,
+            "in": "query",
+            "description": "Destination district id",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DeliveryQuoteDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Delivery quote for a shop + destination district (same zones as checkout)",
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
     "/api/v1/shops/{slug}/products": {
       "get": {
         "operationId": "PublicProductsController_shopProducts",
@@ -2288,8 +2428,28 @@
                 "price_asc",
                 "price_desc",
                 "popular",
-                "rating"
+                "rating",
+                "random"
               ]
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "in": "query",
+            "description": "Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket",
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Opaque cursor returned by `sort=random` pagination",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -6736,6 +6896,10 @@
           "sortOrder": {
             "type": "number"
           },
+          "productCount": {
+            "type": "number",
+            "description": "Visible, in-stock products; child categories are counted into the parent"
+          },
           "children": {
             "type": "array",
             "items": {
@@ -6751,6 +6915,7 @@
           "imageUrl",
           "parentId",
           "sortOrder",
+          "productCount",
           "children"
         ]
       },
@@ -8709,6 +8874,75 @@
           "category"
         ]
       },
+      "CursorPaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number"
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Opaque cursor for the next page"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "limit",
+          "nextCursor",
+          "hasMore"
+        ]
+      },
+      "ProductShopSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true,
+            "description": "Origin district (ships from)"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "Seller verification badge"
+          },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "ratingCount": {
+            "type": "number"
+          },
+          "isOnVacation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "logoUrl",
+          "district",
+          "verified",
+          "ratingAvg",
+          "ratingCount",
+          "isOnVacation"
+        ]
+      },
       "ProductDetailDto": {
         "type": "object",
         "properties": {
@@ -8821,7 +9055,7 @@
             }
           },
           "shop": {
-            "type": "object"
+            "$ref": "#/components/schemas/ProductShopSummaryDto"
           },
           "category": {
             "$ref": "#/components/schemas/CategorySummaryDto"
@@ -8975,6 +9209,49 @@
           "isOnVacation",
           "vacationMessage",
           "createdAt"
+        ]
+      },
+      "DeliveryQuoteDto": {
+        "type": "object",
+        "properties": {
+          "deliverable": {
+            "type": "boolean"
+          },
+          "charge": {
+            "type": "string",
+            "nullable": true,
+            "description": "Delivery charge as a decimal string; null when not deliverable"
+          },
+          "freeDeliveryAbove": {
+            "type": "string",
+            "nullable": true,
+            "description": "Free-delivery threshold as a decimal string; null when none"
+          },
+          "estimatedDaysMin": {
+            "type": "number",
+            "nullable": true
+          },
+          "estimatedDaysMax": {
+            "type": "number",
+            "nullable": true
+          },
+          "zoneName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Matched delivery zone name"
+          },
+          "codAvailable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "deliverable",
+          "charge",
+          "freeDeliveryAbove",
+          "estimatedDaysMin",
+          "estimatedDaysMax",
+          "zoneName",
+          "codAvailable"
         ]
       },
       "HomeResponseDto": {
