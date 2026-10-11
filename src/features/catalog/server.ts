@@ -69,6 +69,53 @@ export async function getProducts(query: ProductQuery): Promise<Paginated<Produc
   return { data, meta: requireMeta(meta, query.limit ?? 20) };
 }
 
+export interface FeedPage {
+  data: ProductListItem[];
+  meta: { limit: number; nextCursor: string | null; hasMore: boolean };
+}
+
+export const FEED_SEED_BUCKET_MS = 15 * 60 * 1000;
+
+/** Seed for the home feed: identical for everyone in the same 15-minute window. */
+export function currentFeedSeed(now: number = Date.now()): string {
+  return String(Math.floor(now / FEED_SEED_BUCKET_MS));
+}
+
+/** Cached first page of the home random feed, keyed by the 15-minute seed. */
+export async function getProductFeedPage(seed: string, limit: number): Promise<FeedPage> {
+  "use cache";
+  cacheTag(CACHE_TAGS.products);
+  cacheLife("minutes");
+  const { data, meta } = await serverRequest<ProductListItem[]>({
+    method: "GET",
+    url: "/products",
+    params: { sort: "random", seed, limit, inStock: true },
+  });
+  const cursorMeta = meta as unknown as
+    | { limit?: number; nextCursor?: string | null; hasMore?: boolean }
+    | undefined;
+  return {
+    data,
+    meta: {
+      limit: cursorMeta?.limit ?? limit,
+      nextCursor: typeof cursorMeta?.nextCursor === "string" ? cursorMeta.nextCursor : null,
+      hasMore: cursorMeta?.hasMore === true,
+    },
+  };
+}
+
+export async function getRelated(slug: string, limit = 6): Promise<ProductListItem[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.products, productTag(slug));
+  cacheLife("minutes");
+  const { data } = await serverRequest<ProductListItem[]>({
+    method: "GET",
+    url: `/products/${encodeURIComponent(slug)}/related`,
+    params: { limit },
+  });
+  return data;
+}
+
 export async function getProduct(slug: string): Promise<ProductDetail> {
   "use cache";
   cacheTag(CACHE_TAGS.products, productTag(slug), productReviewsTag(slug));

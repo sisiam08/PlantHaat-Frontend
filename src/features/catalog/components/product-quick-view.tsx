@@ -91,6 +91,7 @@ export async function ProductQuickView({ product }: { product: ProductDetail }) 
         <VariantPicker
           variants={variants}
           product={{
+            productId: product.id,
             productName: product.name,
             slug: product.slug,
             imageUrl: primary?.url ?? null,

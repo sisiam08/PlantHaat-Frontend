@@ -26,14 +26,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale} className="h-full antialiased" suppressHydrationWarning>
       <head>
-        {/* Self-hosted fonts (see globals.css @font-face + public/fonts). */}
-        <link
-          rel="preload"
-          href="/fonts/hind-siliguri-bengali-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        {/* Self-hosted fonts (see globals.css @font-face + public/fonts). The
+            Bangla font is preloaded only for the bn locale; Latin is always
+            needed (digits/labels). Kalpurush.ttf (developer-supplied) is not
+            wired yet — see FRONTEND_CONTEXT.md §12. */}
+        {locale === "bn" ? (
+          <link
+            rel="preload"
+            href="/fonts/hind-siliguri-bengali-400.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        ) : null}
         <link
           rel="preload"
           href="/fonts/inter-latin-var.woff2"

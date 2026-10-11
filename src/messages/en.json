@@ -215,7 +215,35 @@
     "gallery": "Gallery",
     "careTitle": "Care",
     "quickView": "Quick view",
-    "viewFullDetails": "View full details"
+    "viewFullDetails": "View full details",
+    "available": "Available",
+    "lowStock": "Only {count} left",
+    "quantity": "Quantity",
+    "decreaseQty": "Decrease quantity",
+    "increaseQty": "Increase quantity",
+    "wishlistAdd": "Add to wishlist",
+    "wishlistRemove": "Remove from wishlist",
+    "wishlistAdded": "Added to wishlist",
+    "wishlistRemoved": "Removed from wishlist",
+    "dispatchFrom": "Dispatched from {district}",
+    "deliveryToYou": "Delivery to you",
+    "selectDistrict": "Select district",
+    "deliveryCharge": "Delivery charge",
+    "estimatedDays": "Estimated time",
+    "estimatedDaysValue": "{min}–{max} days",
+    "freeDeliveryAbove": "Free delivery over {amount}",
+    "notDeliverable": "This shop does not deliver to your district.",
+    "deliveryUnavailable": "Couldn't load delivery information.",
+    "codAvailable": "Cash on delivery available",
+    "plantSafePackaging": "Plant-safe packaging",
+    "deliveredBySeller": "Delivered by the seller",
+    "deliveryPolicy": "Delivery policy",
+    "deliveryTab": "Delivery & returns",
+    "returnsTitle": "Returns & complaints",
+    "returnsBody": "Damaged plants can be reported with photos within 48 hours of delivery.",
+    "policyLink": "View policy",
+    "relatedTitle": "More from this category",
+    "shopOnVacation": "This shop is currently on vacation"
   },
   "shop": {
     "title": "Shop",
@@ -245,7 +273,19 @@
     "how3Body": "Safely packed plants arrive at your door.",
     "sellerCtaTitle": "Run a nursery or shop?",
     "sellerCtaBody": "Become a seller on PlantHaat and sell plants nationwide.",
-    "sellerCtaButton": "Become a seller"
+    "sellerCtaButton": "Become a seller",
+    "bannerLabel": "Highlights",
+    "slideLabel": "Slide {index} of {total}",
+    "howTitleSr": "How it works",
+    "howStep1": "Pick your plants",
+    "howStep2": "Order with cash on delivery",
+    "howStep3": "Fresh plants at your door",
+    "allPlants": "All plants",
+    "feedEnd": "You've seen all plants",
+    "loadMore": "Load more",
+    "feedError": "Couldn't load plants.",
+    "feedEmpty": "No plants available right now.",
+    "retry": "Try again"
   },
   "cart": {
     "title": "Cart",
@@ -1180,7 +1220,14 @@
       "sortOrder": "Sort order",
       "validation": {
         "name": "Enter at least 2 characters"
-      }
+      },
+      "image": "Image",
+      "imageHint": "Square image, ≥ 600×600",
+      "uploadImage": "Upload image",
+      "replaceImage": "Replace image",
+      "removeImage": "Remove image",
+      "uploading": "Uploading…",
+      "imageRequired": "An image is required"
     },
     "orderStatus": {
       "PENDING": "Pending",

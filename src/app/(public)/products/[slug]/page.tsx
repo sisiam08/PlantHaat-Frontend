@@ -1,26 +1,21 @@
-import {
-  Droplets,
-  Gauge,
-  Home,
-  PawPrint,
-  Ruler,
-  Star,
-  Sun,
-  Truck,
-} from "lucide-react";
+import { BadgeCheck, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DeliveryEstimator } from "@/features/catalog/components/delivery-estimator";
 import { StarRating } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
+import { ProductInfoTabs, type CareItem } from "@/features/catalog/components/product-info-tabs";
+import { RelatedProducts } from "@/features/catalog/components/related-products";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
-import { getProduct } from "@/features/catalog/server";
-import { ReviewsList } from "@/features/reviews/components/reviews-list";
+import { getDistricts, getProduct } from "@/features/catalog/server";
 import type { ProductDetail } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 
@@ -35,6 +30,7 @@ interface DetailShop {
   slug: string;
   logoUrl?: string | null;
   district?: string | null;
+  verified?: boolean;
   ratingAvg?: string | number | null;
   ratingCount?: number | null;
   isOnVacation?: boolean;
@@ -72,25 +68,53 @@ export default async function ProductPage({
 
   const locale = await getLocale();
   const t = await getTranslations("product");
-  const images = product.images as unknown as DetailImage[];
-  const variants = product.variants as unknown as (VariantView & { sizeLabel?: string | null })[];
+  const [images, districts] = [
+    product.images as unknown as DetailImage[],
+    await getDistricts(),
+  ];
+  const variants = product.variants as unknown as VariantView[];
   const shop = product.shop as unknown as DetailShop;
 
   const careLabel = (value: string | null | undefined): string =>
     value ? t(`care.${value}`) : "—";
 
-  const careItems = [
-    { icon: Sun, label: t("light"), value: careLabel(product.lightRequirement) },
-    { icon: Droplets, label: t("watering"), value: careLabel(product.wateringFrequency) },
-    { icon: Gauge, label: t("difficulty"), value: careLabel(product.careDifficulty) },
-    { icon: Home, label: t("indoor"), value: product.isIndoor ? "✓" : "—" },
-    { icon: PawPrint, label: t("petSafe"), value: product.isPetSafe ? "✓" : "—" },
+  const careItems: CareItem[] = [
+    { key: "light", label: t("light"), value: careLabel(product.lightRequirement) },
+    { key: "watering", label: t("watering"), value: careLabel(product.wateringFrequency) },
+    { key: "difficulty", label: t("difficulty"), value: careLabel(product.careDifficulty) },
+    { key: "indoor", label: t("indoor"), value: product.isIndoor ? "✓" : "—" },
+    { key: "petSafe", label: t("petSafe"), value: product.isPetSafe ? "✓" : "—" },
     {
-      icon: Ruler,
+      key: "height",
       label: t("height"),
       value: product.matureHeightCm ? `${product.matureHeightCm} cm` : "—",
     },
   ];
+
+  const deliveryPanel = (
+    <div className="grid gap-4">
+      <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-4">
+        <BadgeCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
+        <div className="grid gap-0.5 text-sm">
+          <p className="font-medium">
+            {t("dispatchFrom", { district: shop.district ?? "—" })}
+          </p>
+          <p className="text-muted-foreground">{shop.name}</p>
+        </div>
+      </div>
+      <DeliveryEstimator shopSlug={shop.slug} districts={districts} />
+    </div>
+  );
+
+  const returnsPanel = (
+    <div className="grid gap-2 text-sm">
+      <h3 className="font-medium">{t("returnsTitle")}</h3>
+      <p className="text-muted-foreground">{t("returnsBody")}</p>
+      <Link href="/policies/refund-cancellation" className="font-medium text-primary hover:underline">
+        {t("policyLink")}
+      </Link>
+    </div>
+  );
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -128,32 +152,28 @@ export default async function ProductPage({
             {product.nameBn ? (
               <p className="text-muted-foreground">{product.nameBn}</p>
             ) : null}
+            {product.scientificName ? (
+              <p className="text-sm text-muted-foreground italic">{product.scientificName}</p>
+            ) : null}
             <div className="flex flex-wrap items-center gap-3">
               <StarRating value={product.ratingAvg} count={product.ratingCount} />
               <Badge variant={product.inStock ? "secondary" : "destructive"}>
-                {product.inStock ? t("inStock", { count: 1 }) : t("outOfStock")}
+                {product.inStock ? t("available") : t("outOfStock")}
               </Badge>
             </div>
           </div>
 
-          <div className="grid gap-4 lg:sticky lg:top-24">
+          <div className="lg:sticky lg:top-24">
             <VariantPicker
               variants={variants}
               product={{
+                productId: product.id,
                 productName: product.name,
                 slug: product.slug,
                 imageUrl: images[0]?.url ?? null,
                 shopName: shop.name,
               }}
             />
-
-            <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-4">
-              <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
-              <div className="grid gap-0.5">
-                <p className="text-sm font-medium">{t("deliveryTitle")}</p>
-                <p className="text-sm text-muted-foreground">{t("deliveryBody")}</p>
-              </div>
-            </div>
           </div>
 
           <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
@@ -169,7 +189,10 @@ export default async function ProductPage({
               ) : null}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{shop.name}</p>
+              <p className="flex items-center gap-1.5 truncate font-medium">
+                {shop.name}
+                {shop.verified ? <BadgeCheck aria-hidden className="size-4 text-primary" /> : null}
+              </p>
               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                 <Star aria-hidden className="size-3 fill-cta text-cta" />
                 {Number(shop.ratingAvg ?? 0).toFixed(1)}
@@ -183,40 +206,38 @@ export default async function ProductPage({
 
           {shop.isOnVacation ? (
             <Badge variant="secondary" className="w-fit">
-              {t("outOfStock")}
+              {t("shopOnVacation")}
             </Badge>
           ) : null}
         </div>
       </div>
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-2">
-        <section className="grid content-start gap-3">
-          <h2 className="font-heading text-xl font-semibold">{t("description")}</h2>
-          <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-            {product.description}
-          </p>
-        </section>
-
-        <section className="grid content-start gap-3">
-          <h2 className="font-heading text-xl font-semibold">{t("careTitle")}</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {careItems.map((item) => (
-              <div
-                key={item.label}
-                className="grid gap-1 rounded-2xl border border-border/60 bg-card p-3 shadow-sm"
-              >
-                <item.icon aria-hidden className="size-4 text-primary" />
-                <p className="text-xs text-muted-foreground">{item.label}</p>
-                <p className="text-sm font-medium">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      <div className="mt-12">
+        <ProductInfoTabs
+          slug={slug}
+          description={product.description}
+          careItems={careItems}
+          delivery={deliveryPanel}
+          returns={returnsPanel}
+        />
       </div>
 
-      <section className="mt-12">
-        <ReviewsList slug={slug} />
-      </section>
+      <div className="mt-14">
+        <Suspense
+          fallback={
+            <div className="grid gap-4">
+              <Skeleton className="h-7 w-56" />
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
+                ))}
+              </div>
+            </div>
+          }
+        >
+          <RelatedProducts slug={slug} excludeId={product.id} />
+        </Suspense>
+      </div>
 
       <script
         type="application/ld+json"

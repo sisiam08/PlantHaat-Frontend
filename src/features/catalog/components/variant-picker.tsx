@@ -1,8 +1,9 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { ShoppingBag } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Heart, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -10,20 +11,27 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/auth-provider";
 import { cartApi } from "@/features/cart/api";
 import { addGuestLine } from "@/features/cart/guest-cart";
-import { queryKeys } from "@/lib/api/query-keys";
-import { formatBdt } from "@/lib/format/money";
+import { wishlistApi } from "@/features/wishlist/api";
 import { ApiError } from "@/lib/api/common";
+import { apiGet } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/query-keys";
+import type { ProductDetail } from "@/lib/api/types";
+import { formatBdt } from "@/lib/format/money";
 import { cn } from "cn";
+
+const MAX_QTY = 20;
 
 export interface VariantView {
   id: string;
   name: string;
   price: string;
+  compareAtPrice?: string | null;
   stockQty: number;
   sizeLabel?: string | null;
 }
 
 export interface ProductSnapshot {
+  productId: string;
   productName: string;
   slug: string;
   imageUrl?: string | null;
@@ -41,27 +49,63 @@ export function VariantPicker({
 }) {
   const t = useTranslations("product");
   const tCart = useTranslations("cart");
+  const tErrors = useTranslations("errors");
   const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState(variants[0]?.id);
+  const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
-  const selected = variants.find((variant) => variant.id === selectedId) ?? variants[0];
+
+  // Live price/stock island: the cached page HTML can be stale, so refetch the
+  // product once on the full product page (short staleTime).
+  const live = useQuery({
+    queryKey: queryKeys.catalog.productLive(product.slug),
+    queryFn: () =>
+      apiGet<ProductDetail>(`/products/${encodeURIComponent(product.slug)}`).then(
+        (result) => result.data,
+      ),
+    staleTime: 60 * 1000,
+    enabled: !embedded,
+    retry: 1,
+  });
+  const liveVariants = live.data?.variants as unknown as VariantView[] | undefined;
+  const source = liveVariants && liveVariants.length > 0 ? liveVariants : variants;
+
+  const selected = source.find((variant) => variant.id === selectedId) ?? source[0];
+
+  const wishlist = useQuery({
+    queryKey: queryKeys.wishlist(),
+    queryFn: () => wishlistApi.list(1),
+    enabled: Boolean(user),
+    staleTime: 60 * 1000,
+  });
+  const inWishlist =
+    wishlist.data?.data.some((item) => item.product.slug === product.slug) ?? false;
+  const [wishlistBusy, setWishlistBusy] = useState(false);
 
   if (!selected) {
     return null;
   }
 
+  const inStock = selected.stockQty > 0;
+  const outOfStock = !inStock;
+  const clampedQty = Math.min(quantity, Math.max(selected.stockQty, 1), MAX_QTY);
+  const compareAt = Number(selected.compareAtPrice ?? 0);
+  const showCompareAt = Number.isFinite(compareAt) && compareAt > Number(selected.price);
+
   const addToCart = async () => {
     setAdding(true);
     try {
       if (user) {
-        await cartApi.putItem(selected.id, 1);
+        await cartApi.putItem(selected.id, clampedQty);
         await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       } else {
         addGuestLine({
           variantId: selected.id,
-          quantity: 1,
+          quantity: clampedQty,
           snapshot: {
             productName: product.productName,
             variantName: selected.sizeLabel || selected.name,
@@ -84,50 +128,126 @@ export function VariantPicker({
     }
   };
 
-  const inStock = selected.stockQty > 0;
-  const outOfStock = !inStock;
+  const toggleWishlist = async () => {
+    if (!user) {
+      router.push(`/login?returnTo=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    setWishlistBusy(true);
+    try {
+      if (inWishlist) {
+        await wishlistApi.remove(product.productId);
+        toast.success(t("wishlistRemoved"));
+      } else {
+        await wishlistApi.add(product.productId);
+        toast.success(t("wishlistAdded"));
+      }
+      await queryClient.invalidateQueries({ queryKey: queryKeys.wishlist() });
+    } catch (error) {
+      toast.error(error instanceof ApiError ? tErrors("generic") : tErrors("generic"));
+    } finally {
+      setWishlistBusy(false);
+    }
+  };
 
   return (
     <div className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
-      <div className="flex flex-wrap gap-2">
-        {variants.map((variant) => {
-          const active = variant.id === selected.id;
-          return (
-            <button
-              key={variant.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => setSelectedId(variant.id)}
-              className={cn(
-                "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                active
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted",
-              )}
-            >
-              {variant.sizeLabel || variant.name}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
+      {source.length > 1 ? (
+        <div className="flex flex-wrap gap-2">
+          {source.map((variant) => {
+            const active = variant.id === selected.id;
+            return (
+              <button
+                key={variant.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSelectedId(variant.id)}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted",
+                )}
+              >
+                {variant.sizeLabel || variant.name}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <div className="flex items-baseline gap-2">
         <p className="font-heading text-3xl font-bold text-primary">
           {formatBdt(selected.price, locale)}
         </p>
-        <p className={cn("text-sm", inStock ? "text-success" : "text-destructive")}>
-          {inStock ? t("inStock", { count: selected.stockQty }) : t("outOfStock")}
+        {showCompareAt ? (
+          <p className="text-sm text-muted-foreground line-through">
+            {formatBdt(selected.compareAtPrice, locale)}
+          </p>
+        ) : null}
+        <p className={cn("ml-auto text-sm", inStock ? "text-success" : "text-destructive")}>
+          {inStock
+            ? selected.stockQty <= 3
+              ? t("lowStock", { count: selected.stockQty })
+              : t("inStock", { count: selected.stockQty })
+            : t("outOfStock")}
         </p>
       </div>
-      <Button
-        variant="cta"
-        size="lg"
-        className={cn("w-full", embedded ? "inline-flex" : "hidden md:inline-flex")}
-        disabled={adding || outOfStock}
-        onClick={() => void addToCart()}
-      >
-        <ShoppingBag aria-hidden className="size-4" />
-        {t("addToCart")}
-      </Button>
+
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium">{t("quantity")}</span>
+        <div className="inline-flex items-center rounded-full border border-border/60">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("decreaseQty")}
+            disabled={quantity <= 1}
+            onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+          >
+            <Minus aria-hidden />
+          </Button>
+          <span className="w-10 text-center text-sm font-medium tabular-nums">{clampedQty}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("increaseQty")}
+            disabled={quantity >= Math.min(MAX_QTY, Math.max(selected.stockQty, 1))}
+            onClick={() => setQuantity((value) => Math.min(MAX_QTY, value + 1))}
+          >
+            <Plus aria-hidden />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          variant="cta"
+          size="lg"
+          className={cn("flex-1", embedded ? "inline-flex" : "hidden md:inline-flex")}
+          disabled={adding || outOfStock}
+          onClick={() => void addToCart()}
+        >
+          {adding ? (
+            <Loader2 aria-hidden className="size-4 animate-spin" />
+          ) : (
+            <ShoppingBag aria-hidden className="size-4" />
+          )}
+          {outOfStock ? t("outOfStock") : t("addToCart")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-lg"
+          aria-label={inWishlist ? t("wishlistRemove") : t("wishlistAdd")}
+          aria-pressed={inWishlist}
+          disabled={wishlistBusy}
+          onClick={() => void toggleWishlist()}
+        >
+          <Heart aria-hidden className={cn(inWishlist && "fill-offer text-offer")} />
+        </Button>
+      </div>
 
       {embedded ? null : (
         <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">

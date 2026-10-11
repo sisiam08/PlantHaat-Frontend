@@ -2,6 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ImagePlus, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -16,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
+import { uploadsApi } from "@/features/uploads/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { adminApi } from "../api";
 import type { AdminCategory } from "../types";
@@ -33,15 +36,22 @@ export function CategoriesClient() {
     retry: false,
   });
 
-  const schema = z.object({
-    name: z.string().min(2, t("validation.name")),
-    nameBn: z.string().optional(),
-    slug: z.string().optional(),
-    parentId: z.string().optional(),
-    imageUrl: z.string().optional(),
-    sortOrder: z.string().optional(),
-    isActive: z.boolean(),
-  });
+  const schema = z
+    .object({
+      name: z.string().min(2, t("validation.name")),
+      nameBn: z.string().optional(),
+      slug: z.string().optional(),
+      parentId: z.string().optional(),
+      imageUrl: z.string().optional(),
+      sortOrder: z.string().optional(),
+      isActive: z.boolean(),
+    })
+    .superRefine((values, ctx) => {
+      // The backend keeps imageUrl optional, but creating a category requires it.
+      if (!editingId && !values.imageUrl) {
+        ctx.addIssue({ code: "custom", path: ["imageUrl"], message: t("imageRequired") });
+      }
+    });
   type Values = z.infer<typeof schema>;
 
   const empty: Values = {
@@ -56,6 +66,23 @@ export function CategoriesClient() {
 
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: empty });
   const isActive = useWatch({ control: form.control, name: "isActive" });
+  const imageUrl = useWatch({ control: form.control, name: "imageUrl" });
+  const [uploading, setUploading] = useState(false);
+
+  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const stored = await uploadsApi.image(file, "category");
+      form.setValue("imageUrl", stored.url, { shouldValidate: true });
+    } catch (error) {
+      toastApiError(error, tErrors);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.admin.categories });
@@ -187,7 +214,45 @@ export function CategoriesClient() {
                   ))}
               </select>
             </div>
-            <FormField label={t("imageUrl")} {...form.register("imageUrl")} />
+            <div className="grid gap-1.5 sm:col-span-2">
+              <Label>{t("image")}</Label>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-muted/40 ring-1 ring-border/40">
+                  {imageUrl ? (
+                    <Image src={imageUrl} alt="" fill sizes="80px" className="object-cover" />
+                  ) : null}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" size="sm" disabled={uploading} asChild>
+                    <label className="cursor-pointer">
+                      <ImagePlus aria-hidden />
+                      {uploading ? t("uploading") : imageUrl ? t("replaceImage") : t("uploadImage")}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="sr-only"
+                        onChange={(event) => void uploadImage(event)}
+                      />
+                    </label>
+                  </Button>
+                  {imageUrl ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => form.setValue("imageUrl", "", { shouldValidate: true })}
+                    >
+                      <Trash2 aria-hidden />
+                      {t("removeImage")}
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">{t("imageHint")}</p>
+              {form.formState.errors.imageUrl ? (
+                <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p>
+              ) : null}
+            </div>
             <FormField label={t("sortOrder")} inputMode="numeric" {...form.register("sortOrder")} />
             <div className="flex items-center gap-2">
               <Checkbox

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="640" viewBox="0 0 1920 640" preserveAspectRatio="xMidYMid slice" role="img">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#375534"/>
+      <stop offset="1" stop-color="#0F2A1D"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.75" cy="0.35" r="0.6">
+      <stop offset="0" stop-color="#E3EED4" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#E3EED4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="640" fill="url(#bg)"/>
+  <rect width="1920" height="640" fill="url(#glow)"/>
+  <g fill="#6B9071" opacity="0.55">
+    <path d="M1560 640c-40-160 30-300 180-360-60 150-70 250-40 360z"/>
+    <path d="M1700 640c-10-140 60-250 190-300-50 120-70 210-60 300z"/>
+    <path d="M1440 640c-60-110-20-230 90-300-20 120-20 210 10 300z"/>
+  </g>
+  <g fill="#AEC3B0" opacity="0.35">
+    <circle cx="260" cy="180" r="90"/>
+    <circle cx="360" cy="120" r="54"/>
+    <circle cx="190" cy="110" r="40"/>
+  </g>
+  <g fill="#0F2A1D" opacity="0.35">
+    <path d="M0 640c260-90 520-90 780 0z"/>
+  </g>
+</svg>

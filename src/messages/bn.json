@@ -215,7 +215,35 @@
     "gallery": "ছবি",
     "careTitle": "পরিচর্যা",
     "quickView": "দ্রুত দেখুন",
-    "viewFullDetails": "সম্পূর্ণ বিবরণ"
+    "viewFullDetails": "সম্পূর্ণ বিবরণ",
+    "available": "স্টকে আছে",
+    "lowStock": "মাত্র {count}টি বাকি",
+    "quantity": "পরিমাণ",
+    "decreaseQty": "পরিমাণ কমান",
+    "increaseQty": "পরিমাণ বাড়ান",
+    "wishlistAdd": "উইশলিস্টে যোগ করুন",
+    "wishlistRemove": "উইশলিস্ট থেকে সরান",
+    "wishlistAdded": "উইশলিস্টে যোগ হয়েছে",
+    "wishlistRemoved": "উইশলিস্ট থেকে সরানো হয়েছে",
+    "dispatchFrom": "{district} থেকে পাঠানো হয়",
+    "deliveryToYou": "আপনার কাছে ডেলিভারি",
+    "selectDistrict": "জেলা নির্বাচন করুন",
+    "deliveryCharge": "ডেলিভারি চার্জ",
+    "estimatedDays": "সম্ভাব্য সময়",
+    "estimatedDaysValue": "{min}–{max} দিন",
+    "freeDeliveryAbove": "{amount}-এর বেশি অর্ডারে ফ্রি ডেলিভারি",
+    "notDeliverable": "এই দোকান আপনার জেলায় ডেলিভারি দেয় না।",
+    "deliveryUnavailable": "ডেলিভারি তথ্য পাওয়া যায়নি।",
+    "codAvailable": "ক্যাশ অন ডেলিভারি উপলব্ধ",
+    "plantSafePackaging": "গাছ-নিরাপদ প্যাকেজিং",
+    "deliveredBySeller": "বিক্রেতা সরবরাহ করেন",
+    "deliveryPolicy": "ডেলিভারি নীতি",
+    "deliveryTab": "ডেলিভারি ও ফেরত",
+    "returnsTitle": "ফেরত ও অভিযোগ",
+    "returnsBody": "ডেলিভারির ৪৮ ঘণ্টার মধ্যে ছবিসহ ক্ষতিগ্রস্ত গাছের অভিযোগ জানানো যাবে।",
+    "policyLink": "নীতিমালা দেখুন",
+    "relatedTitle": "এই ক্যাটাগরির আরও গাছ",
+    "shopOnVacation": "দোকানটি এখন ছুটিতে আছে"
   },
   "shop": {
     "title": "দোকান",
@@ -245,7 +273,19 @@
     "how3Body": "নিরাপদে প্যাক করা গাছ আপনার দরজায় পৌঁছে যাবে।",
     "sellerCtaTitle": "নার্সারি বা দোকান আছে?",
     "sellerCtaBody": "PlantHaat-এ বিক্রেতা হয়ে সারা দেশে গাছ বিক্রি করুন।",
-    "sellerCtaButton": "বিক্রেতা হোন"
+    "sellerCtaButton": "বিক্রেতা হোন",
+    "bannerLabel": "হাইলাইট",
+    "slideLabel": "স্লাইড {index} / {total}",
+    "howTitleSr": "কীভাবে কাজ করে",
+    "howStep1": "পছন্দের গাছ বেছে নিন",
+    "howStep2": "ক্যাশ অন ডেলিভারিতে অর্ডার",
+    "howStep3": "সতেজ গাছ আপনার দরজায়",
+    "allPlants": "সব গাছ",
+    "feedEnd": "আপনি সব গাছ দেখেছেন",
+    "loadMore": "আরও দেখুন",
+    "feedError": "গাছ লোড করা যায়নি।",
+    "feedEmpty": "এখন কোনো গাছ নেই।",
+    "retry": "আবার চেষ্টা করুন"
   },
   "cart": {
     "title": "কার্ট",
@@ -1180,7 +1220,14 @@
       "sortOrder": "ক্রম",
       "validation": {
         "name": "কমপক্ষে ২ অক্ষর দিন"
-      }
+      },
+      "image": "ছবি",
+      "imageHint": "বর্গাকার ছবি, ≥ ৬০০×৬০০ পিক্সেল",
+      "uploadImage": "ছবি আপলোড",
+      "replaceImage": "ছবি বদলান",
+      "removeImage": "ছবি সরান",
+      "uploading": "আপলোড হচ্ছে…",
+      "imageRequired": "একটি ছবি যোগ করুন"
     },
     "orderStatus": {
       "PENDING": "অপেক্ষমাণ",

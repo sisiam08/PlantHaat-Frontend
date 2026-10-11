@@ -19,9 +19,12 @@ const SELECT_CLASS =
 export function ProductFilters({
   categories,
   districts,
+  categoryName,
 }: {
   categories: FilterOption[];
   districts: FilterOption[];
+  /** Display name of the currently selected category (pre-fills the search box). */
+  categoryName?: string;
 }) {
   const t = useTranslations("catalog");
   const router = useRouter();
@@ -30,18 +33,39 @@ export function ProductFilters({
   const [pending, setPending] = useState(false);
 
   const get = (key: string) => searchParams.get(key) ?? "";
+  const currentCategory = get("category");
+  const categoryPrefill = currentCategory && categoryName ? categoryName : "";
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPending(true);
     const formData = new FormData(event.currentTarget);
     const params = new URLSearchParams();
-    for (const [key, value] of formData.entries()) {
-      const str = String(value).trim();
-      if (str && str !== "false") {
-        params.set(key, str);
-      }
+
+    // Carry over the non-text filters unchanged.
+    for (const key of ["deliversTo", "minPrice", "maxPrice", "sort"]) {
+      const value = String(formData.get(key) ?? "").trim();
+      if (value && value !== "false") params.set(key, value);
     }
+    for (const key of ["inStock", "isIndoor", "isPetSafe"]) {
+      if (formData.get(key) === "true") params.set(key, "true");
+    }
+
+    // The search box behaves like a category search: submitting the unchanged
+    // category name keeps the category filter; editing it becomes a normal text
+    // search; clearing it (with no category chosen) shows everything.
+    const q = String(formData.get("q") ?? "").trim();
+    const selectedCategory = String(formData.get("category") ?? "");
+    const unchangedCategoryName = Boolean(categoryPrefill) && q === categoryPrefill;
+
+    if (q && !unchangedCategoryName) {
+      params.set("q", q);
+    } else if (selectedCategory) {
+      params.set("category", selectedCategory);
+    } else if (unchangedCategoryName && currentCategory) {
+      params.set("category", currentCategory);
+    }
+
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
     setPending(false);
@@ -54,7 +78,12 @@ export function ProductFilters({
     >
       <div className="grid gap-1.5">
         <Label htmlFor="q">{t("search")}</Label>
-        <Input id="q" name="q" defaultValue={get("q")} placeholder={t("searchPlaceholder")} />
+        <Input
+          id="q"
+          name="q"
+          defaultValue={get("q") || categoryPrefill}
+          placeholder={t("searchPlaceholder")}
+        />
       </div>
 
       <div className="grid gap-1.5">
@@ -62,7 +91,7 @@ export function ProductFilters({
         <select
           id="category"
           name="category"
-          defaultValue={get("category")}
+          defaultValue={currentCategory}
           className={SELECT_CLASS}
         >
           <option value="">{t("allCategories")}</option>

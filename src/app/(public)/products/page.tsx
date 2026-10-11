@@ -32,16 +32,19 @@ export default async function ProductsPage({
   ]);
 
   const categoryOptions: FilterOption[] = [];
+  let categoryName: string | undefined;
   for (const category of categories) {
-    categoryOptions.push({
-      value: category.slug,
-      label: locale === "bn" && category.nameBn ? category.nameBn : category.name,
-    });
+    const parentLabel = locale === "bn" && category.nameBn ? category.nameBn : category.name;
+    categoryOptions.push({ value: category.slug, label: parentLabel });
+    if (query.category === category.slug) {
+      categoryName = parentLabel;
+    }
     for (const child of category.children) {
-      categoryOptions.push({
-        value: child.slug,
-        label: locale === "bn" && child.nameBn ? child.nameBn : child.name,
-      });
+      const childLabel = locale === "bn" && child.nameBn ? child.nameBn : child.name;
+      categoryOptions.push({ value: child.slug, label: childLabel });
+      if (query.category === child.slug) {
+        categoryName = childLabel;
+      }
     }
   }
   const districtOptions: FilterOption[] = districts.map((district) => ({
@@ -53,12 +56,16 @@ export default async function ProductsPage({
     <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[280px_1fr] lg:py-12">
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <Suspense>
-          <ProductFilters categories={categoryOptions} districts={districtOptions} />
+          <ProductFilters
+            categories={categoryOptions}
+            districts={districtOptions}
+            categoryName={categoryName}
+          />
         </Suspense>
       </aside>
       <section className="grid content-start gap-6">
         <header className="grid gap-1 border-b border-border/60 pb-4">
-          <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
+          <h1 className="font-heading text-3xl font-bold">{categoryName ?? t("title")}</h1>
           <p className="text-sm text-muted-foreground">
             {t("results", { count: products.meta.total })}
           </p>
