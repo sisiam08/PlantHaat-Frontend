@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 
-import { refreshOnce } from "@/lib/auth/refresh";
+import { refreshOnce, markAuthSuccess } from "@/lib/auth/refresh";
 import {
   ApiError,
   isErrorEnvelope,
@@ -52,7 +52,12 @@ export function toApiError(error: unknown): ApiError {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // A successful login/refresh means a real session now exists; restart
+    // the 401 → refresh flow (see lib/auth/refresh).
+    markAuthSuccess(response?.config?.url);
+    return response;
+  },
   async (error: unknown) => {
     if (axios.isCancel(error)) {
       return Promise.reject(error);

@@ -60,7 +60,7 @@ export function ProductCard({
   locale: string;
 }) {
   return (
-    <div className="group/card h-full overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <div className="group/card relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted/40 ring-1 ring-border/40">
           {product.imageUrl ? (
@@ -133,7 +133,7 @@ export function ProductRail({
   outOfStockLabel: string;
 }) {
   return (
-    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
+    <div className="-mx-4 flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
       {products.map((product) => (
         <div
           key={product.id}

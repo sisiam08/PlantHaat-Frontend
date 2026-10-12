@@ -1,7 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryGrid } from "@/features/catalog/components/category-grid";
 import { HowItWorksStrip } from "@/features/catalog/components/how-it-works-strip";
@@ -10,18 +12,38 @@ import { currentFeedSeed, getCategories, getProductFeedPage } from "@/features/c
 
 const FEED_LIMIT = 12;
 
+function FeedSkeleton() {
+  return (
+    <section className="grid gap-5">
+      <Skeleton className="h-8 w-32" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <div key={index} className="grid gap-2">
+            <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The 15-minute seed is a time value, so reading it must be deferred inside a
+ * Suspense boundary (Cache Components forbids unstable values while
+ * prerendering the shell).
+ */
+async function HomeFeedSection() {
+  const seed = currentFeedSeed();
+  const firstPage = await getProductFeedPage(seed, FEED_LIMIT);
+  return <ProductFeed seed={seed} initialPage={firstPage} limit={FEED_LIMIT} />;
+}
+
 export default async function HomePage() {
   const locale = await getLocale();
   const th = await getTranslations("home");
-
-  // Same order for every visitor in the same 15-minute window (cacheable first
-  // page); the client keeps this seed for the whole session.
-  const seed = currentFeedSeed();
-
-  const [categories, firstPage] = await Promise.all([
-    getCategories(),
-    getProductFeedPage(seed, FEED_LIMIT),
-  ]);
+  const categories = await getCategories();
 
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-6 md:gap-14 md:py-10">
@@ -42,7 +64,9 @@ export default async function HomePage() {
         <CategoryGrid categories={categories} locale={locale} />
       </section>
 
-      <ProductFeed seed={seed} initialPage={firstPage} limit={FEED_LIMIT} />
+      <Suspense fallback={<FeedSkeleton />}>
+        <HomeFeedSection />
+      </Suspense>
     </div>
   );
 }

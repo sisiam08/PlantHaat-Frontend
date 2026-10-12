@@ -14,7 +14,7 @@ export interface FilterOption {
 }
 
 const SELECT_CLASS =
-  "h-10 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "h-10 w-full rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 export function ProductFilters({
   categories,
@@ -53,14 +53,14 @@ export function ProductFilters({
 
     // The search box behaves like a category search: submitting the unchanged
     // category name keeps the category filter; editing it becomes a normal text
-    // search; clearing it (with no category chosen) shows everything.
+    // search; clearing it (and not picking a new category) shows all products.
     const q = String(formData.get("q") ?? "").trim();
     const selectedCategory = String(formData.get("category") ?? "");
     const unchangedCategoryName = Boolean(categoryPrefill) && q === categoryPrefill;
 
     if (q && !unchangedCategoryName) {
       params.set("q", q);
-    } else if (selectedCategory) {
+    } else if (selectedCategory && selectedCategory !== currentCategory) {
       params.set("category", selectedCategory);
     } else if (unchangedCategoryName && currentCategory) {
       params.set("category", currentCategory);

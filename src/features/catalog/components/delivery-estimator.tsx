@@ -79,7 +79,7 @@ export function DeliveryEstimator({
           id={selectId}
           value={districtId}
           onChange={(event) => setDistrict(event.target.value)}
-          className="h-10 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+          className="h-10 w-full rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
         >
           <option value="">{t("selectDistrict")}</option>
           {districts.map((district) => (

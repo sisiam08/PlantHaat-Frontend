@@ -56,7 +56,7 @@ export function ProductGallery({
   }
 
   return (
-    <div className="grid gap-3" aria-label={label}>
+    <div className="grid grid-cols-1 gap-3" aria-label={label}>
       {/* Desktop: thumbnail column + large image */}
       <div className="hidden gap-3 md:grid md:grid-cols-[auto_1fr]">
         {images.length > 1 ? (
