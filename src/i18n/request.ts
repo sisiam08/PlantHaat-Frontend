@@ -13,6 +13,9 @@ export default getRequestConfig(async () => {
 
   return {
     locale,
+    // One timezone for server + client so date markup cannot diverge between
+    // SSR and hydration (design §5: dates render in Asia/Dhaka).
+    timeZone: "Asia/Dhaka",
     messages: (await import(`../messages/${locale}.json`)).default,
   };
 });

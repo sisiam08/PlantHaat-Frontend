@@ -8,7 +8,7 @@ import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryGrid } from "@/features/catalog/components/category-grid";
 import { HowItWorksStrip } from "@/features/catalog/components/how-it-works-strip";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
-import { currentFeedSeed, getCategories, getProductFeedPage } from "@/features/catalog/server";
+import { getHomeFeed, getCategories } from "@/features/catalog/server";
 
 const FEED_LIMIT = 12;
 
@@ -30,13 +30,11 @@ function FeedSkeleton() {
 }
 
 /**
- * The 15-minute seed is a time value, so reading it must be deferred inside a
- * Suspense boundary (Cache Components forbids unstable values while
- * prerendering the shell).
+ * The 15-minute seed is a time value: both it and the first page come from one
+ * `use cache` unit so the shell never evaluates `Date.now()` during prerender.
  */
 async function HomeFeedSection() {
-  const seed = currentFeedSeed();
-  const firstPage = await getProductFeedPage(seed, FEED_LIMIT);
+  const { seed, page: firstPage } = await getHomeFeed(FEED_LIMIT);
   return <ProductFeed seed={seed} initialPage={firstPage} limit={FEED_LIMIT} />;
 }
 

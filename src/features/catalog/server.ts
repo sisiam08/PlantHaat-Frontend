@@ -76,9 +76,37 @@ export interface FeedPage {
 
 export const FEED_SEED_BUCKET_MS = 15 * 60 * 1000;
 
-/** Seed for the home feed: identical for everyone in the same 15-minute window. */
-export function currentFeedSeed(now: number = Date.now()): string {
-  return String(Math.floor(now / FEED_SEED_BUCKET_MS));
+/**
+ * Seed + cached first page of the home feed in one `use cache` unit:
+ * the 15-minute seed is a time value, so it is computed inside the cache
+ * fill (Cache Components rejects `Date.now()` during shell prerender).
+ */
+export async function getHomeFeed(
+  limit: number,
+): Promise<{ seed: string; page: FeedPage }> {
+  "use cache";
+  cacheTag(CACHE_TAGS.products);
+  cacheLife("minutes");
+  const seed = String(Math.floor(Date.now() / FEED_SEED_BUCKET_MS));
+  const { data, meta } = await serverRequest<ProductListItem[]>({
+    method: "GET",
+    url: "/products",
+    params: { sort: "random", seed, limit, inStock: true },
+  });
+  const cursorMeta = meta as unknown as
+    | { limit?: number; nextCursor?: string | null; hasMore?: boolean }
+    | undefined;
+  return {
+    seed,
+    page: {
+      data,
+      meta: {
+        limit: cursorMeta?.limit ?? limit,
+        nextCursor: typeof cursorMeta?.nextCursor === "string" ? cursorMeta.nextCursor : null,
+        hasMore: cursorMeta?.hasMore === true,
+      },
+    },
+  };
 }
 
 /** Cached first page of the home random feed, keyed by the 15-minute seed. */
