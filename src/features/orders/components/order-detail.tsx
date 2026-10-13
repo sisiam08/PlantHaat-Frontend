@@ -197,6 +197,10 @@ function ShopOrderCard({
         <Separator />
         <div className="grid gap-1 text-sm">
           <div className="flex justify-between">
+            <span>{t("itemsSubtotal")}</span>
+            <span>{formatBdt(shopOrder.subtotal, locale)}</span>
+          </div>
+          <div className="flex justify-between">
             <span>{t("delivery")}</span>
             <span>{formatBdt(shopOrder.deliveryCharge, locale)}</span>
           </div>

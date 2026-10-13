@@ -2474,6 +2474,12 @@ export interface components {
             productCount: number;
             children: components["schemas"]["CategoryNodeDto"][];
         };
+        UploadResultDto: {
+            /** @description Object key inside the storage driver */
+            key: string;
+            /** @description Public URL (empty for private objects — fetch via the seller/appropriate route) */
+            url: string;
+        };
         PublicUserDto: {
             id: string;
             email: string;
@@ -2513,6 +2519,20 @@ export interface components {
              *     }
              */
             notificationPrefs?: Record<string, never>;
+        };
+        AddressDto: {
+            id: string;
+            label: string | null;
+            recipientName: string;
+            phone: string;
+            districtId: number;
+            district: components["schemas"]["DistrictDto"];
+            area: string;
+            addressLine: string;
+            postalCode: string | null;
+            isDefault: boolean;
+            /** Format: date-time */
+            createdAt: string;
         };
         CreateAddressDto: {
             /** @example Home */
@@ -2570,6 +2590,14 @@ export interface components {
         };
         UnreadCountDto: {
             count: number;
+        };
+        NotificationReadDto: {
+            /** @example true */
+            read: boolean;
+        };
+        NotificationReadAllDto: {
+            /** @example 3 */
+            updated: number;
         };
         UpdateSettingsDto: Record<string, never>;
         SellerDocumentDto: {
@@ -3183,9 +3211,52 @@ export interface components {
             /** @description Resolved homepage sections */
             sections: Record<string, never>[];
         };
+        CartShopInfoDto: {
+            logoUrl: string | null;
+            /** @description Shop's own district name (seller-entered, not localized) */
+            district: string | null;
+            /** @description True when the seller profile is APPROVED */
+            verified: boolean;
+        };
+        CartItemIssueDto: {
+            /** @description Issue code, e.g. OUT_OF_STOCK, INSUFFICIENT_STOCK */
+            code: string;
+            available?: number | null;
+        };
+        CartItemDto: {
+            variantId: string;
+            productId: string;
+            productName: string;
+            variantName: string;
+            slug: string;
+            image: string | null;
+            /** @description Decimal as string */
+            unitPrice: string;
+            quantity: number;
+            /** @description Decimal as string */
+            lineTotal: string;
+            stockQty: number;
+            issues: components["schemas"]["CartItemIssueDto"][];
+        };
+        CartShopGroupDto: {
+            shopId: string;
+            shopName: string;
+            shopSlug: string;
+            shop: components["schemas"]["CartShopInfoDto"];
+            /** @description Delivery charge as a decimal string; null when no districtId passed */
+            deliveryCharge: string | null;
+            /** @description Free-delivery threshold of the matched zone as a decimal string; null when none or no districtId */
+            freeDeliveryAbove: string | null;
+            /** @description Decimal as string */
+            subtotal: string;
+            items: components["schemas"]["CartItemDto"][];
+            /** @description Present when a zone matched */
+            estimatedDaysMin: number | null;
+            /** @description Present when a zone matched */
+            estimatedDaysMax: number | null;
+        };
         CartViewDto: {
-            /** @description Items grouped by shop with per-item issues */
-            shops: Record<string, never>[];
+            shops: components["schemas"]["CartShopGroupDto"][];
             /** @description Decimal as string */
             subtotal: string;
             /** @description Decimal as string */
@@ -3233,12 +3304,74 @@ export interface components {
             paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             note?: string;
         };
-        CancelOrderDto: {
-            reason?: string;
+        OrderListShopOrderRefDto: {
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            shopId: string;
         };
-        CancellationRequestDto: {
-            /** @example Changed my mind */
-            reason: string;
+        SellerOrderPaymentDto: {
+            id: string;
+            orderId: string;
+            shopOrderId: string | null;
+            /** @enum {string} */
+            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            provider: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+            /** @description Decimal as string */
+            amount: string;
+            currency: string;
+            providerTxnId: string | null;
+            providerPayload: Record<string, never> | null;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            failedAt: string | null;
+            failureReason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        OrderListItemDto: {
+            id: string;
+            orderNumber: string;
+            customerId: string;
+            idempotencyKey: string | null;
+            contactName: string;
+            contactPhone: string;
+            shippingDistrictId: number;
+            shippingDistrictName: string;
+            shippingArea: string;
+            shippingAddressLine: string;
+            shippingPostalCode: string | null;
+            deliveryNote: string | null;
+            /** @enum {string} */
+            paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            /** @enum {string} */
+            paymentStatus: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+            /** @description Decimal as string */
+            subtotal: string;
+            /** @description Decimal as string */
+            deliveryTotal: string;
+            /** @description Decimal as string */
+            discountTotal: string;
+            /** @description Decimal as string */
+            grandTotal: string;
+            currency: string;
+            /** Format: date-time */
+            placedAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /**
+             * @description Derived from the shop orders' states
+             * @example PARTIALLY_DELIVERED
+             */
+            overallStatus: string;
+            shopOrders: components["schemas"]["OrderListShopOrderRefDto"][];
+            payments: components["schemas"]["SellerOrderPaymentDto"][];
         };
         SellerOrderItemDto: {
             id: string;
@@ -3273,30 +3406,6 @@ export interface components {
             note: string | null;
             /** Format: date-time */
             createdAt: string;
-        };
-        SellerOrderPaymentDto: {
-            id: string;
-            orderId: string;
-            shopOrderId: string | null;
-            /** @enum {string} */
-            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
-            provider: string | null;
-            /** @enum {string} */
-            status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-            /** @description Decimal as string */
-            amount: string;
-            currency: string;
-            providerTxnId: string | null;
-            providerPayload: Record<string, never> | null;
-            /** Format: date-time */
-            paidAt: string | null;
-            /** Format: date-time */
-            failedAt: string | null;
-            failureReason: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         OrderShopRefDto: {
             id: string;
@@ -3357,16 +3466,8 @@ export interface components {
             shop: components["schemas"]["OrderShopRefDto"];
             order: components["schemas"]["SellerOrderRefDto"];
         };
-        TransitionOrderDto: {
-            /** @enum {string} */
-            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
-            note?: string;
-            courierName?: string;
-            trackingCode?: string;
-            estimatedDeliveryFrom?: string;
-            estimatedDeliveryTo?: string;
-            /** @description Restock on cancellation (default false) */
-            restock?: boolean;
+        CancelOrderDto: {
+            reason?: string;
         };
         SellerCancellationShopOrderRefDto: {
             id: string;
@@ -3391,6 +3492,21 @@ export interface components {
             createdAt: string;
             shopOrder: components["schemas"]["SellerCancellationShopOrderRefDto"];
         };
+        CancellationRequestDto: {
+            /** @example Changed my mind */
+            reason: string;
+        };
+        TransitionOrderDto: {
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            note?: string;
+            courierName?: string;
+            trackingCode?: string;
+            estimatedDeliveryFrom?: string;
+            estimatedDeliveryTo?: string;
+            /** @description Restock on cancellation (default false) */
+            restock?: boolean;
+        };
         CancellationRespondResultDto: {
             /** @example true */
             handled: boolean;
@@ -3400,6 +3516,21 @@ export interface components {
         RespondCancellationDto: {
             approve: boolean;
             note?: string;
+        };
+        CommissionRuleDto: {
+            id: string;
+            /** @enum {string} */
+            scope: "GLOBAL" | "CATEGORY" | "SELLER";
+            categoryId: string | null;
+            sellerProfileId: string | null;
+            /** @description Decimal as string, e.g. "5.00" */
+            ratePercent: string;
+            isActive: boolean;
+            /** Format: date-time */
+            effectiveFrom: string;
+            createdById: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         CreateCommissionRuleDto: {
             /** @enum {string} */
@@ -3416,55 +3547,6 @@ export interface components {
             ratePercent?: number;
             effectiveFrom?: string;
             isActive?: boolean;
-        };
-        CreatePayoutDto: {
-            sellerProfileId: string;
-            /** @example 1500 */
-            amount: number;
-            /** @enum {string} */
-            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
-            reference?: string;
-            note?: string;
-            periodFrom?: string;
-            periodTo?: string;
-        };
-        UpdatePayoutDto: {
-            /** @enum {string} */
-            status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
-            /** @enum {string} */
-            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
-            reference?: string;
-            note?: string;
-        };
-        DuesPaymentDto: {
-            /** @example 500 */
-            amount: number;
-            /** @enum {string} */
-            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
-            reference?: string;
-            note?: string;
-        };
-        AdjustmentDto: {
-            /**
-             * @description Signed amount (positive credits the seller)
-             * @example -100
-             */
-            amount: number;
-            note: string;
-        };
-        SellerLedgerEntryDto: {
-            id: string;
-            sellerProfileId: string;
-            shopOrderId: string | null;
-            payoutId: string | null;
-            /** @enum {string} */
-            type: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT";
-            /** @description Decimal as string (positive = owed to seller) */
-            amount: string;
-            description: string | null;
-            createdById: string | null;
-            /** Format: date-time */
-            createdAt: string;
         };
         SellerPayoutDto: {
             id: string;
@@ -3489,20 +3571,191 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        CreatePayoutDto: {
+            sellerProfileId: string;
+            /** @example 1500 */
+            amount: number;
+            /** @enum {string} */
+            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+            reference?: string;
+            note?: string;
+            periodFrom?: string;
+            periodTo?: string;
+        };
+        UpdatePayoutDto: {
+            /** @enum {string} */
+            status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+            /** @enum {string} */
+            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+            reference?: string;
+            note?: string;
+        };
+        SellerLedgerEntryDto: {
+            id: string;
+            sellerProfileId: string;
+            shopOrderId: string | null;
+            payoutId: string | null;
+            /** @enum {string} */
+            type: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT";
+            /** @description Decimal as string (positive = owed to seller) */
+            amount: string;
+            description: string | null;
+            createdById: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SellerBalanceDto: {
+            /** @description Ledger balance as a decimal string (positive = owed to seller) */
+            balance: string;
+        };
+        DuesPaymentDto: {
+            /** @example 500 */
+            amount: number;
+            /** @enum {string} */
+            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+            reference?: string;
+            note?: string;
+        };
+        AdjustmentDto: {
+            /**
+             * @description Signed amount (positive credits the seller)
+             * @example -100
+             */
+            amount: number;
+            note: string;
+        };
         SellerEarningsDto: {
             /** @description Decimal as string (positive = owed to seller) */
             balance: string;
             ledger: components["schemas"]["SellerLedgerEntryDto"][];
             payouts: components["schemas"]["SellerPayoutDto"][];
         };
+        RefundShopOrderRefDto: {
+            id: string;
+            shopOrderNumber: string;
+            /** @description Decimal as string */
+            commissionAmount: string;
+        };
+        RefundDto: {
+            id: string;
+            shopOrderId: string;
+            paymentId: string | null;
+            complaintId: string | null;
+            /** @description Decimal as string */
+            amount: string;
+            reason: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED";
+            /** @enum {string|null} */
+            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER" | null;
+            reference: string | null;
+            note: string | null;
+            requestedById: string;
+            processedById: string | null;
+            /** Format: date-time */
+            processedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Present in admin list responses */
+            shopOrder: components["schemas"]["RefundShopOrderRefDto"];
+        };
         RejectRefundDto: {
             note?: string;
+        };
+        RefundProcessedDto: {
+            /** @example true */
+            processed: boolean;
         };
         ProcessRefundDto: {
             /** @enum {string} */
             method?: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             reference?: string;
             note?: string;
+        };
+        WishlistedShopRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+        };
+        WishlistedProductDto: {
+            id: string;
+            name: string;
+            nameBn: string | null;
+            slug: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_REVIEW" | "ACTIVE" | "INACTIVE" | "REJECTED" | "REMOVED";
+            inStock: boolean;
+            /** @description Decimal as string */
+            minPrice: string;
+            /** @description Decimal as string */
+            maxPrice: string;
+            /** Format: date-time */
+            deletedAt: string | null;
+            shop: components["schemas"]["WishlistedShopRefDto"];
+        };
+        WishlistItemDto: {
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description False when the product or its shop is unavailable */
+            available: boolean;
+            product: components["schemas"]["WishlistedProductDto"];
+        };
+        WishlistAddedDto: {
+            /** @example true */
+            added: boolean;
+        };
+        ReviewImageDto: {
+            id: string;
+            reviewId: string;
+            url: string;
+        };
+        ReviewAuthorRefDto: {
+            id: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+        ProductReviewListItemDto: {
+            id: string;
+            productId: string;
+            shopId: string;
+            customerId: string;
+            orderItemId: string;
+            rating: number;
+            title: string | null;
+            comment: string | null;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            sellerReply: string | null;
+            /** Format: date-time */
+            sellerRepliedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            images: components["schemas"]["ReviewImageDto"][];
+            customer: components["schemas"]["ReviewAuthorRefDto"];
+        };
+        ReviewDto: {
+            id: string;
+            productId: string;
+            shopId: string;
+            customerId: string;
+            orderItemId: string;
+            rating: number;
+            title: string | null;
+            comment: string | null;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            sellerReply: string | null;
+            /** Format: date-time */
+            sellerRepliedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         CreateReviewDto: {
             /** @example 5 */
@@ -3516,11 +3769,6 @@ export interface components {
             title?: string;
             comment?: string;
             images?: string[];
-        };
-        ReviewImageDto: {
-            id: string;
-            reviewId: string;
-            url: string;
         };
         ReviewProductRefDto: {
             id: string;
@@ -3548,25 +3796,6 @@ export interface components {
             images: components["schemas"]["ReviewImageDto"][];
             product: components["schemas"]["ReviewProductRefDto"];
         };
-        ReviewDto: {
-            id: string;
-            productId: string;
-            shopId: string;
-            customerId: string;
-            orderItemId: string;
-            rating: number;
-            title: string | null;
-            comment: string | null;
-            /** @enum {string} */
-            status: "VISIBLE" | "HIDDEN";
-            sellerReply: string | null;
-            /** Format: date-time */
-            sellerRepliedAt: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
         ReplyReviewDto: {
             reply: string;
         };
@@ -3586,22 +3815,35 @@ export interface components {
         ReportReviewDto: {
             reason: string;
         };
+        AdminReviewReportDto: {
+            id: string;
+            reviewId: string;
+            reporterId: string;
+            reason: string;
+            /** @enum {string} */
+            status: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description The reported review */
+            review: components["schemas"]["ReviewDto"];
+        };
+        ReviewReportResolveDto: {
+            /** @example true */
+            resolved: boolean;
+            /** @description Whether the reported review was hidden */
+            hidden: boolean;
+        };
         ResolveReviewReportDto: {
             /** @description true hides the review, false keeps it */
             hide: boolean;
         };
-        CreateComplaintDto: {
-            shopOrderId: string;
-            orderItemId?: string;
-            /** @enum {string} */
-            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
-            description: string;
-            attachments?: string[];
-        };
-        ComplaintCommentDto: {
-            body: string;
-            /** @description Admin-only internal note */
-            isInternal?: boolean;
+        ReviewModerationResultDto: {
+            id: string;
+            /** @description Review status after moderation */
+            status: string;
         };
         ComplaintAttachmentDto: {
             id: string;
@@ -3615,7 +3857,7 @@ export interface components {
             name: string;
             slug: string;
         };
-        SellerComplaintListItemDto: {
+        AdminComplaintListItemDto: {
             id: string;
             ticketNumber: string;
             shopOrderId: string;
@@ -3672,6 +3914,98 @@ export interface components {
             attachments: components["schemas"]["ComplaintAttachmentDto"][];
             comments: components["schemas"]["ComplaintCommentResponseDto"][];
         };
+        CreateComplaintDto: {
+            shopOrderId: string;
+            orderItemId?: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            attachments?: string[];
+        };
+        AdminComplaintRefundRefDto: {
+            id: string;
+            /** @description Decimal as string */
+            amount: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED";
+        };
+        CustomerComplaintDetailDto: {
+            id: string;
+            ticketNumber: string;
+            shopOrderId: string;
+            orderItemId: string | null;
+            customerId: string;
+            shopId: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+            resolutionNote: string | null;
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attachments: components["schemas"]["ComplaintAttachmentDto"][];
+            comments: components["schemas"]["ComplaintCommentResponseDto"][];
+            refunds: components["schemas"]["AdminComplaintRefundRefDto"][];
+        };
+        ComplaintCommentDto: {
+            body: string;
+            /** @description Admin-only internal note */
+            isInternal?: boolean;
+        };
+        SellerComplaintListItemDto: {
+            id: string;
+            ticketNumber: string;
+            shopOrderId: string;
+            orderItemId: string | null;
+            customerId: string;
+            shopId: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+            resolutionNote: string | null;
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attachments: components["schemas"]["ComplaintAttachmentDto"][];
+            shop: components["schemas"]["ComplaintShopRefDto"];
+        };
+        AdminComplaintDetailDto: {
+            id: string;
+            ticketNumber: string;
+            shopOrderId: string;
+            orderItemId: string | null;
+            customerId: string;
+            shopId: string;
+            /** @enum {string} */
+            type: "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+            resolutionNote: string | null;
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attachments: components["schemas"]["ComplaintAttachmentDto"][];
+            /** @description Includes internal admin comments */
+            comments: components["schemas"]["ComplaintCommentResponseDto"][];
+            refunds: components["schemas"]["AdminComplaintRefundRefDto"][];
+        };
         UpdateComplaintStatusDto: {
             /** @enum {string} */
             status: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
@@ -3683,6 +4017,36 @@ export interface components {
             resolutionNote?: string;
             /** @example 1000 */
             refundAmount?: number;
+        };
+        RealtimeTicketDto: {
+            /**
+             * @description One-time ticket to authenticate the WebSocket connection
+             * @example eyJuIjoiLi4uIn0....
+             */
+            ticket: string;
+            /** @example 60 */
+            expiresInSeconds: number;
+            /**
+             * @description WebSocket gateway URL
+             * @example ws://localhost:5000/ws
+             */
+            url: Record<string, never>;
+        };
+        BannerDto: {
+            id: string;
+            title: string | null;
+            imageUrl: string;
+            linkUrl: string | null;
+            /** @example HOME_HERO */
+            placement: string;
+            sortOrder: number;
+            isActive: boolean;
+            /** Format: date-time */
+            startsAt: string | null;
+            /** Format: date-time */
+            endsAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         CreateBannerDto: {
             title?: string;
@@ -3706,6 +4070,20 @@ export interface components {
             startsAt?: string;
             endsAt?: string;
         };
+        HomepageSectionDto: {
+            id: string;
+            key: string;
+            title: string;
+            titleBn: string | null;
+            /** @enum {string} */
+            type: "FEATURED_CATEGORIES" | "FEATURED_PRODUCTS" | "FEATURED_SHOPS" | "NEW_ARRIVALS" | "BANNER_STRIP";
+            itemIds: string[];
+            config: Record<string, never> | null;
+            sortOrder: number;
+            isActive: boolean;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         CreateHomepageSectionDto: {
             key: string;
             title: string;
@@ -3727,6 +4105,22 @@ export interface components {
             config?: Record<string, never>;
             sortOrder?: number;
             isActive?: boolean;
+        };
+        AnnouncementDto: {
+            id: string;
+            title: string;
+            body: string;
+            /** @enum {string} */
+            audience: "ALL" | "CUSTOMERS" | "SELLERS";
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: date-time */
+            expiresAt: string | null;
+            createdById: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         CreateAnnouncementDto: {
             title: string;
@@ -3872,10 +4266,143 @@ export interface components {
             topDistricts: components["schemas"]["AdminAnalyticsTopDistrictDto"][];
             dailySeries: components["schemas"]["AdminAnalyticsDailySeriesDto"][];
         };
+        AdminUserListItemDto: {
+            id: string;
+            email: string;
+            name: string;
+            phone: string | null;
+            /** @enum {string} */
+            role: "CUSTOMER" | "SELLER" | "ADMIN";
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+            /** Format: date-time */
+            emailVerifiedAt: string | null;
+            /** Format: date-time */
+            lastLoginAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
         CreateAdminUserDto: {
             email: string;
             password: string;
             name: string;
+        };
+        AdminUserCountsDto: {
+            orders: number;
+            addresses: number;
+            reviews: number;
+            complaints: number;
+        };
+        AdminSellerProfileRefDto: {
+            id: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+            businessName: string;
+        };
+        AdminUserDetailDto: {
+            id: string;
+            email: string;
+            name: string;
+            phone: string | null;
+            /** @enum {string} */
+            role: "CUSTOMER" | "SELLER" | "ADMIN";
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+            /** Format: date-time */
+            emailVerifiedAt: string | null;
+            /** Format: date-time */
+            lastLoginAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Related entity counts */
+            _count: components["schemas"]["AdminUserCountsDto"];
+            sellerProfile: components["schemas"]["AdminSellerProfileRefDto"] | null;
+        };
+        AdminUserStatusDto: {
+            id: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+        };
+        AdminUserRefDto: {
+            id: string;
+            email: string;
+            name: string;
+            phone: string | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+        };
+        AdminShopRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+        };
+        AdminSellerListItemDto: {
+            id: string;
+            /** @enum {string} */
+            sellerType: "NURSERY" | "INDIVIDUAL_GROWER" | "RESELLER";
+            businessName: string;
+            contactPhone: string;
+            tradeLicenseNo: string | null;
+            businessAddress: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+            rejectionReason: string | null;
+            /** Format: date-time */
+            submittedAt: string | null;
+            /** Format: date-time */
+            verifiedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            user: components["schemas"]["AdminUserRefDto"];
+            shops: components["schemas"]["AdminShopRefDto"][];
+        };
+        AdminSellerDocumentDto: {
+            id: string;
+            sellerProfileId: string;
+            /** @enum {string} */
+            type: "NID_FRONT" | "NID_BACK" | "TRADE_LICENSE" | "NURSERY_PHOTO" | "OTHER";
+            fileKey: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminSellerPayoutAccountDto: {
+            id: string;
+            /** @enum {string} */
+            method: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+            accountName: string;
+            accountMasked: string;
+            isDefault: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminSellerDetailDto: {
+            id: string;
+            /** @enum {string} */
+            sellerType: "NURSERY" | "INDIVIDUAL_GROWER" | "RESELLER";
+            businessName: string;
+            contactPhone: string;
+            tradeLicenseNo: string | null;
+            businessAddress: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+            rejectionReason: string | null;
+            /** Format: date-time */
+            submittedAt: string | null;
+            /** Format: date-time */
+            verifiedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            user: components["schemas"]["AdminUserRefDto"];
+            shops: components["schemas"]["AdminShopRefDto"][];
+            /** Format: date-time */
+            reviewedAt: string | null;
+            reviewedById: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+            documents: components["schemas"]["AdminSellerDocumentDto"][];
+            payoutAccounts: components["schemas"]["AdminSellerPayoutAccountDto"][];
         };
         RejectSellerDto: {
             /** @example Trade license photo is not readable */
@@ -3884,6 +4411,89 @@ export interface components {
         SuspendDto: {
             /** @example Repeated policy violations */
             reason?: string;
+        };
+        AdminSellerLiteRefDto: {
+            id: string;
+            businessName: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+        };
+        AdminShopListItemDto: {
+            id: string;
+            name: string;
+            slug: string;
+            description: string | null;
+            logoUrl: string | null;
+            bannerUrl: string | null;
+            phone: string | null;
+            district: string | null;
+            address: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+            isOnVacation: boolean;
+            /** Format: date-time */
+            suspendedAt: string | null;
+            suspensionReason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            sellerProfile: components["schemas"]["AdminSellerLiteRefDto"];
+        };
+        AdminShopSuspendDto: {
+            suspended: boolean;
+        };
+        AdminShopReactivateDto: {
+            reactivated: boolean;
+        };
+        AdminProductCategoryRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        AdminProductListItemDto: {
+            id: string;
+            name: string;
+            slug: string;
+            /** @description Order status as string */
+            status: string;
+            rejectionReason: string | null;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * @example {
+             *       "id": "shop-1",
+             *       "name": "Green Valley",
+             *       "sellerProfile": {
+             *         "userId": "user-1"
+             *       }
+             *     }
+             */
+            shop: Record<string, never>;
+            category: components["schemas"]["AdminProductCategoryRefDto"];
+        };
+        AdminProductStatusDto: {
+            id: string;
+            /** @description Product status after moderation */
+            status: string;
+        };
+        AdminCategoryDto: {
+            id: string;
+            name: string;
+            nameBn: string | null;
+            slug: string;
+            parentId: string | null;
+            imageUrl: string | null;
+            sortOrder: number;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** @description Live product count under this category */
+            productCount: number;
+            /** @description Immediate sub-category count */
+            childCount: number;
         };
         CreateCategoryDto: {
             name: string;
@@ -3923,6 +4533,23 @@ export interface components {
             /** Format: date-time */
             failedAt: string | null;
             failureReason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AuditLogDto: {
+            id: string;
+            actorId: string | null;
+            /** @enum {string|null} */
+            actorRole: "CUSTOMER" | "SELLER" | "ADMIN" | null;
+            /** @example seller.approve */
+            action: string;
+            /** @example SellerProfile */
+            entityType: string;
+            entityId: string | null;
+            before: Record<string, never> | null;
+            after: Record<string, never> | null;
+            ipAddress: string | null;
+            userAgent: string | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -3987,22 +4614,69 @@ export interface components {
             /** @example Str0ngPass */
             password: string;
         };
+        AuthSessionListItemDto: {
+            id: string;
+            userAgent: string | null;
+            ipAddress: string | null;
+            /** Format: date-time */
+            lastUsedAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Whether this list entry is the session making the request */
+            isCurrent: boolean;
+        };
+        EmailVerifiedDto: {
+            /** @example true */
+            verified: boolean;
+        };
         VerifyEmailDto: {
             token: string;
+        };
+        VerificationResentDto: {
+            sent: boolean;
+            alreadyVerified: boolean;
+        };
+        PasswordResetSentDto: {
+            /**
+             * @description Always true to avoid account enumeration
+             * @example true
+             */
+            sent: boolean;
         };
         ForgotPasswordDto: {
             /** @example customer@example.com */
             email: string;
+        };
+        PasswordResetDoneDto: {
+            /** @example true */
+            reset: boolean;
         };
         ResetPasswordDto: {
             token: string;
             /** @example NewStr0ngPass */
             newPassword: string;
         };
+        PasswordChangedDoneDto: {
+            /** @example true */
+            changed: boolean;
+        };
         ChangePasswordDto: {
             currentPassword: string;
             /** @example NewStr0ngPass */
             newPassword: string;
+        };
+        HealthCheckDto: {
+            /** @example ok */
+            status: string;
+            /**
+             * @description Liveness includes a database round-trip
+             * @example up
+             */
+            database: string;
+            latencyMs: number;
+            uptimeSeconds: number;
+            /** Format: date-time */
+            timestamp: string;
         };
     };
     responses: never;
@@ -4080,7 +4754,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["UploadResultDto"];
+                    };
+                };
             };
         };
     };
@@ -4104,7 +4784,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["UploadResultDto"];
+                    };
+                };
             };
         };
     };
@@ -4178,7 +4864,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["PublicUserDto"];
+                    };
+                };
             };
         };
     };
@@ -4195,7 +4887,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AddressDto"][];
+                    };
+                };
             };
         };
     };
@@ -4216,7 +4914,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AddressDto"];
+                    };
+                };
             };
         };
     };
@@ -4231,6 +4935,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Address deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -4258,7 +4963,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AddressDto"];
+                    };
+                };
             };
         };
     };
@@ -4277,7 +4988,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AddressDto"];
+                    };
+                };
             };
         };
     };
@@ -4348,7 +5065,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["NotificationReadDto"];
+                    };
+                };
             };
         };
     };
@@ -4365,7 +5088,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["NotificationReadAllDto"];
+                    };
+                };
             };
         };
     };
@@ -4382,7 +5111,16 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        /** @description Setting key to value, merged with defaults (e.g. checkout.maxQtyPerItem: 5) */
+                        data: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
             };
         };
     };
@@ -4403,7 +5141,16 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        /** @description Setting key to value, merged with defaults (e.g. checkout.maxQtyPerItem: 5) */
+                        data: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
             };
         };
     };
@@ -4495,6 +5242,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Document removed */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -4587,6 +5335,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Payout account removed */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -4756,6 +5505,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Zone deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -4880,6 +5630,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Product soft-deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -4987,6 +5738,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Variant deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -5249,6 +6001,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description View recorded (or deduplicated) */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -5448,7 +6201,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CartViewDto"];
+                    };
+                };
             };
         };
     };
@@ -5469,7 +6228,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CartViewDto"];
+                    };
+                };
             };
         };
     };
@@ -5488,7 +6253,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CartViewDto"];
+                    };
+                };
             };
         };
     };
@@ -5539,7 +6310,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["OrderListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5587,7 +6365,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopOrderDto"];
+                    };
+                };
             };
         };
     };
@@ -5610,7 +6394,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerCancellationRequestDto"];
+                    };
+                };
             };
         };
     };
@@ -5770,7 +6560,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopOrderDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5818,7 +6615,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerShopOrderDto"];
+                    };
+                };
             };
         };
     };
@@ -5841,7 +6644,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CancellationRespondResultDto"];
+                    };
+                };
             };
         };
     };
@@ -5863,7 +6672,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CommissionRuleDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5884,7 +6700,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CommissionRuleDto"];
+                    };
+                };
             };
         };
     };
@@ -5899,6 +6721,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Rule deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -5926,7 +6749,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CommissionRuleDto"];
+                    };
+                };
             };
         };
     };
@@ -5947,7 +6776,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPayoutDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -5968,7 +6804,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPayoutDto"];
+                    };
+                };
             };
         };
     };
@@ -5991,7 +6833,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPayoutDto"];
+                    };
+                };
             };
         };
     };
@@ -6014,7 +6862,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerLedgerEntryDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6037,7 +6892,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerBalanceDto"];
+                    };
+                };
             };
         };
     };
@@ -6060,7 +6921,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerBalanceDto"];
+                    };
+                };
             };
         };
     };
@@ -6104,7 +6971,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["RefundDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6123,7 +6997,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["RefundDto"];
+                    };
+                };
             };
         };
     };
@@ -6146,7 +7026,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["RefundDto"];
+                    };
+                };
             };
         };
     };
@@ -6169,7 +7055,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["RefundProcessedDto"];
+                    };
+                };
             };
         };
     };
@@ -6189,7 +7081,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["WishlistItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6208,7 +7107,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["WishlistAddedDto"];
+                    };
+                };
             };
         };
     };
@@ -6223,6 +7128,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Removed (or was not present) */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6249,7 +7155,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ProductReviewListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6272,7 +7185,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewDto"];
+                    };
+                };
             };
         };
     };
@@ -6287,6 +7206,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Review deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6314,7 +7234,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewDto"];
+                    };
+                };
             };
         };
     };
@@ -6419,7 +7345,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminReviewReportDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6442,7 +7375,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewReportResolveDto"];
+                    };
+                };
             };
         };
     };
@@ -6461,7 +7400,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewModerationResultDto"];
+                    };
+                };
             };
         };
     };
@@ -6480,7 +7425,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReviewModerationResultDto"];
+                    };
+                };
             };
         };
     };
@@ -6501,7 +7452,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6522,7 +7480,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -6541,7 +7505,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CustomerComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -6564,7 +7534,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ComplaintCommentResponseDto"];
+                    };
+                };
             };
         };
     };
@@ -6667,7 +7643,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6686,7 +7669,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -6709,7 +7698,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -6732,7 +7727,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -6755,7 +7756,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ComplaintCommentResponseDto"];
+                    };
+                };
             };
         };
     };
@@ -6772,7 +7779,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["RealtimeTicketDto"];
+                    };
+                };
             };
         };
     };
@@ -6789,7 +7802,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BannerDto"][];
+                    };
+                };
             };
         };
     };
@@ -6810,7 +7829,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BannerDto"];
+                    };
+                };
             };
         };
     };
@@ -6825,6 +7850,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Banner deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6852,7 +7878,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BannerDto"];
+                    };
+                };
             };
         };
     };
@@ -6869,7 +7901,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["HomepageSectionDto"][];
+                    };
+                };
             };
         };
     };
@@ -6890,7 +7928,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["HomepageSectionDto"];
+                    };
+                };
             };
         };
     };
@@ -6905,6 +7949,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Section deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6932,7 +7977,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["HomepageSectionDto"];
+                    };
+                };
             };
         };
     };
@@ -6952,7 +8003,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnnouncementDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -6973,7 +8031,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnnouncementDto"];
+                    };
+                };
             };
         };
     };
@@ -6988,6 +8052,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Announcement deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -7015,7 +8080,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnnouncementDto"];
+                    };
+                };
             };
         };
     };
@@ -7112,7 +8183,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminUserListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -7133,7 +8211,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminUserListItemDto"];
+                    };
+                };
             };
         };
     };
@@ -7152,7 +8236,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminUserDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7171,7 +8261,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminUserStatusDto"];
+                    };
+                };
             };
         };
     };
@@ -7190,7 +8286,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminUserStatusDto"];
+                    };
+                };
             };
         };
     };
@@ -7211,7 +8313,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -7230,7 +8339,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7245,11 +8360,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7268,11 +8389,17 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7291,11 +8418,17 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7310,11 +8443,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminSellerDetailDto"];
+                    };
+                };
             };
         };
     };
@@ -7330,11 +8469,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description The document file (binary); an S3-compatible driver redirects to a short-lived presigned URL instead */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": string;
+                };
             };
         };
     };
@@ -7355,7 +8497,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminShopListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -7378,7 +8527,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminShopSuspendDto"];
+                    };
+                };
             };
         };
     };
@@ -7397,7 +8552,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminShopReactivateDto"];
+                    };
+                };
             };
         };
     };
@@ -7418,7 +8579,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminProductListItemDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -7437,7 +8605,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminProductStatusDto"];
+                    };
+                };
             };
         };
     };
@@ -7460,7 +8634,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminProductStatusDto"];
+                    };
+                };
             };
         };
     };
@@ -7483,7 +8663,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminProductStatusDto"];
+                    };
+                };
             };
         };
     };
@@ -7500,7 +8686,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminCategoryDto"][];
+                    };
+                };
             };
         };
     };
@@ -7521,7 +8713,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminCategoryDto"];
+                    };
+                };
             };
         };
     };
@@ -7536,6 +8734,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Category deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -7563,7 +8762,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminCategoryDto"];
+                    };
+                };
             };
         };
     };
@@ -7644,7 +8849,14 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AuditLogDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -7865,6 +9077,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Logged out; auth cookies cleared */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -7882,6 +9095,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description All sessions revoked */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -7942,7 +9156,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AuthSessionListItemDto"][];
+                    };
+                };
             };
         };
     };
@@ -7957,6 +9177,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Session revoked */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -7982,7 +9203,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["EmailVerifiedDto"];
+                    };
+                };
             };
         };
     };
@@ -7999,7 +9226,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["VerificationResentDto"];
+                    };
+                };
             };
         };
     };
@@ -8020,7 +9253,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["PasswordResetSentDto"];
+                    };
+                };
             };
         };
     };
@@ -8041,7 +9280,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["PasswordResetDoneDto"];
+                    };
+                };
             };
         };
     };
@@ -8062,7 +9307,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["PasswordChangedDoneDto"];
+                    };
+                };
             };
         };
     };
@@ -8079,7 +9330,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["HealthCheckDto"];
+                    };
+                };
             };
         };
     };
@@ -8096,7 +9353,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** @example ok */
+                        status?: unknown;
+                    };
+                };
             };
         };
     };

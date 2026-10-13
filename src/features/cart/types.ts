@@ -17,15 +17,25 @@ export interface CartItemView {
   issues: CartIssue[];
 }
 
+export interface CartShopInfo {
+  logoUrl: string | null;
+  district: string | null;
+  verified: boolean;
+}
+
 export interface CartShopView {
   shopId: string;
   shopName: string;
   shopSlug: string;
+  shop: CartShopInfo;
   items: CartItemView[];
   subtotal: string;
   deliveryCharge: string | null;
   /** Present when the cart API returns the zone's free-delivery threshold. */
   freeDeliveryAbove?: string | null;
+  /** Present when a matching delivery zone was found. */
+  estimatedDaysMin?: number | null;
+  estimatedDaysMax?: number | null;
 }
 
 export interface CartView {

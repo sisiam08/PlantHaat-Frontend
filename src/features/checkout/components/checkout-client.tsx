@@ -11,15 +11,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addressesApi, type CreateAddressInput } from "@/features/addresses/api";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
+import { CartSummaryBox } from "@/features/cart/components/cart-summary";
 import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
+import { formatCount } from "@/lib/format/number";
 import { checkoutApi } from "../api";
 
 export function CheckoutClient() {
@@ -193,50 +194,71 @@ export function CheckoutClient() {
         </section>
       </div>
 
-      <Card className="h-fit rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24">
-        <CardContent className="grid gap-3">
-          <h2 className="font-semibold">{t("summary")}</h2>
-          {cart.isLoading ? (
-            <Skeleton className="h-24 w-full" />
-          ) : cart.data ? (
-            <>
-              {cart.data.shops.map((shop) => (
-                <div key={shop.shopId} className="grid gap-1 text-sm">
+      <div className="grid gap-4 lg:sticky lg:top-24 lg:self-start">
+        {cart.isLoading ? (
+          <Skeleton className="h-24 w-full rounded-2xl" />
+        ) : cart.data ? (
+          <div className="grid gap-4">
+            {cart.data.shops.map((shop) => (
+              <Card key={shop.shopId} className="rounded-2xl">
+                <CardContent className="grid gap-1 text-sm">
                   <p className="font-medium">{shop.shopName}</p>
                   {shop.items.map((item) => (
                     <div key={item.variantId} className="flex justify-between text-muted-foreground">
                       <span className="truncate pr-2">
-                        {item.productName} × {item.quantity}
+                        {item.productName} × {formatCount(item.quantity, locale)}
                       </span>
                       <span>{formatBdt(item.lineTotal, locale)}</span>
                     </div>
                   ))}
+                  <div className="flex justify-between border-t border-border pt-1">
+                    <span>{t("itemsSubtotal")}</span>
+                    <span>{formatBdt(shop.subtotal, locale)}</span>
+                  </div>
                   <div className="flex justify-between">
                     <span>{t("delivery")}</span>
-                    <span>{formatBdt(shop.deliveryCharge ?? "0", locale)}</span>
+                    <span>
+                      {shop.deliveryCharge != null
+                        ? formatBdt(shop.deliveryCharge, locale)
+                        : t("selectToSee")}
+                    </span>
                   </div>
-                </div>
-              ))}
-              <Separator />
-              <div className="flex justify-between font-semibold">
-                <span>{t("total")}</span>
-                <span>{formatBdt(cart.data.grandTotal, locale)}</span>
-              </div>
-            </>
-          ) : null}
-          <Button
-            variant="cta"
-            size="lg"
-            disabled={!selectedAddress || placeOrder.isPending || (cart.data?.shops.length ?? 0) === 0}
-            onClick={() => placeOrder.mutate()}
-          >
-            {placeOrder.isPending ? t("submitting") : t("placeOrder")}
+                </CardContent>
+              </Card>
+            ))}
+            <CartSummaryBox view={cart.data} fixedOnMobile={false} />
+            {hasNotDelivering(cart.data) ? (
+              <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+                {t("notDeliveringBlocked")}
+              </p>
+            ) : null}
+            <Button
+              variant="cta"
+              size="lg"
+              disabled={
+                !selectedAddress ||
+                placeOrder.isPending ||
+                cart.data.shops.length === 0 ||
+                hasNotDelivering(cart.data)
+              }
+              onClick={() => placeOrder.mutate()}
+            >
+              {placeOrder.isPending ? t("submitting") : t("placeOrder")}
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/cart">{t("backToCart")}</Link>
+            </Button>
+          </div>
+        ) : (
+          <Button variant="cta" size="lg" disabled={true}>
+            {t("placeOrder")}
           </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/cart">{t("backToCart")}</Link>
-          </Button>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
+}
+
+function hasNotDelivering(view: { shops: { deliveryCharge?: string | null }[] }): boolean {
+  return view.shops.some((shop) => shop.deliveryCharge == null);
 }

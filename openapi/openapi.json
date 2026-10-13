@@ -106,7 +106,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UploadResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Upload an image (re-encoded, EXIF stripped)",
@@ -140,7 +160,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UploadResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Upload a private document (seller onboarding)",
@@ -252,7 +292,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PublicUserDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Upload/replace the current user's avatar",
@@ -267,7 +327,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AddressDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the current user's addresses",
@@ -290,7 +373,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AddressDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create an address",
@@ -324,7 +427,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AddressDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update an address",
@@ -346,7 +469,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Address deleted"
           }
         },
         "summary": "Delete an address",
@@ -370,7 +493,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AddressDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Mark an address as the default",
@@ -500,7 +643,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NotificationReadDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Mark a notification as read",
@@ -515,7 +678,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NotificationReadAllDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Mark all notifications as read",
@@ -530,7 +713,29 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "description": "Setting key to value, merged with defaults (e.g. checkout.maxQtyPerItem: 5)"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get all system settings (merged with defaults)",
@@ -553,7 +758,29 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "description": "Setting key to value, merged with defaults (e.g. checkout.maxQtyPerItem: 5)"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update system settings",
@@ -700,7 +927,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Document removed"
           }
         },
         "summary": "Remove a document from the application",
@@ -840,7 +1067,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Payout account removed"
           }
         },
         "summary": "Remove a payout account",
@@ -1153,7 +1380,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Zone deleted"
           }
         },
         "summary": "Delete a delivery zone",
@@ -1356,7 +1583,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Product soft-deleted"
           }
         },
         "summary": "Soft-delete a product",
@@ -1556,7 +1783,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Variant deleted"
           }
         },
         "summary": "Delete a variant",
@@ -2112,7 +2339,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "View recorded (or deduplicated)"
           }
         },
         "summary": "Record a product view (deduplicated per IP, 30-minute window)",
@@ -2575,7 +2802,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CartViewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Clear the cart",
@@ -2600,7 +2847,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CartViewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Set the quantity of a cart item",
@@ -2624,7 +2891,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CartViewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Remove a cart item",
@@ -2731,7 +3018,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OrderListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the current customer's orders",
@@ -2809,7 +3123,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopOrderDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Cancel a shop order while it is still PENDING",
@@ -2843,7 +3177,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerCancellationRequestDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Request cancellation of a CONFIRMED/PACKED shop order",
@@ -3205,7 +3559,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerShopOrderDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List all shop orders",
@@ -3283,7 +3664,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerShopOrderDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Override a shop order's status",
@@ -3317,7 +3718,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CancellationRespondResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Respond to any cancellation request",
@@ -3373,7 +3794,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CommissionRuleDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List commission rules",
@@ -3396,7 +3844,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CommissionRuleDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a commission rule",
@@ -3430,7 +3898,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CommissionRuleDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a commission rule",
@@ -3452,7 +3940,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Rule deleted"
           }
         },
         "summary": "Delete a commission rule",
@@ -3501,7 +3989,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerPayoutDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List payouts",
@@ -3524,7 +4039,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerPayoutDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Record a manual payout to a seller",
@@ -3558,7 +4093,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerPayoutDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a payout",
@@ -3617,7 +4172,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SellerLedgerEntryDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List a seller's ledger entries",
@@ -3651,7 +4233,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerBalanceDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Record a seller dues payment (increases balance)",
@@ -3685,7 +4287,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerBalanceDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Record a signed ledger adjustment",
@@ -3769,7 +4391,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RefundDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List refunds",
@@ -3793,7 +4442,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RefundDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Approve a requested refund",
@@ -3827,7 +4496,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RefundDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reject a refund",
@@ -3861,7 +4550,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RefundProcessedDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Process a refund and adjust the ledger",
@@ -3896,7 +4605,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WishlistItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the customer's wishlist with availability",
@@ -3920,7 +4656,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WishlistAddedDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add a product to the wishlist (idempotent)",
@@ -3942,7 +4698,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Removed (or was not present)"
           }
         },
         "summary": "Remove a product from the wishlist",
@@ -3985,7 +4741,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductReviewListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List visible reviews for a product",
@@ -4019,7 +4802,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Review a delivered order item",
@@ -4053,7 +4856,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Edit your review (within 7 days)",
@@ -4075,7 +4898,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Review deleted"
           }
         },
         "summary": "Delete your review",
@@ -4280,7 +5103,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminReviewReportDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List review reports",
@@ -4314,7 +5164,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewReportResolveDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Resolve a review report (hide or keep)",
@@ -4338,7 +5208,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewModerationResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Hide a review",
@@ -4362,7 +5252,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReviewModerationResultDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Unhide a review",
@@ -4414,7 +5324,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminComplaintListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List the customer's complaints",
@@ -4437,7 +5374,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Open a complaint",
@@ -4461,7 +5418,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CustomerComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get one of the customer's complaints",
@@ -4495,7 +5472,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add a comment to a complaint",
@@ -4724,7 +5721,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminComplaintListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List all complaints",
@@ -4748,7 +5772,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get any complaint (includes internal notes)",
@@ -4782,7 +5826,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Change a complaint's status",
@@ -4816,7 +5880,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Resolve a complaint (optionally creating a refund)",
@@ -4850,7 +5934,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Add an admin comment (optionally internal)",
@@ -4865,7 +5969,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RealtimeTicketDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Issue a one-time WebSocket connection ticket",
@@ -4880,7 +6004,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BannerDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List banners",
@@ -4903,7 +6050,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BannerDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a banner",
@@ -4937,7 +6104,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BannerDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a banner",
@@ -4959,7 +6146,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Banner deleted"
           }
         },
         "summary": "Delete a banner",
@@ -4974,7 +6161,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomepageSectionDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List homepage sections",
@@ -4997,7 +6207,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HomepageSectionDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a homepage section",
@@ -5031,7 +6261,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HomepageSectionDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a homepage section",
@@ -5053,7 +6303,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Section deleted"
           }
         },
         "summary": "Delete a homepage section",
@@ -5088,7 +6338,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AnnouncementDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List announcements",
@@ -5111,7 +6388,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AnnouncementDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create an announcement (fans out notifications)",
@@ -5145,7 +6442,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AnnouncementDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update an announcement",
@@ -5167,7 +6484,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Announcement deleted"
           }
         },
         "summary": "Delete an announcement",
@@ -5367,7 +6684,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminUserListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List users",
@@ -5390,7 +6734,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminUserListItemDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create an admin user",
@@ -5414,7 +6778,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminUserDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get a user",
@@ -5438,7 +6822,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminUserStatusDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Suspend a user and revoke their sessions",
@@ -5462,7 +6866,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminUserStatusDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reactivate a user",
@@ -5512,7 +6936,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminSellerListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List seller applications",
@@ -5536,7 +6987,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminSellerDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get a seller application with documents and payout accounts",
@@ -5559,8 +7030,28 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminSellerDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Approve a seller (activates the shop)",
@@ -5593,8 +7084,28 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminSellerDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reject a seller application",
@@ -5627,8 +7138,28 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminSellerDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Suspend a seller and their shop",
@@ -5651,8 +7182,28 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminSellerDetailDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reactivate a suspended seller",
@@ -5684,7 +7235,15 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "The document file (binary); an S3-compatible driver redirects to a short-lived presigned URL instead",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
           }
         },
         "summary": "Stream a seller document (private)",
@@ -5733,7 +7292,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminShopListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List shops",
@@ -5767,7 +7353,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminShopSuspendDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Suspend a shop",
@@ -5791,7 +7397,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminShopReactivateDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reactivate a shop",
@@ -5842,7 +7468,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminProductListItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List products for moderation",
@@ -5866,7 +7519,27 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminProductStatusDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Approve a product",
@@ -5900,7 +7573,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminProductStatusDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reject a product",
@@ -5934,7 +7627,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminProductStatusDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Remove a product from the catalog",
@@ -5949,7 +7662,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdminCategoryDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List all categories (including inactive)",
@@ -5972,7 +7708,27 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminCategoryDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Create a category",
@@ -6006,7 +7762,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminCategoryDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Update a category",
@@ -6028,7 +7804,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Category deleted"
           }
         },
         "summary": "Delete a category (must have no products)",
@@ -6250,7 +8026,34 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuditLogDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List audit log entries",
@@ -6565,7 +8368,7 @@
         "parameters": [],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Logged out; auth cookies cleared"
           }
         },
         "summary": "Revoke the current session family and clear cookies",
@@ -6580,7 +8383,7 @@
         "parameters": [],
         "responses": {
           "204": {
-            "description": ""
+            "description": "All sessions revoked"
           }
         },
         "summary": "Revoke all sessions of the current user",
@@ -6650,7 +8453,30 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AuthSessionListItemDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "List active sessions for the current user",
@@ -6674,7 +8500,7 @@
         ],
         "responses": {
           "204": {
-            "description": ""
+            "description": "Session revoked"
           }
         },
         "summary": "Revoke one of the current user's sessions",
@@ -6699,7 +8525,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EmailVerifiedDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Verify an email address with a token",
@@ -6714,7 +8560,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/VerificationResentDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Resend the verification email",
@@ -6739,7 +8605,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PasswordResetSentDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Request a password reset email (always succeeds)",
@@ -6764,7 +8650,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PasswordResetDoneDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Reset the password with a token and revoke all sessions",
@@ -6789,7 +8695,27 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PasswordChangedDoneDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Change the current user's password and revoke other sessions",
@@ -6804,7 +8730,27 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HealthCheckDto"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Liveness check including a database round-trip",
@@ -6819,7 +8765,19 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Readiness check",
@@ -6917,6 +8875,23 @@
           "sortOrder",
           "productCount",
           "children"
+        ]
+      },
+      "UploadResultDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Object key inside the storage driver"
+          },
+          "url": {
+            "type": "string",
+            "description": "Public URL (empty for private objects — fetch via the seller/appropriate route)"
+          }
+        },
+        "required": [
+          "key",
+          "url"
         ]
       },
       "PublicUserDto": {
@@ -7029,6 +9004,60 @@
             }
           }
         }
+      },
+      "AddressDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "recipientName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "districtId": {
+            "type": "number"
+          },
+          "district": {
+            "$ref": "#/components/schemas/DistrictDto"
+          },
+          "area": {
+            "type": "string"
+          },
+          "addressLine": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "recipientName",
+          "phone",
+          "districtId",
+          "district",
+          "area",
+          "addressLine",
+          "postalCode",
+          "isDefault",
+          "createdAt"
+        ]
       },
       "CreateAddressDto": {
         "type": "object",
@@ -7202,6 +9231,30 @@
         },
         "required": [
           "count"
+        ]
+      },
+      "NotificationReadDto": {
+        "type": "object",
+        "properties": {
+          "read": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "read"
+        ]
+      },
+      "NotificationReadAllDto": {
+        "type": "object",
+        "properties": {
+          "updated": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "updated"
         ]
       },
       "UpdateSettingsDto": {
@@ -9277,14 +11330,168 @@
           "sections"
         ]
       },
+      "CartShopInfoDto": {
+        "type": "object",
+        "properties": {
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true,
+            "description": "Shop's own district name (seller-entered, not localized)"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "True when the seller profile is APPROVED"
+          }
+        },
+        "required": [
+          "logoUrl",
+          "district",
+          "verified"
+        ]
+      },
+      "CartItemIssueDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Issue code, e.g. OUT_OF_STOCK, INSUFFICIENT_STOCK"
+          },
+          "available": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "CartItemDto": {
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "variantName": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "lineTotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "stockQty": {
+            "type": "number"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItemIssueDto"
+            }
+          }
+        },
+        "required": [
+          "variantId",
+          "productId",
+          "productName",
+          "variantName",
+          "slug",
+          "image",
+          "unitPrice",
+          "quantity",
+          "lineTotal",
+          "stockQty",
+          "issues"
+        ]
+      },
+      "CartShopGroupDto": {
+        "type": "object",
+        "properties": {
+          "shopId": {
+            "type": "string"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "shopSlug": {
+            "type": "string"
+          },
+          "shop": {
+            "$ref": "#/components/schemas/CartShopInfoDto"
+          },
+          "deliveryCharge": {
+            "type": "string",
+            "nullable": true,
+            "description": "Delivery charge as a decimal string; null when no districtId passed"
+          },
+          "freeDeliveryAbove": {
+            "type": "string",
+            "nullable": true,
+            "description": "Free-delivery threshold of the matched zone as a decimal string; null when none or no districtId"
+          },
+          "subtotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItemDto"
+            }
+          },
+          "estimatedDaysMin": {
+            "type": "number",
+            "nullable": true,
+            "description": "Present when a zone matched"
+          },
+          "estimatedDaysMax": {
+            "type": "number",
+            "nullable": true,
+            "description": "Present when a zone matched"
+          }
+        },
+        "required": [
+          "shopId",
+          "shopName",
+          "shopSlug",
+          "shop",
+          "deliveryCharge",
+          "freeDeliveryAbove",
+          "subtotal",
+          "items",
+          "estimatedDaysMin",
+          "estimatedDaysMax"
+        ]
+      },
       "CartViewDto": {
         "type": "object",
         "properties": {
           "shops": {
-            "description": "Items grouped by shop with per-item issues",
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/CartShopGroupDto"
             }
           },
           "subtotal": {
@@ -9451,24 +11658,264 @@
           "paymentMethod"
         ]
       },
-      "CancelOrderDto": {
+      "OrderListShopOrderRefDto": {
         "type": "object",
         "properties": {
-          "reason": {
-            "type": "string"
-          }
-        }
-      },
-      "CancellationRequestDto": {
-        "type": "object",
-        "properties": {
-          "reason": {
+          "status": {
             "type": "string",
-            "example": "Changed my mind"
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "shopId": {
+            "type": "string"
           }
         },
         "required": [
-          "reason"
+          "status",
+          "shopId"
+        ]
+      },
+      "SellerOrderPaymentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "PIPRAPAY",
+              "BKASH",
+              "NAGAD",
+              "CARD",
+              "BANK_TRANSFER"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "providerTxnId": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerPayload": {
+            "type": "object",
+            "nullable": true
+          },
+          "paidAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "failedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "failureReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "shopOrderId",
+          "method",
+          "provider",
+          "status",
+          "amount",
+          "currency",
+          "providerTxnId",
+          "providerPayload",
+          "paidAt",
+          "failedAt",
+          "failureReason",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OrderListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "shippingDistrictId": {
+            "type": "number"
+          },
+          "shippingDistrictName": {
+            "type": "string"
+          },
+          "shippingArea": {
+            "type": "string"
+          },
+          "shippingAddressLine": {
+            "type": "string"
+          },
+          "shippingPostalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliveryNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "PIPRAPAY",
+              "BKASH",
+              "NAGAD",
+              "CARD",
+              "BANK_TRANSFER"
+            ]
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED"
+            ]
+          },
+          "subtotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "deliveryTotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "discountTotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "grandTotal": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "placedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "overallStatus": {
+            "type": "string",
+            "example": "PARTIALLY_DELIVERED",
+            "description": "Derived from the shop orders' states"
+          },
+          "shopOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderListShopOrderRefDto"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerOrderPaymentDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "orderNumber",
+          "customerId",
+          "idempotencyKey",
+          "contactName",
+          "contactPhone",
+          "shippingDistrictId",
+          "shippingDistrictName",
+          "shippingArea",
+          "shippingAddressLine",
+          "shippingPostalCode",
+          "deliveryNote",
+          "paymentMethod",
+          "paymentStatus",
+          "subtotal",
+          "deliveryTotal",
+          "discountTotal",
+          "grandTotal",
+          "currency",
+          "placedAt",
+          "createdAt",
+          "updatedAt",
+          "overallStatus",
+          "shopOrders",
+          "payments"
         ]
       },
       "SellerOrderItemDto": {
@@ -9603,101 +12050,6 @@
           "changedByRole",
           "note",
           "createdAt"
-        ]
-      },
-      "SellerOrderPaymentDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "orderId": {
-            "type": "string"
-          },
-          "shopOrderId": {
-            "type": "string",
-            "nullable": true
-          },
-          "method": {
-            "type": "string",
-            "enum": [
-              "COD",
-              "PIPRAPAY",
-              "BKASH",
-              "NAGAD",
-              "CARD",
-              "BANK_TRANSFER"
-            ]
-          },
-          "provider": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "PENDING",
-              "PAID",
-              "FAILED",
-              "CANCELLED",
-              "REFUNDED",
-              "PARTIALLY_REFUNDED"
-            ]
-          },
-          "amount": {
-            "type": "string",
-            "description": "Decimal as string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "providerTxnId": {
-            "type": "string",
-            "nullable": true
-          },
-          "providerPayload": {
-            "type": "object",
-            "nullable": true
-          },
-          "paidAt": {
-            "type": "string",
-            "nullable": true,
-            "format": "date-time"
-          },
-          "failedAt": {
-            "type": "string",
-            "nullable": true,
-            "format": "date-time"
-          },
-          "failureReason": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "orderId",
-          "shopOrderId",
-          "method",
-          "provider",
-          "status",
-          "amount",
-          "currency",
-          "providerTxnId",
-          "providerPayload",
-          "paidAt",
-          "failedAt",
-          "failureReason",
-          "createdAt",
-          "updatedAt"
         ]
       },
       "OrderShopRefDto": {
@@ -9923,44 +12275,13 @@
           "order"
         ]
       },
-      "TransitionOrderDto": {
+      "CancelOrderDto": {
         "type": "object",
         "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "PENDING",
-              "CONFIRMED",
-              "PACKED",
-              "SHIPPED",
-              "DELIVERED",
-              "CANCELLED",
-              "FAILED_DELIVERY"
-            ]
-          },
-          "note": {
+          "reason": {
             "type": "string"
-          },
-          "courierName": {
-            "type": "string"
-          },
-          "trackingCode": {
-            "type": "string"
-          },
-          "estimatedDeliveryFrom": {
-            "type": "string"
-          },
-          "estimatedDeliveryTo": {
-            "type": "string"
-          },
-          "restock": {
-            "type": "boolean",
-            "description": "Restock on cancellation (default false)"
           }
-        },
-        "required": [
-          "status"
-        ]
+        }
       },
       "SellerCancellationShopOrderRefDto": {
         "type": "object",
@@ -10052,6 +12373,57 @@
           "shopOrder"
         ]
       },
+      "CancellationRequestDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Changed my mind"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "TransitionOrderDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "note": {
+            "type": "string"
+          },
+          "courierName": {
+            "type": "string"
+          },
+          "trackingCode": {
+            "type": "string"
+          },
+          "estimatedDeliveryFrom": {
+            "type": "string"
+          },
+          "estimatedDeliveryTo": {
+            "type": "string"
+          },
+          "restock": {
+            "type": "boolean",
+            "description": "Restock on cancellation (default false)"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
       "CancellationRespondResultDto": {
         "type": "object",
         "properties": {
@@ -10081,6 +12453,60 @@
         },
         "required": [
           "approve"
+        ]
+      },
+      "CommissionRuleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "GLOBAL",
+              "CATEGORY",
+              "SELLER"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerProfileId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ratePercent": {
+            "type": "string",
+            "description": "Decimal as string, e.g. \"5.00\""
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdById": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "scope",
+          "categoryId",
+          "sellerProfileId",
+          "ratePercent",
+          "isActive",
+          "effectiveFrom",
+          "createdById",
+          "createdAt"
         ]
       },
       "CreateCommissionRuleDto": {
@@ -10130,173 +12556,6 @@
             "type": "boolean"
           }
         }
-      },
-      "CreatePayoutDto": {
-        "type": "object",
-        "properties": {
-          "sellerProfileId": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number",
-            "example": 1500
-          },
-          "method": {
-            "type": "string",
-            "enum": [
-              "BKASH",
-              "NAGAD",
-              "ROCKET",
-              "BANK"
-            ]
-          },
-          "reference": {
-            "type": "string"
-          },
-          "note": {
-            "type": "string"
-          },
-          "periodFrom": {
-            "type": "string"
-          },
-          "periodTo": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "sellerProfileId",
-          "amount"
-        ]
-      },
-      "UpdatePayoutDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "PENDING",
-              "PROCESSING",
-              "PAID",
-              "FAILED"
-            ]
-          },
-          "method": {
-            "type": "string",
-            "enum": [
-              "BKASH",
-              "NAGAD",
-              "ROCKET",
-              "BANK"
-            ]
-          },
-          "reference": {
-            "type": "string"
-          },
-          "note": {
-            "type": "string"
-          }
-        }
-      },
-      "DuesPaymentDto": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "example": 500
-          },
-          "method": {
-            "type": "string",
-            "enum": [
-              "BKASH",
-              "NAGAD",
-              "ROCKET",
-              "BANK"
-            ]
-          },
-          "reference": {
-            "type": "string"
-          },
-          "note": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "amount"
-        ]
-      },
-      "AdjustmentDto": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "example": -100,
-            "description": "Signed amount (positive credits the seller)"
-          },
-          "note": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "amount",
-          "note"
-        ]
-      },
-      "SellerLedgerEntryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sellerProfileId": {
-            "type": "string"
-          },
-          "shopOrderId": {
-            "type": "string",
-            "nullable": true
-          },
-          "payoutId": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "ORDER_EARNING",
-              "COD_COMMISSION_DUE",
-              "PAYOUT",
-              "DUES_PAYMENT",
-              "REFUND_REVERSAL",
-              "ADJUSTMENT"
-            ]
-          },
-          "amount": {
-            "type": "string",
-            "description": "Decimal as string (positive = owed to seller)"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdById": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "sellerProfileId",
-          "shopOrderId",
-          "payoutId",
-          "type",
-          "amount",
-          "description",
-          "createdById",
-          "createdAt"
-        ]
       },
       "SellerPayoutDto": {
         "type": "object",
@@ -10386,6 +12645,185 @@
           "createdAt"
         ]
       },
+      "CreatePayoutDto": {
+        "type": "object",
+        "properties": {
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "example": 1500
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "periodFrom": {
+            "type": "string"
+          },
+          "periodTo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sellerProfileId",
+          "amount"
+        ]
+      },
+      "UpdatePayoutDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PROCESSING",
+              "PAID",
+              "FAILED"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "SellerLedgerEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ORDER_EARNING",
+              "COD_COMMISSION_DUE",
+              "PAYOUT",
+              "DUES_PAYMENT",
+              "REFUND_REVERSAL",
+              "ADJUSTMENT"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string (positive = owed to seller)"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sellerProfileId",
+          "shopOrderId",
+          "payoutId",
+          "type",
+          "amount",
+          "description",
+          "createdById",
+          "createdAt"
+        ]
+      },
+      "SellerBalanceDto": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "string",
+            "description": "Ledger balance as a decimal string (positive = owed to seller)"
+          }
+        },
+        "required": [
+          "balance"
+        ]
+      },
+      "DuesPaymentDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 500
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "AdjustmentDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": -100,
+            "description": "Signed amount (positive credits the seller)"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "note"
+        ]
+      },
       "SellerEarningsDto": {
         "type": "object",
         "properties": {
@@ -10412,6 +12850,122 @@
           "payouts"
         ]
       },
+      "RefundShopOrderRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderNumber": {
+            "type": "string"
+          },
+          "commissionAmount": {
+            "type": "string",
+            "description": "Decimal as string"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderNumber",
+          "commissionAmount"
+        ]
+      },
+      "RefundDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "paymentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "complaintId": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "APPROVED",
+              "REJECTED",
+              "PROCESSED"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "COD",
+              "PIPRAPAY",
+              "BKASH",
+              "NAGAD",
+              "CARD",
+              "BANK_TRANSFER"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedById": {
+            "type": "string"
+          },
+          "processedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "processedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "shopOrder": {
+            "description": "Present in admin list responses",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RefundShopOrderRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderId",
+          "paymentId",
+          "complaintId",
+          "amount",
+          "reason",
+          "status",
+          "method",
+          "reference",
+          "note",
+          "requestedById",
+          "processedById",
+          "processedAt",
+          "createdAt",
+          "shopOrder"
+        ]
+      },
       "RejectRefundDto": {
         "type": "object",
         "properties": {
@@ -10419,6 +12973,18 @@
             "type": "string"
           }
         }
+      },
+      "RefundProcessedDto": {
+        "type": "object",
+        "properties": {
+          "processed": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "processed"
+        ]
       },
       "ProcessRefundDto": {
         "type": "object",
@@ -10441,6 +13007,322 @@
             "type": "string"
           }
         }
+      },
+      "WishlistedShopRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status"
+        ]
+      },
+      "WishlistedProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "ACTIVE",
+              "INACTIVE",
+              "REJECTED",
+              "REMOVED"
+            ]
+          },
+          "inStock": {
+            "type": "boolean"
+          },
+          "minPrice": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "maxPrice": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "shop": {
+            "$ref": "#/components/schemas/WishlistedShopRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameBn",
+          "slug",
+          "status",
+          "inStock",
+          "minPrice",
+          "maxPrice",
+          "deletedAt",
+          "shop"
+        ]
+      },
+      "WishlistItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "False when the product or its shop is unavailable"
+          },
+          "product": {
+            "$ref": "#/components/schemas/WishlistedProductDto"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "available",
+          "product"
+        ]
+      },
+      "WishlistAddedDto": {
+        "type": "object",
+        "properties": {
+          "added": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "added"
+        ]
+      },
+      "ReviewImageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reviewId",
+          "url"
+        ]
+      },
+      "ReviewAuthorRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarUrl"
+        ]
+      },
+      "ProductReviewListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VISIBLE",
+              "HIDDEN"
+            ]
+          },
+          "sellerReply": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerRepliedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewImageDto"
+            }
+          },
+          "customer": {
+            "$ref": "#/components/schemas/ReviewAuthorRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "shopId",
+          "customerId",
+          "orderItemId",
+          "rating",
+          "title",
+          "comment",
+          "status",
+          "sellerReply",
+          "sellerRepliedAt",
+          "createdAt",
+          "updatedAt",
+          "images",
+          "customer"
+        ]
+      },
+      "ReviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VISIBLE",
+              "HIDDEN"
+            ]
+          },
+          "sellerReply": {
+            "type": "string",
+            "nullable": true
+          },
+          "sellerRepliedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "shopId",
+          "customerId",
+          "orderItemId",
+          "rating",
+          "title",
+          "comment",
+          "status",
+          "sellerReply",
+          "sellerRepliedAt",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "CreateReviewDto": {
         "type": "object",
@@ -10491,25 +13373,6 @@
             }
           }
         }
-      },
-      "ReviewImageDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "reviewId": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "reviewId",
-          "url"
-        ]
       },
       "ReviewProductRefDto": {
         "type": "object",
@@ -10611,76 +13474,6 @@
           "product"
         ]
       },
-      "ReviewDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "productId": {
-            "type": "string"
-          },
-          "shopId": {
-            "type": "string"
-          },
-          "customerId": {
-            "type": "string"
-          },
-          "orderItemId": {
-            "type": "string"
-          },
-          "rating": {
-            "type": "number"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "comment": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "VISIBLE",
-              "HIDDEN"
-            ]
-          },
-          "sellerReply": {
-            "type": "string",
-            "nullable": true
-          },
-          "sellerRepliedAt": {
-            "type": "string",
-            "nullable": true,
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "productId",
-          "shopId",
-          "customerId",
-          "orderItemId",
-          "rating",
-          "title",
-          "comment",
-          "status",
-          "sellerReply",
-          "sellerRepliedAt",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
       "ReplyReviewDto": {
         "type": "object",
         "properties": {
@@ -10751,6 +13544,80 @@
           "reason"
         ]
       },
+      "AdminReviewReportDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string"
+          },
+          "reporterId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "RESOLVED_HIDDEN",
+              "RESOLVED_KEPT"
+            ]
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "review": {
+            "description": "The reported review",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReviewDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "reviewId",
+          "reporterId",
+          "reason",
+          "status",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "review"
+        ]
+      },
+      "ReviewReportResolveDto": {
+        "type": "object",
+        "properties": {
+          "resolved": {
+            "type": "boolean",
+            "example": true
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Whether the reported review was hidden"
+          }
+        },
+        "required": [
+          "resolved",
+          "hidden"
+        ]
+      },
       "ResolveReviewReportDto": {
         "type": "object",
         "properties": {
@@ -10763,56 +13630,20 @@
           "hide"
         ]
       },
-      "CreateComplaintDto": {
+      "ReviewModerationResultDto": {
         "type": "object",
         "properties": {
-          "shopOrderId": {
+          "id": {
             "type": "string"
           },
-          "orderItemId": {
-            "type": "string"
-          },
-          "type": {
+          "status": {
             "type": "string",
-            "enum": [
-              "DAMAGED_PLANT",
-              "WRONG_ITEM",
-              "NOT_AS_DESCRIBED",
-              "NOT_DELIVERED",
-              "LATE_DELIVERY",
-              "OTHER"
-            ]
-          },
-          "description": {
-            "type": "string"
-          },
-          "attachments": {
-            "maxItems": 5,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "description": "Review status after moderation"
           }
         },
         "required": [
-          "shopOrderId",
-          "type",
-          "description"
-        ]
-      },
-      "ComplaintCommentDto": {
-        "type": "object",
-        "properties": {
-          "body": {
-            "type": "string"
-          },
-          "isInternal": {
-            "type": "boolean",
-            "description": "Admin-only internal note"
-          }
-        },
-        "required": [
-          "body"
+          "id",
+          "status"
         ]
       },
       "ComplaintAttachmentDto": {
@@ -10858,7 +13689,7 @@
           "slug"
         ]
       },
-      "SellerComplaintListItemDto": {
+      "AdminComplaintListItemDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -11098,6 +13929,399 @@
           "comments"
         ]
       },
+      "CreateComplaintDto": {
+        "type": "object",
+        "properties": {
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "attachments": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "shopOrderId",
+          "type",
+          "description"
+        ]
+      },
+      "AdminComplaintRefundRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "APPROVED",
+              "REJECTED",
+              "PROCESSED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "status"
+        ]
+      },
+      "CustomerComplaintDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SELLER_RESPONDED",
+              "UNDER_REVIEW",
+              "RESOLVED_REFUND",
+              "RESOLVED_REPLACEMENT",
+              "REJECTED",
+              "CLOSED"
+            ]
+          },
+          "resolutionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintAttachmentDto"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+            }
+          },
+          "refunds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminComplaintRefundRefDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "shopOrderId",
+          "orderItemId",
+          "customerId",
+          "shopId",
+          "type",
+          "description",
+          "status",
+          "resolutionNote",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "updatedAt",
+          "attachments",
+          "comments",
+          "refunds"
+        ]
+      },
+      "ComplaintCommentDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "isInternal": {
+            "type": "boolean",
+            "description": "Admin-only internal note"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "SellerComplaintListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SELLER_RESPONDED",
+              "UNDER_REVIEW",
+              "RESOLVED_REFUND",
+              "RESOLVED_REPLACEMENT",
+              "REJECTED",
+              "CLOSED"
+            ]
+          },
+          "resolutionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintAttachmentDto"
+            }
+          },
+          "shop": {
+            "$ref": "#/components/schemas/ComplaintShopRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "shopOrderId",
+          "orderItemId",
+          "customerId",
+          "shopId",
+          "type",
+          "description",
+          "status",
+          "resolutionNote",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "updatedAt",
+          "attachments",
+          "shop"
+        ]
+      },
+      "AdminComplaintDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "shopOrderId": {
+            "type": "string"
+          },
+          "orderItemId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAMAGED_PLANT",
+              "WRONG_ITEM",
+              "NOT_AS_DESCRIBED",
+              "NOT_DELIVERED",
+              "LATE_DELIVERY",
+              "OTHER"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SELLER_RESPONDED",
+              "UNDER_REVIEW",
+              "RESOLVED_REFUND",
+              "RESOLVED_REPLACEMENT",
+              "REJECTED",
+              "CLOSED"
+            ]
+          },
+          "resolutionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintAttachmentDto"
+            }
+          },
+          "comments": {
+            "description": "Includes internal admin comments",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintCommentResponseDto"
+            }
+          },
+          "refunds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminComplaintRefundRefDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "shopOrderId",
+          "orderItemId",
+          "customerId",
+          "shopId",
+          "type",
+          "description",
+          "status",
+          "resolutionNote",
+          "resolvedById",
+          "resolvedAt",
+          "createdAt",
+          "updatedAt",
+          "attachments",
+          "comments",
+          "refunds"
+        ]
+      },
       "UpdateComplaintStatusDto": {
         "type": "object",
         "properties": {
@@ -11146,6 +14370,85 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "RealtimeTicketDto": {
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "description": "One-time ticket to authenticate the WebSocket connection",
+            "example": "eyJuIjoiLi4uIn0...."
+          },
+          "expiresInSeconds": {
+            "type": "number",
+            "example": 60
+          },
+          "url": {
+            "type": "object",
+            "description": "WebSocket gateway URL",
+            "example": "ws://localhost:5000/ws"
+          }
+        },
+        "required": [
+          "ticket",
+          "expiresInSeconds",
+          "url"
+        ]
+      },
+      "BannerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "linkUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "placement": {
+            "type": "string",
+            "example": "HOME_HERO"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "startsAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "imageUrl",
+          "linkUrl",
+          "placement",
+          "sortOrder",
+          "isActive",
+          "startsAt",
+          "endsAt",
+          "createdAt"
         ]
       },
       "CreateBannerDto": {
@@ -11210,6 +14513,66 @@
             "type": "string"
           }
         }
+      },
+      "HomepageSectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "titleBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "FEATURED_CATEGORIES",
+              "FEATURED_PRODUCTS",
+              "FEATURED_SHOPS",
+              "NEW_ARRIVALS",
+              "BANNER_STRIP"
+            ]
+          },
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "config": {
+            "type": "object",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "title",
+          "titleBn",
+          "type",
+          "itemIds",
+          "config",
+          "sortOrder",
+          "isActive",
+          "updatedAt"
+        ]
       },
       "CreateHomepageSectionDto": {
         "type": "object",
@@ -11293,6 +14656,60 @@
             "type": "boolean"
           }
         }
+      },
+      "AnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "CUSTOMERS",
+              "SELLERS"
+            ]
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdById": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "audience",
+          "publishedAt",
+          "expiresAt",
+          "createdById",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "CreateAnnouncementDto": {
         "type": "object",
@@ -11715,6 +15132,65 @@
           "dailySeries"
         ]
       },
+      "AdminUserListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "DEACTIVATED"
+            ]
+          },
+          "emailVerifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "phone",
+          "role",
+          "status",
+          "emailVerifiedAt",
+          "lastLoginAt",
+          "createdAt"
+        ]
+      },
       "CreateAdminUserDto": {
         "type": "object",
         "properties": {
@@ -11732,6 +15208,480 @@
           "email",
           "password",
           "name"
+        ]
+      },
+      "AdminUserCountsDto": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "number"
+          },
+          "addresses": {
+            "type": "number"
+          },
+          "reviews": {
+            "type": "number"
+          },
+          "complaints": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "orders",
+          "addresses",
+          "reviews",
+          "complaints"
+        ]
+      },
+      "AdminSellerProfileRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SUSPENDED"
+            ]
+          },
+          "businessName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "businessName"
+        ]
+      },
+      "AdminUserDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "DEACTIVATED"
+            ]
+          },
+          "emailVerifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_count": {
+            "description": "Related entity counts",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminUserCountsDto"
+              }
+            ]
+          },
+          "sellerProfile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminSellerProfileRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "phone",
+          "role",
+          "status",
+          "emailVerifiedAt",
+          "lastLoginAt",
+          "createdAt",
+          "_count",
+          "sellerProfile"
+        ]
+      },
+      "AdminUserStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "DEACTIVATED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "AdminUserRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "DEACTIVATED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "phone",
+          "status"
+        ]
+      },
+      "AdminShopRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status"
+        ]
+      },
+      "AdminSellerListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerType": {
+            "type": "string",
+            "enum": [
+              "NURSERY",
+              "INDIVIDUAL_GROWER",
+              "RESELLER"
+            ]
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "tradeLicenseNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessAddress": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SUSPENDED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AdminUserRefDto"
+          },
+          "shops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminShopRefDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sellerType",
+          "businessName",
+          "contactPhone",
+          "tradeLicenseNo",
+          "businessAddress",
+          "status",
+          "rejectionReason",
+          "submittedAt",
+          "verifiedAt",
+          "createdAt",
+          "user",
+          "shops"
+        ]
+      },
+      "AdminSellerDocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NID_FRONT",
+              "NID_BACK",
+              "TRADE_LICENSE",
+              "NURSERY_PHOTO",
+              "OTHER"
+            ]
+          },
+          "fileKey": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sellerProfileId",
+          "type",
+          "fileKey",
+          "createdAt"
+        ]
+      },
+      "AdminSellerPayoutAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountMasked": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "method",
+          "accountName",
+          "accountMasked",
+          "isDefault",
+          "createdAt"
+        ]
+      },
+      "AdminSellerDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sellerType": {
+            "type": "string",
+            "enum": [
+              "NURSERY",
+              "INDIVIDUAL_GROWER",
+              "RESELLER"
+            ]
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "tradeLicenseNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessAddress": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SUSPENDED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AdminUserRefDto"
+          },
+          "shops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminShopRefDto"
+            }
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "reviewedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSellerDocumentDto"
+            }
+          },
+          "payoutAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSellerPayoutAccountDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sellerType",
+          "businessName",
+          "contactPhone",
+          "tradeLicenseNo",
+          "businessAddress",
+          "status",
+          "rejectionReason",
+          "submittedAt",
+          "verifiedAt",
+          "createdAt",
+          "user",
+          "shops",
+          "reviewedAt",
+          "reviewedById",
+          "updatedAt",
+          "documents",
+          "payoutAccounts"
         ]
       },
       "RejectSellerDto": {
@@ -11754,6 +15704,289 @@
             "example": "Repeated policy violations"
           }
         }
+      },
+      "AdminSellerLiteRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "SUSPENDED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "businessName",
+          "status"
+        ]
+      },
+      "AdminShopListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannerUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ]
+          },
+          "isOnVacation": {
+            "type": "boolean"
+          },
+          "suspendedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "suspensionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sellerProfile": {
+            "$ref": "#/components/schemas/AdminSellerLiteRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "description",
+          "logoUrl",
+          "bannerUrl",
+          "phone",
+          "district",
+          "address",
+          "status",
+          "isOnVacation",
+          "suspendedAt",
+          "suspensionReason",
+          "createdAt",
+          "sellerProfile"
+        ]
+      },
+      "AdminShopSuspendDto": {
+        "type": "object",
+        "properties": {
+          "suspended": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "suspended"
+        ]
+      },
+      "AdminShopReactivateDto": {
+        "type": "object",
+        "properties": {
+          "reactivated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "reactivated"
+        ]
+      },
+      "AdminProductCategoryRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "AdminProductListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "Order status as string"
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "shop": {
+            "type": "object",
+            "example": {
+              "id": "shop-1",
+              "name": "Green Valley",
+              "sellerProfile": {
+                "userId": "user-1"
+              }
+            }
+          },
+          "category": {
+            "$ref": "#/components/schemas/AdminProductCategoryRefDto"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status",
+          "rejectionReason",
+          "publishedAt",
+          "createdAt",
+          "shop",
+          "category"
+        ]
+      },
+      "AdminProductStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "Product status after moderation"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "AdminCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productCount": {
+            "type": "number",
+            "description": "Live product count under this category"
+          },
+          "childCount": {
+            "type": "number",
+            "description": "Immediate sub-category count"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameBn",
+          "slug",
+          "parentId",
+          "imageUrl",
+          "sortOrder",
+          "isActive",
+          "createdAt",
+          "updatedAt",
+          "productCount",
+          "childCount"
+        ]
       },
       "CreateCategoryDto": {
         "type": "object",
@@ -11901,6 +16134,72 @@
           "paidAt",
           "failedAt",
           "failureReason",
+          "createdAt"
+        ]
+      },
+      "AuditLogDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "actorRole": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "CUSTOMER",
+              "SELLER",
+              "ADMIN"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "example": "seller.approve"
+          },
+          "entityType": {
+            "type": "string",
+            "example": "SellerProfile"
+          },
+          "entityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "before": {
+            "type": "object",
+            "nullable": true
+          },
+          "after": {
+            "type": "object",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "userAgent": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "actorRole",
+          "action",
+          "entityType",
+          "entityId",
+          "before",
+          "after",
+          "ipAddress",
+          "userAgent",
           "createdAt"
         ]
       },
@@ -12066,6 +16365,54 @@
           "password"
         ]
       },
+      "AuthSessionListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userAgent": {
+            "type": "string",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "description": "Whether this list entry is the session making the request"
+          }
+        },
+        "required": [
+          "id",
+          "userAgent",
+          "ipAddress",
+          "lastUsedAt",
+          "createdAt",
+          "isCurrent"
+        ]
+      },
+      "EmailVerifiedDto": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "verified"
+        ]
+      },
       "VerifyEmailDto": {
         "type": "object",
         "properties": {
@@ -12075,6 +16422,34 @@
         },
         "required": [
           "token"
+        ]
+      },
+      "VerificationResentDto": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean"
+          },
+          "alreadyVerified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sent",
+          "alreadyVerified"
+        ]
+      },
+      "PasswordResetSentDto": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "example": true,
+            "description": "Always true to avoid account enumeration"
+          }
+        },
+        "required": [
+          "sent"
         ]
       },
       "ForgotPasswordDto": {
@@ -12087,6 +16462,18 @@
         },
         "required": [
           "email"
+        ]
+      },
+      "PasswordResetDoneDto": {
+        "type": "object",
+        "properties": {
+          "reset": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "reset"
         ]
       },
       "ResetPasswordDto": {
@@ -12105,6 +16492,18 @@
           "newPassword"
         ]
       },
+      "PasswordChangedDoneDto": {
+        "type": "object",
+        "properties": {
+          "changed": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "changed"
+        ]
+      },
       "ChangePasswordDto": {
         "type": "object",
         "properties": {
@@ -12119,6 +16518,37 @@
         "required": [
           "currentPassword",
           "newPassword"
+        ]
+      },
+      "HealthCheckDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "database": {
+            "type": "string",
+            "example": "up",
+            "description": "Liveness includes a database round-trip"
+          },
+          "latencyMs": {
+            "type": "number"
+          },
+          "uptimeSeconds": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "latencyMs",
+          "uptimeSeconds",
+          "timestamp"
         ]
       }
     }
