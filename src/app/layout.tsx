@@ -19,7 +19,13 @@ export const metadata: Metadata = {
   description: "Bangladesh's multi-vendor plant marketplace — verified nurseries, cash on delivery.",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+  modal,
+}: {
+  children: ReactNode;
+  modal: ReactNode;
+}) {
   const locale = await getLocale();
   const messages = await getMessages();
 
@@ -49,6 +55,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body className="flex min-h-full flex-col">
         <AppProviders locale={locale} messages={messages}>
+          {modal}
           {children}
         </AppProviders>
       </body>
