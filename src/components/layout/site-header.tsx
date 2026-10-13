@@ -7,7 +7,6 @@ import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
 import { NotificationsBell } from "./notifications-bell";
 import { SearchBar } from "./search-bar";
-import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 
 export function SiteHeader() {
@@ -26,7 +25,6 @@ export function SiteHeader() {
         <SearchBar className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-1">
           <div className="hidden items-center gap-1 md:flex">
-            <ThemeToggle />
             <LocaleSwitch />
           </div>
           <NotificationsBell />

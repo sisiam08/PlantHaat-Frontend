@@ -37,7 +37,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { cn } from "cn";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
-import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 
 type Role = "seller" | "admin";
@@ -168,7 +167,6 @@ export function DashboardShell({
           </Button>
 
           <div className="ml-auto flex items-center gap-1">
-            <ThemeToggle />
             <LocaleSwitch />
             <UserMenu />
           </div>

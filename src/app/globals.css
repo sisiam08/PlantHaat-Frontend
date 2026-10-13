@@ -167,6 +167,9 @@
 }
 
 :root {
+  /* The app is light-only (see FRONTEND_CONTEXT.md §9): announce the light
+     color scheme so form controls, scrollbars and the UA default styles match. */
+  color-scheme: light;
   --radius: 0.75rem;
   --background: #f6faf0;
   --foreground: #0f2a1d;
@@ -214,6 +217,9 @@
   --sidebar-ring: #aec3b0;
 }
 
+/* Dark palette — disabled until a new dark palette is designed (light-only
+   decision, FRONTEND_CONTEXT.md §9). Kept verbatim and unused: no UI reads it,
+   no element gets the `.dark` class. */
 .dark {
   --background: #0a1c13;
   --foreground: #e3eed4;

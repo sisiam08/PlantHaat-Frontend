@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import { clientEnv } from "@/env/client";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
-import { ThemeToggle } from "./theme-toggle";
 
 function FooterLink({ href, label }: { href: string; label: string }) {
   return (
@@ -90,7 +89,6 @@ export async function SiteFooter() {
           </p>
           <div className="flex items-center gap-1">
             <span className="mr-1 text-xs text-muted-foreground">{t("preferences")}</span>
-            <ThemeToggle />
             <LocaleSwitch />
           </div>
         </div>

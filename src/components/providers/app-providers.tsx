@@ -22,8 +22,7 @@ export function AppProviders({
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      forcedTheme="light"
       disableTransitionOnChange
     >
       <NextIntlClientProvider locale={locale} messages={messages}>
