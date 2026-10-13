@@ -6,7 +6,7 @@ import { CartLink } from "./cart-link";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
 import { NotificationsBell } from "./notifications-bell";
-import { SearchBar } from "./search-bar";
+import { MobileSearch, SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
 
 export function SiteHeader() {
@@ -33,7 +33,7 @@ export function SiteHeader() {
         </div>
       </div>
       <div className="px-4 pb-3 md:hidden">
-        <SearchBar />
+        <MobileSearch />
       </div>
     </header>
   );

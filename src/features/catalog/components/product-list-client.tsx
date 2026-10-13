@@ -11,6 +11,7 @@ import { fetchListPage } from "@/features/catalog/feed";
 import { ProductCard, type ProductCardData } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { type ProductQuery, type CatalogPage } from "@/features/catalog/query";
+import { DidYouMean } from "@/features/search/did-you-mean";
 import { queryKeys } from "@/lib/api/query-keys";
 
 const SCROLL_KEY_PREFIX = "ph_list_scroll_";
@@ -154,6 +155,7 @@ export function ProductListClient({
           <div className="grid place-items-center gap-2 rounded-2xl border border-dashed border-border/60 p-12 text-center">
             <p className="font-medium">{t("empty")}</p>
             <p className="text-sm text-muted-foreground">{t("emptyHint")}</p>
+            {typeof query.q === "string" && query.q ? <DidYouMean query={query.q} /> : null}
           </div>
         )
       ) : (

@@ -719,6 +719,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Typo-tolerant suggestions for the header search box
+         * @description Returns up to 4 products, 2 categories and 2 shops. Matching: name/nameBn/scientificName/tags ILIKE prefix + pg_trgm similarity/word_similarity; prefix matches rank first; only visible products; in-stock preferred; Bangla and English both work. `q` is trimmed and must be 2–50 characters.
+         */
+        get: operations["SearchController_suggest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cart": {
         parameters: {
             query?: never;
@@ -3212,6 +3232,33 @@ export interface components {
             banners: Record<string, never>[];
             /** @description Resolved homepage sections */
             sections: Record<string, never>[];
+        };
+        SuggestedProductDto: {
+            name: string;
+            nameBn: string | null;
+            slug: string;
+            /** @description Primary image URL */
+            image: string | null;
+            /** @description Decimal as string */
+            minPrice: string | null;
+            inStock: boolean;
+        };
+        SuggestedCategoryDto: {
+            name: string;
+            nameBn: string | null;
+            slug: string;
+            imageUrl: string | null;
+        };
+        SuggestedShopDto: {
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            district: string | null;
+        };
+        SearchSuggestDto: {
+            products: components["schemas"]["SuggestedProductDto"][];
+            categories: components["schemas"]["SuggestedCategoryDto"][];
+            shops: components["schemas"]["SuggestedShopDto"][];
         };
         CartShopInfoDto: {
             logoUrl: string | null;
@@ -6167,6 +6214,32 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["HomeResponseDto"];
+                    };
+                };
+            };
+        };
+    };
+    SearchController_suggest: {
+        parameters: {
+            query?: {
+                /** @description 2–50 character search text */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SearchSuggestDto"];
                     };
                 };
             };

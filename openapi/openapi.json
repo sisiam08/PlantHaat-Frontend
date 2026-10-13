@@ -2804,6 +2804,53 @@
         ]
       }
     },
+    "/api/v1/search/suggest": {
+      "get": {
+        "description": "Returns up to 4 products, 2 categories and 2 shops. Matching: name/nameBn/scientificName/tags ILIKE prefix + pg_trgm similarity/word_similarity; prefix matches rank first; only visible products; in-stock preferred; Bangla and English both work. `q` is trimmed and must be 2–50 characters.",
+        "operationId": "SearchController_suggest",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "2–50 character search text",
+            "schema": {
+              "example": "monstera",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SearchSuggestDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Typo-tolerant suggestions for the header search box",
+        "tags": [
+          "Search"
+        ]
+      }
+    },
     "/api/v1/cart": {
       "get": {
         "operationId": "CartController_get",
@@ -11383,6 +11430,120 @@
         "required": [
           "banners",
           "sections"
+        ]
+      },
+      "SuggestedProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true,
+            "description": "Primary image URL"
+          },
+          "minPrice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal as string"
+          },
+          "inStock": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "nameBn",
+          "slug",
+          "image",
+          "minPrice",
+          "inStock"
+        ]
+      },
+      "SuggestedCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nameBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "nameBn",
+          "slug",
+          "imageUrl"
+        ]
+      },
+      "SuggestedShopDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "logoUrl",
+          "district"
+        ]
+      },
+      "SearchSuggestDto": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedProductDto"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedCategoryDto"
+            }
+          },
+          "shops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedShopDto"
+            }
+          }
+        },
+        "required": [
+          "products",
+          "categories",
+          "shops"
         ]
       },
       "CartShopInfoDto": {

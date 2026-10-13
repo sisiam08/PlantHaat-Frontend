@@ -1813,5 +1813,26 @@
     ]
    }
   }
+ },
+ "search": {
+  "placeholder": "গাছ, দোকান বা বিভাগ খুঁজুন…",
+  "label": "পণ্য খুঁজুন",
+  "open": "খুঁজুন",
+  "recent": "সাম্প্রতিক খোঁজ",
+  "clearAll": "সব মুছুন",
+  "remove": "মুছুন",
+  "hint": "খুঁজতে অন্তত ২টি অক্ষর লিখুন।",
+  "products": "পণ্য",
+  "categories": "বিভাগ",
+  "shops": "দোকান",
+  "searchFor": "“{query}” খুঁজুন",
+  "loading": "খোঁজা হচ্ছে…",
+  "error": "পরামর্শ লোড করা যায়নি।",
+  "noMatches": "“{query}” এর জন্য কিছু পাওয়া যায়নি",
+  "outOfStock": "স্টকে নেই",
+  "didYouMean": "আপনি কি বোঝাতে চেয়েছেন",
+  "recentHeading": "সাম্প্রতিক খোঁজ",
+  "removeLabel": "মুছুন",
+  "clearAllLabel": "সব মুছুন"
  }
 }

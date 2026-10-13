@@ -1813,5 +1813,26 @@
     ]
    }
   }
+ },
+ "search": {
+  "placeholder": "Search plants, shops or categories…",
+  "label": "Search products",
+  "open": "Search",
+  "recent": "Recent searches",
+  "clearAll": "Clear all",
+  "remove": "Remove",
+  "hint": "Type at least 2 characters to search.",
+  "products": "Products",
+  "categories": "Categories",
+  "shops": "Shops",
+  "searchFor": "Search for “{query}”",
+  "loading": "Searching…",
+  "error": "Couldn’t load suggestions.",
+  "noMatches": "No matches for “{query}”",
+  "outOfStock": "Out of stock",
+  "didYouMean": "Did you mean",
+  "recentHeading": "Recent searches",
+  "removeLabel": "Remove",
+  "clearAllLabel": "Clear all"
  }
 }
