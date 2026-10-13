@@ -17,8 +17,8 @@ export const HOME_BANNERS: HomeBanner[] = [
   {
     id: "greener-home",
     image: {
-      desktop: "/banners/banner-1.svg",
-      mobile: "/banners/banner-1-mobile.svg",
+      desktop: "/banners/banner-1.png",
+      mobile: "/banners/banner-1-mobile.png",
     },
     alt: { bn: "সবুজে ভরা ঘর", en: "A home filled with green" },
     href: "/products",
@@ -28,8 +28,8 @@ export const HOME_BANNERS: HomeBanner[] = [
   {
     id: "new-arrivals",
     image: {
-      desktop: "/banners/banner-2.svg",
-      mobile: "/banners/banner-2-mobile.svg",
+      desktop: "/banners/banner-2.png",
+      mobile: "/banners/banner-2-mobile.png",
     },
     alt: { bn: "নতুন গাছের সংগ্রহ", en: "New plant arrivals" },
     href: "/products?sort=newest",
@@ -39,8 +39,8 @@ export const HOME_BANNERS: HomeBanner[] = [
   {
     id: "cod-nationwide",
     image: {
-      desktop: "/banners/banner-3.svg",
-      mobile: "/banners/banner-3-mobile.svg",
+      desktop: "/banners/banner-3.png",
+      mobile: "/banners/banner-3-mobile.png",
     },
     alt: { bn: "সারা দেশে ক্যাশ অন ডেলিভারি", en: "Cash on delivery nationwide" },
     href: "/products",
