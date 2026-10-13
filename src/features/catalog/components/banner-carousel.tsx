@@ -32,7 +32,7 @@ function BannerPicture({ banner, priority }: { banner: HomeBanner; priority: boo
     ...common,
     src: banner.image.mobile,
     width: 900,
-    height: 1000,
+    height: 675,
   });
 
   return (
@@ -55,7 +55,7 @@ function BannerSlide({ banner, priority }: { banner: HomeBanner; priority: boole
     value ? (locale === "en" ? value.en : value.bn) : undefined;
 
   return (
-    <div className="relative aspect-[9/10] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[3/1]">
+    <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[3/1]">
       <BannerPicture banner={banner} priority={priority} />
       <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/25 to-transparent md:bg-gradient-to-r md:from-ink/70 md:via-ink/20 md:to-transparent" />
       <div className="absolute inset-0 flex flex-col justify-end gap-4 p-6 md:justify-center md:p-14">

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1000" viewBox="0 0 900 1000" preserveAspectRatio="xMidYMid slice" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="675" viewBox="0 0 900 675" preserveAspectRatio="xMidYMid slice" role="img">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#375534"/>
@@ -9,11 +9,11 @@
       <stop offset="1" stop-color="#E3EED4" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <rect width="900" height="1000" fill="url(#bg)"/>
-  <rect width="900" height="1000" fill="url(#glow)"/>
+  <rect width="900" height="675" fill="url(#bg)"/>
+  <rect width="900" height="675" fill="url(#glow)"/>
   <g fill="#6B9071" opacity="0.5">
-    <path d="M620 1000c-70-260 20-470 260-600-90 250-110 420-80 600z"/>
-    <path d="M300 1000c-50-210 20-380 200-480-70 200-90 340-70 480z"/>
+    <path d="M620 675c-70-260 20-470 260-600-90 250-110 420-80 600z"/>
+    <path d="M300 675c-50-210 20-380 200-480-70 200-90 340-70 480z"/>
   </g>
   <g fill="#AEC3B0" opacity="0.3">
     <circle cx="180" cy="240" r="110"/>
