@@ -2014,7 +2014,7 @@
     },
     "/api/v1/products": {
       "get": {
-        "description": "Default sorts return page-based meta (`page/limit/total/totalPages`). `sort=random` returns cursor meta (`limit/nextCursor/hasMore`) with no total; pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle and `cursor` to page.",
+        "description": "Default behavior: page-based meta (`page/limit/total/totalPages`) — deprecated for the storefront, kept for the sitemap/internal callers. `pagination=cursor` returns keyset meta (`limit/nextCursor/hasMore`, and `total` on the first page with `includeTotal=true`) for every deterministic sort; cursors are opaque and bound to the sort (tampering → 400). `sort=random` always returns cursor meta (`limit/nextCursor/hasMore`, no total); pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle.",
         "operationId": "PublicProductsController_list",
         "parameters": [
           {
@@ -2168,10 +2168,32 @@
             }
           },
           {
+            "name": "pagination",
+            "required": false,
+            "in": "query",
+            "description": "Pagination mode for deterministic sorts: `offset` (deprecated; page/limit/total meta) or `cursor` (keyset `meta: {limit, nextCursor, hasMore, total?}`). `sort=random` always pages by cursor.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "offset",
+                "cursor"
+              ]
+            }
+          },
+          {
+            "name": "includeTotal",
+            "required": false,
+            "in": "query",
+            "description": "Cursor-mode extra: include `meta.total` on the FIRST page (no cursor) for an 'N results' label.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "cursor",
             "required": false,
             "in": "query",
-            "description": "Opaque cursor returned by `sort=random` pagination",
+            "description": "Opaque cursor (`sort=random` or `pagination=cursor`)",
             "schema": {
               "type": "string"
             }
@@ -2671,10 +2693,32 @@
             }
           },
           {
+            "name": "pagination",
+            "required": false,
+            "in": "query",
+            "description": "Pagination mode for deterministic sorts: `offset` (deprecated; page/limit/total meta) or `cursor` (keyset `meta: {limit, nextCursor, hasMore, total?}`). `sort=random` always pages by cursor.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "offset",
+                "cursor"
+              ]
+            }
+          },
+          {
+            "name": "includeTotal",
+            "required": false,
+            "in": "query",
+            "description": "Cursor-mode extra: include `meta.total` on the FIRST page (no cursor) for an 'N results' label.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "cursor",
             "required": false,
             "in": "query",
-            "description": "Opaque cursor returned by `sort=random` pagination",
+            "description": "Opaque cursor (`sort=random` or `pagination=cursor`)",
             "schema": {
               "type": "string"
             }
@@ -2704,7 +2748,14 @@
                       }
                     },
                     "meta": {
-                      "$ref": "#/components/schemas/PaginationMetaDto"
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/PaginationMetaDto"
+                        },
+                        {
+                          "$ref": "#/components/schemas/CursorPaginationMetaDto"
+                        }
+                      ]
                     }
                   }
                 }
@@ -2712,7 +2763,7 @@
             }
           }
         },
-        "summary": "List a shop's public products",
+        "summary": "List a shop's public products (same pagination modes as /products)",
         "tags": [
           "Catalog"
         ]
@@ -10940,6 +10991,10 @@
           },
           "hasMore": {
             "type": "boolean"
+          },
+          "total": {
+            "type": "number",
+            "description": "Cursor-mode only (`includeTotal=true`, first page): total matching rows"
           }
         },
         "required": [

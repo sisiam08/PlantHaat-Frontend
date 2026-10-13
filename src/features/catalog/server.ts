@@ -14,7 +14,7 @@ import type {
 } from "@/lib/api/types";
 import { serverRequest } from "@/server/backend";
 import { CACHE_TAGS, productTag, productReviewsTag, shopTag } from "@/server/cache-tags";
-import type { ProductQuery } from "./query";
+import type { ProductQuery, CatalogPage } from "./query";
 
 function toParams(query: Record<string, unknown>): Record<string, unknown> {
   const params: Record<string, unknown> = {};
@@ -67,6 +67,40 @@ export async function getProducts(query: ProductQuery): Promise<Paginated<Produc
     params: toParams(query as Record<string, unknown>),
   });
   return { data, meta: requireMeta(meta, query.limit ?? 20) };
+}
+
+/**
+ * Cached first page of the /products list: keyset-cursor mode with
+ * `includeTotal` for the "N plants found" label. Later pages are fetched
+ * client-side through the gateway.
+ */
+export async function getProductsCursorPage(
+  query: ProductQuery,
+  limit: number,
+): Promise<CatalogPage> {
+  "use cache";
+  cacheTag(CACHE_TAGS.products);
+  cacheLife("minutes");
+  const { data, meta } = await serverRequest<ProductListItem[]>({
+    method: "GET",
+    url: "/products",
+    params: {
+      ...toParams(query as Record<string, unknown>),
+      pagination: "cursor",
+      includeTotal: true,
+      limit,
+    },
+  });
+  const candidate = meta as Partial<CatalogPage["meta"]> | undefined;
+  return {
+    data,
+    meta: {
+      limit: typeof candidate?.limit === "number" ? candidate.limit : limit,
+      nextCursor: typeof candidate?.nextCursor === "string" ? candidate.nextCursor : null,
+      hasMore: candidate?.hasMore === true,
+      total: typeof candidate?.total === "number" ? candidate.total : undefined,
+    },
+  };
 }
 
 export interface FeedPage {

@@ -2,13 +2,22 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
-import { ProductGrid } from "@/features/catalog/components/product-card";
-import { ProductFilters, type FilterOption } from "@/features/catalog/components/product-filters";
-import { Pagination } from "@/features/catalog/components/pagination";
-import { toProductCardData } from "@/features/catalog/mappers";
-import { parseProductQuery, type SearchParams } from "@/features/catalog/query";
-import { getCategories, getDistricts, getProducts } from "@/features/catalog/server";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  FilterChips,
+  ProductFilters,
+  ProductFiltersDrawer,
+  type FilterOption,
+} from "@/features/catalog/components/product-filters";
+import { ProductListClient } from "@/features/catalog/components/product-list-client";
+import { parseProductQuery, type SearchParams } from "@/features/catalog/query";
+import {
+  getCategories,
+  getDistricts,
+  getProductsCursorPage,
+} from "@/features/catalog/server";
+
+const LIST_LIMIT = 24;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("catalog");
@@ -34,11 +43,9 @@ function ListSkeleton() {
 async function ProductsSection({ sp }: { sp: SearchParams }) {
   const query = parseProductQuery(sp);
   const locale = await getLocale();
-  const t = await getTranslations("catalog");
-  const tp = await getTranslations("product");
 
-  const [products, categories, districts] = await Promise.all([
-    getProducts(query),
+  const [firstPage, categories, districts] = await Promise.all([
+    getProductsCursorPage(query, LIST_LIMIT),
     getCategories(),
     getDistricts(),
   ]);
@@ -74,25 +81,18 @@ async function ProductsSection({ sp }: { sp: SearchParams }) {
         />
       </aside>
       <section className="grid content-start gap-6">
-        <header className="grid gap-1 border-b border-border/60 pb-4">
-          <h1 className="font-heading text-3xl font-bold">{categoryName ?? t("title")}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t("results", { count: products.meta.total })}
-          </p>
-        </header>
-        {products.data.length === 0 ? (
-          <div className="grid place-items-center gap-2 rounded-2xl border border-dashed border-border/60 p-12 text-center">
-            <p className="font-medium">{t("empty")}</p>
-            <p className="text-sm text-muted-foreground">{t("emptyHint")}</p>
-          </div>
-        ) : (
-          <ProductGrid
-            products={products.data.map(toProductCardData)}
-            locale={locale}
-            outOfStockLabel={tp("outOfStock")}
-          />
-        )}
-        <Pagination meta={products.meta} query={query} />
+        <ProductFiltersDrawer
+          categories={categoryOptions}
+          districts={districtOptions}
+          categoryName={categoryName}
+        />
+        <FilterChips categories={categoryOptions} districts={districtOptions} />
+        <ProductListClient
+          query={query}
+          initialPage={firstPage}
+          limit={LIST_LIMIT}
+          categoryName={categoryName}
+        />
       </section>
     </main>
   );

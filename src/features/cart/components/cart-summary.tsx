@@ -68,8 +68,14 @@ export function CartSummaryBox({
 
   return (
     <>
-      {/* Desktop sticky card */}
-      <Card className="hidden rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24 lg:grid">
+      {/* Desktop sticky card (always visible when there is no mobile bar) */}
+      <Card
+        className={
+          fixedOnMobile
+            ? "hidden rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24 lg:grid"
+            : "grid rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24"
+        }
+      >
         <CardContent className="grid gap-3">
           <h2 className="font-semibold">{t("summary")}</h2>
           <Rows view={view} />

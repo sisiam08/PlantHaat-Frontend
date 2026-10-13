@@ -176,7 +176,15 @@
   "empty": "No plants found",
   "emptyHint": "Try changing the filters.",
   "prev": "Previous",
-  "next": "Next"
+  "next": "Next",
+  "filters": "Filters",
+  "loadMore": "Load more",
+  "listEnd": "You've reached the end of the list",
+  "backToTop": "Back to top",
+  "retry": "Retry",
+  "listError": "The list could not be loaded.",
+  "clearAll": "Clear all",
+  "remove": "Remove"
  },
  "product": {
   "addToCart": "Add to cart",
@@ -354,7 +362,10 @@
   "placeOrder": "Place order",
   "submitting": "Placing order…",
   "backToCart": "Back to cart",
-  "orderPlaced": "Order placed"
+  "orderPlaced": "Order placed",
+  "itemsSubtotal": "Items subtotal",
+  "selectToSee": "Choose a district to see delivery charges",
+  "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items."
  },
  "orders": {
   "title": "My orders",

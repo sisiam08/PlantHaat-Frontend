@@ -32,10 +32,6 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full antialiased" suppressHydrationWarning>
       <head>
-        {/* Self-hosted fonts (see globals.css @font-face + public/fonts). The
-            Bangla font is preloaded only for the bn locale; Latin is always
-            needed (digits/labels). Kalpurush.ttf (developer-supplied) is not
-            wired yet — see FRONTEND_CONTEXT.md §12. */}
         {locale === "bn" ? (
           <link
             rel="preload"
@@ -53,7 +49,7 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="flex min-h-full flex-col">
+      <body suppressHydrationWarning className="flex min-h-full flex-col">
         <AppProviders locale={locale} messages={messages}>
           {modal}
           {children}

@@ -8,6 +8,7 @@ export const queryKeys = {
     categories: ["catalog", "categories"] as const,
     districts: ["catalog", "districts"] as const,
     products: (filters: Record<string, unknown>) => ["catalog", "products", filters] as const,
+    list: (signature: string) => ["catalog", "list", signature] as const,
     feed: (seed: string, limit: number) => ["catalog", "feed", seed, limit] as const,
     related: (slug: string, limit: number) => ["catalog", "related", slug, limit] as const,
     product: (slug: string) => ["catalog", "product", slug] as const,

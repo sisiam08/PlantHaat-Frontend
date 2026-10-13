@@ -572,7 +572,7 @@ export interface paths {
         };
         /**
          * Search/filter public products
-         * @description Default sorts return page-based meta (`page/limit/total/totalPages`). `sort=random` returns cursor meta (`limit/nextCursor/hasMore`) with no total; pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle and `cursor` to page.
+         * @description Default behavior: page-based meta (`page/limit/total/totalPages`) — deprecated for the storefront, kept for the sitemap/internal callers. `pagination=cursor` returns keyset meta (`limit/nextCursor/hasMore`, and `total` on the first page with `includeTotal=true`) for every deterministic sort; cursors are opaque and bound to the sort (tampering → 400). `sort=random` always returns cursor meta (`limit/nextCursor/hasMore`, no total); pass `seed` (1–64 chars `[A-Za-z0-9_-]`) for a stable shuffle.
          */
         get: operations["PublicProductsController_list"];
         put?: never;
@@ -692,7 +692,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List a shop's public products */
+        /** List a shop's public products (same pagination modes as /products) */
         get: operations["PublicProductsController_shopProducts"];
         put?: never;
         post?: never;
@@ -3112,6 +3112,8 @@ export interface components {
             /** @description Opaque cursor for the next page */
             nextCursor: string | null;
             hasMore: boolean;
+            /** @description Cursor-mode only (`includeTotal=true`, first page): total matching rows */
+            total?: number;
         };
         ProductShopSummaryDto: {
             id: string;
@@ -5914,7 +5916,11 @@ export interface operations {
                 sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating" | "random";
                 /** @description Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket */
                 seed?: string;
-                /** @description Opaque cursor returned by `sort=random` pagination */
+                /** @description Pagination mode for deterministic sorts: `offset` (deprecated; page/limit/total meta) or `cursor` (keyset `meta: {limit, nextCursor, hasMore, total?}`). `sort=random` always pages by cursor. */
+                pagination?: "offset" | "cursor";
+                /** @description Cursor-mode extra: include `meta.total` on the FIRST page (no cursor) for an 'N results' label. */
+                includeTotal?: boolean;
+                /** @description Opaque cursor (`sort=random` or `pagination=cursor`) */
                 cursor?: string;
             };
             header?: never;
@@ -6113,7 +6119,11 @@ export interface operations {
                 sort?: "newest" | "price_asc" | "price_desc" | "popular" | "rating" | "random";
                 /** @description Seed for `sort=random` (1–64 chars of [A-Za-z0-9_-]); defaults to a 15-minute bucket */
                 seed?: string;
-                /** @description Opaque cursor returned by `sort=random` pagination */
+                /** @description Pagination mode for deterministic sorts: `offset` (deprecated; page/limit/total meta) or `cursor` (keyset `meta: {limit, nextCursor, hasMore, total?}`). `sort=random` always pages by cursor. */
+                pagination?: "offset" | "cursor";
+                /** @description Cursor-mode extra: include `meta.total` on the FIRST page (no cursor) for an 'N results' label. */
+                includeTotal?: boolean;
+                /** @description Opaque cursor (`sort=random` or `pagination=cursor`) */
                 cursor?: string;
             };
             header?: never;
@@ -6133,7 +6143,7 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["ProductListItemDto"][];
-                        meta: components["schemas"]["PaginationMetaDto"];
+                        meta: components["schemas"]["PaginationMetaDto"] | components["schemas"]["CursorPaginationMetaDto"];
                     };
                 };
             };

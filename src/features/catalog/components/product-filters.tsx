@@ -1,12 +1,15 @@
 "use client";
 
+import { SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export interface FilterOption {
   value: string;
@@ -24,6 +27,66 @@ export function ProductFilters({
   categories: FilterOption[];
   districts: FilterOption[];
   /** Display name of the currently selected category (pre-fills the search box). */
+  categoryName?: string;
+}) {
+  return (
+    <FiltersForm categories={categories} districts={districts} categoryName={categoryName} />
+  );
+}
+
+/** Mobile: opens the same filters in a bottom drawer. */
+export function ProductFiltersDrawer({
+  children,
+  categories,
+  districts,
+  categoryName,
+}: {
+  children?: React.ReactNode;
+  categories: FilterOption[];
+  districts: FilterOption[];
+  categoryName?: string;
+}) {
+  const t = useTranslations("catalog");
+  const searchParams = useSearchParams();
+  const activeCount = ["category", "deliversTo", "minPrice", "maxPrice", "q", "inStock", "isIndoor", "isPetSafe"].filter(
+    (key) => searchParams.get(key),
+  ).length;
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="w-full justify-center lg:hidden">
+          {t("filters")}
+          {activeCount > 0 ? (
+            <Badge className="ml-1 rounded-full px-2" variant="secondary">
+              {activeCount}
+            </Badge>
+          ) : null}
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <SlidersHorizontal aria-hidden className="size-4" />
+            {t("filters")}
+          </SheetTitle>
+        </SheetHeader>
+        <div className="px-4 pb-6">
+          <FiltersForm categories={categories} districts={districts} categoryName={categoryName} />
+          {children}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function FiltersForm({
+  categories,
+  districts,
+  categoryName,
+}: {
+  categories: FilterOption[];
+  districts: FilterOption[];
   categoryName?: string;
 }) {
   const t = useTranslations("catalog");
@@ -166,5 +229,89 @@ export function ProductFilters({
         {t("apply")}
       </Button>
     </form>
+  );
+}
+
+interface FilterChipsProps {
+  categories: FilterOption[];
+  districts: FilterOption[];
+}
+
+export function FilterChips({ categories, districts }: FilterChipsProps) {
+  const t = useTranslations("catalog");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const labelFor = (key: string, value: string): string | null => {
+    if (key === "category") {
+      return categories.find((option) => option.value === value)?.label ?? null;
+    }
+    if (key === "deliversTo") {
+      return `${t("deliversTo")}: ${districts.find((option) => option.value === value)?.label ?? value}`;
+    }
+    if (key === "minPrice") return `${t("minPrice")} ≥ ${value}`;
+    if (key === "maxPrice") return `${t("maxPrice")} ≤ ${value}`;
+    if (key === "q") return value;
+    if (key === "inStock") return t("inStock");
+    if (key === "isIndoor") return t("indoor");
+    if (key === "isPetSafe") return t("petSafe");
+    return null;
+  };
+
+  const chips = [];
+  for (const [key, value] of searchParams.entries()) {
+    if (key === "sort" || key === "page") continue;
+    const label = labelFor(key, value);
+    if (label) {
+      chips.push({ key, value, label });
+    }
+  }
+  if (chips.length === 0) {
+    return null;
+  }
+
+  const remove = (removal: { key: string; value: string }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(removal.key);
+    if (removal.key === "category") {
+      // Removing the category must not leave a stale text-search prefill.
+      params.delete("q");
+    }
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  };
+
+  const clearAll = () => {
+    const params = searchParams.get("sort")
+      ? new URLSearchParams({ sort: searchParams.get("sort") as string })
+      : new URLSearchParams();
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {chips.map((chip) => (
+        <Badge key={chip.key} variant="secondary" className="gap-1 rounded-full pl-3 pr-1.5">
+          {chip.label}
+          <button
+            type="button"
+            onClick={() => remove(chip)}
+            aria-label={`${t("remove")} ${chip.label}`}
+            className="grid size-5 place-items-center rounded-full hover:bg-background/60"
+          >
+            <X aria-hidden className="size-3" />
+          </button>
+        </Badge>
+      ))}
+      <button
+        type="button"
+        onClick={clearAll}
+        className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+      >
+        {t("clearAll")}
+      </button>
+    </div>
   );
 }

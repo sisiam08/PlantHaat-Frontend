@@ -20,6 +20,20 @@ export interface ProductQuery {
   limit?: number;
 }
 
+/** Cursor-mode meta of a catalog list page (server first page and client fetches). */
+export interface CatalogCursorMeta {
+  limit: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  /** Present on the first page when the server requested `includeTotal`. */
+  total?: number;
+}
+
+export interface CatalogPage {
+  data: import("@/lib/api/types").ProductListItem[];
+  meta: CatalogCursorMeta;
+}
+
 function first(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
