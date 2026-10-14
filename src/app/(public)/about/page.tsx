@@ -2,7 +2,9 @@ import { ArrowRight, Leaf, ShieldCheck, Sprout } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
+import { PageLoading } from "@/components/layout/page-skeleton";
 import { StaticPage } from "@/components/layout/static-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +16,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle"), description: t("metaDescription") };
 }
 
-export default async function AboutPage() {
+export default function AboutPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <AboutContent />
+    </Suspense>
+  );
+}
+
+async function AboutContent() {
   const t = await getTranslations("static.about");
   const values = t.raw("values") as { title: string; body: string }[];
 

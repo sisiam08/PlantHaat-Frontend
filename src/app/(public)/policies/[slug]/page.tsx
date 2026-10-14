@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
+import { PageLoading } from "@/components/layout/page-skeleton";
 import { StaticPage } from "@/components/layout/static-page";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -36,7 +38,15 @@ export async function generateMetadata({
   return { title: t(`${POLICY_KEYS[slug]}.title`), description: t("metaDescription") };
 }
 
-export default async function PolicyPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function PolicyPage({ params }: { params: Promise<{ slug: string }> }) {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <PolicyContent params={params} />
+    </Suspense>
+  );
+}
+
+async function PolicyContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   if (!isPolicySlug(slug)) {
     notFound();

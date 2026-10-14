@@ -38,7 +38,29 @@ async function HomeFeedSection() {
   return <ProductFeed seed={seed} initialPage={firstPage} limit={FEED_LIMIT} />;
 }
 
-export default async function HomePage() {
+function HomeSkeleton() {
+  return (
+    <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-6 md:gap-14 md:py-10">
+      <Skeleton className="aspect-[4/3] w-full rounded-3xl md:aspect-[3/1]" />
+      <Skeleton className="h-24 w-full rounded-2xl" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <Skeleton key={index} className="h-32 w-full rounded-2xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<HomeSkeleton />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+async function HomeContent() {
   const locale = await getLocale();
   const th = await getTranslations("home");
   const categories = await getCategories();

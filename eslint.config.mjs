@@ -9,6 +9,8 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Throwaway production build dir used for perf measurement (NEXT_DIST_DIR).
+    ".next-prod/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

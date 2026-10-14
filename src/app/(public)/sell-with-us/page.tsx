@@ -2,7 +2,9 @@ import { ArrowRight, BadgeCheck, Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
+import { PageLoading } from "@/components/layout/page-skeleton";
 import { StaticPage } from "@/components/layout/static-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle"), description: t("metaDescription") };
 }
 
-export default async function SellWithUsPage() {
+export default function SellWithUsPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <SellWithUsContent />
+    </Suspense>
+  );
+}
+
+async function SellWithUsContent() {
   const t = await getTranslations("static.sellWithUs");
   const benefits = t.raw("benefits") as { title: string; body: string }[];
   const steps = t.raw("steps") as string[];
