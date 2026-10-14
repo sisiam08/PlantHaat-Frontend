@@ -105,7 +105,7 @@ export function RegisterSellerForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-      <Button type="submit" variant="cta" size="lg" disabled={isSubmitting}>
+      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
         {t("sellerTitle")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

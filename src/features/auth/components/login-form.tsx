@@ -69,7 +69,7 @@ export function LoginForm() {
           {t("forgotPassword")}
         </Link>
       </div>
-      <Button type="submit" variant="cta" size="lg" disabled={isSubmitting}>
+      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
         {t("signIn")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

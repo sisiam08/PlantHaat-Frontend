@@ -86,7 +86,7 @@ export function AccountClient() {
               {t("email")}: {user.email}
             </p>
             <div>
-              <Button type="submit" disabled={profile.formState.isSubmitting}>
+              <Button type="submit" loading={profile.formState.isSubmitting}>
                 {t("save")}
               </Button>
             </div>
@@ -115,7 +115,7 @@ export function AccountClient() {
               {...password.register("newPassword")}
             />
             <div>
-              <Button type="submit" disabled={password.formState.isSubmitting}>
+              <Button type="submit" loading={password.formState.isSubmitting}>
                 {t("changePassword")}
               </Button>
             </div>

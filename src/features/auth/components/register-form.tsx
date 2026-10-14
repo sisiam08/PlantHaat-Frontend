@@ -96,7 +96,7 @@ export function RegisterForm() {
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
-      <Button type="submit" variant="cta" size="lg" disabled={isSubmitting}>
+      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
         {t("createAccount")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

@@ -55,7 +55,7 @@ export function ForgotPasswordForm() {
         error={errors.email?.message}
         {...register("email")}
       />
-      <Button type="submit" variant="cta" size="lg" disabled={isSubmitting}>
+      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
         {t("sendResetLink")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
