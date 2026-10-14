@@ -40,8 +40,8 @@ function ListSkeleton() {
   );
 }
 
-async function ProductsSection({ sp }: { sp: SearchParams }) {
-  const query = parseProductQuery(sp);
+async function ProductsSection({ sp }: { sp: Promise<SearchParams> }) {
+  const query = parseProductQuery(await sp);
   const locale = await getLocale();
 
   const [firstPage, categories, districts] = await Promise.all([
@@ -98,15 +98,14 @@ async function ProductsSection({ sp }: { sp: SearchParams }) {
   );
 }
 
-export default async function ProductsPage({
+export default function ProductsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
   return (
     <Suspense fallback={<ListSkeleton />}>
-      <ProductsSection sp={sp} />
+      <ProductsSection sp={searchParams} />
     </Suspense>
   );
 }

@@ -14,6 +14,7 @@ import { gatewayError } from "./errors";
 
 const BODY_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const REFRESH_SKEW_MS = 30_000;
+const SLOW_REQUEST_MS = 500;
 
 function refererOrigin(referer: string | null): string | null {
   if (!referer) {
@@ -57,6 +58,8 @@ export async function handleGatewayRequest(
   request: NextRequest,
   segments: string[],
 ): Promise<NextResponse> {
+  const startedAt = performance.now();
+  let upstreamMs = 0;
   const method = request.method.toUpperCase();
   const path = normalizeApiPath(segments);
   if (!path) {
@@ -117,7 +120,12 @@ export async function handleGatewayRequest(
 
   const doForward = async (token: string | undefined): Promise<Response> => {
     const headers = buildUpstreamHeaders(request, { accessToken: token, refreshToken, isAuthPath });
-    return fetchUpstream(url, method, headers, body);
+    const fetchStartedAt = performance.now();
+    try {
+      return await fetchUpstream(url, method, headers, body);
+    } finally {
+      upstreamMs += performance.now() - fetchStartedAt;
+    }
   };
 
   let upstream: Response;
@@ -165,6 +173,19 @@ export async function handleGatewayRequest(
     for (const tag of tagsForMutation(path, method)) {
       revalidateTag(tag, "max");
     }
+  }
+
+  // Expose gateway/upstream timing to the browser (and dev tooling) and surface
+  // slow gateway round-trips in the server log for bottleneck attribution.
+  const totalMs = performance.now() - startedAt;
+  response.headers.set(
+    "Server-Timing",
+    `gateway;dur=${totalMs.toFixed(1)}, upstream;dur=${upstreamMs.toFixed(1)}`,
+  );
+  if (totalMs >= SLOW_REQUEST_MS || upstreamMs >= SLOW_REQUEST_MS) {
+    console.warn(
+      `[gateway] slow ${method} ${path} total=${totalMs.toFixed(0)}ms upstream=${upstreamMs.toFixed(0)}ms`,
+    );
   }
 
   return response;

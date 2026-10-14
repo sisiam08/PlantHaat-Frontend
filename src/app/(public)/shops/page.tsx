@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ShopCard } from "@/features/catalog/components/shop-card";
 import { getShops } from "@/features/catalog/server";
 import type { SearchParams } from "@/features/catalog/query";
@@ -18,11 +20,20 @@ function readPage(searchParams: SearchParams): number {
   return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-export default async function ShopsPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
+function ShopsSkeleton() {
+  return (
+    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+      <Skeleton className="h-10 w-48" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-40 w-full rounded-2xl" />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+async function ShopsContent({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
   const page = readPage(sp);
   const t = await getTranslations("shop");
@@ -66,5 +77,17 @@ export default async function ShopsPage({
         </nav>
       ) : null}
     </main>
+  );
+}
+
+export default function ShopsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  return (
+    <Suspense fallback={<ShopsSkeleton />}>
+      <ShopsContent searchParams={searchParams} />
+    </Suspense>
   );
 }

@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProductGrid } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { parseProductQuery, type SearchParams } from "@/features/catalog/query";
@@ -26,7 +28,20 @@ export async function generateMetadata({
   }
 }
 
-export default async function ShopPage({
+function ShopSkeleton() {
+  return (
+    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+      <Skeleton className="h-56 w-full rounded-3xl" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+async function ShopContent({
   params,
   searchParams,
 }: {
@@ -114,5 +129,19 @@ export default async function ShopPage({
         )}
       </section>
     </main>
+  );
+}
+
+export default function ShopPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
+  return (
+    <Suspense fallback={<ShopSkeleton />}>
+      <ShopContent params={params} searchParams={searchParams} />
+    </Suspense>
   );
 }
