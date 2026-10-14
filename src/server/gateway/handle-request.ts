@@ -77,6 +77,13 @@ export async function handleGatewayRequest(
   let accessToken = readCookie(request, "ph_at");
   const refreshToken = readCookie(request, "ph_rt");
 
+  // Session probe: with no auth cookies the caller is definitively signed out,
+  // so answer locally instead of proxying a 401 (avoids a noisy failed request
+  // in the browser console on every anonymous page load).
+  if (method === "GET" && path === "/auth/me" && !accessToken && !refreshToken) {
+    return NextResponse.json({ success: true, data: null }, { status: 200 });
+  }
+
   const url = new URL(`${serverEnv.API_INTERNAL_URL}/api/v1${path}`);
   url.search = request.nextUrl.search;
 

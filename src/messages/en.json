@@ -222,6 +222,7 @@
   "deliveryBody": "2–5 days depending on district; cash on delivery available.",
   "gallery": "Gallery",
   "careTitle": "Care",
+  "careInstructions": "Care instructions",
   "available": "Available",
   "lowStock": "Only {count} left",
   "quantity": "Quantity",

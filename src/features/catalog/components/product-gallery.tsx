@@ -3,7 +3,7 @@
 import { ImageOff, ZoomIn } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Carousel,
@@ -43,6 +43,19 @@ export function ProductGallery({
   const current = images[active] ?? images[0];
   const hasImages = images.length > 0;
   const slides = images.map((image) => ({ src: image.url, alt: image.altText ?? alt }));
+
+  // Keep `active` in sync with the mobile carousel so the thumbnail strip
+  // highlights the slide the user swiped/tapped to.
+  useEffect(() => {
+    if (!mobileApi) {
+      return;
+    }
+    const onSelect = () => setActive(mobileApi.selectedScrollSnap());
+    mobileApi.on("select", onSelect);
+    return () => {
+      mobileApi.off("select", onSelect);
+    };
+  }, [mobileApi]);
 
   if (!hasImages) {
     return (
@@ -141,21 +154,6 @@ export function ProductGallery({
 
         {images.length > 1 ? (
           <>
-            <div className="mt-2 flex justify-center gap-1.5">
-              {images.map((image, index) => (
-                <button
-                  key={`dot-${image.url}-${index}`}
-                  type="button"
-                  aria-label={`${alt} ${index + 1}`}
-                  aria-current={index === active}
-                  onClick={() => mobileApi?.scrollTo(index)}
-                  className={cn(
-                    "size-2 rounded-full transition-colors",
-                    index === active ? "bg-primary" : "bg-muted-foreground/40",
-                  )}
-                />
-              ))}
-            </div>
             <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
               {images.map((image, index) => (
                 <button

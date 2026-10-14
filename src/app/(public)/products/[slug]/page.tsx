@@ -15,6 +15,7 @@ import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import { ProductInfoTabs, type CareItem } from "@/features/catalog/components/product-info-tabs";
 import { RelatedProducts } from "@/features/catalog/components/related-products";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
+import { ProductViewBeacon } from "@/features/catalog/components/product-view-beacon";
 import { getDistricts, getProduct } from "@/features/catalog/server";
 import type { ProductDetail } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
@@ -249,6 +250,7 @@ async function ProductContent({
           slug={slug}
           description={product.description}
           careItems={careItems}
+          instructions={product.careInstructions}
           delivery={deliveryPanel}
           returns={returnsPanel}
         />
@@ -270,6 +272,8 @@ async function ProductContent({
           <RelatedProducts slug={slug} excludeId={product.id} />
         </Suspense>
       </div>
+
+      <ProductViewBeacon productId={product.id} />
 
       <script
         type="application/ld+json"

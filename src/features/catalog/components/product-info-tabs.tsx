@@ -42,16 +42,35 @@ function CareGrid({ items }: { items: CareItem[] }) {
   );
 }
 
+function CarePanel({ items, instructions }: { items: CareItem[]; instructions?: string | null }) {
+  const t = useTranslations("product");
+  return (
+    <div className="grid gap-3">
+      <CareGrid items={items} />
+      {instructions ? (
+        <div className="grid gap-1.5 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+          <p className="text-sm font-medium">{t("careInstructions")}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
+            {instructions}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductInfoTabs({
   slug,
   description,
   careItems,
+  instructions,
   delivery,
   returns,
 }: {
   slug: string;
   description: string;
   careItems: CareItem[];
+  instructions?: string | null;
   delivery: React.ReactNode;
   returns: React.ReactNode;
 }) {
@@ -81,7 +100,7 @@ export function ProductInfoTabs({
             </p>
           </TabsContent>
           <TabsContent value="care" className="pt-4">
-            <CareGrid items={careItems} />
+            <CarePanel items={careItems} instructions={instructions} />
           </TabsContent>
           <TabsContent value="delivery" className="pt-4">
             <div className="grid gap-6">
@@ -109,7 +128,7 @@ export function ProductInfoTabs({
           <AccordionItem value="care">
             <AccordionTrigger>{t("careTitle")}</AccordionTrigger>
             <AccordionContent>
-              <CareGrid items={careItems} />
+              <CarePanel items={careItems} instructions={instructions} />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="delivery">
