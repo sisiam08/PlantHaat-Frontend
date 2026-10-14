@@ -285,3 +285,40 @@
     }
   }
 }
+
+/* Inline pending hint for <Link> navigation (Next `useLinkStatus`): a fixed-size
+   dot that fades in only if navigation takes longer than ~100ms, so fast
+   prefetched transitions show no flicker. */
+.link-hint {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-inline-start: 0.35rem;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0;
+  visibility: hidden;
+}
+.link-hint.is-pending {
+  visibility: visible;
+  animation:
+    link-hint-fade 200ms ease 100ms forwards,
+    link-hint-pulse 1s ease-in-out 100ms infinite;
+}
+@keyframes link-hint-fade {
+  to {
+    opacity: 0.5;
+  }
+}
+@keyframes link-hint-pulse {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-hint.is-pending {
+    animation: none;
+    opacity: 0.5;
+  }
+}

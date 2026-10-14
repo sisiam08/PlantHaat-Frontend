@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { cn } from "cn";
+import { LinkPending } from "./link-pending";
 
 const ITEMS = [
   { key: "home", href: "/", icon: Home },
@@ -35,12 +36,13 @@ export function MobileBottomNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-medium transition-colors",
+                  "relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Icon aria-hidden className="size-5" />
                 {t(item.key)}
+                <LinkPending className="absolute top-1.5 right-3" />
               </Link>
             </li>
           );

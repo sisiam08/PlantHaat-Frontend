@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/auth-provider";
 import { cartApi } from "@/features/cart/api";
 import { addGuestLine } from "@/features/cart/guest-cart";
+import type { CartView } from "@/features/cart/types";
 import { wishlistApi } from "@/features/wishlist/api";
 import { ApiError } from "@/lib/api/common";
 import { apiGet } from "@/lib/api/client";
@@ -85,6 +86,9 @@ export function VariantPicker({
   const inWishlist =
     wishlist.data?.data.some((item) => item.product.slug === product.slug) ?? false;
   const [wishlistBusy, setWishlistBusy] = useState(false);
+  // Optimistic override so the heart flips instantly on click.
+  const [optimisticWishlist, setOptimisticWishlist] = useState<boolean | null>(null);
+  const shownInWishlist = optimisticWishlist ?? inWishlist;
 
   if (!selected) {
     return null;
@@ -98,6 +102,13 @@ export function VariantPicker({
 
   const addToCart = async () => {
     setAdding(true);
+    const previous = user ? queryClient.getQueryData<CartView>(queryKeys.cart) : undefined;
+    if (user && previous) {
+      queryClient.setQueryData<CartView>(queryKeys.cart, {
+        ...previous,
+        itemCount: previous.itemCount + clampedQty,
+      });
+    }
     try {
       if (user) {
         await cartApi.putItem(selected.id, clampedQty);
@@ -118,6 +129,9 @@ export function VariantPicker({
       }
       toast.success(tCart("added"));
     } catch (error) {
+      if (user && previous) {
+        queryClient.setQueryData<CartView>(queryKeys.cart, previous);
+      }
       toast.error(
         error instanceof ApiError && error.code === "INSUFFICIENT_STOCK"
           ? t("outOfStock")
@@ -133,18 +147,22 @@ export function VariantPicker({
       router.push(`/login?returnTo=${encodeURIComponent(pathname)}`);
       return;
     }
+    const next = !shownInWishlist;
+    setOptimisticWishlist(next);
     setWishlistBusy(true);
     try {
-      if (inWishlist) {
-        await wishlistApi.remove(product.productId);
-        toast.success(t("wishlistRemoved"));
-      } else {
+      if (next) {
         await wishlistApi.add(product.productId);
         toast.success(t("wishlistAdded"));
+      } else {
+        await wishlistApi.remove(product.productId);
+        toast.success(t("wishlistRemoved"));
       }
       await queryClient.invalidateQueries({ queryKey: queryKeys.wishlist() });
-    } catch (error) {
-      toast.error(error instanceof ApiError ? tErrors("generic") : tErrors("generic"));
+      setOptimisticWishlist(null);
+    } catch {
+      setOptimisticWishlist(null);
+      toast.error(tErrors("generic"));
     } finally {
       setWishlistBusy(false);
     }
@@ -240,12 +258,12 @@ export function VariantPicker({
           type="button"
           variant="outline"
           size="icon-lg"
-          aria-label={inWishlist ? t("wishlistRemove") : t("wishlistAdd")}
-          aria-pressed={inWishlist}
+          aria-label={shownInWishlist ? t("wishlistRemove") : t("wishlistAdd")}
+          aria-pressed={shownInWishlist}
           disabled={wishlistBusy}
           onClick={() => void toggleWishlist()}
         >
-          <Heart aria-hidden className={cn(inWishlist && "fill-offer text-offer")} />
+          <Heart aria-hidden className={cn(shownInWishlist && "fill-offer text-offer")} />
         </Button>
       </div>
 

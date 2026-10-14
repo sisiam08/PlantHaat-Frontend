@@ -2,6 +2,7 @@ import { Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { LinkPending } from "@/components/layout/link-pending";
 import type { CategoryNode } from "@/lib/api/types";
 
 /**
@@ -29,6 +30,7 @@ export function CategoryGrid({
             className="group/tile flex w-28 shrink-0 snap-start flex-col items-center gap-2 text-center md:w-auto"
           >
             <span className="relative grid size-24 place-items-center overflow-hidden rounded-2xl border border-border/60 bg-secondary/50 ring-1 ring-border/40 transition-all group-hover/tile:-translate-y-0.5 group-hover/tile:border-primary/40 group-hover/tile:shadow-md motion-reduce:group-hover/tile:translate-y-0 lg:size-28">
+              <LinkPending className="absolute top-2 right-2 z-10 text-primary" />
               {category.imageUrl ? (
                 <Image
                   src={category.imageUrl}

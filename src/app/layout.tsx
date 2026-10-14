@@ -24,7 +24,12 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="h-full antialiased" suppressHydrationWarning>
+    <html
+      lang={locale}
+      data-scroll-behavior="smooth"
+      className="h-full antialiased"
+      suppressHydrationWarning
+    >
       <head>
         {locale === "bn" ? (
           <link

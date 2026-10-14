@@ -1,8 +1,9 @@
 "use client";
 
 import { NextIntlClientProvider, type AbstractIntlMessages } from "next-intl";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
+import { RouteProgress } from "@/components/layout/route-progress";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/features/auth/auth-provider";
@@ -30,6 +31,9 @@ export function AppProviders({
           <AuthProvider>
             <RealtimeBridge />
             <TooltipProvider delayDuration={200}>
+              <Suspense fallback={null}>
+                <RouteProgress />
+              </Suspense>
               {children}
               <Toaster position="top-center" richColors />
             </TooltipProvider>

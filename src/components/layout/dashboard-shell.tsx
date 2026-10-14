@@ -35,6 +35,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "cn";
+import { LinkPending } from "./link-pending";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
 import { UserMenu } from "./user-menu";
@@ -109,6 +110,7 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
           >
             <Icon aria-hidden className="size-4 shrink-0" />
             <span className="truncate">{t(item.key)}</span>
+            <LinkPending className="ms-auto shrink-0" />
           </Link>
         );
       })}

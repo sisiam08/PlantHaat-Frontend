@@ -2,6 +2,7 @@ import { Sprout } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "cn";
+import { LinkPending } from "./link-pending";
 
 export function Logo({
   className,
@@ -41,6 +42,7 @@ export function Logo({
           </span>
         </span>
       ) : null}
+      <LinkPending className="ms-1" />
     </Link>
   );
 }
