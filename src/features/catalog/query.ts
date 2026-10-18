@@ -1,6 +1,16 @@
 export const PRODUCT_SORTS = ["newest", "price_asc", "price_desc", "popular", "rating"] as const;
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
+/** Enum values accepted by the API (unknown URL values are dropped, not sent). */
+export const LIGHT_VALUES = [
+  "FULL_SUN",
+  "PARTIAL_SHADE",
+  "SHADE",
+  "BRIGHT_INDIRECT",
+  "LOW_LIGHT",
+] as const;
+export const DIFFICULTY_VALUES = ["EASY", "MODERATE", "HARD"] as const;
+
 export type SearchParams = Record<string, string | string[] | undefined>;
 
 export interface ProductQuery {
@@ -84,14 +94,25 @@ export function parseProductQuery(searchParams: SearchParams): ProductQuery {
   if (minPrice && Number.isFinite(Number(minPrice))) query.minPrice = minPrice;
   const maxPrice = first(searchParams.maxPrice);
   if (maxPrice && Number.isFinite(Number(maxPrice))) query.maxPrice = maxPrice;
-  const light = listToCsv(csvToList(first(searchParams.light)));
+  // Unknown enum values are ignored so a hand-edited URL never 400s.
+  const light = listToCsv(
+    csvToList(first(searchParams.light)).filter((value) =>
+      (LIGHT_VALUES as readonly string[]).includes(value),
+    ),
+  );
   if (light) query.light = light;
-  const difficulty = listToCsv(csvToList(first(searchParams.difficulty)));
+  const difficulty = listToCsv(
+    csvToList(first(searchParams.difficulty)).filter((value) =>
+      (DIFFICULTY_VALUES as readonly string[]).includes(value),
+    ),
+  );
   if (difficulty) query.difficulty = difficulty;
   if (first(searchParams.isPetSafe) === "true") query.isPetSafe = true;
   if (first(searchParams.inStock) === "true") query.inStock = true;
-  const minRating = first(searchParams.minRating);
-  if (minRating && Number.isFinite(Number(minRating))) query.minRating = minRating;
+  const minRating = Number(first(searchParams.minRating));
+  if (Number.isFinite(minRating) && minRating >= 1 && minRating <= 5) {
+    query.minRating = String(Math.trunc(minRating));
+  }
   if (first(searchParams.onSale) === "true") query.onSale = true;
   const sort = first(searchParams.sort) as ProductSort | undefined;
   if (sort && PRODUCT_SORTS.includes(sort)) query.sort = sort;
