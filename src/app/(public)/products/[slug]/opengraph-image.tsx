@@ -23,6 +23,12 @@ export default async function Image({
 
   try {
     const product = await getProduct(slug);
+    if (!product) {
+      return renderBrandImage({
+        title: messages.home.heroTitle,
+        subtitle: messages.home.heroSubtitle,
+      });
+    }
     const shop = product.shop as unknown as { name?: string } | undefined;
     return renderBrandImage({
       title: product.name,

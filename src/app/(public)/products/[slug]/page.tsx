@@ -45,6 +45,9 @@ export async function generateMetadata({
   const { slug } = await params;
   try {
     const product = await getProduct(slug);
+    if (!product) {
+      return { title: "Product" };
+    }
     return {
       title: product.name,
       description: product.description.slice(0, 160),
@@ -92,10 +95,10 @@ async function ProductContent({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  let product: ProductDetail;
-  try {
-    product = await getProduct(slug);
-  } catch {
+  const product: ProductDetail | null = await getProduct(slug);
+  if (!product) {
+    // Only a real backend 404 is "not found"; a network/gateway failure from
+    // `getProduct` throws and reaches error.tsx where the user can retry.
     notFound();
   }
 

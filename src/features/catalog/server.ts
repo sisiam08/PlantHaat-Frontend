@@ -178,15 +178,29 @@ export async function getRelated(slug: string, limit = 6): Promise<ProductListIt
   return data;
 }
 
-export async function getProduct(slug: string): Promise<ProductDetail> {
+/**
+ * Product detail. Returns `null` for a genuine backend 404 so callers can call
+ * `notFound()`; any other failure (network/gateway) still throws so it reaches
+ * the route error boundary. The 404 is resolved *inside* the cached function
+ * because custom `ApiError` fields are lost when the error crosses the
+ * `use cache` boundary.
+ */
+export async function getProduct(slug: string): Promise<ProductDetail | null> {
   "use cache";
   cacheTag(CACHE_TAGS.products, productTag(slug), productReviewsTag(slug));
   cacheLife("minutes");
-  const { data } = await serverRequest<ProductDetail>({
-    method: "GET",
-    url: `/products/${encodeURIComponent(slug)}`,
-  });
-  return data;
+  try {
+    const { data } = await serverRequest<ProductDetail>({
+      method: "GET",
+      url: `/products/${encodeURIComponent(slug)}`,
+    });
+    return data;
+  } catch (error) {
+    if ((error as { status?: unknown })?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function getShops(page = 1): Promise<Paginated<ShopListItem>> {

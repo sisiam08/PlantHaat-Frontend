@@ -29,6 +29,42 @@ export interface ServerRequestOptions {
   signal?: AbortSignal;
 }
 
+/** Native Axios/Node error codes mapped to the gateway error vocabulary. */
+const NATIVE_ERROR_MAP: Record<string, { code: string; status: number }> = {
+  ECONNABORTED: { code: "GATEWAY_TIMEOUT", status: 504 },
+  ETIMEDOUT: { code: "GATEWAY_TIMEOUT", status: 504 },
+  ECONNREFUSED: { code: "GATEWAY_UNREACHABLE", status: 502 },
+  ENOTFOUND: { code: "GATEWAY_UNREACHABLE", status: 502 },
+  ECONNRESET: { code: "GATEWAY_UNREACHABLE", status: 502 },
+};
+
+/** Mapped codes safe to retry once (transient connectivity failures). */
+const RETRYABLE_CODES = new Set(["GATEWAY_TIMEOUT", "GATEWAY_UNREACHABLE"]);
+const RETRY_DELAY_MS = 200;
+const isProduction = process.env.NODE_ENV === "production";
+
+function isIdempotent(config: AxiosRequestConfig): boolean {
+  const method = (config.method ?? "GET").toUpperCase();
+  return method === "GET" || method === "HEAD";
+}
+
+function causeCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null) {
+    return undefined;
+  }
+  const cause = (error as { cause?: unknown }).cause;
+  if (typeof cause === "object" && cause !== null && "code" in cause) {
+    const code = (cause as { code?: unknown }).code;
+    if (typeof code === "string") {
+      return code;
+    }
+  }
+  if (cause instanceof Error) {
+    return cause.name;
+  }
+  return undefined;
+}
+
 function toServerError(error: unknown): ApiError {
   if (error instanceof ApiError) {
     return error;
@@ -37,23 +73,30 @@ function toServerError(error: unknown): ApiError {
     const status = error.response?.status ?? 0;
     const body: unknown = error.response?.data;
     if (isErrorEnvelope(body)) {
-      return new ApiError(body.error.code, status || body.statusCode, body.error.details, body.error.message);
+      return new ApiError(
+        body.error.code,
+        status || body.statusCode,
+        body.error.details,
+        body.error.message,
+      );
     }
-    if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
-      return new ApiError("TIMEOUT", status);
+    const mapped = error.code ? NATIVE_ERROR_MAP[error.code] : undefined;
+    if (mapped) {
+      return new ApiError(mapped.code, mapped.status);
     }
     if (!error.response) {
-      return new ApiError("GATEWAY_UNREACHABLE", 0);
+      return new ApiError("GATEWAY_UNREACHABLE", 502);
     }
     return new ApiError(`HTTP_${status}`, status);
   }
   return new ApiError("UNKNOWN", 0, undefined, error instanceof Error ? error.message : undefined);
 }
 
-export async function serverRequest<T>(
+async function requestOnce<T>(
   config: AxiosRequestConfig,
-  options: ServerRequestOptions = {},
+  options: ServerRequestOptions,
 ): Promise<ApiResult<T>> {
+  const startedAt = performance.now();
   try {
     const response = await serverApi.request<SuccessEnvelope<T>>({
       ...config,
@@ -66,7 +109,44 @@ export async function serverRequest<T>(
     });
     return unwrap(response.data);
   } catch (error) {
-    throw toServerError(error);
+    const mapped = toServerError(error);
+    if (!isProduction && RETRYABLE_CODES.has(mapped.code)) {
+      console.warn(
+        `[server-api] ${(config.method ?? "GET").toUpperCase()} ${config.url} failed in ${Math.round(
+          performance.now() - startedAt,
+        )}ms code=${axios.isAxiosError(error) ? error.code ?? "none" : "n/a"} cause=${
+          causeCode(error) ?? "none"
+        } -> ${mapped.code}`,
+      );
+    }
+    throw mapped;
+  }
+}
+
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Runs a request and, for idempotent calls only, retries exactly once after a
+ * short backoff on a transient connectivity failure. Mutations are never
+ * retried (a duplicate write is worse than a surfaced error).
+ */
+export async function serverRequest<T>(
+  config: AxiosRequestConfig,
+  options: ServerRequestOptions = {},
+): Promise<ApiResult<T>> {
+  try {
+    return await requestOnce<T>(config, options);
+  } catch (error) {
+    if (
+      isIdempotent(config) &&
+      error instanceof ApiError &&
+      RETRYABLE_CODES.has(error.code) &&
+      !options.signal?.aborted
+    ) {
+      await delay(RETRY_DELAY_MS);
+      return requestOnce<T>(config, options);
+    }
+    throw error;
   }
 }
 

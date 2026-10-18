@@ -10,7 +10,8 @@
   "close": "Close",
   "search": "Search",
   "comingSoon": "Coming soon",
-  "error": "Something went wrong"
+  "error": "Something went wrong",
+  "sectionLoadFailed": "Couldn't load — try again"
  },
  "nav": {
   "home": "Home",

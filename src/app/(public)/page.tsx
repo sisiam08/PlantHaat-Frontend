@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { SectionFallback } from "@/components/section-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryGrid } from "@/features/catalog/components/category-grid";
@@ -34,8 +35,13 @@ function FeedSkeleton() {
  * `use cache` unit so the shell never evaluates `Date.now()` during prerender.
  */
 async function HomeFeedSection() {
-  const { seed, page: firstPage } = await getHomeFeed(FEED_LIMIT);
-  return <ProductFeed seed={seed} initialPage={firstPage} limit={FEED_LIMIT} />;
+  let feed: Awaited<ReturnType<typeof getHomeFeed>>;
+  try {
+    feed = await getHomeFeed(FEED_LIMIT);
+  } catch {
+    return <SectionFallback />;
+  }
+  return <ProductFeed seed={feed.seed} initialPage={feed.page} limit={FEED_LIMIT} />;
 }
 
 function HomeSkeleton() {
@@ -63,7 +69,12 @@ export default function HomePage() {
 async function HomeContent() {
   const locale = await getLocale();
   const th = await getTranslations("home");
-  const categories = await getCategories();
+  let categories: Awaited<ReturnType<typeof getCategories>> | null = null;
+  try {
+    categories = await getCategories();
+  } catch {
+    categories = null;
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-6 md:gap-14 md:py-10">
@@ -81,7 +92,11 @@ async function HomeContent() {
             {th("browseAll")} <ArrowRight aria-hidden className="size-3.5" />
           </Link>
         </div>
-        <CategoryGrid categories={categories} locale={locale} />
+        {categories ? (
+          <CategoryGrid categories={categories} locale={locale} />
+        ) : (
+          <SectionFallback />
+        )}
       </section>
 
       <Suspense fallback={<FeedSkeleton />}>

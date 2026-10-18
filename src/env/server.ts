@@ -8,7 +8,7 @@ const emptyToUndefined = (value: unknown): unknown =>
 const optionalString = z.preprocess(emptyToUndefined, z.string().min(1).optional());
 
 const serverEnvSchema = z.object({
-  API_INTERNAL_URL: z.string().url().default("http://localhost:5000"),
+  API_INTERNAL_URL: z.string().url().default("http://127.0.0.1:5000"),
   BFF_SHARED_SECRET: optionalString,
   BACKEND_TIMEOUT_MS: z.coerce.number().int().positive().default(15000),
   GATEWAY_MAX_BODY_MB: z.coerce.number().positive().default(12),
