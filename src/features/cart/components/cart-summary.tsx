@@ -27,8 +27,12 @@ function Rows({ view }: { view: CartView }) {
       {view.shops.map((shop) => (
         <div key={shop.shopId} className="flex justify-between text-sm text-muted-foreground">
           <span className="truncate pr-2">{shop.shopName}</span>
-          <span>
-            {shop.deliveryCharge != null ? formatBdt(shop.deliveryCharge, locale) : t("selectDistrictShort")}
+          <span className={shop.deliverable === false ? "text-warning-foreground" : undefined}>
+            {shop.deliverable === false
+              ? t("notDeliveringShort")
+              : shop.deliveryCharge != null
+                ? formatBdt(shop.deliveryCharge, locale)
+                : t("selectDistrictShort")}
           </span>
         </div>
       ))}

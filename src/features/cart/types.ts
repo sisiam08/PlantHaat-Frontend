@@ -30,6 +30,11 @@ export interface CartShopView {
   shop: CartShopInfo;
   items: CartItemView[];
   subtotal: string;
+  /**
+   * null = no district chosen yet, false = district chosen but this shop does
+   * not deliver there, true = deliverable. Present once the API ships it.
+   */
+  deliverable?: boolean | null;
   deliveryCharge: string | null;
   /** Present when the cart API returns the zone's free-delivery threshold. */
   freeDeliveryAbove?: string | null;

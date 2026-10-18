@@ -104,6 +104,36 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         />
       ))}
 
+      <Card className="rounded-2xl">
+        <CardContent className="grid gap-2 text-sm">
+          <div className="flex justify-between">
+            <span>{t("itemsSubtotal")}</span>
+            <span>{formatBdt(detail.subtotal, locale)}</span>
+          </div>
+          <div className="text-sm font-medium">{t("delivery")}</div>
+          {detail.shopOrders.map((shopOrder) => (
+            <div key={shopOrder.id} className="flex justify-between text-muted-foreground">
+              <span className="truncate pr-2">{shopOrder.shop.name}</span>
+              <span>{formatBdt(shopOrder.deliveryCharge, locale)}</span>
+            </div>
+          ))}
+          <Separator />
+          <div className="flex justify-between">
+            <span>{t("deliveryTotal")}</span>
+            <span>{formatBdt(detail.deliveryTotal, locale)}</span>
+          </div>
+          <div className="flex justify-between font-semibold">
+            <span>{t("grandTotal")}</span>
+            <span>{formatBdt(detail.grandTotal, locale)}</span>
+          </div>
+          {detail.shopOrders.length > 1 ? (
+            <p className="rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
+              {t("separateShipments", { count: detail.shopOrders.length })}
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
+
       {reasonFor ? (
         <Card className="rounded-2xl">
           <CardContent className="grid gap-3">

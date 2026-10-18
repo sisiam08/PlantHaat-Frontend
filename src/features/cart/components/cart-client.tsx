@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
@@ -140,19 +141,63 @@ function ServerCart() {
     queryFn: () => cartApi.get(districtId === "" ? undefined : districtId),
   });
 
+  // Optimistic quantity/removal: the stepper updates immediately (rollback on
+  // error); money always reconciles from the API response, never client maths.
   const update = useMutation({
     mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number }) =>
       quantity <= 0 ? cartApi.removeItem(variantId) : cartApi.putItem(variantId, quantity),
+    onMutate: async ({ variantId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: cartKey });
+      const previous = queryClient.getQueryData<CartView>(cartKey);
+      if (previous) {
+        queryClient.setQueryData(cartKey, withOptimisticQuantity(previous, variantId, quantity));
+      }
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(cartKey, context.previous);
+      }
+    },
     onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
   });
   const remove = useMutation({
     mutationFn: (variantId: string) => cartApi.removeItem(variantId),
+    onMutate: async (variantId) => {
+      await queryClient.cancelQueries({ queryKey: cartKey });
+      const previous = queryClient.getQueryData<CartView>(cartKey);
+      if (previous) {
+        queryClient.setQueryData(cartKey, withOptimisticQuantity(previous, variantId, 0));
+      }
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(cartKey, context.previous);
+      }
+    },
     onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
   });
   const removeShop = useMutation({
     mutationFn: (shop: CartShopView) =>
       Promise.all(shop.items.map((item) => cartApi.removeItem(item.variantId))),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
+    onMutate: async (shop) => {
+      await queryClient.cancelQueries({ queryKey: cartKey });
+      const previous = queryClient.getQueryData<CartView>(cartKey);
+      if (previous) {
+        queryClient.setQueryData(cartKey, {
+          ...previous,
+          shops: previous.shops.filter((entry) => entry.shopId !== shop.shopId),
+        });
+      }
+      return { previous };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(cartKey, context.previous);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
   });
 
   const changeDistrict = () => {
@@ -173,9 +218,7 @@ function ServerCart() {
   }
 
   const view = cart.data;
-  const notDelivering = view.shops.filter(
-    (shop) => districtId !== "" && shop.deliveryCharge == null,
-  );
+  const notDelivering = view.shops.filter((shop) => shop.deliverable === false);
   const hasIssues = view.shops.some((shop) =>
     shop.items.some((item) => item.issues.length > 0),
   );
@@ -267,7 +310,7 @@ function ShopCard({
   removeLabel: string;
 }) {
   const t = useTranslations("cart");
-  const notDelivering = shop.deliveryCharge == null;
+  const notDelivering = shop.deliverable === false;
   const shopTotal =
     shop.subtotal != null && shop.deliveryCharge != null
       ? formatBdt(Number(shop.subtotal) + Number(shop.deliveryCharge), locale)
@@ -389,8 +432,13 @@ function CartLine({
       <div className="flex items-center gap-3">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40">
           {item.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.image} alt={item.productName} className="size-full object-cover" />
+            <Image
+              src={item.image}
+              alt={item.productName}
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
           ) : null}
         </div>
         <div className="min-w-0 flex-1">
@@ -422,6 +470,25 @@ function CartLine({
       ) : null}
     </div>
   );
+}
+
+/** Applies an optimistic quantity (0 removes the line) without touching money. */
+function withOptimisticQuantity(
+  view: CartView,
+  variantId: string,
+  quantity: number,
+): CartView {
+  const shops = view.shops.flatMap((shop) => {
+    const items = shop.items.flatMap((item) =>
+      item.variantId === variantId
+        ? quantity <= 0
+          ? []
+          : [{ ...item, quantity }]
+        : [item],
+    );
+    return items.length === 0 ? [] : [{ ...shop, items }];
+  });
+  return { ...view, shops };
 }
 
 function EmptyCart() {

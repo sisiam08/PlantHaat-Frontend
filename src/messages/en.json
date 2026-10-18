@@ -323,7 +323,7 @@
   "districtHint": "Choose a district to estimate delivery charges.",
   "notDelivering": "This shop does not deliver to this district.",
   "freeDelivery": {
-   "remaining": "{count, plural, =0 {Free delivery unlocked} one {{amount} away from free delivery} other {{amount} away from free delivery}}",
+   "remaining": "{count, plural, =0 {You get free delivery} one {{amount} away from free delivery} other {{amount} away from free delivery}}",
    "progress": "{percent}% of the way to free delivery"
   },
   "selectToSee": "Choose a district to see delivery charges",
@@ -340,7 +340,8 @@
   "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items.",
   "changeDistrict": "Change district",
   "removeTheseItems": "Remove these items",
-  "separateShipments": "Your order arrives separately from {count, plural, =1 {# shop} other {# shops}}; each shop charges its own delivery."
+  "separateShipments": "Your order arrives separately from {count, plural, =1 {# shop} other {# shops}}; each shop charges its own delivery.",
+  "notDeliveringShort": "No delivery"
  },
  "checkout": {
   "title": "Checkout",
@@ -365,7 +366,8 @@
   "orderPlaced": "Order placed",
   "itemsSubtotal": "Items subtotal",
   "selectToSee": "Choose a district to see delivery charges",
-  "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items."
+  "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items.",
+  "notDelivering": "No delivery"
  },
  "orders": {
   "title": "My orders",
@@ -391,7 +393,10 @@
    "FAILED_DELIVERY": "Failed delivery"
   },
   "reportProblem": "Report a problem",
-  "itemsSubtotal": "Items subtotal"
+  "itemsSubtotal": "Items subtotal",
+  "deliveryTotal": "Delivery total",
+  "grandTotal": "Total",
+  "separateShipments": "Your order arrives separately from {count} shops; each shop charges its own delivery."
  },
  "account": {
   "title": "My account",

@@ -217,10 +217,12 @@ export function CheckoutClient() {
                   </div>
                   <div className="flex justify-between">
                     <span>{t("delivery")}</span>
-                    <span>
+                    <span className={shop.deliverable === false ? "text-warning-foreground" : undefined}>
                       {shop.deliveryCharge != null
                         ? formatBdt(shop.deliveryCharge, locale)
-                        : t("selectToSee")}
+                        : shop.deliverable === false
+                          ? t("notDelivering")
+                          : t("selectToSee")}
                     </span>
                   </div>
                 </CardContent>
@@ -259,6 +261,8 @@ export function CheckoutClient() {
   );
 }
 
-function hasNotDelivering(view: { shops: { deliveryCharge?: string | null }[] }): boolean {
-  return view.shops.some((shop) => shop.deliveryCharge == null);
+function hasNotDelivering(view: {
+  shops: { deliverable?: boolean | null }[];
+}): boolean {
+  return view.shops.some((shop) => shop.deliverable === false);
 }
