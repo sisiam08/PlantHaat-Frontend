@@ -322,3 +322,22 @@
     opacity: 0.5;
   }
 }
+
+/* Indeterminate progress for the catalog list while filters refetch. */
+.catalog-progress-bar {
+  animation: catalog-progress 1.2s ease-in-out infinite;
+}
+@keyframes catalog-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-progress-bar {
+    animation: none;
+  }
+}

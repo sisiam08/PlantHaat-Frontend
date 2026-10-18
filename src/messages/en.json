@@ -169,6 +169,25 @@
   "sortPriceDesc": "Price: high to low",
   "sortPopular": "Popular",
   "sortRating": "Rating",
+  "priceRange": "Price range",
+  "light": "Light requirement",
+  "difficulty": "Care difficulty",
+  "rating4": "Rated 4★ & up",
+  "onSale": "On sale",
+  "showResults": "Show {count} results",
+  "loadingLabel": "Loading…",
+  "lightOption": {
+   "FULL_SUN": "Full sun",
+   "PARTIAL_SHADE": "Partial shade",
+   "SHADE": "Shade",
+   "BRIGHT_INDIRECT": "Bright indirect",
+   "LOW_LIGHT": "Low light"
+  },
+  "difficultyOption": {
+   "EASY": "Easy",
+   "MODERATE": "Moderate",
+   "HARD": "Hard"
+  },
   "inStock": "In stock",
   "indoor": "Indoor",
   "petSafe": "Pet safe",

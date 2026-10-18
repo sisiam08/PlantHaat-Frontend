@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { parseProductQuery, productsHref } from "@/features/catalog/query";
+import {
+  csvToList,
+  listToCsv,
+  parseProductQuery,
+  productsHref,
+} from "@/features/catalog/query";
 
 describe("parseProductQuery", () => {
   it("parses filters, booleans and sort", () => {
@@ -9,10 +14,12 @@ describe("parseProductQuery", () => {
       category: "indoor-plants",
       minPrice: "200",
       maxPrice: "900",
+      light: "FULL_SUN,SHADE",
+      difficulty: "EASY",
       inStock: "true",
-      isIndoor: "true",
       isPetSafe: "false",
-      deliversTo: "3",
+      minRating: "4",
+      onSale: "true",
       sort: "price_asc",
       page: "2",
     });
@@ -21,9 +28,11 @@ describe("parseProductQuery", () => {
       category: "indoor-plants",
       minPrice: "200",
       maxPrice: "900",
+      light: "FULL_SUN,SHADE",
+      difficulty: "EASY",
       inStock: true,
-      isIndoor: true,
-      deliversTo: 3,
+      minRating: "4",
+      onSale: true,
       sort: "price_asc",
       page: 2,
     });
@@ -31,10 +40,19 @@ describe("parseProductQuery", () => {
   });
 
   it("ignores an invalid sort and invalid numbers", () => {
-    const query = parseProductQuery({ sort: "bogus", minPrice: "abc", deliversTo: "-1" });
+    const query = parseProductQuery({ sort: "bogus", minPrice: "abc", minRating: "abc" });
     expect(query.sort).toBeUndefined();
     expect(query.minPrice).toBeUndefined();
-    expect(query.deliversTo).toBeUndefined();
+    expect(query.minRating).toBeUndefined();
+  });
+});
+
+describe("csv helpers", () => {
+  it("normalizes and de-duplicates comma-joined values", () => {
+    expect(csvToList("B,A,B")).toEqual(["B", "A"]);
+    expect(csvToList("")).toEqual([]);
+    expect(listToCsv(["B", "A", "B"])).toBe("A,B");
+    expect(listToCsv([])).toBeUndefined();
   });
 });
 

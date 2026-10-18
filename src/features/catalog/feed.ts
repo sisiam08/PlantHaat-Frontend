@@ -1,6 +1,6 @@
 import { apiGet } from "@/lib/api/client";
 import type { ProductListItem } from "@/lib/api/types";
-import type { CatalogPage, CatalogCursorMeta } from "./query";
+import type { CatalogFilterOptions, CatalogPage, CatalogCursorMeta } from "./query";
 
 export interface CursorMeta {
   limit: number;
@@ -47,8 +47,10 @@ export async function fetchListPage(
   query: Record<string, unknown>,
   cursor: string | null,
   limit: number,
+  signal?: AbortSignal,
 ): Promise<CatalogPage> {
   const { data, meta } = await apiGet<ProductListItem[]>("/products", {
+    signal,
     params: {
       ...query,
       pagination: "cursor",
@@ -58,4 +60,18 @@ export async function fetchListPage(
     },
   });
   return { data, meta: normalizeMeta(meta, limit) };
+}
+
+/** Browser-side filter facet values for the current category/search context. */
+export async function fetchFilterOptions(params: {
+  category?: string;
+  q?: string;
+}): Promise<CatalogFilterOptions> {
+  const { data } = await apiGet<CatalogFilterOptions>("/products/filter-options", {
+    params: {
+      ...(params.category ? { category: params.category } : {}),
+      ...(params.q ? { q: params.q } : {}),
+    },
+  });
+  return data;
 }

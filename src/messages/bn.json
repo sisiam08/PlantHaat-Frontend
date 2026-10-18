@@ -169,6 +169,25 @@
   "sortPriceDesc": "দাম: বেশি থেকে কম",
   "sortPopular": "জনপ্রিয়",
   "sortRating": "রেটিং",
+  "priceRange": "মূল্য পরিসীমা",
+  "light": "আলোর প্রয়োজন",
+  "difficulty": "পরিচর্যার কাঠিন্য",
+  "rating4": "৪★ ও উপরে",
+  "onSale": "ছাড়ে আছে",
+  "showResults": "{count}টি ফলাফল দেখুন",
+  "loadingLabel": "লোড হচ্ছে…",
+  "lightOption": {
+   "FULL_SUN": "প্রচুর রোদ",
+   "PARTIAL_SHADE": "আংশিক ছায়া",
+   "SHADE": "ছায়া",
+   "BRIGHT_INDIRECT": "উজ্জ্বল পরোক্ষ আলো",
+   "LOW_LIGHT": "কম আলো"
+  },
+  "difficultyOption": {
+   "EASY": "সহজ",
+   "MODERATE": "মাঝারি",
+   "HARD": "কঠিন"
+  },
   "inStock": "স্টকে আছে",
   "indoor": "ইনডোর",
   "petSafe": "পোষা প্রাণীর জন্য নিরাপদ",

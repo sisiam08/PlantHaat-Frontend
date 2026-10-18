@@ -9,12 +9,15 @@ export interface ProductQuery {
   shop?: string;
   minPrice?: string;
   maxPrice?: string;
+  /** Comma-separated `LightRequirement` values. */
   light?: string;
+  /** Comma-separated `CareDifficulty` values. */
   difficulty?: string;
-  isIndoor?: boolean;
   isPetSafe?: boolean;
   inStock?: boolean;
-  deliversTo?: number;
+  /** 1–5; only products rated at least this with reviews. */
+  minRating?: string;
+  onSale?: boolean;
   sort?: ProductSort;
   page?: number;
   limit?: number;
@@ -34,11 +37,39 @@ export interface CatalogPage {
   meta: CatalogCursorMeta;
 }
 
+/** Filter facet values returned by `GET /products/filter-options`. */
+export interface CatalogFilterOptions {
+  price: { min: number | null; max: number | null };
+  light: string[];
+  difficulty: string[];
+}
+
 function first(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
   }
   return value;
+}
+
+/** Splits a comma-joined (or repeated) param into a clean string list. */
+export function csvToList(value: string | undefined | null): string[] {
+  if (!value) {
+    return [];
+  }
+  const seen = new Set<string>();
+  for (const entry of value.split(",")) {
+    const trimmed = entry.trim();
+    if (trimmed.length > 0) {
+      seen.add(trimmed);
+    }
+  }
+  return [...seen];
+}
+
+/** Joins a string list into a stable comma-separated param value. */
+export function listToCsv(values: string[]): string | undefined {
+  const unique = [...new Set(values)].filter((value) => value.length > 0).sort();
+  return unique.length > 0 ? unique.join(",") : undefined;
 }
 
 export function parseProductQuery(searchParams: SearchParams): ProductQuery {
@@ -53,13 +84,15 @@ export function parseProductQuery(searchParams: SearchParams): ProductQuery {
   if (minPrice && Number.isFinite(Number(minPrice))) query.minPrice = minPrice;
   const maxPrice = first(searchParams.maxPrice);
   if (maxPrice && Number.isFinite(Number(maxPrice))) query.maxPrice = maxPrice;
-  if (first(searchParams.light)) query.light = first(searchParams.light);
-  if (first(searchParams.difficulty)) query.difficulty = first(searchParams.difficulty);
-  if (first(searchParams.isIndoor) === "true") query.isIndoor = true;
+  const light = listToCsv(csvToList(first(searchParams.light)));
+  if (light) query.light = light;
+  const difficulty = listToCsv(csvToList(first(searchParams.difficulty)));
+  if (difficulty) query.difficulty = difficulty;
   if (first(searchParams.isPetSafe) === "true") query.isPetSafe = true;
   if (first(searchParams.inStock) === "true") query.inStock = true;
-  const deliversTo = Number(first(searchParams.deliversTo));
-  if (Number.isInteger(deliversTo) && deliversTo > 0) query.deliversTo = deliversTo;
+  const minRating = first(searchParams.minRating);
+  if (minRating && Number.isFinite(Number(minRating))) query.minRating = minRating;
+  if (first(searchParams.onSale) === "true") query.onSale = true;
   const sort = first(searchParams.sort) as ProductSort | undefined;
   if (sort && PRODUCT_SORTS.includes(sort)) query.sort = sort;
   const page = Number(first(searchParams.page));
@@ -76,6 +109,25 @@ export function queryToSearchParams(query: ProductQuery): URLSearchParams {
     params.set(key, String(value));
   }
   return params;
+}
+
+/**
+ * Stable key for a catalog query, shared by the server (first page) and the
+ * client (React Query key) so the seeded page and the infinite list agree.
+ * `page`/`limit` are cursor-managed and excluded.
+ */
+export function signatureOf(query: ProductQuery): string {
+  const params: Record<string, string> = {};
+  for (const [key, value] of Object.entries(query)) {
+    if (key === "page" || key === "limit") {
+      continue;
+    }
+    if (value === undefined || value === false || value === "") {
+      continue;
+    }
+    params[key] = String(value);
+  }
+  return new URLSearchParams(params).toString();
 }
 
 export function productsHref(query: ProductQuery): string {
