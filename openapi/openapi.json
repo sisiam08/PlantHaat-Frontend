@@ -2578,6 +2578,20 @@
               "minimum": 1,
               "type": "number"
             }
+          },
+          {
+            "name": "cityScope",
+            "required": false,
+            "in": "query",
+            "description": "Dhaka city/outside scope (optional)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CITY",
+                "OUTSIDE",
+                "NA"
+              ]
+            }
           }
         ],
         "responses": {
@@ -4538,6 +4552,243 @@
         "summary": "Remove a cart item",
         "tags": [
           "Cart"
+        ]
+      }
+    },
+    "/api/v1/admin/cod-risk": {
+      "get": {
+        "operationId": "CodRiskController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OK",
+                "WATCH",
+                "RESTRICTED",
+                "BLOCKED"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Phone contains",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CodRiskProfileDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List COD risk profiles (phones are unverified)",
+        "tags": [
+          "Admin: COD risk"
+        ]
+      }
+    },
+    "/api/v1/admin/cod-risk/{id}": {
+      "get": {
+        "operationId": "CodRiskController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CodRiskProfileDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a COD risk profile",
+        "tags": [
+          "Admin: COD risk"
+        ]
+      }
+    },
+    "/api/v1/admin/cod-risk/{id}/status": {
+      "post": {
+        "operationId": "CodRiskController_setStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCodRiskStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CodRiskProfileDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Set the COD risk status (audit-logged)",
+        "tags": [
+          "Admin: COD risk"
+        ]
+      }
+    },
+    "/api/v1/admin/cod-risk/{id}/whitelist": {
+      "post": {
+        "operationId": "CodRiskController_setWhitelist",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCodRiskWhitelistDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CodRiskProfileDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Whitelist/unwhitelist a phone for COD (audit-logged)",
+        "tags": [
+          "Admin: COD risk"
         ]
       }
     },
@@ -10764,13 +11015,18 @@
           },
           "division": {
             "type": "string"
+          },
+          "metro": {
+            "type": "boolean",
+            "description": "Metro district (city/outside scope applies)"
           }
         },
         "required": [
           "id",
           "name",
           "nameBn",
-          "division"
+          "division",
+          "metro"
         ]
       },
       "CategoryNodeDto": {
@@ -10983,6 +11239,14 @@
             "type": "string",
             "nullable": true
           },
+          "cityScope": {
+            "type": "string",
+            "enum": [
+              "CITY",
+              "OUTSIDE",
+              "NA"
+            ]
+          },
           "isDefault": {
             "type": "boolean"
           },
@@ -11001,6 +11265,7 @@
           "area",
           "addressLine",
           "postalCode",
+          "cityScope",
           "isDefault",
           "createdAt"
         ]
@@ -11035,6 +11300,15 @@
           "postalCode": {
             "type": "string",
             "example": "1216"
+          },
+          "cityScope": {
+            "type": "string",
+            "enum": [
+              "CITY",
+              "OUTSIDE",
+              "NA"
+            ],
+            "description": "Only meaningful for metro districts (Dhaka)"
           },
           "isDefault": {
             "type": "boolean",
@@ -11080,6 +11354,15 @@
             "type": "string",
             "example": "1216"
           },
+          "cityScope": {
+            "type": "string",
+            "enum": [
+              "CITY",
+              "OUTSIDE",
+              "NA"
+            ],
+            "description": "Only meaningful for metro districts (Dhaka)"
+          },
           "isDefault": {
             "type": "boolean",
             "example": false
@@ -11114,6 +11397,7 @@
               "ANNOUNCEMENT",
               "QUESTION_ASKED",
               "QUESTION_ANSWERED",
+              "COD_RISK_FLAG",
               "REPLY_RECEIVED",
               "ORDER_DELAYED",
               "ORDER_STUCK",
@@ -11658,6 +11942,14 @@
           },
           "division": {
             "type": "string"
+          },
+          "areaScope": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "CITY",
+              "OUTSIDE"
+            ]
           }
         },
         "required": [
@@ -11721,6 +12013,28 @@
           "createdAt"
         ]
       },
+      "DistrictAreaScopeDto": {
+        "type": "object",
+        "properties": {
+          "districtId": {
+            "type": "number",
+            "example": 1
+          },
+          "areaScope": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "CITY",
+              "OUTSIDE"
+            ],
+            "default": "ALL"
+          }
+        },
+        "required": [
+          "districtId",
+          "areaScope"
+        ]
+      },
       "CreateDeliveryZoneDto": {
         "type": "object",
         "properties": {
@@ -11737,6 +12051,13 @@
             "type": "array",
             "items": {
               "type": "number"
+            }
+          },
+          "districtAreaScopes": {
+            "description": "Per-district area scope. When provided it replaces districtIds and allows CITY + OUTSIDE + ALL zones for the same district.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistrictAreaScopeDto"
             }
           },
           "charge": {
@@ -11777,6 +12098,13 @@
             "type": "array",
             "items": {
               "type": "number"
+            }
+          },
+          "districtAreaScopes": {
+            "description": "Per-district area scope. When provided it replaces districtIds and allows CITY + OUTSIDE + ALL zones for the same district.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistrictAreaScopeDto"
             }
           },
           "charge": {
@@ -14133,6 +14461,108 @@
           "quantity"
         ]
       },
+      "CodRiskProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "phoneNormalized": {
+            "type": "string"
+          },
+          "failedCount": {
+            "type": "number"
+          },
+          "deliveredCount": {
+            "type": "number"
+          },
+          "lastEventAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "WATCH",
+              "RESTRICTED",
+              "BLOCKED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "setById": {
+            "type": "string",
+            "nullable": true
+          },
+          "isWhitelisted": {
+            "type": "boolean"
+          },
+          "addressFingerprint": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "phoneNormalized",
+          "failedCount",
+          "deliveredCount",
+          "lastEventAt",
+          "status",
+          "note",
+          "setById",
+          "isWhitelisted",
+          "addressFingerprint",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SetCodRiskStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "WATCH",
+              "RESTRICTED",
+              "BLOCKED"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "SetCodRiskWhitelistDto": {
+        "type": "object",
+        "properties": {
+          "whitelisted": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "whitelisted"
+        ]
+      },
       "OrderDetailDto": {
         "type": "object",
         "properties": {
@@ -14918,6 +15348,16 @@
             "items": {
               "$ref": "#/components/schemas/SellerShopOrderRefDto"
             }
+          },
+          "codRisk": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "WATCH",
+              "RESTRICTED",
+              "BLOCKED"
+            ],
+            "nullable": true
           }
         },
         "required": [
@@ -14957,7 +15397,8 @@
           "shop",
           "order",
           "parent",
-          "replacements"
+          "replacements",
+          "codRisk"
         ]
       },
       "CancelOrderDto": {

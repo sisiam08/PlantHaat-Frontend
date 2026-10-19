@@ -26,6 +26,7 @@ import type {
   BannerInput,
   BulkCancelResult,
   CategoryInput,
+  CodRiskProfile,
   CreateCommissionRuleInput,
   CreatePayoutInput,
   DuesAdjustmentResult,
@@ -349,6 +350,16 @@ export const adminApi = {
     apiGet<AdminSettings>("/admin/settings").then((result) => result.data),
   updateSettings: (values: AdminSettings) =>
     apiPatch<AdminSettings>("/admin/settings", { values }).then((result) => result.data),
+  listCodRisk: (params?: { status?: string; q?: string; page?: number; limit?: number }) =>
+    apiGet<CodRiskProfile[]>("/admin/cod-risk", qs(params)).then((result) => paginated(result)),
+  setCodRiskStatus: (id: string, input: { status: string; note?: string }) =>
+    apiPost<CodRiskProfile>("/admin/cod-risk/${encodeURIComponent(id)}/status", input).then(
+      (result) => result.data,
+    ),
+  setCodRiskWhitelist: (id: string, input: { whitelisted: boolean; note?: string }) =>
+    apiPost<CodRiskProfile>("/admin/cod-risk/${encodeURIComponent(id)}/whitelist", input).then(
+      (result) => result.data,
+    ),
   reconciliation: (params?: { from?: string; to?: string }) =>
     apiGet<ReconciliationResult>("/admin/reconciliation", qs(params)).then((result) => result.data),
 };

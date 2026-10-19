@@ -1174,6 +1174,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/cod-risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List COD risk profiles (phones are unverified) */
+        get: operations["CodRiskController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/cod-risk/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a COD risk profile */
+        get: operations["CodRiskController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/cod-risk/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set the COD risk status (audit-logged) */
+        post: operations["CodRiskController_setStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/cod-risk/{id}/whitelist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Whitelist/unwhitelist a phone for COD (audit-logged) */
+        post: operations["CodRiskController_setWhitelist"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/checkout": {
         parameters: {
             query?: never;
@@ -2952,6 +3020,8 @@ export interface components {
             name: string;
             nameBn: string;
             division: string;
+            /** @description Metro district (city/outside scope applies) */
+            metro: boolean;
         };
         CategoryNodeDto: {
             id: string;
@@ -3021,6 +3091,8 @@ export interface components {
             area: string;
             addressLine: string;
             postalCode: string | null;
+            /** @enum {string} */
+            cityScope: "CITY" | "OUTSIDE" | "NA";
             isDefault: boolean;
             /** Format: date-time */
             createdAt: string;
@@ -3040,6 +3112,11 @@ export interface components {
             addressLine: string;
             /** @example 1216 */
             postalCode?: string;
+            /**
+             * @description Only meaningful for metro districts (Dhaka)
+             * @enum {string}
+             */
+            cityScope?: "CITY" | "OUTSIDE" | "NA";
             /** @example false */
             isDefault?: boolean;
         };
@@ -3058,13 +3135,18 @@ export interface components {
             addressLine?: string;
             /** @example 1216 */
             postalCode?: string;
+            /**
+             * @description Only meaningful for metro districts (Dhaka)
+             * @enum {string}
+             */
+            cityScope?: "CITY" | "OUTSIDE" | "NA";
             /** @example false */
             isDefault?: boolean;
         };
         NotificationItemDto: {
             id: string;
             /** @enum {string} */
-            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "QUESTION_ASKED" | "QUESTION_ANSWERED" | "REPLY_RECEIVED" | "ORDER_DELAYED" | "ORDER_STUCK" | "FALSE_DELIVERY_FLAG" | "REPLACEMENT_CREATED" | "ORDERS_BULK_CANCELLED" | "SYSTEM";
+            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "QUESTION_ASKED" | "QUESTION_ANSWERED" | "COD_RISK_FLAG" | "REPLY_RECEIVED" | "ORDER_DELAYED" | "ORDER_STUCK" | "FALSE_DELIVERY_FLAG" | "REPLACEMENT_CREATED" | "ORDERS_BULK_CANCELLED" | "SYSTEM";
             title: string;
             body: string;
             data: Record<string, never> | null;
@@ -3220,6 +3302,8 @@ export interface components {
             name: string;
             nameBn: string;
             division: string;
+            /** @enum {string} */
+            areaScope?: "ALL" | "CITY" | "OUTSIDE";
         };
         DeliveryZoneDto: {
             id: string;
@@ -3236,6 +3320,15 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        DistrictAreaScopeDto: {
+            /** @example 1 */
+            districtId: number;
+            /**
+             * @default ALL
+             * @enum {string}
+             */
+            areaScope: "ALL" | "CITY" | "OUTSIDE";
+        };
         CreateDeliveryZoneDto: {
             /** @example Dhaka metro */
             name: string;
@@ -3243,6 +3336,8 @@ export interface components {
             isNationwide?: boolean;
             /** @description District IDs (ignored when nationwide) */
             districtIds?: number[];
+            /** @description Per-district area scope. When provided it replaces districtIds and allows CITY + OUTSIDE + ALL zones for the same district. */
+            districtAreaScopes?: components["schemas"]["DistrictAreaScopeDto"][];
             /** @example 60 */
             charge: number;
             /** @example 1000 */
@@ -3259,6 +3354,8 @@ export interface components {
             isNationwide?: boolean;
             /** @description District IDs (ignored when nationwide) */
             districtIds?: number[];
+            /** @description Per-district area scope. When provided it replaces districtIds and allows CITY + OUTSIDE + ALL zones for the same district. */
+            districtAreaScopes?: components["schemas"]["DistrictAreaScopeDto"][];
             /** @example 60 */
             charge?: number;
             /** @example 1000 */
@@ -3932,6 +4029,33 @@ export interface components {
             /** @example 1 */
             quantity: number;
         };
+        CodRiskProfileDto: {
+            id: string;
+            phoneNormalized: string;
+            failedCount: number;
+            deliveredCount: number;
+            /** Format: date-time */
+            lastEventAt: string | null;
+            /** @enum {string} */
+            status: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED";
+            note: string | null;
+            setById: string | null;
+            isWhitelisted: boolean;
+            addressFingerprint: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SetCodRiskStatusDto: {
+            /** @enum {string} */
+            status: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED";
+            note?: string;
+        };
+        SetCodRiskWhitelistDto: {
+            whitelisted: boolean;
+            note?: string;
+        };
         OrderDetailDto: {
             id: string | null;
             orderNumber: string | null;
@@ -4151,6 +4275,8 @@ export interface components {
             order: components["schemas"]["SellerOrderRefDto"];
             parent: components["schemas"]["SellerShopOrderRefDto"] | null;
             replacements: components["schemas"]["SellerShopOrderRefDto"][];
+            /** @enum {string|null} */
+            codRisk: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED" | null;
         };
         CancelOrderDto: {
             reason?: string;
@@ -6906,6 +7032,8 @@ export interface operations {
             query: {
                 /** @description Destination district id */
                 districtId: number;
+                /** @description Dhaka city/outside scope (optional) */
+                cityScope?: "CITY" | "OUTSIDE" | "NA";
             };
             header?: never;
             path: {
@@ -7869,6 +7997,119 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["CartViewDto"];
+                    };
+                };
+            };
+        };
+    };
+    CodRiskController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                status?: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED";
+                /** @description Phone contains */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CodRiskProfileDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    CodRiskController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CodRiskProfileDto"];
+                    };
+                };
+            };
+        };
+    };
+    CodRiskController_setStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCodRiskStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CodRiskProfileDto"];
+                    };
+                };
+            };
+        };
+    };
+    CodRiskController_setWhitelist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCodRiskWhitelistDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["CodRiskProfileDto"];
                     };
                 };
             };

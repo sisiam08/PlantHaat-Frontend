@@ -59,6 +59,8 @@ export function CheckoutClient() {
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [priceChange, setPriceChange] = useState<PriceChangeDetails | null>(null);
+  const [formDistrictId, setFormDistrictId] = useState("");
+  const [formCityScope, setFormCityScope] = useState<"CITY" | "OUTSIDE" | "NA">("NA");
 
   const addresses = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
   const districts = useQuery({
@@ -134,6 +136,7 @@ export function CheckoutClient() {
       area: String(form.get("area") ?? ""),
       addressLine: String(form.get("addressLine") ?? ""),
       postalCode: String(form.get("postalCode") ?? "") || undefined,
+      cityScope: formCityScope,
       isDefault: list.length === 0,
     });
   };
@@ -197,6 +200,11 @@ export function CheckoutClient() {
                       id="districtId"
                       name="districtId"
                       required
+                      value={formDistrictId}
+                      onChange={(event) => {
+                        setFormDistrictId(event.target.value);
+                        setFormCityScope("NA");
+                      }}
                       className="h-10 rounded-full border border-input bg-background px-4 text-sm"
                     >
                       <option value="">{t("district")}</option>
@@ -207,6 +215,24 @@ export function CheckoutClient() {
                       ))}
                     </select>
                   </div>
+                  {(districts.data ?? []).find(
+                    (district) => String(district.id) === formDistrictId,
+                  )?.metro ? (
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="cityScope">{t("cityScope")}</Label>
+                      <select
+                        id="cityScope"
+                        value={formCityScope}
+                        onChange={(event) =>
+                          setFormCityScope(event.target.value as "CITY" | "OUTSIDE" | "NA")
+                        }
+                        className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+                      >
+                        <option value="CITY">{t("insideCity")}</option>
+                        <option value="OUTSIDE">{t("outsideCity")}</option>
+                      </select>
+                    </div>
+                  ) : null}
                   <div className="grid gap-1.5">
                     <Label htmlFor="area">{t("area")}</Label>
                     <Input id="area" name="area" required />

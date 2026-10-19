@@ -90,7 +90,9 @@
   "UPLOAD_INVALID_TYPE": "That file type is not allowed.",
   "UPLOAD_TOO_LARGE": "The file is too large.",
   "EMAIL_ALREADY_VERIFIED": "Your email is already verified.",
-  "COMPLAINT_ATTACHMENT_REQUIRED": "Add at least one photo for this complaint type."
+  "COMPLAINT_ATTACHMENT_REQUIRED": "Add at least one photo for this complaint type.",
+  "COD_BLOCKED": "Cash on delivery is unavailable for this phone. Please contact support.",
+  "COD_RESTRICTED": "Cash on delivery is limited to ৳2000 for this phone. Please contact support."
  },
  "auth": {
   "email": "Email",
@@ -393,7 +395,10 @@
   "priceChangedBody": "Some prices in your cart changed. Confirm to order at the new prices.",
   "newTotal": "New total",
   "confirmNewPrice": "Order at new prices",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "cityScope": "Area type",
+  "insideCity": "Inside Dhaka city",
+  "outsideCity": "Outside Dhaka city"
  },
  "orders": {
   "title": "My orders",
@@ -467,7 +472,10 @@
     "phone": "Enter a valid mobile number",
     "district": "Select a district",
     "required": "This field is required"
-   }
+   },
+   "cityScope": "Area type",
+   "insideCity": "Inside Dhaka city",
+   "outsideCity": "Outside Dhaka city"
   },
   "notifications": {
    "title": "Notification preferences",
@@ -775,7 +783,11 @@
     "districtsRequired": "Select at least one district or enable nationwide",
     "charge": "Enter a valid charge",
     "etaRange": "Max days must be at least min days"
-   }
+   },
+   "areaScope": "Area scope",
+   "scopeAll": "All areas",
+   "scopeCity": "Inside city",
+   "scopeOutside": "Outside city"
   },
   "payouts": {
    "title": "Payout accounts",
@@ -971,7 +983,8 @@
    "replacementCreated": "Replacement created: {number}",
    "deliveryNote": "Delivery note",
    "deliveryNoteOptional": "Delivery note (optional)",
-   "stuckWarning": "This order has been stuck for too long. Please act on it."
+   "stuckWarning": "This order has been stuck for too long. Please act on it.",
+   "codRiskBadge": "COD risk"
   },
   "cancellations": {
    "title": "Cancellation requests",
@@ -1140,7 +1153,8 @@
    "contentReports": "Content reports",
    "reconciliation": "Reconciliation",
    "stuckOrders": "Stuck orders",
-   "suspendedSellers": "Suspended sellers"
+   "suspendedSellers": "Suspended sellers",
+   "codRisk": "COD risk"
   },
   "common": {
    "prev": "Previous",
@@ -1412,7 +1426,8 @@
    "replacementFor": "Replacement for {number}",
    "replacementCreated": "Replacement created: {number}",
    "deliveryNote": "Delivery note",
-   "stuckWarning": "This order is flagged as stuck."
+   "stuckWarning": "This order is flagged as stuck.",
+   "codRiskBadge": "COD risk"
   },
   "paymentStatus": {
    "PENDING": "Pending",
@@ -1740,6 +1755,31 @@
    "confirmCancel": "Yes, cancel",
    "cancelling": "Cancelling…",
    "cancelled": "{count} orders cancelled"
+  },
+  "codRiskStatus": {
+   "OK": "OK",
+   "WATCH": "Watch",
+   "RESTRICTED": "Restricted",
+   "BLOCKED": "Blocked"
+  },
+  "codRisk": {
+   "title": "COD risk",
+   "subtitle": "Review phone-level failed-delivery history and act on it.",
+   "searchPlaceholder": "Search phone",
+   "all": "All",
+   "phone": "Phone",
+   "failed": "Failed",
+   "delivered": "Delivered",
+   "status": "Status",
+   "lastEvent": "Last event",
+   "actions": "Actions",
+   "whitelisted": "Whitelisted",
+   "whitelist": "Whitelist",
+   "unwhitelist": "Remove whitelist",
+   "updated": "COD risk updated",
+   "loadError": "Could not load the risk list.",
+   "empty": "No risk profiles yet.",
+   "unverifiedNote": "Phones are unverified, so this risk level is a deterrent, not proof of fraud."
   }
  },
  "shell": {

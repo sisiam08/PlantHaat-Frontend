@@ -90,7 +90,9 @@
   "UPLOAD_INVALID_TYPE": "শুধু নির্দিষ্ট ফাইল ধরন অনুমোদিত।",
   "UPLOAD_TOO_LARGE": "ফাইলটি খুব বড়।",
   "EMAIL_ALREADY_VERIFIED": "আপনার ইমেইল ইতিমধ্যে যাচাইকৃত।",
-  "COMPLAINT_ATTACHMENT_REQUIRED": "এই ধরনের অভিযোগের জন্য অন্তত একটি ছবি দিন।"
+  "COMPLAINT_ATTACHMENT_REQUIRED": "এই ধরনের অভিযোগের জন্য অন্তত একটি ছবি দিন।",
+  "COD_BLOCKED": "এই ফোনে ক্যাশ অন ডেলিভারি বন্ধ আছে। সহায়তার জন্য যোগাযোগ করুন।",
+  "COD_RESTRICTED": "এই ফোনে ক্যাশ অন ডেলিভারি সর্বোচ্চ ৳২০০০ পর্যন্ত। সহায়তার জন্য যোগাযোগ করুন।"
  },
  "auth": {
   "email": "ইমেইল",
@@ -393,7 +395,10 @@
   "priceChangedBody": "আপনার কার্টের কিছু পণ্যের দাম বদলেছে। নতুন দামে অর্ডার করতে নিশ্চিত করুন।",
   "newTotal": "নতুন মোট",
   "confirmNewPrice": "নতুন দামে অর্ডার করুন",
-  "cancel": "বাতিল"
+  "cancel": "বাতিল",
+  "cityScope": "এলাকার ধরন",
+  "insideCity": "ঢাকা সিটির ভেতরে",
+  "outsideCity": "ঢাকা সিটির বাইরে"
  },
  "orders": {
   "title": "আমার অর্ডার",
@@ -467,7 +472,10 @@
     "phone": "সঠিক মোবাইল নম্বর লিখুন",
     "district": "একটি জেলা নির্বাচন করুন",
     "required": "এই ঘরটি পূরণ করুন"
-   }
+   },
+   "cityScope": "এলাকার ধরন",
+   "insideCity": "ঢাকা সিটির ভেতরে",
+   "outsideCity": "ঢাকা সিটির বাইরে"
   },
   "notifications": {
    "title": "নোটিফিকেশন পছন্দ",
@@ -775,7 +783,11 @@
     "districtsRequired": "অন্তত একটি জেলা নির্বাচন করুন বা সারাদেশে চালু করুন",
     "charge": "সঠিক চার্জ লিখুন",
     "etaRange": "সর্বোচ্চ দিন সর্বনিম্ন দিনের সমান বা বেশি হতে হবে"
-   }
+   },
+   "areaScope": "এলাকার পরিধি",
+   "scopeAll": "সব এলাকা",
+   "scopeCity": "সিটির ভেতরে",
+   "scopeOutside": "সিটির বাইরে"
   },
   "payouts": {
    "title": "পেআউট অ্যাকাউন্ট",
@@ -971,7 +983,8 @@
    "replacementCreated": "প্রতিস্থাপন তৈরি হয়েছে: {number}",
    "deliveryNote": "ডেলিভারি নোট",
    "deliveryNoteOptional": "ডেলিভারি নোট (ঐচ্ছিক)",
-   "stuckWarning": "এই অর্ডারটি অনেক দিন একই অবস্থায় আছে। দ্রুত পদক্ষেপ নিন।"
+   "stuckWarning": "এই অর্ডারটি অনেক দিন একই অবস্থায় আছে। দ্রুত পদক্ষেপ নিন।",
+   "codRiskBadge": "COD ঝুঁকি"
   },
   "cancellations": {
    "title": "বাতিল অনুরোধ",
@@ -1140,7 +1153,8 @@
    "contentReports": "কনটেন্ট রিপোর্ট",
    "reconciliation": "হিসাব মিলকরণ",
    "stuckOrders": "আটকে থাকা অর্ডার",
-   "suspendedSellers": "স্থগিত সেলার"
+   "suspendedSellers": "স্থগিত সেলার",
+   "codRisk": "COD ঝুঁকি"
   },
   "common": {
    "prev": "পূর্ববর্তী",
@@ -1412,7 +1426,8 @@
    "replacementFor": "{number} এর প্রতিস্থাপন",
    "replacementCreated": "প্রতিস্থাপন তৈরি হয়েছে: {number}",
    "deliveryNote": "ডেলিভারি নোট",
-   "stuckWarning": "এই অর্ডারটি আটকে থাকা হিসেবে চিহ্নিত।"
+   "stuckWarning": "এই অর্ডারটি আটকে থাকা হিসেবে চিহ্নিত।",
+   "codRiskBadge": "COD ঝুঁকি"
   },
   "paymentStatus": {
    "PENDING": "অপেক্ষমাণ",
@@ -1740,6 +1755,31 @@
    "confirmCancel": "হ্যাঁ, বাতিল করুন",
    "cancelling": "বাতিল হচ্ছে…",
    "cancelled": "{count}টি অর্ডার বাতিল হয়েছে"
+  },
+  "codRiskStatus": {
+   "OK": "স্বাভাবিক",
+   "WATCH": "নজরে",
+   "RESTRICTED": "সীমিত",
+   "BLOCKED": "ব্লকড"
+  },
+  "codRisk": {
+   "title": "ক্যাশ অন ডেলিভারি ঝুঁকি",
+   "subtitle": "ফোনভিত্তিক ব্যর্থ ডেলিভারির রেকর্ড দেখুন ও ব্যবস্থা নিন।",
+   "searchPlaceholder": "ফোন নম্বর খুঁজুন",
+   "all": "সব",
+   "phone": "ফোন",
+   "failed": "ব্যর্থ",
+   "delivered": "সফল",
+   "status": "অবস্থা",
+   "lastEvent": "শেষ ঘটনা",
+   "actions": "ব্যবস্থা",
+   "whitelisted": "হোয়াইটলিস্টেড",
+   "whitelist": "হোয়াইটলিস্ট",
+   "unwhitelist": "হোয়াইটলিস্ট বাদ",
+   "updated": "COD ঝুঁকি হালনাগাদ হয়েছে",
+   "loadError": "তালিকা লোড করা যায়নি।",
+   "empty": "কোনো ঝুঁকি প্রোফাইল নেই।",
+   "unverifiedNote": "ফোন নম্বর যাচাই করা হয় না; তাই এই ঝুঁকি একটি প্রতিরোধমূলক ব্যবস্থা, অপরাধের প্রমাণ নয়।"
   }
  },
  "shell": {

@@ -120,7 +120,12 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
             </div>
           ) : null}
         </div>
-        <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
+        <div className="flex items-center gap-2">
+          {data.codRisk && data.codRisk !== "OK" ? (
+            <Badge variant="destructive">{t("codRiskBadge")}</Badge>
+          ) : null}
+          <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
+        </div>
       </div>
 
       {data.stuckFlaggedAt ? (

@@ -106,6 +106,9 @@ export function SellerOrdersList({
                   <Badge variant={orderStatusVariant(order.status)}>
                     {tStatus(order.status)}
                   </Badge>
+                  {order.codRisk && order.codRisk !== "OK" ? (
+                    <Badge variant="destructive">{t("codRiskBadge")}</Badge>
+                  ) : null}
                 </div>
                 <span className="text-xs text-muted-foreground">
                   {order.order.orderNumber} · {formatDateTime(order.createdAt, locale)} ·{" "}

@@ -5,6 +5,7 @@ export interface AddressDistrict {
   name: string;
   nameBn: string;
   division: string;
+  metro: boolean;
 }
 
 export interface AddressView {
@@ -17,6 +18,7 @@ export interface AddressView {
   area: string;
   addressLine: string;
   postalCode: string | null;
+  cityScope: "CITY" | "OUTSIDE" | "NA";
   isDefault: boolean;
   createdAt: string;
 }
@@ -29,6 +31,7 @@ export interface CreateAddressInput {
   area: string;
   addressLine: string;
   postalCode?: string;
+  cityScope?: "CITY" | "OUTSIDE" | "NA";
   isDefault?: boolean;
 }
 

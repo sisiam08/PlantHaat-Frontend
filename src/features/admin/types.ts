@@ -304,6 +304,7 @@ export interface AdminShopOrderView {
   delayNotifiedAt: string | null;
   stuckReminderCount: number;
   stuckFlaggedAt: string | null;
+  codRisk: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED" | null;
   deliveredAt: string | null;
   cancelledAt: string | null;
   cancelledBy: string | null;
@@ -658,4 +659,21 @@ export interface ReconciliationResult {
   to: string;
   checked: number;
   violations: ReconciliationViolation[];
+}
+
+/* -- COD risk ------------------------------- */
+
+export interface CodRiskProfile {
+  id: string;
+  phoneNormalized: string;
+  failedCount: number;
+  deliveredCount: number;
+  lastEventAt: string | null;
+  status: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED";
+  note: string | null;
+  setById: string | null;
+  isWhitelisted: boolean;
+  addressFingerprint: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -98,7 +98,12 @@ export function DeliveryZonesClient() {
                 <span className="text-muted-foreground">
                   {zone.districts.length > 0
                     ? zone.districts
-                        .map((district) => (locale === "bn" ? district.nameBn : district.name))
+                        .map((district) => {
+                          const name = locale === "bn" ? district.nameBn : district.name;
+                          const scope = district.areaScope;
+                          if (!scope || scope === "ALL") return name;
+                          return `${name} (${scope === "CITY" ? t("scopeCity") : t("scopeOutside")})`;
+                        })
                         .join(", ")
                     : t("noneSelected")}
                 </span>
@@ -170,6 +175,16 @@ function ZoneForm({
   const [districtIds, setDistrictIds] = useState<number[]>(
     zone?.districts.map((district) => district.id) ?? [],
   );
+  const [districtScopes, setDistrictScopes] = useState<
+    Record<number, "ALL" | "CITY" | "OUTSIDE">
+  >(
+    Object.fromEntries(
+      (zone?.districts ?? []).map((district) => [
+        district.id,
+        (district.areaScope as "ALL" | "CITY" | "OUTSIDE" | undefined) ?? "ALL",
+      ]),
+    ),
+  );
   const [charge, setCharge] = useState(zone ? String(zone.charge) : "");
   const [freeAbove, setFreeAbove] = useState(
     zone?.freeDeliveryAbove != null ? String(zone.freeDeliveryAbove) : "",
@@ -227,6 +242,12 @@ function ZoneForm({
       name: name.trim(),
       isNationwide: nationwide,
       districtIds: nationwide ? [] : districtIds,
+      districtAreaScopes: nationwide
+        ? []
+        : districtIds.map((districtId) => ({
+            districtId,
+            areaScope: districtScopes[districtId] ?? "ALL",
+          })),
       charge: chargeNumber,
       freeDeliveryAbove: freeAbove.trim() === "" ? undefined : Number(freeAbove),
       estimatedDaysMin: min,
@@ -258,7 +279,7 @@ function ZoneForm({
             {(districts.data ?? []).map((district) => {
               const checked = districtIds.includes(district.id);
               return (
-                <label
+                <div
                   key={district.id}
                   className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-muted"
                 >
@@ -266,8 +287,30 @@ function ZoneForm({
                     checked={checked}
                     onCheckedChange={(value) => toggleDistrict(district.id, value === true)}
                   />
-                  <span>{locale === "bn" ? district.nameBn : district.name}</span>
-                </label>
+                  <span className="flex-1">
+                    {locale === "bn" ? district.nameBn : district.name}
+                  </span>
+                  {checked ? (
+                    <select
+                      className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                      value={districtScopes[district.id] ?? "ALL"}
+                      onChange={(event) =>
+                        setDistrictScopes((current) => ({
+                          ...current,
+                          [district.id]: event.target.value as
+                            | "ALL"
+                            | "CITY"
+                            | "OUTSIDE",
+                        }))
+                      }
+                      aria-label={t("areaScope")}
+                    >
+                      <option value="ALL">{t("scopeAll")}</option>
+                      <option value="CITY">{t("scopeCity")}</option>
+                      <option value="OUTSIDE">{t("scopeOutside")}</option>
+                    </select>
+                  ) : null}
+                </div>
               );
             })}
           </div>

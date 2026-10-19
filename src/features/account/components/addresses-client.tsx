@@ -39,6 +39,7 @@ export function AddressesClient() {
     addressLine: z.string().min(3, t("validation.required")),
     postalCode: z.string().optional(),
     label: z.string().optional(),
+    cityScope: z.enum(["CITY", "OUTSIDE", "NA"]).optional(),
   });
   type Values = z.infer<typeof schema>;
 
@@ -52,6 +53,7 @@ export function AddressesClient() {
       addressLine: "",
       postalCode: "",
       label: "",
+      cityScope: "NA",
     },
   });
 
@@ -73,6 +75,10 @@ export function AddressesClient() {
     onError: (error) => toastApiError(error, tErrors),
   });
 
+  const selectedDistrict = (districts.data ?? []).find(
+    (district) => String(district.id) === form.watch("districtId"),
+  );
+
   const setDefault = useMutation({
     mutationFn: (id: string) => addressesApi.setDefault(id),
     onSuccess: invalidate,
@@ -88,6 +94,7 @@ export function AddressesClient() {
       addressLine: values.addressLine,
       postalCode: values.postalCode || undefined,
       label: values.label || undefined,
+      cityScope: values.cityScope,
     });
   });
 
@@ -173,6 +180,19 @@ export function AddressesClient() {
                 </p>
               ) : null}
             </div>
+            {selectedDistrict?.metro ? (
+              <div className="grid gap-1.5">
+                <Label htmlFor="cityScope">{t("cityScope")}</Label>
+                <select
+                  id="cityScope"
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  {...form.register("cityScope")}
+                >
+                  <option value="CITY">{t("insideCity")}</option>
+                  <option value="OUTSIDE">{t("outsideCity")}</option>
+                </select>
+              </div>
+            ) : null}
             <FormField
               label={t("area")}
               error={form.formState.errors.area?.message}
