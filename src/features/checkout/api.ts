@@ -5,6 +5,7 @@ export interface CheckoutInput {
   addressId: string;
   paymentMethod: "COD";
   note?: string;
+  expectedGrandTotal?: number;
 }
 
 export const checkoutApi = {

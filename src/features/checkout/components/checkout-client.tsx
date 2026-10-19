@@ -9,6 +9,14 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,11 +25,28 @@ import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
 import { CartSummaryBox } from "@/features/cart/components/cart-summary";
 import { queryKeys } from "@/lib/api/query-keys";
-import { apiGet } from "@/lib/api/client";
+import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 import { formatCount } from "@/lib/format/number";
 import { checkoutApi } from "../api";
+
+interface PriceChangeLine {
+  variantId: string;
+  productName: string;
+  variantName: string;
+  slug?: string;
+  from: string;
+  to: string;
+}
+
+interface PriceChangeDetails {
+  expectedGrandTotal: string;
+  subtotal: string;
+  deliveryTotal: string;
+  grandTotal: string;
+  changedLines: PriceChangeLine[];
+}
 
 export function CheckoutClient() {
   const t = useTranslations("checkout");
@@ -30,8 +55,10 @@ export function CheckoutClient() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const idempotencyKey = useRef<string>(crypto.randomUUID());
+  const expectedGrandTotal = useRef<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [priceChange, setPriceChange] = useState<PriceChangeDetails | null>(null);
 
   const addresses = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
   const districts = useQuery({
@@ -64,7 +91,13 @@ export function CheckoutClient() {
   const placeOrder = useMutation({
     mutationFn: () =>
       checkoutApi.place(
-        { addressId: selectedAddress!.id, paymentMethod: "COD" },
+        {
+          addressId: selectedAddress!.id,
+          paymentMethod: "COD",
+          expectedGrandTotal: Number(
+            expectedGrandTotal.current ?? cart.data?.grandTotal ?? 0,
+          ),
+        },
         idempotencyKey.current,
       ),
     onSuccess: async (order) => {
@@ -73,8 +106,23 @@ export function CheckoutClient() {
       toast.success(t("orderPlaced"));
       router.push(`/orders/${order.id}`);
     },
-    onError: (error) => toastApiError(error, tErrors),
+    onError: async (error) => {
+      const apiError = toApiError(error);
+      if (apiError.code === "PRICE_CHANGED" && apiError.details) {
+        setPriceChange(apiError.details as PriceChangeDetails);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+        return;
+      }
+      toastApiError(error, tErrors);
+    },
   });
+
+  const confirmPriceChange = () => {
+    if (!priceChange) return;
+    expectedGrandTotal.current = priceChange.grandTotal;
+    setPriceChange(null);
+    placeOrder.mutate();
+  };
 
   const onSubmitAddress = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -257,6 +305,44 @@ export function CheckoutClient() {
           </Button>
         )}
       </div>
+
+      <Dialog
+        open={priceChange !== null}
+        onOpenChange={(open) => {
+          if (!open) setPriceChange(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("priceChangedTitle")}</DialogTitle>
+            <DialogDescription>{t("priceChangedBody")}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 text-sm">
+            {priceChange?.changedLines.map((line) => (
+              <div key={line.variantId} className="flex items-center justify-between gap-3">
+                <span className="min-w-0 truncate">
+                  {line.productName} · {line.variantName}
+                </span>
+                <span className="shrink-0 text-muted-foreground">
+                  {formatBdt(line.from, locale)} → {formatBdt(line.to, locale)}
+                </span>
+              </div>
+            ))}
+            <div className="flex justify-between border-t border-border pt-2 font-semibold">
+              <span>{t("newTotal")}</span>
+              <span>{priceChange ? formatBdt(priceChange.grandTotal, locale) : ""}</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setPriceChange(null)}>
+              {t("cancel")}
+            </Button>
+            <Button type="button" variant="cta" onClick={confirmPriceChange}>
+              {t("confirmNewPrice")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

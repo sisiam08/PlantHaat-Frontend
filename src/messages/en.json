@@ -360,7 +360,9 @@
   "changeDistrict": "Change district",
   "removeTheseItems": "Remove these items",
   "separateShipments": "Your order arrives separately from {count, plural, =1 {# shop} other {# shops}}; each shop charges its own delivery.",
-  "notDeliveringShort": "No delivery"
+  "notDeliveringShort": "No delivery",
+  "priceChangedBanner": "{count} line(s) changed price — confirm at checkout",
+  "priceChangedLine": "Price changed from {from} to {to}"
  },
  "checkout": {
   "title": "Checkout",
@@ -386,7 +388,12 @@
   "itemsSubtotal": "Items subtotal",
   "selectToSee": "Choose a district to see delivery charges",
   "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items.",
-  "notDelivering": "No delivery"
+  "notDelivering": "No delivery",
+  "priceChangedTitle": "Prices changed",
+  "priceChangedBody": "Some prices in your cart changed. Confirm to order at the new prices.",
+  "newTotal": "New total",
+  "confirmNewPrice": "Order at new prices",
+  "cancel": "Cancel"
  },
  "orders": {
   "title": "My orders",
@@ -415,7 +422,10 @@
   "itemsSubtotal": "Items subtotal",
   "deliveryTotal": "Delivery total",
   "grandTotal": "Total",
-  "separateShipments": "Your order arrives separately from {count} shops; each shop charges its own delivery."
+  "separateShipments": "Your order arrives separately from {count} shops; each shop charges its own delivery.",
+  "replacement": "Replacement",
+  "replacementFor": "Replacement for {number}",
+  "replacementCreated": "Replacement created: {number}"
  },
  "account": {
   "title": "My account",
@@ -495,6 +505,14 @@
    "REPLY_RECEIVED": {
     "title": "New reply",
     "body": "Someone replied to your post."
+   },
+   "ORDER_DELAYED": {
+    "title": "Your order is delayed",
+    "body": "The estimated delivery date has passed."
+   },
+   "REPLACEMENT_CREATED": {
+    "title": "Replacement order created",
+    "body": "A free replacement has been created from your complaint."
    }
   }
  },
@@ -609,7 +627,8 @@
    "manageZones": "Delivery zones",
    "managePayouts": "Payout accounts",
    "onVacation": "On vacation",
-   "unansweredQuestions": "Unanswered questions"
+   "unansweredQuestions": "Unanswered questions",
+   "stuckOrders": "Stuck orders"
   },
   "apply": {
    "title": "Become a seller",
@@ -946,7 +965,13 @@
    "cancelAction": "Cancel",
    "history": "History",
    "noHistory": "No history yet.",
-   "statusUpdated": "Order status updated"
+   "statusUpdated": "Order status updated",
+   "replacement": "Replacement",
+   "replacementFor": "Replacement for {number}",
+   "replacementCreated": "Replacement created: {number}",
+   "deliveryNote": "Delivery note",
+   "deliveryNoteOptional": "Delivery note (optional)",
+   "stuckWarning": "This order has been stuck for too long. Please act on it."
   },
   "cancellations": {
    "title": "Cancellation requests",
@@ -1113,7 +1138,9 @@
    "auditLogs": "Audit logs",
    "settings": "Settings",
    "contentReports": "Content reports",
-   "reconciliation": "Reconciliation"
+   "reconciliation": "Reconciliation",
+   "stuckOrders": "Stuck orders",
+   "suspendedSellers": "Suspended sellers"
   },
   "common": {
    "prev": "Previous",
@@ -1143,7 +1170,10 @@
    "noData": "No data.",
    "topShops": "Top shops",
    "topProducts": "Top products",
-   "topDistricts": "Top districts"
+   "topDistricts": "Top districts",
+   "stuckOrders": "Stuck orders",
+   "suspendedSellerOpenOrders": "Suspended sellers' open orders",
+   "falseDeliveryFlags": "False delivery reports"
   },
   "sellerStatus": {
    "DRAFT": "Draft",
@@ -1203,7 +1233,15 @@
    "adjustment": "Adjustment",
    "signedAmount": "Signed amount",
    "signedHint": "A positive amount credits the seller.",
-   "recordAdjustment": "Record adjustment"
+   "recordAdjustment": "Record adjustment",
+   "openOrders": "{count} open orders",
+   "falseDeliveryFlags": "{count} false delivery reports",
+   "suspendWithOrders": "This seller has {count} open orders. You can cancel them as part of the suspension.",
+   "suspendReason": "Suspension reason",
+   "cancelOpenOrders": "Cancel {count} open orders",
+   "suspendCancelReason": "Seller suspended",
+   "keep": "Keep",
+   "suspending": "Suspending…"
   },
   "documentType": {
    "NID_FRONT": "NID (front)",
@@ -1369,7 +1407,12 @@
    "selectStatus": "Select status",
    "applyStatus": "Apply",
    "history": "History",
-   "noHistory": "No history."
+   "noHistory": "No history.",
+   "replacement": "Replacement",
+   "replacementFor": "Replacement for {number}",
+   "replacementCreated": "Replacement created: {number}",
+   "deliveryNote": "Delivery note",
+   "stuckWarning": "This order is flagged as stuck."
   },
   "paymentStatus": {
    "PENDING": "Pending",
@@ -1654,6 +1697,49 @@
    "message": "Detail",
    "expected": "Expected",
    "actual": "Actual"
+  },
+  "stuckOrders": {
+   "title": "Stuck orders",
+   "subtitle": "Orders that have not progressed in time.",
+   "loadError": "Could not load orders.",
+   "okBadge": "OK",
+   "allClear": "No stuck orders",
+   "allClearHint": "Every order is progressing on time.",
+   "order": "Order",
+   "shop": "Shop",
+   "status": "Status",
+   "stuckSince": "Stuck since",
+   "reminders": "Reminders",
+   "state": "State",
+   "flagged": "Flagged",
+   "watching": "Watching",
+   "open": "Open"
+  },
+  "suspendedSellers": {
+   "title": "Suspended sellers' open orders",
+   "subtitle": "Review and cancel unfinished orders of suspended sellers.",
+   "loadError": "Could not load orders.",
+   "okBadge": "OK",
+   "allClear": "No open orders",
+   "allClearHint": "All suspended sellers' orders are settled.",
+   "suspended": "Suspended",
+   "falseFlags": "{count} false deliveries",
+   "cancelOpen": "Cancel {count} orders",
+   "order": "Order",
+   "customer": "Customer",
+   "status": "Status",
+   "placed": "Placed",
+   "total": "Total",
+   "open": "Open",
+   "confirmTitle": "Cancel these open orders?",
+   "confirmBody": "{count} open orders of {name} will be cancelled and stock returned.",
+   "reason": "Reason",
+   "reasonPlaceholder": "e.g. Seller suspended",
+   "restock": "Return stock",
+   "keep": "Keep",
+   "confirmCancel": "Yes, cancel",
+   "cancelling": "Cancelling…",
+   "cancelled": "{count} orders cancelled"
   }
  },
  "shell": {

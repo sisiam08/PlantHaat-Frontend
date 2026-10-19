@@ -168,7 +168,7 @@ function ShopOrderCard({
 }: {
   shopOrder: ShopOrderView;
   locale: string;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
   cancelling: boolean;
   onCancel: () => void;
   onRequest: () => void;
@@ -180,11 +180,38 @@ function ShopOrderCard({
     <Card className="rounded-2xl">
       <CardContent className="grid gap-3">
         <div className="flex items-center justify-between">
-          <p className="font-medium">{shopOrder.shop.name}</p>
+          <p className="flex flex-wrap items-center gap-2 font-medium">
+            {shopOrder.shop.name}
+            {shopOrder.kind === "REPLACEMENT" ? (
+              <Badge variant="outline">{t("replacement")}</Badge>
+            ) : null}
+          </p>
           <Badge variant={terminal ? "destructive" : "secondary"}>
             {t(`status.${shopOrder.status}`)}
           </Badge>
         </div>
+
+        {shopOrder.kind === "REPLACEMENT" && shopOrder.parent ? (
+          <Link
+            href={`/orders/${shopOrder.parent.orderId}`}
+            className="text-xs text-primary underline-offset-4 hover:underline"
+          >
+            {t("replacementFor", { number: shopOrder.parent.shopOrderNumber })}
+          </Link>
+        ) : null}
+        {shopOrder.replacements?.length ? (
+          <div className="grid gap-1 text-xs">
+            {shopOrder.replacements.map((replacement) => (
+              <Link
+                key={replacement.id}
+                href={`/orders/${replacement.orderId}`}
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                {t("replacementCreated", { number: replacement.shopOrderNumber })}
+              </Link>
+            ))}
+          </div>
+        ) : null}
 
         {!terminal ? (
           <ol className="flex flex-wrap items-center gap-2 text-xs">

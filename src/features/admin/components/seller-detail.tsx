@@ -8,9 +8,18 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
@@ -32,6 +41,9 @@ export function SellerDetail({ id }: { id: string }) {
   const queryClient = useQueryClient();
 
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [suspendOpen, setSuspendOpen] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [cancelOpenOrders, setCancelOpenOrders] = useState(false);
   const [reason, setReason] = useState("");
   const [ledgerPage, setLedgerPage] = useState(1);
   const [duesAmount, setDuesAmount] = useState("");
@@ -66,8 +78,18 @@ export function SellerDetail({ id }: { id: string }) {
   });
 
   const suspend = useMutation({
-    mutationFn: (value: string) => adminApi.suspendSeller(id, value.trim() || undefined),
+    mutationFn: () =>
+      adminApi.suspendSeller(id, {
+        reason: suspendReason.trim() || undefined,
+        cancelOpenOrders,
+        cancelReason: cancelOpenOrders
+          ? suspendReason.trim() || t("suspendCancelReason")
+          : undefined,
+      }),
     onSuccess: async () => {
+      setSuspendOpen(false);
+      setSuspendReason("");
+      setCancelOpenOrders(false);
       await invalidate();
       toast.success(t("updated"));
     },
@@ -135,6 +157,14 @@ export function SellerDetail({ id }: { id: string }) {
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={sellerStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
             <span className="text-xs text-muted-foreground">{t(`types.${data.sellerType}`)}</span>
+            {data.openOrderCount > 0 ? (
+              <Badge variant="secondary">{t("openOrders", { count: data.openOrderCount })}</Badge>
+            ) : null}
+            {data.falseDeliveryFlags > 0 ? (
+              <Badge variant="destructive">
+                {t("falseDeliveryFlags", { count: data.falseDeliveryFlags })}
+              </Badge>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -166,9 +196,9 @@ export function SellerDetail({ id }: { id: string }) {
               size="sm"
               disabled={busy}
               onClick={() => {
-                if (window.confirm(t("suspendConfirm"))) {
-                  suspend.mutate("");
-                }
+                setSuspendReason("");
+                setCancelOpenOrders(false);
+                setSuspendOpen(true);
               }}
             >
               {t("suspend")}
@@ -409,6 +439,60 @@ export function SellerDetail({ id }: { id: string }) {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog
+        open={suspendOpen}
+        onOpenChange={(open) => {
+          if (!open) setSuspendOpen(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("suspend")}</DialogTitle>
+            <DialogDescription>
+              {t("suspendWithOrders", { count: data.openOrderCount })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="suspendReason">{t("suspendReason")}</Label>
+              <Input
+                id="suspendReason"
+                value={suspendReason}
+                onChange={(event) => setSuspendReason(event.target.value)}
+              />
+            </div>
+            {data.openOrderCount > 0 ? (
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="cancelOpenOrders"
+                  checked={cancelOpenOrders}
+                  onCheckedChange={setCancelOpenOrders}
+                />
+                <Label htmlFor="cancelOpenOrders">
+                  {t("cancelOpenOrders", { count: data.openOrderCount })}
+                </Label>
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setSuspendOpen(false)}>
+              {t("keep")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={
+                suspend.isPending ||
+                (cancelOpenOrders && suspendReason.trim().length < 3)
+              }
+              onClick={() => suspend.mutate()}
+            >
+              {suspend.isPending ? t("suspending") : t("suspend")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

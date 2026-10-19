@@ -5368,6 +5368,78 @@
         ]
       }
     },
+    "/api/v1/admin/stuck-orders": {
+      "get": {
+        "operationId": "AdminStuckOrdersController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "includeOverdue",
+            "required": false,
+            "in": "query",
+            "description": "Also include currently overdue orders that are not flagged yet",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StuckOrderDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List stuck orders (reminder/flag state, overdue by default)",
+        "tags": [
+          "Admin: orders"
+        ]
+      }
+    },
     "/api/v1/admin/commission-rules": {
       "get": {
         "operationId": "AdminCommissionRulesController_list",
@@ -8950,6 +9022,60 @@
         ]
       }
     },
+    "/api/v1/admin/sellers/{id}/bulk-cancel-orders": {
+      "post": {
+        "operationId": "AdminSellersController_bulkCancelOrders",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkCancelOrdersDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BulkCancelResultDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Cancel all open shop orders of a seller (restock + refunds + audit)",
+        "tags": [
+          "Admin: sellers"
+        ]
+      }
+    },
     "/api/v1/admin/sellers/{id}/reactivate": {
       "post": {
         "operationId": "AdminSellersController_reactivate",
@@ -9029,6 +9155,44 @@
           }
         },
         "summary": "Stream a seller document (private)",
+        "tags": [
+          "Admin: sellers"
+        ]
+      }
+    },
+    "/api/v1/admin/suspended-sellers/open-orders": {
+      "get": {
+        "operationId": "AdminSuspendedSellersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SuspendedSellerOpenOrdersDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Suspended sellers with their open shop orders",
         "tags": [
           "Admin: sellers"
         ]
@@ -10951,6 +11115,11 @@
               "QUESTION_ASKED",
               "QUESTION_ANSWERED",
               "REPLY_RECEIVED",
+              "ORDER_DELAYED",
+              "ORDER_STUCK",
+              "FALSE_DELIVERY_FLAG",
+              "REPLACEMENT_CREATED",
+              "ORDERS_BULK_CANCELLED",
               "SYSTEM"
             ]
           },
@@ -13795,6 +13964,20 @@
           "stockQty": {
             "type": "number"
           },
+          "priceChanged": {
+            "type": "boolean",
+            "description": "Unit price changed since this line was added/updated"
+          },
+          "priceChangedFrom": {
+            "type": "string",
+            "nullable": true,
+            "description": "The snapshot price when the line was added (null if unchanged/unknown)"
+          },
+          "priceChangedTo": {
+            "type": "string",
+            "nullable": true,
+            "description": "The current price (null if unchanged)"
+          },
           "issues": {
             "type": "array",
             "items": {
@@ -13813,6 +13996,9 @@
           "quantity",
           "lineTotal",
           "stockQty",
+          "priceChanged",
+          "priceChangedFrom",
+          "priceChangedTo",
           "issues"
         ]
       },
@@ -13850,6 +14036,10 @@
             "type": "string",
             "description": "Decimal as string"
           },
+          "priceChanged": {
+            "type": "boolean",
+            "description": "At least one line's price changed since it was added"
+          },
           "items": {
             "type": "array",
             "items": {
@@ -13876,6 +14066,7 @@
           "deliveryCharge",
           "freeDeliveryAbove",
           "subtotal",
+          "priceChanged",
           "items",
           "estimatedDaysMin",
           "estimatedDaysMax"
@@ -13904,6 +14095,14 @@
           },
           "itemCount": {
             "type": "number"
+          },
+          "priceChanged": {
+            "type": "boolean",
+            "description": "Any line changed price since it was added"
+          },
+          "changedLineCount": {
+            "type": "number",
+            "description": "Number of lines whose price changed"
           }
         },
         "required": [
@@ -13911,7 +14110,9 @@
           "subtotal",
           "deliveryTotal",
           "grandTotal",
-          "itemCount"
+          "itemCount",
+          "priceChanged",
+          "changedLineCount"
         ]
       },
       "PutCartItemDto": {
@@ -14047,6 +14248,11 @@
           },
           "note": {
             "type": "string"
+          },
+          "expectedGrandTotal": {
+            "type": "number",
+            "example": 1250.5,
+            "description": "Grand total the customer saw on the cart. When it no longer matches, checkout returns 409 PRICE_CHANGED and applies nothing."
           }
         },
         "required": [
@@ -14071,11 +14277,24 @@
           },
           "shopId": {
             "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ORDER",
+              "REPLACEMENT"
+            ]
+          },
+          "parentShopOrderId": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "status",
-          "shopId"
+          "shopId",
+          "kind",
+          "parentShopOrderId"
         ]
       },
       "SellerOrderPaymentDto": {
@@ -14498,6 +14717,25 @@
           "paymentMethod"
         ]
       },
+      "SellerShopOrderRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "shopOrderNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "shopOrderNumber"
+        ]
+      },
       "SellerShopOrderDto": {
         "type": "object",
         "properties": {
@@ -14512,6 +14750,17 @@
           },
           "shopId": {
             "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ORDER",
+              "REPLACEMENT"
+            ]
+          },
+          "parentShopOrderId": {
+            "type": "string",
+            "nullable": true
           },
           "status": {
             "type": "string",
@@ -14566,6 +14815,23 @@
           "sellerNote": {
             "type": "string",
             "nullable": true
+          },
+          "deliveryNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "delayNotifiedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "stuckReminderCount": {
+            "type": "number"
+          },
+          "stuckFlaggedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
           },
           "confirmedAt": {
             "type": "string",
@@ -14637,6 +14903,21 @@
           },
           "order": {
             "$ref": "#/components/schemas/SellerOrderRefDto"
+          },
+          "parent": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SellerShopOrderRefDto"
+              }
+            ]
+          },
+          "replacements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerShopOrderRefDto"
+            }
           }
         },
         "required": [
@@ -14644,6 +14925,8 @@
           "shopOrderNumber",
           "orderId",
           "shopId",
+          "kind",
+          "parentShopOrderId",
           "status",
           "subtotal",
           "deliveryCharge",
@@ -14655,6 +14938,10 @@
           "estimatedDeliveryFrom",
           "estimatedDeliveryTo",
           "sellerNote",
+          "deliveryNote",
+          "delayNotifiedAt",
+          "stuckReminderCount",
+          "stuckFlaggedAt",
           "confirmedAt",
           "packedAt",
           "shippedAt",
@@ -14668,7 +14955,9 @@
           "statusHistory",
           "payments",
           "shop",
-          "order"
+          "order",
+          "parent",
+          "replacements"
         ]
       },
       "CancelOrderDto": {
@@ -14805,6 +15094,10 @@
           "trackingCode": {
             "type": "string"
           },
+          "deliveryNote": {
+            "type": "string",
+            "description": "Optional seller note recorded when marking DELIVERED"
+          },
           "estimatedDeliveryFrom": {
             "type": "string"
           },
@@ -14849,6 +15142,113 @@
         },
         "required": [
           "approve"
+        ]
+      },
+      "StuckOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shopOrderNumber": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ORDER",
+              "REPLACEMENT"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "PACKED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "FAILED_DELIVERY"
+            ]
+          },
+          "shopId": {
+            "type": "string"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "packedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "shippedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedDeliveryTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "stuckReminderCount": {
+            "type": "number"
+          },
+          "stuckLastRemindedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "stuckFlaggedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "delayNotifiedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "total": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "order": {
+            "type": "object"
+          },
+          "shop": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "shopOrderNumber",
+          "kind",
+          "status",
+          "shopId",
+          "shopName",
+          "confirmedAt",
+          "packedAt",
+          "shippedAt",
+          "estimatedDeliveryTo",
+          "stuckReminderCount",
+          "stuckLastRemindedAt",
+          "stuckFlaggedAt",
+          "delayNotifiedAt",
+          "createdAt",
+          "total",
+          "items",
+          "order",
+          "shop"
         ]
       },
       "CommissionRuleDto": {
@@ -17495,6 +17895,10 @@
           "unansweredQuestions": {
             "type": "number",
             "description": "Visible product questions with no visible answer"
+          },
+          "stuckOrders": {
+            "type": "number",
+            "description": "Stuck orders flagged after 3 reminders"
           }
         },
         "required": [
@@ -17502,7 +17906,8 @@
           "pendingOrders",
           "unreadNotifications",
           "lowStockVariants",
-          "unansweredQuestions"
+          "unansweredQuestions",
+          "stuckOrders"
         ]
       },
       "AdminAnalyticsTopShopDto": {
@@ -17615,6 +18020,15 @@
           "pendingApprovals": {
             "type": "number"
           },
+          "stuckOrders": {
+            "type": "number"
+          },
+          "suspendedSellerOpenOrders": {
+            "type": "number"
+          },
+          "falseDeliveryFlags": {
+            "type": "number"
+          },
           "cancellationRate": {
             "type": "number",
             "description": "Percentage (0-100)"
@@ -17656,6 +18070,9 @@
           "newCustomers",
           "newSellers",
           "pendingApprovals",
+          "stuckOrders",
+          "suspendedSellerOpenOrders",
+          "falseDeliveryFlags",
           "cancellationRate",
           "complaintRate",
           "topShops",
@@ -17992,6 +18409,14 @@
             "type": "string",
             "nullable": true
           },
+          "falseDeliveryFlags": {
+            "type": "number",
+            "description": "Times customers reported a delivered order as not delivered"
+          },
+          "openOrderCount": {
+            "type": "number",
+            "description": "Open (non-terminal) shop orders across the seller's shops"
+          },
           "submittedAt": {
             "type": "string",
             "nullable": true,
@@ -18025,6 +18450,8 @@
           "businessAddress",
           "status",
           "rejectionReason",
+          "falseDeliveryFlags",
+          "openOrderCount",
           "submittedAt",
           "verifiedAt",
           "createdAt",
@@ -18146,6 +18573,14 @@
             "type": "string",
             "nullable": true
           },
+          "falseDeliveryFlags": {
+            "type": "number",
+            "description": "Times customers reported a delivered order as not delivered"
+          },
+          "openOrderCount": {
+            "type": "number",
+            "description": "Open (non-terminal) shop orders across the seller's shops"
+          },
           "submittedAt": {
             "type": "string",
             "nullable": true,
@@ -18204,6 +18639,8 @@
           "businessAddress",
           "status",
           "rejectionReason",
+          "falseDeliveryFlags",
+          "openOrderCount",
           "submittedAt",
           "verifiedAt",
           "createdAt",
@@ -18234,8 +18671,94 @@
           "reason": {
             "type": "string",
             "example": "Repeated policy violations"
+          },
+          "cancelOpenOrders": {
+            "type": "boolean",
+            "description": "Cancel all open shop orders of this seller as part of the suspension"
+          },
+          "cancelReason": {
+            "type": "string",
+            "description": "Reason recorded on the cancelled orders"
           }
         }
+      },
+      "BulkCancelResultDto": {
+        "type": "object",
+        "properties": {
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "cancelledCount": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "openOrderCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "sellerProfileId",
+          "cancelledCount",
+          "skipped",
+          "openOrderCount"
+        ]
+      },
+      "BulkCancelOrdersDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Seller suspended"
+          },
+          "restock": {
+            "type": "boolean",
+            "default": true,
+            "description": "Return ordered quantities to stock"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "SuspendedSellerOpenOrdersDto": {
+        "type": "object",
+        "properties": {
+          "sellerProfileId": {
+            "type": "string"
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "falseDeliveryFlags": {
+            "type": "number"
+          },
+          "openOrderCount": {
+            "type": "number"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "sellerProfileId",
+          "businessName",
+          "userId",
+          "email",
+          "falseDeliveryFlags",
+          "openOrderCount",
+          "orders"
+        ]
       },
       "AdminSellerLiteRefDto": {
         "type": "object",

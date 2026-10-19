@@ -1412,6 +1412,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/stuck-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List stuck orders (reminder/flag state, overdue by default) */
+        get: operations["AdminStuckOrdersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/commission-rules": {
         parameters: {
             query?: never;
@@ -2380,6 +2397,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/sellers/{id}/bulk-cancel-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel all open shop orders of a seller (restock + refunds + audit) */
+        post: operations["AdminSellersController_bulkCancelOrders"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/sellers/{id}/reactivate": {
         parameters: {
             query?: never;
@@ -2406,6 +2440,23 @@ export interface paths {
         };
         /** Stream a seller document (private) */
         get: operations["AdminSellersController_getDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/suspended-sellers/open-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suspended sellers with their open shop orders */
+        get: operations["AdminSuspendedSellersController_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3013,7 +3064,7 @@ export interface components {
         NotificationItemDto: {
             id: string;
             /** @enum {string} */
-            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "QUESTION_ASKED" | "QUESTION_ANSWERED" | "REPLY_RECEIVED" | "SYSTEM";
+            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "QUESTION_ASKED" | "QUESTION_ANSWERED" | "REPLY_RECEIVED" | "ORDER_DELAYED" | "ORDER_STUCK" | "FALSE_DELIVERY_FLAG" | "REPLACEMENT_CREATED" | "ORDERS_BULK_CANCELLED" | "SYSTEM";
             title: string;
             body: string;
             data: Record<string, never> | null;
@@ -3833,6 +3884,12 @@ export interface components {
             /** @description Decimal as string */
             lineTotal: string;
             stockQty: number;
+            /** @description Unit price changed since this line was added/updated */
+            priceChanged: boolean;
+            /** @description The snapshot price when the line was added (null if unchanged/unknown) */
+            priceChangedFrom: string | null;
+            /** @description The current price (null if unchanged) */
+            priceChangedTo: string | null;
             issues: components["schemas"]["CartItemIssueDto"][];
         };
         CartShopGroupDto: {
@@ -3848,6 +3905,8 @@ export interface components {
             freeDeliveryAbove: string | null;
             /** @description Decimal as string */
             subtotal: string;
+            /** @description At least one line's price changed since it was added */
+            priceChanged: boolean;
             items: components["schemas"]["CartItemDto"][];
             /** @description Present when a zone matched */
             estimatedDaysMin: number | null;
@@ -3863,6 +3922,10 @@ export interface components {
             /** @description Decimal as string */
             grandTotal: string;
             itemCount: number;
+            /** @description Any line changed price since it was added */
+            priceChanged: boolean;
+            /** @description Number of lines whose price changed */
+            changedLineCount: number;
         };
         PutCartItemDto: {
             variantId: string;
@@ -3902,11 +3965,19 @@ export interface components {
              */
             paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             note?: string;
+            /**
+             * @description Grand total the customer saw on the cart. When it no longer matches, checkout returns 409 PRICE_CHANGED and applies nothing.
+             * @example 1250.5
+             */
+            expectedGrandTotal?: number;
         };
         OrderListShopOrderRefDto: {
             /** @enum {string} */
             status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
             shopId: string;
+            /** @enum {string} */
+            kind: "ORDER" | "REPLACEMENT";
+            parentShopOrderId: string | null;
         };
         SellerOrderPaymentDto: {
             id: string;
@@ -4018,11 +4089,19 @@ export interface components {
             /** @enum {string} */
             paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
         };
+        SellerShopOrderRefDto: {
+            id: string;
+            orderId: string;
+            shopOrderNumber: string;
+        };
         SellerShopOrderDto: {
             id: string;
             shopOrderNumber: string;
             orderId: string;
             shopId: string;
+            /** @enum {string} */
+            kind: "ORDER" | "REPLACEMENT";
+            parentShopOrderId: string | null;
             /** @enum {string} */
             status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
             /** @description Decimal as string */
@@ -4042,6 +4121,12 @@ export interface components {
             /** Format: date-time */
             estimatedDeliveryTo: string | null;
             sellerNote: string | null;
+            deliveryNote: string | null;
+            /** Format: date-time */
+            delayNotifiedAt: string | null;
+            stuckReminderCount: number;
+            /** Format: date-time */
+            stuckFlaggedAt: string | null;
             /** Format: date-time */
             confirmedAt: string | null;
             /** Format: date-time */
@@ -4064,6 +4149,8 @@ export interface components {
             payments: components["schemas"]["SellerOrderPaymentDto"][];
             shop: components["schemas"]["OrderShopRefDto"];
             order: components["schemas"]["SellerOrderRefDto"];
+            parent: components["schemas"]["SellerShopOrderRefDto"] | null;
+            replacements: components["schemas"]["SellerShopOrderRefDto"][];
         };
         CancelOrderDto: {
             reason?: string;
@@ -4101,6 +4188,8 @@ export interface components {
             note?: string;
             courierName?: string;
             trackingCode?: string;
+            /** @description Optional seller note recorded when marking DELIVERED */
+            deliveryNote?: string;
             estimatedDeliveryFrom?: string;
             estimatedDeliveryTo?: string;
             /** @description Restock on cancellation (default false) */
@@ -4115,6 +4204,30 @@ export interface components {
         RespondCancellationDto: {
             approve: boolean;
             note?: string;
+        };
+        StuckOrderDto: {
+            id: string;
+            shopOrderNumber: string;
+            /** @enum {string} */
+            kind: "ORDER" | "REPLACEMENT";
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
+            shopId: string;
+            shopName: string;
+            confirmedAt: string | null;
+            packedAt: string | null;
+            shippedAt: string | null;
+            estimatedDeliveryTo: string | null;
+            stuckReminderCount: number;
+            stuckLastRemindedAt: string | null;
+            stuckFlaggedAt: string | null;
+            delayNotifiedAt: string | null;
+            createdAt: string;
+            /** @description Decimal as string */
+            total: string;
+            items: Record<string, never>[];
+            order: Record<string, never>;
+            shop: Record<string, never>;
         };
         CommissionRuleDto: {
             id: string;
@@ -4859,6 +4972,8 @@ export interface components {
             lowStockVariants: number;
             /** @description Visible product questions with no visible answer */
             unansweredQuestions: number;
+            /** @description Stuck orders flagged after 3 reminders */
+            stuckOrders: number;
         };
         AdminAnalyticsTopShopDto: {
             /**
@@ -4904,6 +5019,9 @@ export interface components {
             newCustomers: number;
             newSellers: number;
             pendingApprovals: number;
+            stuckOrders: number;
+            suspendedSellerOpenOrders: number;
+            falseDeliveryFlags: number;
             /** @description Percentage (0-100) */
             cancellationRate: number;
             /** @description Percentage (0-100) */
@@ -4996,6 +5114,10 @@ export interface components {
             /** @enum {string} */
             status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
             rejectionReason: string | null;
+            /** @description Times customers reported a delivered order as not delivered */
+            falseDeliveryFlags: number;
+            /** @description Open (non-terminal) shop orders across the seller's shops */
+            openOrderCount: number;
             /** Format: date-time */
             submittedAt: string | null;
             /** Format: date-time */
@@ -5035,6 +5157,10 @@ export interface components {
             /** @enum {string} */
             status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
             rejectionReason: string | null;
+            /** @description Times customers reported a delivered order as not delivered */
+            falseDeliveryFlags: number;
+            /** @description Open (non-terminal) shop orders across the seller's shops */
+            openOrderCount: number;
             /** Format: date-time */
             submittedAt: string | null;
             /** Format: date-time */
@@ -5058,6 +5184,34 @@ export interface components {
         SuspendDto: {
             /** @example Repeated policy violations */
             reason?: string;
+            /** @description Cancel all open shop orders of this seller as part of the suspension */
+            cancelOpenOrders?: boolean;
+            /** @description Reason recorded on the cancelled orders */
+            cancelReason?: string;
+        };
+        BulkCancelResultDto: {
+            sellerProfileId: string;
+            cancelledCount: number;
+            skipped: number;
+            openOrderCount: number;
+        };
+        BulkCancelOrdersDto: {
+            /** @example Seller suspended */
+            reason: string;
+            /**
+             * @description Return ordered quantities to stock
+             * @default true
+             */
+            restock: boolean;
+        };
+        SuspendedSellerOpenOrdersDto: {
+            sellerProfileId: string;
+            businessName: string;
+            userId: string;
+            email: string;
+            falseDeliveryFlags: number;
+            openOrderCount: number;
+            orders: Record<string, never>[];
         };
         AdminSellerLiteRefDto: {
             id: string;
@@ -8111,6 +8265,35 @@ export interface operations {
             };
         };
     };
+    AdminStuckOrdersController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                /** @description Also include currently overdue orders that are not flagged yet */
+                includeOverdue?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["StuckOrderDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
     AdminCommissionRulesController_list: {
         parameters: {
             query?: {
@@ -9947,6 +10130,35 @@ export interface operations {
             };
         };
     };
+    AdminSellersController_bulkCancelOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkCancelOrdersDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BulkCancelResultDto"];
+                    };
+                };
+            };
+        };
+    };
     AdminSellersController_reactivate: {
         parameters: {
             query?: never;
@@ -9991,6 +10203,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+        };
+    };
+    AdminSuspendedSellersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SuspendedSellerOpenOrdersDto"][];
+                    };
                 };
             };
         };

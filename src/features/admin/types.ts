@@ -127,6 +127,8 @@ export interface AdminSellerListItem {
   businessAddress: string;
   status: SellerStatus;
   rejectionReason: string | null;
+  falseDeliveryFlags: number;
+  openOrderCount: number;
   submittedAt: string | null;
   reviewedAt: string | null;
   verifiedAt: string | null;
@@ -283,6 +285,10 @@ export interface AdminShopOrderView {
   shopOrderNumber: string;
   orderId: string;
   shopId: string;
+  kind: string;
+  parentShopOrderId: string | null;
+  parent?: { id: string; orderId: string; shopOrderNumber: string } | null;
+  replacements?: { id: string; orderId: string; shopOrderNumber: string }[];
   status: OrderStatus;
   subtotal: string;
   deliveryCharge: string;
@@ -294,6 +300,10 @@ export interface AdminShopOrderView {
   estimatedDeliveryFrom: string | null;
   estimatedDeliveryTo: string | null;
   sellerNote: string | null;
+  deliveryNote: string | null;
+  delayNotifiedAt: string | null;
+  stuckReminderCount: number;
+  stuckFlaggedAt: string | null;
   deliveredAt: string | null;
   cancelledAt: string | null;
   cancelledBy: string | null;
@@ -318,6 +328,7 @@ export interface TransitionOrderInput {
   trackingCode?: string;
   estimatedDeliveryFrom?: string;
   estimatedDeliveryTo?: string;
+  deliveryNote?: string;
   restock?: boolean;
 }
 
@@ -572,6 +583,64 @@ export interface AdminAuditLog {
 }
 
 export type AdminSettings = Record<string, unknown>;
+
+/* ── Stuck orders & suspended sellers ───────────────────────────── */
+
+export interface AdminOpenOrder {
+  id: string;
+  shopOrderNumber: string;
+  status: string;
+  total: string;
+  createdAt: string;
+  shop: { id: string; name: string; slug: string };
+  order: {
+    id: string;
+    orderNumber: string;
+    contactName: string;
+    contactPhone: string;
+    placedAt: string;
+  };
+  items: { id: string; productName: string; quantity: number }[];
+}
+
+export interface SuspendedSellerOpenOrders {
+  sellerProfileId: string;
+  businessName: string;
+  userId: string;
+  email: string;
+  falseDeliveryFlags: number;
+  openOrderCount: number;
+  orders: AdminOpenOrder[];
+}
+
+export interface AdminStuckOrder {
+  id: string;
+  shopOrderNumber: string;
+  kind: string;
+  status: string;
+  shopId: string;
+  shopName: string;
+  confirmedAt: string | null;
+  packedAt: string | null;
+  shippedAt: string | null;
+  estimatedDeliveryTo: string | null;
+  stuckReminderCount: number;
+  stuckLastRemindedAt: string | null;
+  stuckFlaggedAt: string | null;
+  delayNotifiedAt: string | null;
+  createdAt: string;
+  total: string;
+  items: { id: string; productName: string; quantity: number }[];
+  order: { id: string; orderNumber: string; contactName: string; contactPhone: string };
+  shop: { id: string; name: string; slug: string };
+}
+
+export interface BulkCancelResult {
+  sellerProfileId: string;
+  cancelledCount: number;
+  skipped: number;
+  openOrderCount: number;
+}
 
 /* -- Reconciliation ----------------------------------------------- */
 

@@ -89,6 +89,9 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
                   quantity: line.quantity,
                   lineTotal: line.snapshot.priceDisplay,
                   stockQty: 0,
+                  priceChanged: false,
+                  priceChangedFrom: null,
+                  priceChangedTo: null,
                   issues: [],
                 }}
                 locale={locale}
@@ -257,6 +260,12 @@ function ServerCart() {
           ))}
         </select>
       </div>
+
+      {view.priceChanged ? (
+        <div className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {t("priceChangedBanner", { count: view.changedLineCount })}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="grid gap-4">
@@ -427,6 +436,7 @@ function CartLine({
   issueLabel?: (code: string) => string;
   removeLabel: string;
 }) {
+  const t = useTranslations("cart");
   return (
     <div className="grid gap-2 border-t border-border pt-3 first:border-0 first:pt-0">
       <div className="flex items-center gap-3">
@@ -459,6 +469,14 @@ function CartLine({
             </li>
           ))}
         </ul>
+      ) : null}
+      {item.priceChanged ? (
+        <p className="text-xs text-warning-foreground">
+          {t("priceChangedLine", {
+            from: formatBdt(item.priceChangedFrom ?? "0", locale),
+            to: formatBdt(item.priceChangedTo ?? item.unitPrice, locale),
+          })}
+        </p>
       ) : null}
     </div>
   );

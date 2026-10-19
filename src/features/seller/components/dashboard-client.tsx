@@ -106,6 +106,11 @@ export function DashboardClient() {
               value={dashboard.data?.lowStockVariants}
               loading={dashboard.isLoading}
             />
+            <Stat
+              label={t("stuckOrders")}
+              value={dashboard.data?.stuckOrders}
+              loading={dashboard.isLoading}
+            />
           </div>
 
           <Card>

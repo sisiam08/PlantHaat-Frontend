@@ -17,12 +17,14 @@ import type {
   AdminSettings,
   AdminShopListItem,
   AdminShopOrderView,
+  AdminStuckOrder,
   AdminUserDetail,
   AdminUserListItem,
   AdminComplaintView,
   AdminReviewReportView,
   AnnouncementInput,
   BannerInput,
+  BulkCancelResult,
   CategoryInput,
   CreateCommissionRuleInput,
   CreatePayoutInput,
@@ -30,6 +32,7 @@ import type {
   HomepageSectionInput,
   LedgerEntryView,
   ReconciliationResult,
+  SuspendedSellerOpenOrders,
   TransitionOrderInput,
   UpdateCommissionRuleInput,
   UpdatePayoutInput,
@@ -67,10 +70,29 @@ export const adminApi = {
     apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/reject`, {
       reason,
     }).then((result) => result.data),
-  suspendSeller: (id: string, reason?: string) =>
-    apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/suspend`, {
-      reason,
-    }).then((result) => result.data),
+  suspendSeller: (
+    id: string,
+    input: { reason?: string; cancelOpenOrders?: boolean; cancelReason?: string },
+  ) =>
+    apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/suspend`, input).then(
+      (result) => result.data,
+    ),
+  bulkCancelSellerOrders: (
+    id: string,
+    input: { reason: string; restock?: boolean },
+  ) =>
+    apiPost<BulkCancelResult>(
+      `/admin/sellers/${encodeURIComponent(id)}/bulk-cancel-orders`,
+      input,
+    ).then((result) => result.data),
+  listSuspendedOpenOrders: () =>
+    apiGet<SuspendedSellerOpenOrders[]>("/admin/suspended-sellers/open-orders").then(
+      (result) => result.data,
+    ),
+  listStuckOrders: (params?: { page?: number; limit?: number; includeOverdue?: boolean }) =>
+    apiGet<AdminStuckOrder[]>("/admin/stuck-orders", qs(params)).then((result) =>
+      paginated(result),
+    ),
   reactivateSeller: (id: string) =>
     apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/reactivate`).then(
       (result) => result.data,

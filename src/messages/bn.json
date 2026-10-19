@@ -360,7 +360,9 @@
   "changeDistrict": "জেলা বদলান",
   "removeTheseItems": "এই পণ্যগুলো সরান",
   "separateShipments": "আপনার অর্ডার {count, plural, =1 {# টি দোকান} other {# টি দোকান}} থেকে আলাদাভাবে আসবে; প্রতিটির ডেলিভারি চার্জ আলাদা।",
-  "notDeliveringShort": "ডেলিভারি নেই"
+  "notDeliveringShort": "ডেলিভারি নেই",
+  "priceChangedBanner": "{count}টি পণ্যের দাম বদলেছে — চেকআউটে নিশ্চিত করুন",
+  "priceChangedLine": "দাম {from} থেকে {to} হয়েছে"
  },
  "checkout": {
   "title": "চেকআউট",
@@ -386,7 +388,12 @@
   "itemsSubtotal": "পণ্যের মূল্য",
   "selectToSee": "জেলা বাছাই করলে ডেলিভারি চার্জ দেখা যাবে",
   "notDeliveringBlocked": "এক বা একাধিক দোকান এই ঠিকানার জেলায় ডেলিভারি করে না — কার্টে ফিরে জেলা বদলান বা সেই পণ্যগুলো সরান।",
-  "notDelivering": "ডেলিভারি নেই"
+  "notDelivering": "ডেলিভারি নেই",
+  "priceChangedTitle": "দাম বদলেছে",
+  "priceChangedBody": "আপনার কার্টের কিছু পণ্যের দাম বদলেছে। নতুন দামে অর্ডার করতে নিশ্চিত করুন।",
+  "newTotal": "নতুন মোট",
+  "confirmNewPrice": "নতুন দামে অর্ডার করুন",
+  "cancel": "বাতিল"
  },
  "orders": {
   "title": "আমার অর্ডার",
@@ -415,7 +422,10 @@
   "itemsSubtotal": "পণ্যের মূল্য",
   "deliveryTotal": "ডেলিভারি মোট",
   "grandTotal": "সর্বমোট",
-  "separateShipments": "আপনার অর্ডার {count} টি দোকান থেকে আলাদাভাবে আসবে; প্রতিটির ডেলিভারি চার্জ আলাদা।"
+  "separateShipments": "আপনার অর্ডার {count} টি দোকান থেকে আলাদাভাবে আসবে; প্রতিটির ডেলিভারি চার্জ আলাদা।",
+  "replacement": "প্রতিস্থাপন",
+  "replacementFor": "{number} এর প্রতিস্থাপন",
+  "replacementCreated": "প্রতিস্থাপন তৈরি হয়েছে: {number}"
  },
  "account": {
   "title": "আমার অ্যাকাউন্ট",
@@ -495,6 +505,14 @@
    "REPLY_RECEIVED": {
     "title": "নতুন রিপ্লাই",
     "body": "কেউ আপনার মন্তব্যে রিপ্লাই দিয়েছে।"
+   },
+   "ORDER_DELAYED": {
+    "title": "আপনার অর্ডার বিলম্বিত হচ্ছে",
+    "body": "আনুমানিক ডেলিভারি সময় পেরিয়ে গেছে।"
+   },
+   "REPLACEMENT_CREATED": {
+    "title": "প্রতিস্থাপন অর্ডার তৈরি হয়েছে",
+    "body": "আপনার অভিযোগের ভিত্তিতে একটি ফ্রি প্রতিস্থাপন তৈরি হয়েছে।"
    }
   }
  },
@@ -609,7 +627,8 @@
    "manageZones": "ডেলিভারি এলাকা",
    "managePayouts": "পেআউট অ্যাকাউন্ট",
    "onVacation": "ছুটিতে",
-   "unansweredQuestions": "উত্তরহীন প্রশ্ন"
+   "unansweredQuestions": "উত্তরহীন প্রশ্ন",
+   "stuckOrders": "আটকে থাকা অর্ডার"
   },
   "apply": {
    "title": "বিক্রেতা হোন",
@@ -946,7 +965,13 @@
    "cancelAction": "বাতিল",
    "history": "ইতিহাস",
    "noHistory": "এখনো কোনো ইতিহাস নেই।",
-   "statusUpdated": "অর্ডারের অবস্থা আপডেট হয়েছে"
+   "statusUpdated": "অর্ডারের অবস্থা আপডেট হয়েছে",
+   "replacement": "প্রতিস্থাপন",
+   "replacementFor": "{number} এর প্রতিস্থাপন",
+   "replacementCreated": "প্রতিস্থাপন তৈরি হয়েছে: {number}",
+   "deliveryNote": "ডেলিভারি নোট",
+   "deliveryNoteOptional": "ডেলিভারি নোট (ঐচ্ছিক)",
+   "stuckWarning": "এই অর্ডারটি অনেক দিন একই অবস্থায় আছে। দ্রুত পদক্ষেপ নিন।"
   },
   "cancellations": {
    "title": "বাতিল অনুরোধ",
@@ -1113,7 +1138,9 @@
    "auditLogs": "অডিট লগ",
    "settings": "সেটিংস",
    "contentReports": "কনটেন্ট রিপোর্ট",
-   "reconciliation": "হিসাব মিলকরণ"
+   "reconciliation": "হিসাব মিলকরণ",
+   "stuckOrders": "আটকে থাকা অর্ডার",
+   "suspendedSellers": "স্থগিত সেলার"
   },
   "common": {
    "prev": "পূর্ববর্তী",
@@ -1143,7 +1170,10 @@
    "noData": "কোনো ডেটা নেই।",
    "topShops": "শীর্ষ দোকান",
    "topProducts": "শীর্ষ পণ্য",
-   "topDistricts": "শীর্ষ জেলা"
+   "topDistricts": "শীর্ষ জেলা",
+   "stuckOrders": "আটকে থাকা অর্ডার",
+   "suspendedSellerOpenOrders": "স্থগিত সেলারের খোলা অর্ডার",
+   "falseDeliveryFlags": "ভুয়া ডেলিভারি রিপোর্ট"
   },
   "sellerStatus": {
    "DRAFT": "খসড়া",
@@ -1203,7 +1233,15 @@
    "adjustment": "সমন্বয়",
    "signedAmount": "সাইনযুক্ত পরিমাণ",
    "signedHint": "ধনাত্মক হলে বিক্রেতাকে জমা হয়।",
-   "recordAdjustment": "সমন্বয় রেকর্ড করুন"
+   "recordAdjustment": "সমন্বয় রেকর্ড করুন",
+   "openOrders": "{count}টি খোলা অর্ডার",
+   "falseDeliveryFlags": "{count}টি ভুয়া ডেলিভারি রিপোর্ট",
+   "suspendWithOrders": "এই সেলারের {count}টি খোলা অর্ডার আছে। চাইলে সাসপেন্ডের সাথে সেগুলো বাতিল করতে পারেন।",
+   "suspendReason": "সাসপেন্ডের কারণ",
+   "cancelOpenOrders": "{count}টি খোলা অর্ডার বাতিল করুন",
+   "suspendCancelReason": "সেলার সাসপেন্ড করা হয়েছে",
+   "keep": "রাখুন",
+   "suspending": "সাসপেন্ড করা হচ্ছে…"
   },
   "documentType": {
    "NID_FRONT": "এনআইডি (সামনে)",
@@ -1369,7 +1407,12 @@
    "selectStatus": "স্ট্যাটাস নির্বাচন",
    "applyStatus": "প্রয়োগ করুন",
    "history": "ইতিহাস",
-   "noHistory": "কোনো ইতিহাস নেই।"
+   "noHistory": "কোনো ইতিহাস নেই।",
+   "replacement": "প্রতিস্থাপন",
+   "replacementFor": "{number} এর প্রতিস্থাপন",
+   "replacementCreated": "প্রতিস্থাপন তৈরি হয়েছে: {number}",
+   "deliveryNote": "ডেলিভারি নোট",
+   "stuckWarning": "এই অর্ডারটি আটকে থাকা হিসেবে চিহ্নিত।"
   },
   "paymentStatus": {
    "PENDING": "অপেক্ষমাণ",
@@ -1654,6 +1697,49 @@
    "message": "বিবরণ",
    "expected": "প্রত্যাশিত",
    "actual": "প্রাপ্ত"
+  },
+  "stuckOrders": {
+   "title": "আটকে থাকা অর্ডার",
+   "subtitle": "যেসব অর্ডার নির্ধারিত সময়ে এগোয়নি।",
+   "loadError": "অর্ডার লোড করা যায়নি।",
+   "okBadge": "ঠিক আছে",
+   "allClear": "কোনো আটকে থাকা অর্ডার নেই",
+   "allClearHint": "সব অর্ডার সময়মতো এগোচ্ছে।",
+   "order": "অর্ডার",
+   "shop": "দোকান",
+   "status": "অবস্থা",
+   "stuckSince": "থেকে আটকে",
+   "reminders": "রিমাইন্ডার",
+   "state": "চিহ্ন",
+   "flagged": "ফ্ল্যাগ করা",
+   "watching": "নজরে",
+   "open": "খুলুন"
+  },
+  "suspendedSellers": {
+   "title": "স্থগিত সেলারদের খোলা অর্ডার",
+   "subtitle": "স্থগিত সেলারদের অসম্পূর্ণ অর্ডার দেখুন ও বাতিল করুন।",
+   "loadError": "অর্ডার লোড করা যায়নি।",
+   "okBadge": "ঠিক আছে",
+   "allClear": "কোনো খোলা অর্ডার নেই",
+   "allClearHint": "স্থগিত সেলারদের সব অর্ডার নিষ্পত্তি হয়েছে।",
+   "suspended": "স্থগিত",
+   "falseFlags": "{count}টি ভুয়া ডেলিভারি",
+   "cancelOpen": "{count}টি অর্ডার বাতিল",
+   "order": "অর্ডার",
+   "customer": "ক্রেতা",
+   "status": "অবস্থা",
+   "placed": "অর্ডারের সময়",
+   "total": "মোট",
+   "open": "খুলুন",
+   "confirmTitle": "খোলা অর্ডারগুলো বাতিল করবেন?",
+   "confirmBody": "{name} এর {count}টি খোলা অর্ডার বাতিল হবে এবং স্টক ফেরত যাবে।",
+   "reason": "কারণ",
+   "reasonPlaceholder": "যেমন: সেলার সাসপেন্ড",
+   "restock": "স্টক ফেরত দিন",
+   "keep": "রাখুন",
+   "confirmCancel": "হ্যাঁ, বাতিল করুন",
+   "cancelling": "বাতিল হচ্ছে…",
+   "cancelled": "{count}টি অর্ডার বাতিল হয়েছে"
   }
  },
  "shell": {

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlarmClock,
   BarChart3,
   CreditCard,
   FileText,
@@ -24,6 +25,7 @@ import {
   Store,
   Tags,
   Undo2,
+  UserX,
   Users,
   UsersRound,
   Wallet,
@@ -37,6 +39,7 @@ import { useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { adminApi } from "@/features/admin/api";
 import { sellerApi } from "@/features/seller/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -80,6 +83,8 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/products", key: "products", icon: Package },
   { href: "/admin/categories", key: "categories", icon: Tags },
   { href: "/admin/orders", key: "orders", icon: ShoppingCart },
+  { href: "/admin/stuck-orders", key: "stuckOrders", icon: AlarmClock },
+  { href: "/admin/suspended-sellers", key: "suspendedSellers", icon: UserX },
   { href: "/admin/refunds", key: "refunds", icon: RotateCcw },
   { href: "/admin/payouts", key: "payouts", icon: Wallet },
   { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
@@ -107,13 +112,26 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
     retry: false,
   });
   const unanswered = role === "seller" ? (dashboard.data?.unansweredQuestions ?? 0) : 0;
+  const adminOverview = useQuery({
+    queryKey: [...queryKeys.admin.analytics({ days: 30 }), "nav"],
+    queryFn: () => adminApi.analytics({}),
+    enabled: role === "admin",
+    retry: false,
+  });
+  const suspendedOpenOrders =
+    role === "admin" ? (adminOverview.data?.suspendedSellerOpenOrders ?? 0) : 0;
 
   return (
     <nav className="grid gap-1" aria-label={t("dashboard")}>
       {items.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         const Icon = item.icon;
-        const badge = item.key === "questions" && unanswered > 0 ? unanswered : null;
+        const badge =
+          item.key === "questions" && unanswered > 0
+            ? unanswered
+            : item.key === "suspendedSellers" && suspendedOpenOrders > 0
+              ? suspendedOpenOrders
+              : null;
         return (
           <Link
             key={item.href}

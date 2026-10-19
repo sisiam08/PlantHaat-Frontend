@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -42,6 +43,7 @@ export function SellerOrderDetail({ id }: { id: string }) {
   const [courierName, setCourierName] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
   const [etaDays, setEtaDays] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [restock, setRestock] = useState(false);
 
   const order = useQuery({
@@ -58,6 +60,7 @@ export function SellerOrderDetail({ id }: { id: string }) {
       setCourierName("");
       setTrackingCode("");
       setEtaDays("");
+      setDeliveryNote("");
       setRestock(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.order(id) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.orders() });
@@ -89,6 +92,9 @@ export function SellerOrderDetail({ id }: { id: string }) {
         input.estimatedDeliveryTo = new Date(Date.now() + days * 86_400_000).toISOString();
       }
     }
+    if (pending === "DELIVERED" && deliveryNote.trim()) {
+      input.deliveryNote = deliveryNote.trim();
+    }
     if (pending === "CANCELLED") {
       input.restock = restock;
     }
@@ -99,14 +105,46 @@ export function SellerOrderDetail({ id }: { id: string }) {
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold">{data.shopOrderNumber}</h1>
+          <h1 className="flex flex-wrap items-center gap-2 text-xl font-bold">
+            {data.shopOrderNumber}
+            {data.kind === "REPLACEMENT" ? (
+              <Badge variant="outline">{t("replacement")}</Badge>
+            ) : null}
+          </h1>
           <p className="text-sm text-muted-foreground">
             {t("orderRef", { number: data.order.orderNumber })} ·{" "}
             {formatDateTime(data.createdAt, locale)}
           </p>
+          {data.kind === "REPLACEMENT" && data.parent ? (
+            <Link
+              href={`/seller/orders/${data.parent.id}`}
+              className="text-xs text-primary underline-offset-4 hover:underline"
+            >
+              {t("replacementFor", { number: data.parent.shopOrderNumber })}
+            </Link>
+          ) : null}
+          {data.replacements?.length ? (
+            <div className="grid gap-1 text-xs">
+              {data.replacements.map((replacement) => (
+                <Link
+                  key={replacement.id}
+                  href={`/seller/orders/${replacement.id}`}
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  {t("replacementCreated", { number: replacement.shopOrderNumber })}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </div>
         <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
       </div>
+
+      {data.stuckFlaggedAt ? (
+        <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {t("stuckWarning")}
+        </p>
+      ) : null}
 
       <Card className="rounded-2xl">
         <CardHeader>
@@ -151,6 +189,11 @@ export function SellerOrderDetail({ id }: { id: string }) {
           {data.estimatedDeliveryTo ? (
             <p className="text-muted-foreground">
               {t("eta")}: {formatDateTime(data.estimatedDeliveryTo, locale)}
+            </p>
+          ) : null}
+          {data.deliveryNote ? (
+            <p className="text-muted-foreground">
+              {t("deliveryNote")}: {data.deliveryNote}
             </p>
           ) : null}
           {data.cancelReason ? (
@@ -211,6 +254,18 @@ export function SellerOrderDetail({ id }: { id: string }) {
                         onChange={(event) => setEtaDays(event.target.value)}
                       />
                     </div>
+                  </div>
+                ) : null}
+
+                {pending === "DELIVERED" ? (
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="deliveryNote">{t("deliveryNoteOptional")}</Label>
+                    <Input
+                      id="deliveryNote"
+                      value={deliveryNote}
+                      maxLength={500}
+                      onChange={(event) => setDeliveryNote(event.target.value)}
+                    />
                   </div>
                 ) : null}
 

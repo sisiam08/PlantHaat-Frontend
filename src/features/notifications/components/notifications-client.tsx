@@ -14,7 +14,13 @@ import type { NotificationItem } from "@/lib/api/types";
 import { notificationsApi } from "../api";
 import { useUnreadCount } from "../use-unread-count";
 
-const LOCALIZED_TYPES = new Set(["QUESTION_ASKED", "QUESTION_ANSWERED", "REPLY_RECEIVED"]);
+const LOCALIZED_TYPES = new Set([
+  "QUESTION_ASKED",
+  "QUESTION_ANSWERED",
+  "REPLY_RECEIVED",
+  "ORDER_DELAYED",
+  "REPLACEMENT_CREATED",
+]);
 
 function notificationHref(item: NotificationItem): string | null {
   const data = (item.data ?? {}) as Record<string, unknown>;
@@ -25,6 +31,12 @@ function notificationHref(item: NotificationItem): string | null {
     return `/products/${slug}?tab=reviews`;
   }
   if (item.type === "REPLY_RECEIVED" && slug) return `/products/${slug}?tab=qa`;
+  if (
+    (item.type === "ORDER_DELAYED" || item.type === "REPLACEMENT_CREATED") &&
+    typeof data.orderId === "string"
+  ) {
+    return `/orders/${data.orderId}`;
+  }
   return null;
 }
 

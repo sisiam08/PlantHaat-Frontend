@@ -65,6 +65,12 @@ export function DashboardClient() {
         <Stat label={t("newSellers")} value={String(data.newSellers)} />
         <Stat label={t("cancellationRate")} value={`${data.cancellationRate}%`} />
         <Stat label={t("complaintRate")} value={`${data.complaintRate}%`} />
+        <Stat label={t("stuckOrders")} value={String(data.stuckOrders)} />
+        <Stat
+          label={t("suspendedSellerOpenOrders")}
+          value={String(data.suspendedSellerOpenOrders)}
+        />
+        <Stat label={t("falseDeliveryFlags")} value={String(data.falseDeliveryFlags)} />
       </div>
 
       <Card className="rounded-2xl">

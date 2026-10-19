@@ -14,6 +14,9 @@ export interface CartItemView {
   quantity: number;
   lineTotal: string;
   stockQty: number;
+  priceChanged: boolean;
+  priceChangedFrom: string | null;
+  priceChangedTo: string | null;
   issues: CartIssue[];
 }
 
@@ -30,6 +33,7 @@ export interface CartShopView {
   shop: CartShopInfo;
   items: CartItemView[];
   subtotal: string;
+  priceChanged: boolean;
   /**
    * null = no district chosen yet, false = district chosen but this shop does
    * not deliver there, true = deliverable. Present once the API ships it.
@@ -49,6 +53,8 @@ export interface CartView {
   deliveryTotal: string;
   grandTotal: string;
   itemCount: number;
+  priceChanged: boolean;
+  changedLineCount: number;
 }
 
 export const MAX_CART_QUANTITY = 20;

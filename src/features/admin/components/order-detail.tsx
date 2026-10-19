@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -87,14 +88,52 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold">{data.shopOrderNumber}</h1>
+          <h1 className="flex flex-wrap items-center gap-2 text-xl font-bold">
+            {data.shopOrderNumber}
+            {data.kind === "REPLACEMENT" ? (
+              <Badge variant="outline">{t("replacement")}</Badge>
+            ) : null}
+          </h1>
           <p className="text-sm text-muted-foreground">
             {t("orderRef", { number: data.order.orderNumber })} · {data.shop.name} ·{" "}
             {formatDateTime(data.createdAt, locale)}
           </p>
+          {data.kind === "REPLACEMENT" && data.parent ? (
+            <Link
+              href={`/admin/orders/${data.parent.id}`}
+              className="text-xs text-primary underline-offset-4 hover:underline"
+            >
+              {t("replacementFor", { number: data.parent.shopOrderNumber })}
+            </Link>
+          ) : null}
+          {data.replacements?.length ? (
+            <div className="grid gap-1 text-xs">
+              {data.replacements.map((replacement) => (
+                <Link
+                  key={replacement.id}
+                  href={`/admin/orders/${replacement.id}`}
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  {t("replacementCreated", { number: replacement.shopOrderNumber })}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </div>
         <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
       </div>
+
+      {data.stuckFlaggedAt ? (
+        <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {t("stuckWarning")}
+        </p>
+      ) : null}
+
+      {data.deliveryNote ? (
+        <p className="rounded-2xl border border-border bg-card px-4 py-3 text-sm">
+          <span className="font-medium">{t("deliveryNote")}:</span> {data.deliveryNote}
+        </p>
+      ) : null}
 
       {cancelId ? (
         <Card className="rounded-2xl border-cta/50">

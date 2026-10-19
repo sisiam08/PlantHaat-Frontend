@@ -17,9 +17,19 @@ export interface OrderStatusHistoryView {
   createdAt: string;
 }
 
+export interface ReplacementRefView {
+  id: string;
+  orderId: string;
+  shopOrderNumber: string;
+}
+
 export interface ShopOrderView {
   id: string;
   shopOrderNumber: string;
+  kind: string;
+  parentShopOrderId: string | null;
+  parent?: ReplacementRefView | null;
+  replacements?: ReplacementRefView[];
   status: string;
   subtotal: string;
   deliveryCharge: string;
@@ -33,6 +43,10 @@ export interface ShopOrderView {
   cancelledBy: string | null;
   cancelReason: string | null;
   deliveredAt: string | null;
+  deliveryNote: string | null;
+  delayNotifiedAt: string | null;
+  stuckReminderCount: number;
+  stuckFlaggedAt: string | null;
   items: OrderItemView[];
   statusHistory: OrderStatusHistoryView[];
   shop: { id: string; name: string; slug: string };
@@ -65,5 +79,5 @@ export interface OrderSummaryView {
   paymentStatus: string;
   paymentMethod: string;
   placedAt: string;
-  shopOrders: { status: string; shopId: string }[];
+  shopOrders: { status: string; shopId: string; kind: string; parentShopOrderId: string | null }[];
 }
