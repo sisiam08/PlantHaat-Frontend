@@ -10,14 +10,19 @@ progress log).
 
 The browser never calls the backend directly. Three paths:
 
-1. **Server Components → backend** via `src/server/backend.ts` (`serverApi`).
-2. **Client Components → `/api/v1/*` Route Handler gateway** (`src/app/api/v1/[...path]/route.ts`)
-   → backend. The gateway forwards `Authorization: Bearer` and translates the
-   backend's `ph_at`/`ph_rt` `Set-Cookie` headers into Next-origin cookies.
-3. **Realtime socket → backend directly** (ticket-authenticated, §3.6).
+1. **Server Components → backend** via `src/server/backend.ts` (`serverApi`,
+   Axios). Reads are wrapped in `"use cache"` with `cacheTag`/`cacheLife`
+   (`src/features/*/server.ts`) so the catalog is cached by tag, not by URL.
+2. **Client Components → `/api/v1/*` Route Handler gateway**
+   (`src/app/api/v1/[...path]/route.ts`) → backend. The gateway enforces an
+   origin allow-list, forwards `Authorization: Bearer` + `ph_rt`, translates the
+   backend's `Set-Cookie` into Next-origin httpOnly cookies, refreshes once on a
+   401 (single-flight) and invalidates cache tags after successful mutations.
+3. **Realtime socket → backend directly** (ticket-authenticated, `docs/REALTIME.md`).
 
-`src/proxy.ts` (Next 16's `middleware`) refreshes the session before private
-routes render. Tokens live only in httpOnly cookies owned by the Next.js origin.
+`src/proxy.ts` (Next 16 middleware) refreshes the session before private routes
+render. Tokens live only in httpOnly cookies owned by the Next.js origin
+(`ph_at` 15 min, `ph_rt` 30 days).
 
 ## Setup
 
@@ -31,6 +36,17 @@ npm run dev
 The backend must be running (default `http://localhost:5000`). Its
 `CORS_ORIGINS`/`APP_URL` should include `http://localhost:3000`, and if
 `BFF_SHARED_SECRET` is set there, set the same value in `.env.local`.
+Use `API_INTERNAL_URL=http://127.0.0.1:5000` (IPv4), not `localhost` — on Node
+`localhost` can resolve to `::1` first and add latency/spikes.
+
+## Environment variables
+
+Public (sent to the browser, `NEXT_PUBLIC_*`): `NEXT_PUBLIC_SITE_URL`,
+`NEXT_PUBLIC_REALTIME_URL`, `NEXT_PUBLIC_DEFAULT_LOCALE`,
+`NEXT_PUBLIC_SUPPORT_PHONE`, `NEXT_PUBLIC_SUPPORT_EMAIL`.
+Server-only: `API_INTERNAL_URL`, `BFF_SHARED_SECRET`, `BACKEND_TIMEOUT_MS`,
+`GATEWAY_MAX_BODY_MB`, `REVALIDATE_SECRET`, `SITE_ORIGINS_EXTRA`.
+Validated with zod at boot (`src/env/server.ts`, `src/env/client.ts`).
 
 ## Scripts
 
@@ -42,7 +58,27 @@ The backend must be running (default `http://localhost:5000`). Its
 | `npm run format` / `format:check` | Prettier |
 | `npm run api:types` | Generate API types from `openapi/openapi.json` |
 | `npm test` / `test:watch` | Vitest (unit/component) |
-| `npm run test:e2e` | Playwright |
+| `npm run test:e2e` | Playwright (reuses a running `:3000`; never starts servers) |
+
+Production build into a throwaway dir: `NEXT_DIST_DIR=.next-prod npm run build`
+then `NEXT_DIST_DIR=.next-prod npx next start -p 3100`.
+
+## Caching
+
+- Public catalog reads use function-level `"use cache"` + `cacheTag`/`cacheLife`
+  (`src/server/cache-tags.ts`); the gateway calls `revalidateTag(tag, "max")`
+  after mutations.
+- Lists that change often (`GET /products` cursor pages, `GET /categories`,
+  filter facets) are cached briefly on the backend (in-memory), and the
+  home `/products` feed is cached under a 15-minute seed.
+- Private pages (account/seller/admin/cart/checkout/orders) are `no-store` and
+  `noindex` (see `robots.ts` + `next.config.ts` headers).
+
+## Testing
+
+- Unit/component: Vitest + Testing Library + MSW (`tests/`, `src/**/*.spec`).
+- E2E: Playwright (`e2e/`) against the running servers, `reuseExistingServer`.
+  Run per-suite with `--workers=1` when the dev server is compiling.
 
 ## Conventions
 
@@ -51,4 +87,5 @@ The backend must be running (default `http://localhost:5000`). Its
   prices as truth.
 - All user-facing text goes through next-intl (`bn` default, `en`).
 - UI primitives come from shadcn/ui (installed via its CLI); colors are design
-  tokens only.
+  tokens only. Bangla uses the self-hosted Hind Siliguri fallback (the supplied
+  `Kalpurush.ttf` has no Bengali glyphs / layout tables, so it is not wired).
