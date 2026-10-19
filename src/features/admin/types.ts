@@ -572,3 +572,21 @@ export interface AdminAuditLog {
 }
 
 export type AdminSettings = Record<string, unknown>;
+
+/* -- Reconciliation ----------------------------------------------- */
+
+export interface ReconciliationViolation {
+  code: string;
+  entityType: string;
+  entityId: string;
+  message: string;
+  expected?: string;
+  actual?: string;
+}
+
+export interface ReconciliationResult {
+  from: string;
+  to: string;
+  checked: number;
+  violations: ReconciliationViolation[];
+}

@@ -29,6 +29,7 @@ import type {
   DuesAdjustmentResult,
   HomepageSectionInput,
   LedgerEntryView,
+  ReconciliationResult,
   TransitionOrderInput,
   UpdateCommissionRuleInput,
   UpdatePayoutInput,
@@ -326,6 +327,8 @@ export const adminApi = {
     apiGet<AdminSettings>("/admin/settings").then((result) => result.data),
   updateSettings: (values: AdminSettings) =>
     apiPatch<AdminSettings>("/admin/settings", { values }).then((result) => result.data),
+  reconciliation: (params?: { from?: string; to?: string }) =>
+    apiGet<ReconciliationResult>("/admin/reconciliation", qs(params)).then((result) => result.data),
 };
 
 /**

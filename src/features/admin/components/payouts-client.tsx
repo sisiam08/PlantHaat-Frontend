@@ -110,6 +110,7 @@ export function PayoutsClient({
 
   return (
     <div className="grid gap-6">
+      <p className="text-sm text-muted-foreground">{t("availableOnlyNote")}</p>
       <div className="flex flex-wrap gap-1">
         {FILTERS.map((filter) => (
           <Button

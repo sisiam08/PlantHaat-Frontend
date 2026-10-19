@@ -1034,7 +1034,17 @@
    "ledgerTitle": "Ledger",
    "noLedger": "No ledger entries.",
    "payoutsTitle": "Payouts",
-   "noPayouts": "No payouts yet."
+   "noPayouts": "No payouts yet.",
+   "available": "Available",
+   "availableHint": "Can be paid out now",
+   "pending": "Pending",
+   "pendingHint": "Unlocks after the hold window past delivery",
+   "owedToPlatform": "Owed to platform",
+   "owedHint": "From commission/payouts",
+   "net": "Net",
+   "netHint": "Pending + available",
+   "holdExplanation": "Positive earnings unlock 48 h after delivery; they stay held while a complaint on that shop order is open.",
+   "pendingBadge": "On hold"
   },
   "ledgerType": {
    "ORDER_EARNING": "Order earning",
@@ -1102,7 +1112,8 @@
    "payments": "Payments",
    "auditLogs": "Audit logs",
    "settings": "Settings",
-   "contentReports": "Content reports"
+   "contentReports": "Content reports",
+   "reconciliation": "Reconciliation"
   },
   "common": {
    "prev": "Previous",
@@ -1405,7 +1416,8 @@
    "sellerProfileId": "Seller profile ID",
    "amount": "Amount",
    "method": "Method",
-   "reference": "Reference"
+   "reference": "Reference",
+   "availableOnlyNote": "Payouts are limited to the seller’s available balance; pending earnings stay locked."
   },
   "commissionScope": {
    "GLOBAL": "Global",
@@ -1625,6 +1637,23 @@
     "REPLY": "Reply",
     "REVIEW": "Review"
    }
+  },
+  "reconciliation": {
+   "title": "Reconciliation",
+   "subtitle": "Check order, commission, ledger, payout and refund invariants.",
+   "from": "From",
+   "to": "To",
+   "run": "Run check",
+   "checked": "{count} checks evaluated",
+   "loadError": "Could not run reconciliation.",
+   "okBadge": "OK",
+   "allClear": "All accounts reconcile",
+   "allClearHint": "No violations were found in this range.",
+   "code": "Code",
+   "entity": "Entity",
+   "message": "Detail",
+   "expected": "Expected",
+   "actual": "Actual"
   }
  },
  "shell": {

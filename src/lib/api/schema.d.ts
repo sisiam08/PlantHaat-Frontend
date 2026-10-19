@@ -1500,6 +1500,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/sellers/{id}/balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Pending vs available seller balance (payout hold) */
+        get: operations["AdminPayoutsController_balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/sellers/{id}/dues-payments": {
         parameters: {
             query?: never;
@@ -2027,6 +2044,23 @@ export interface paths {
         put?: never;
         /** Issue a one-time WebSocket connection ticket */
         post: operations["RealtimeController_ticket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check money invariants over a date range */
+        get: operations["ReconciliationController_run"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4166,8 +4200,23 @@ export interface components {
             amount: string;
             description: string | null;
             createdById: string | null;
+            /**
+             * Format: date-time
+             * @description When a positive entry unlocks (null = immediate/negative)
+             */
+            availableAt: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        SellerBalancesDto: {
+            /** @description Held positive entries (not yet unlocked) */
+            pending: string;
+            /** @description Payout-able amount (unlocked positive minus negative entries) */
+            available: string;
+            /** @description Amount the seller owes the platform (when available < 0) */
+            owedToPlatform: string;
+            /** @description pending + available (total ledger sum) */
+            net: string;
         };
         SellerBalanceDto: {
             /** @description Ledger balance as a decimal string (positive = owed to seller) */
@@ -4192,6 +4241,14 @@ export interface components {
         SellerEarningsDto: {
             /** @description Decimal as string (positive = owed to seller) */
             balance: string;
+            /** @description Held positive entries (payout hold / open complaint) */
+            pending: string;
+            /** @description Payout-able amount (unlocked positive minus negative) */
+            available: string;
+            /** @description Amount owed to the platform when available < 0 */
+            owedToPlatform: string;
+            /** @description pending + available (total ledger sum) */
+            net: string;
             ledger: components["schemas"]["SellerLedgerEntryDto"][];
             payouts: components["schemas"]["SellerPayoutDto"][];
         };
@@ -4601,6 +4658,24 @@ export interface components {
              * @example ws://localhost:5000/ws
              */
             url: Record<string, never>;
+        };
+        ReconciliationViolationDto: {
+            /** @example ORDER_TOTAL_MISMATCH */
+            code: string;
+            entityType: string;
+            entityId: string;
+            message: string;
+            expected?: string;
+            actual?: string;
+        };
+        ReconciliationResponseDto: {
+            /** Format: date-time */
+            from: string;
+            /** Format: date-time */
+            to: string;
+            /** @description Number of entities/checks evaluated */
+            checked: number;
+            violations: components["schemas"]["ReconciliationViolationDto"][];
         };
         BannerDto: {
             id: string;
@@ -8255,6 +8330,31 @@ export interface operations {
             };
         };
     };
+    AdminPayoutsController_balance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerBalancesDto"];
+                    };
+                };
+            };
+        };
+    };
     AdminPayoutsController_dues: {
         parameters: {
             query?: never;
@@ -9173,6 +9273,32 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["RealtimeTicketDto"];
+                    };
+                };
+            };
+        };
+    };
+    ReconciliationController_run: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReconciliationResponseDto"];
                     };
                 };
             };

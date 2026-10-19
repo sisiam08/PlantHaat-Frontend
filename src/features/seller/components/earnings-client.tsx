@@ -31,9 +31,7 @@ export function EarningsClient() {
     return <p className="text-sm text-muted-foreground">{t("loadError")}</p>;
   }
 
-  const { balance, ledger, payouts } = earnings.data;
-  const balanceValue = Number(balance);
-  const positive = Number.isFinite(balanceValue) ? balanceValue >= 0 : true;
+  const { pending, available, owedToPlatform, net, ledger, payouts } = earnings.data;
 
   return (
     <div className="grid gap-5">
@@ -41,11 +39,14 @@ export function EarningsClient() {
         <CardHeader>
           <CardTitle>{t("balanceTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2">
-          <p className="text-3xl font-bold">{formatBdt(balance, locale)}</p>
-          <p className="text-sm text-muted-foreground">
-            {positive ? t("owedToYou") : t("commissionDue")}
-          </p>
+        <CardContent className="grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <BalanceStat label={t("available")} value={formatBdt(available, locale)} hint={t("availableHint")} tone="primary" />
+            <BalanceStat label={t("pending")} value={formatBdt(pending, locale)} hint={t("pendingHint")} />
+            <BalanceStat label={t("owedToPlatform")} value={formatBdt(owedToPlatform, locale)} hint={t("owedHint")} />
+            <BalanceStat label={t("net")} value={formatBdt(net, locale)} hint={t("netHint")} />
+          </div>
+          <p className="text-sm text-muted-foreground">{t("holdExplanation")}</p>
         </CardContent>
       </Card>
 
@@ -63,7 +64,16 @@ export function EarningsClient() {
                 className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-b-0 last:pb-0"
               >
                 <div className="grid gap-0.5">
-                  <span className="font-medium">{tLedger(entry.type)}</span>
+                  <span className="flex flex-wrap items-center gap-1.5 font-medium">
+                    {tLedger(entry.type)}
+                    {Number(entry.amount) > 0 &&
+                    entry.availableAt &&
+                    new Date(entry.availableAt) > new Date() ? (
+                      <Badge variant="secondary" className="rounded-full text-[10px]">
+                        {t("pendingBadge")}
+                      </Badge>
+                    ) : null}
+                  </span>
                   {entry.description ? (
                     <span className="text-xs text-muted-foreground">{entry.description}</span>
                   ) : null}
@@ -108,6 +118,28 @@ export function EarningsClient() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function BalanceStat({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  tone?: "primary";
+}) {
+  return (
+    <div className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-3">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className={tone === "primary" ? "text-xl font-bold text-primary" : "text-xl font-semibold"}>
+        {value}
+      </span>
+      <span className="text-[11px] text-muted-foreground">{hint}</span>
     </div>
   );
 }

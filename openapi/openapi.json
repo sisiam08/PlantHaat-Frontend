@@ -5829,6 +5829,50 @@
         ]
       }
     },
+    "/api/v1/admin/sellers/{id}/balance": {
+      "get": {
+        "operationId": "AdminPayoutsController_balance",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerBalancesDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Pending vs available seller balance (payout hold)",
+        "tags": [
+          "Admin: payouts"
+        ]
+      }
+    },
     "/api/v1/admin/sellers/{id}/dues-payments": {
       "post": {
         "operationId": "AdminPayoutsController_dues",
@@ -7679,6 +7723,60 @@
         "summary": "Issue a one-time WebSocket connection ticket",
         "tags": [
           "Realtime"
+        ]
+      }
+    },
+    "/api/v1/admin/reconciliation": {
+      "get": {
+        "operationId": "ReconciliationController_run",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ReconciliationResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check money invariants over a date range",
+        "tags": [
+          "Admin: reconciliation"
         ]
       }
     },
@@ -15049,6 +15147,12 @@
             "type": "string",
             "nullable": true
           },
+          "availableAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "When a positive entry unlocks (null = immediate/negative)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -15063,7 +15167,35 @@
           "amount",
           "description",
           "createdById",
+          "availableAt",
           "createdAt"
+        ]
+      },
+      "SellerBalancesDto": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "string",
+            "description": "Held positive entries (not yet unlocked)"
+          },
+          "available": {
+            "type": "string",
+            "description": "Payout-able amount (unlocked positive minus negative entries)"
+          },
+          "owedToPlatform": {
+            "type": "string",
+            "description": "Amount the seller owes the platform (when available < 0)"
+          },
+          "net": {
+            "type": "string",
+            "description": "pending + available (total ledger sum)"
+          }
+        },
+        "required": [
+          "pending",
+          "available",
+          "owedToPlatform",
+          "net"
         ]
       },
       "SellerBalanceDto": {
@@ -15129,6 +15261,22 @@
             "type": "string",
             "description": "Decimal as string (positive = owed to seller)"
           },
+          "pending": {
+            "type": "string",
+            "description": "Held positive entries (payout hold / open complaint)"
+          },
+          "available": {
+            "type": "string",
+            "description": "Payout-able amount (unlocked positive minus negative)"
+          },
+          "owedToPlatform": {
+            "type": "string",
+            "description": "Amount owed to the platform when available < 0"
+          },
+          "net": {
+            "type": "string",
+            "description": "pending + available (total ledger sum)"
+          },
           "ledger": {
             "type": "array",
             "items": {
@@ -15144,6 +15292,10 @@
         },
         "required": [
           "balance",
+          "pending",
+          "available",
+          "owedToPlatform",
+          "net",
           "ledger",
           "payouts"
         ]
@@ -16710,6 +16862,65 @@
           "ticket",
           "expiresInSeconds",
           "url"
+        ]
+      },
+      "ReconciliationViolationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "ORDER_TOTAL_MISMATCH"
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "actual": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "entityType",
+          "entityId",
+          "message"
+        ]
+      },
+      "ReconciliationResponseDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checked": {
+            "type": "number",
+            "description": "Number of entities/checks evaluated"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReconciliationViolationDto"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "checked",
+          "violations"
         ]
       },
       "BannerDto": {

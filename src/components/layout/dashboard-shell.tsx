@@ -16,6 +16,7 @@ import {
   Package,
   Percent,
   RotateCcw,
+  Scale,
   ScrollText,
   Settings,
   ShoppingCart,
@@ -89,6 +90,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/homepage-sections", key: "homepageSections", icon: LayoutTemplate },
   { href: "/admin/announcements", key: "announcements", icon: Megaphone },
   { href: "/admin/payments", key: "payments", icon: CreditCard },
+  { href: "/admin/reconciliation", key: "reconciliation", icon: Scale },
   { href: "/admin/audit-logs", key: "auditLogs", icon: ScrollText },
   { href: "/admin/settings", key: "settings", icon: Settings },
 ];
