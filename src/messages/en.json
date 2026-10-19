@@ -473,7 +473,21 @@
   "empty": "No notifications yet",
   "unread": "{count, plural, =0 {No unread} one {# unread} other {# unread}}",
   "markRead": "Mark read",
-  "markAllRead": "Mark all read"
+  "markAllRead": "Mark all read",
+  "types": {
+   "QUESTION_ASKED": {
+    "title": "New question",
+    "body": "A product of yours got a new question."
+   },
+   "QUESTION_ANSWERED": {
+    "title": "Your question was answered",
+    "body": "Someone answered your question."
+   },
+   "REPLY_RECEIVED": {
+    "title": "New reply",
+    "body": "Someone replied to your post."
+   }
+  }
  },
  "reviews": {
   "title": "Reviews",
@@ -556,7 +570,8 @@
    "reviews": "Reviews",
    "complaints": "Complaints",
    "earnings": "Earnings",
-   "analytics": "Analytics"
+   "analytics": "Analytics",
+   "questions": "Questions"
   },
   "status": {
    "DRAFT": "Draft",
@@ -584,7 +599,8 @@
    "manageShop": "Manage shop",
    "manageZones": "Delivery zones",
    "managePayouts": "Payout accounts",
-   "onVacation": "On vacation"
+   "onVacation": "On vacation",
+   "unansweredQuestions": "Unanswered questions"
   },
   "apply": {
    "title": "Become a seller",
@@ -1040,6 +1056,21 @@
    "topProducts": "Top products",
    "lowStock": "Low stock",
    "noLowStock": "No low-stock variants."
+  },
+  "questions": {
+   "title": "Questions",
+   "subtitle": "Answer customer questions. Unanswered ones appear first.",
+   "empty": "No questions.",
+   "loadError": "Could not load questions.",
+   "filterUnanswered": "Unanswered",
+   "filterAll": "All",
+   "unanswered": "Unanswered",
+   "answerCount": "{count} answers",
+   "answer": "Answer",
+   "answerPlaceholder": "Write an answer…",
+   "sendAnswer": "Post answer",
+   "answered": "Answer posted.",
+   "loadMore": "Load more"
   }
  },
  "admin": {
@@ -1061,7 +1092,8 @@
    "announcements": "Announcements",
    "payments": "Payments",
    "auditLogs": "Audit logs",
-   "settings": "Settings"
+   "settings": "Settings",
+   "contentReports": "Content reports"
   },
   "common": {
    "prev": "Previous",
@@ -1550,6 +1582,37 @@
     "checkoutMaxQtyPerItem": "Max quantity per item at checkout",
     "paymentsOnlineEnabled": "Enable online payments",
     "shopMaxPerSeller": "Max shops per seller"
+   }
+  },
+  "contentReports": {
+   "title": "Content reports",
+   "subtitle": "Review reports for questions, answers, replies and reviews.",
+   "empty": "No reports.",
+   "loadError": "Could not load reports.",
+   "resolved": "Report resolved.",
+   "updated": "Updated.",
+   "missingTarget": "The reported content no longer exists.",
+   "rating": "Rating {rating}",
+   "reason": "Reason",
+   "reporter": "Reporter",
+   "statusLabel": "Status",
+   "confirmHide": "Hide this content?",
+   "hide": "Hide",
+   "keep": "Keep",
+   "hideContent": "Hide content",
+   "statusAll": "All statuses",
+   "typeFilter": "Type",
+   "typeAll": "All types",
+   "status": {
+    "OPEN": "Open",
+    "RESOLVED_HIDDEN": "Hidden",
+    "RESOLVED_KEPT": "Kept"
+   },
+   "kind": {
+    "QUESTION": "Question",
+    "ANSWER": "Answer",
+    "REPLY": "Reply",
+    "REVIEW": "Review"
    }
   }
  },

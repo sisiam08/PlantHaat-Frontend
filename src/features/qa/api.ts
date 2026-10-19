@@ -44,6 +44,35 @@ export interface QaQuestion {
   answers: QaAnswer[];
 }
 
+export interface QaSellerQuestion extends QaQuestion {
+  product: { id: string; name: string; slug: string };
+}
+
+export interface ContentReportView {
+  id: string;
+  targetType: "QUESTION" | "ANSWER" | "REPLY" | "REVIEW";
+  targetId: string;
+  reporterId: string;
+  reason: string;
+  status: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+  resolvedById: string | null;
+  resolvedAt: string | null;
+  createdAt: string;
+  target?: {
+    kind: string;
+    body?: string | null;
+    title?: string | null;
+    rating?: number;
+    authorName?: string | null;
+    shopName?: string;
+    questionId?: string | null;
+    questionBody?: string;
+    answerId?: string | null;
+    reviewId?: string | null;
+    product?: { id: string; name: string; slug: string } | null;
+  } | null;
+}
+
 export interface QaMeta {
   limit: number;
   nextCursor: string | null;
@@ -131,4 +160,43 @@ export const qaApi = {
     apiPost<{ id: string }>(`/${kind}/${encodeURIComponent(id)}/report`, { reason }).then(
       (result) => result.data,
     ),
+
+  sellerQuestions: (params: { status?: "unanswered" | "all"; cursor?: string | null; limit?: number }) =>
+    apiGet<(QaQuestion & { product: { id: string; name: string; slug: string } })[]>(
+      "/seller/questions",
+      {
+        params: {
+          status: params.status ?? "unanswered",
+          limit: params.limit ?? 10,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+        },
+      },
+    ).then(normalize),
+
+  contentReports: (params: {
+    page?: number;
+    limit?: number;
+    status?: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+    targetType?: "QUESTION" | "ANSWER" | "REPLY" | "REVIEW";
+  }) =>
+    apiGet<ContentReportView[]>("/admin/content-reports", { params }).then((result) => ({
+      data: result.data,
+      meta: result.meta,
+    })),
+
+  resolveContentReport: (id: string, hide: boolean) =>
+    apiPost<{ resolved: boolean; hidden: boolean }>(
+      `/admin/content-reports/${encodeURIComponent(id)}/resolve`,
+      { hide },
+    ).then((result) => result.data),
+
+  hideContent: (kind: "questions" | "answers" | "replies", id: string) =>
+    apiPost<{ id: string; status: string }>(
+      `/admin/${kind}/${encodeURIComponent(id)}/hide`,
+    ).then((result) => result.data),
+
+  unhideContent: (kind: "questions" | "answers" | "replies", id: string) =>
+    apiPost<{ id: string; status: string }>(
+      `/admin/${kind}/${encodeURIComponent(id)}/unhide`,
+    ).then((result) => result.data),
 };

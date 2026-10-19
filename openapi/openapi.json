@@ -13357,6 +13357,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "target": {
+            "type": "object",
+            "nullable": true,
+            "description": "Reported content in context (body/rating, author, product {id,name,slug})"
           }
         },
         "required": [

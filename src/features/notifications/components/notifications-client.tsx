@@ -1,6 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -8,11 +10,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { queryKeys } from "@/lib/api/query-keys";
+import type { NotificationItem } from "@/lib/api/types";
 import { notificationsApi } from "../api";
 import { useUnreadCount } from "../use-unread-count";
 
+const LOCALIZED_TYPES = new Set(["QUESTION_ASKED", "QUESTION_ANSWERED", "REPLY_RECEIVED"]);
+
+function notificationHref(item: NotificationItem): string | null {
+  const data = (item.data ?? {}) as Record<string, unknown>;
+  const slug = typeof data.productSlug === "string" ? data.productSlug : null;
+  if (item.type === "QUESTION_ASKED") return "/seller/questions";
+  if (item.type === "QUESTION_ANSWERED" && slug) return `/products/${slug}?tab=qa`;
+  if (item.type === "REPLY_RECEIVED" && typeof data.reviewId === "string" && slug) {
+    return `/products/${slug}?tab=reviews`;
+  }
+  if (item.type === "REPLY_RECEIVED" && slug) return `/products/${slug}?tab=qa`;
+  return null;
+}
+
 export function NotificationsClient() {
   const t = useTranslations("notifications");
+  const tTypes = useTranslations("notifications.types");
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const list = useQuery({
@@ -33,6 +52,16 @@ export function NotificationsClient() {
     mutationFn: () => notificationsApi.markAllRead(),
     onSuccess: invalidate,
   });
+
+  const open = (item: NotificationItem) => {
+    if (item.readAt === null) {
+      markRead.mutate(item.id);
+    }
+    const href = notificationHref(item);
+    if (href) {
+      router.push(href);
+    }
+  };
 
   return (
     <div className="grid gap-4">
@@ -59,12 +88,26 @@ export function NotificationsClient() {
       <div className="grid gap-2">
         {list.data?.data.map((item) => {
           const isUnread = item.readAt === null;
+          const localized = LOCALIZED_TYPES.has(item.type);
+          const title = localized ? tTypes(`${item.type}.title`) : item.title;
+          const body = localized ? tTypes(`${item.type}.body`) : item.body;
+          const href = notificationHref(item);
           return (
             <Card key={item.id}>
               <CardContent className="flex items-start justify-between gap-4">
                 <div className="grid gap-1">
-                  <span className={cn("text-sm", isUnread && "font-semibold")}>{item.title}</span>
-                  <span className="text-sm text-muted-foreground">{item.body}</span>
+                  {href ? (
+                    <Link
+                      href={href}
+                      onClick={() => open(item)}
+                      className={cn("text-sm hover:underline", isUnread && "font-semibold")}
+                    >
+                      {title}
+                    </Link>
+                  ) : (
+                    <span className={cn("text-sm", isUnread && "font-semibold")}>{title}</span>
+                  )}
+                  <span className="text-sm text-muted-foreground">{body}</span>
                 </div>
                 {isUnread ? (
                   <Button

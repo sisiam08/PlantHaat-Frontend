@@ -11,6 +11,7 @@ import {
   MapPin,
   Megaphone,
   Menu,
+  MessageCircleQuestion,
   MessageSquareWarning,
   Package,
   Percent,
@@ -27,12 +28,16 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { sellerApi } from "@/features/seller/api";
+import { queryKeys } from "@/lib/api/query-keys";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "cn";
 import { LinkPending } from "./link-pending";
@@ -54,6 +59,7 @@ const SELLER_NAV: NavItem[] = [
   { href: "/seller/products", key: "products", icon: Package },
   { href: "/seller/orders", key: "orders", icon: ShoppingCart },
   { href: "/seller/cancellation-requests", key: "cancellations", icon: Undo2 },
+  { href: "/seller/questions", key: "questions", icon: MessageCircleQuestion },
   { href: "/seller/reviews", key: "reviews", icon: Star },
   { href: "/seller/complaints", key: "complaints", icon: Flag },
   { href: "/seller/earnings", key: "earnings", icon: Wallet },
@@ -76,6 +82,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/payouts", key: "payouts", icon: Wallet },
   { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
   { href: "/admin/complaints", key: "complaints", icon: MessageSquareWarning },
+  { href: "/admin/content-reports", key: "contentReports", icon: MessageCircleQuestion },
   { href: "/admin/review-reports", key: "reviewReports", icon: Flag },
   { href: "/admin/banners", key: "banners", icon: ImageIcon },
   { href: "/admin/homepage-sections", key: "homepageSections", icon: LayoutTemplate },
@@ -90,11 +97,20 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
   const pathname = usePathname();
   const items = role === "admin" ? ADMIN_NAV : SELLER_NAV;
 
+  const dashboard = useQuery({
+    queryKey: queryKeys.seller.dashboard,
+    queryFn: sellerApi.dashboard,
+    enabled: role === "seller",
+    retry: false,
+  });
+  const unanswered = role === "seller" ? (dashboard.data?.unansweredQuestions ?? 0) : 0;
+
   return (
     <nav className="grid gap-1" aria-label={t("dashboard")}>
       {items.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         const Icon = item.icon;
+        const badge = item.key === "questions" && unanswered > 0 ? unanswered : null;
         return (
           <Link
             key={item.href}
@@ -110,7 +126,12 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
           >
             <Icon aria-hidden className="size-4 shrink-0" />
             <span className="truncate">{t(item.key)}</span>
-            <LinkPending className="ms-auto shrink-0" />
+            {badge ? (
+              <Badge variant="destructive" className="ms-auto rounded-full px-1.5 py-0 text-[10px]">
+                {badge}
+              </Badge>
+            ) : null}
+            <LinkPending className={cn("shrink-0", badge ? "" : "ms-auto")} />
           </Link>
         );
       })}

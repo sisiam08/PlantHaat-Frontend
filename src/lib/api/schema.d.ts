@@ -3707,6 +3707,8 @@ export interface components {
             resolvedAt: string | null;
             /** Format: date-time */
             createdAt: string;
+            /** @description Reported content in context (body/rating, author, product {id,name,slug}) */
+            target?: Record<string, never> | null;
         };
         ReportContentDto: {
             reason: string;

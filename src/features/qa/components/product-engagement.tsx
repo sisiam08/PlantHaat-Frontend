@@ -133,7 +133,7 @@ function InlineEditor({
 
 /* ── Review replies ─────────────────────────────────────────────── */
 
-function ReviewReplies({ reviewId, sellerReply }: { reviewId: string; sellerReply: string | null }) {
+export function ReviewReplies({ reviewId, sellerReply }: { reviewId: string; sellerReply: string | null }) {
   const t = useTranslations("engagement");
   const { user } = useAuth();
   const tErrors = useTranslations("errors");

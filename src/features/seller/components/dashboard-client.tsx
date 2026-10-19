@@ -89,8 +89,13 @@ export function DashboardClient() {
 
       {approved ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label={t("pendingOrders")} value={dashboard.data?.pendingOrders} loading={dashboard.isLoading} />
+            <Stat
+              label={t("unansweredQuestions")}
+              value={dashboard.data?.unansweredQuestions}
+              loading={dashboard.isLoading}
+            />
             <Stat
               label={t("unreadNotifications")}
               value={dashboard.data?.unreadNotifications}

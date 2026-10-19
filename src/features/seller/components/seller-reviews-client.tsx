@@ -13,9 +13,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { StarRating } from "@/features/catalog/components/product-card";
+import { ReviewReplies } from "@/features/qa/components/product-engagement";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
 import { sellerApi } from "../api";
@@ -25,8 +25,6 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [replyFor, setReplyFor] = useState<string | null>(null);
-  const [reply, setReply] = useState("");
   const [reportFor, setReportFor] = useState<string | null>(null);
   const [reason, setReason] = useState("");
 
@@ -39,17 +37,6 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: queryKeys.seller.reviews() });
-
-  const replyMutation = useMutation({
-    mutationFn: ({ id, text }: { id: string; text: string }) => sellerApi.replyReview(id, text),
-    onSuccess: async () => {
-      setReplyFor(null);
-      setReply("");
-      await refresh();
-      toast.success(t("replied"));
-    },
-    onError: (error) => toastApiError(error, tErrors),
-  });
 
   const reportMutation = useMutation({
     mutationFn: ({ id, text }: { id: string; text: string }) => sellerApi.reportReview(id, text),
@@ -115,36 +102,7 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
                   ))}
                 </div>
               ) : null}
-              {review.sellerReply ? (
-                <p className="rounded-lg bg-muted/50 p-2 text-xs">
-                  <span className="font-medium">{t("yourReply")}: </span>
-                  {review.sellerReply}
-                </p>
-              ) : null}
-
-              {replyFor === review.id ? (
-                <div className="grid gap-2 rounded-xl border border-border p-3">
-                  <Textarea
-                    rows={3}
-                    value={reply}
-                    onChange={(event) => setReply(event.target.value)}
-                    placeholder={t("replyPlaceholder")}
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="cta"
-                      disabled={reply.trim().length < 1 || replyMutation.isPending}
-                      onClick={() => replyMutation.mutate({ id: review.id, text: reply.trim() })}
-                    >
-                      {t("sendReply")}
-                    </Button>
-                    <Button type="button" variant="ghost" onClick={() => setReplyFor(null)}>
-                      {t("cancel")}
-                    </Button>
-                  </div>
-                </div>
-              ) : null}
+              <ReviewReplies reviewId={review.id} sellerReply={review.sellerReply} />
 
               {reportFor === review.id ? (
                 <div className="grid gap-2 rounded-xl border border-border p-3">
@@ -175,22 +133,9 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setReportFor(null);
-                    setReply(review.sellerReply ?? "");
-                    setReplyFor(review.id);
-                  }}
-                >
-                  {review.sellerReply ? t("editReply") : t("reply")}
-                </Button>
-                <Button
-                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setReplyFor(null);
                     setReason("");
                     setReportFor(review.id);
                   }}
