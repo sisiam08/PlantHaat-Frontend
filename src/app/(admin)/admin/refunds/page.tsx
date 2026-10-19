@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { RefundsList } from "@/features/admin/components/refunds-list";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function AdminRefundsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function AdminRefundsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <AdminRefundsPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function AdminRefundsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("admin.refunds");
   const sp = await searchParams;
   const status = typeof sp.status === "string" ? sp.status : "";

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { AuditLogsClient } from "@/features/admin/components/audit-logs-client";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function AdminAuditLogsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function AdminAuditLogsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <AdminAuditLogsPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function AdminAuditLogsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("admin.auditLogs");
   const sp = await searchParams;
   const entityType = typeof sp.entityType === "string" ? sp.entityType : "";

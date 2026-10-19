@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { CancellationRequestsClient } from "@/features/seller/components/cancellation-requests-client";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function SellerCancellationRequestsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function SellerCancellationRequestsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <SellerCancellationRequestsPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function SellerCancellationRequestsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("seller.cancellations");
   const sp = await searchParams;
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { AnnouncementsClient } from "@/features/admin/components/announcements-client";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function AdminAnnouncementsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function AdminAnnouncementsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <AdminAnnouncementsPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function AdminAnnouncementsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("admin.announcements");
   const sp = await searchParams;
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;

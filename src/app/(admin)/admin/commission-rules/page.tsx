@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { CommissionRulesClient } from "@/features/admin/components/commission-rules-client";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function AdminCommissionRulesPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function AdminCommissionRulesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <AdminCommissionRulesPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function AdminCommissionRulesPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("admin.commissionRules");
   const sp = await searchParams;
   const scope = typeof sp.scope === "string" ? sp.scope : "";

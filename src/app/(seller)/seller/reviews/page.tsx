@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { SellerReviewsClient } from "@/features/seller/components/seller-reviews-client";
@@ -8,11 +9,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default async function SellerReviewsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function SellerReviewsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return (
+    <Suspense fallback={null}>
+      <SellerReviewsPageBody searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function SellerReviewsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const t = await getTranslations("seller.reviews");
   const sp = await searchParams;
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;
