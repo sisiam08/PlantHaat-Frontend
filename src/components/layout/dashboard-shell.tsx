@@ -43,6 +43,7 @@ import { cn } from "cn";
 import { LinkPending } from "./link-pending";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
+import { NotificationsBell } from "./notifications-bell";
 import { UserMenu } from "./user-menu";
 
 type Role = "seller" | "admin";
@@ -191,6 +192,7 @@ export function DashboardShell({
 
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitch />
+            <NotificationsBell />
             <UserMenu />
           </div>
         </header>

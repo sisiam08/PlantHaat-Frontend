@@ -35,6 +35,56 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async headers() {
+    const security = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    ];
+    const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+    const privatePaths = [
+      "/seller/:path*",
+      "/admin/:path*",
+      "/account/:path*",
+      "/checkout",
+      "/cart",
+      "/orders/:path*",
+      "/notifications",
+      "/wishlist",
+      "/complaints/:path*",
+    ];
+    const rules = [
+      { source: "/:path*", headers: security },
+      ...privatePaths.map((source) => ({ source, headers: noindex })),
+    ];
+    // CSP is applied to production builds only, so the dev server (HMR/Turbopack
+    // needs eval and inline bootstrap) is not disturbed.
+    if (process.env.NODE_ENV === "production") {
+      const realtime = (process.env.NEXT_PUBLIC_REALTIME_URL ?? "").trim();
+      const realtimeWs = realtime.replace(/^http/, "ws");
+      const connect = ["'self'", realtime, realtimeWs, "http://localhost:5000", "http://127.0.0.1:5000"]
+        .filter(Boolean)
+        .join(" ");
+      const csp = [
+        "default-src 'self'",
+        "img-src 'self' data: blob: https: http://localhost:5000 http://127.0.0.1:5000",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self' data:",
+        `connect-src ${connect}`,
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ].join("; ");
+      rules.push({
+        source: "/:path*",
+        headers: [{ key: "Content-Security-Policy", value: csp }],
+      });
+    }
+    return rules;
+  },
 };
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");

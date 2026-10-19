@@ -13,6 +13,7 @@ import { useAuth } from "@/features/auth/auth-provider";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
 import { accountApi } from "../api";
+import { NotificationPrefsCard } from "./notification-prefs-card";
 
 export function AccountClient() {
   const t = useTranslations("account");
@@ -65,6 +66,8 @@ export function AccountClient() {
 
   return (
     <div className="grid gap-6">
+      <NotificationPrefsCard />
+
       <Card>
         <CardHeader>
           <CardTitle>{t("profile")}</CardTitle>

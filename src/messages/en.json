@@ -458,6 +458,15 @@
     "district": "Select a district",
     "required": "This field is required"
    }
+  },
+  "notifications": {
+   "title": "Notification preferences",
+   "hint": "Choose which notifications you want to receive.",
+   "orders": "Order updates",
+   "qna": "Questions & answers",
+   "reviews": "Reviews",
+   "complaints": "Complaints",
+   "announcements": "Announcements"
   }
  },
  "wishlist": {
@@ -1515,10 +1524,12 @@
    "itemsCount": "{count} items"
   },
   "banners": {
-   "title": "Banners"
+   "title": "Banners",
+   "codeNotice": "Note: home banners are currently defined in code (src/config/home-banners.ts); the list below is for reference only."
   },
   "homepageSections": {
-   "title": "Homepage sections"
+   "title": "Homepage sections",
+   "codeNotice": "Note: homepage sections are currently defined in code; the list below is for reference only."
   },
   "audience": {
    "ALL": "Everyone",

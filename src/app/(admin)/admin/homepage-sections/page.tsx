@@ -12,7 +12,12 @@ export default async function AdminHomepageSectionsPage() {
   const t = await getTranslations("admin.homepageSections");
   return (
     <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <div className="grid gap-1">
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <p className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {t("codeNotice")}
+        </p>
+      </div>
       <HomepageSectionsClient />
     </main>
   );
