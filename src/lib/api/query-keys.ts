@@ -21,6 +21,13 @@ export const queryKeys = {
     shopProducts: (slug: string, filters: Record<string, unknown>) =>
       ["catalog", "shop-products", slug, filters] as const,
   },
+  qa: {
+    questions: (slug: string, sortKey = "newest") =>
+      ["qa", "questions", slug, sortKey] as const,
+    answers: (questionId: string) => ["qa", "answers", questionId] as const,
+    answerReplies: (answerId: string) => ["qa", "answer-replies", answerId] as const,
+    reviewReplies: (reviewId: string) => ["qa", "review-replies", reviewId] as const,
+  },
   cart: ["cart"] as const,
   checkout: ["checkout"] as const,
   orders: (filters?: Record<string, unknown>) => ["orders", filters ?? {}] as const,

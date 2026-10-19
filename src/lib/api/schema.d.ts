@@ -583,6 +583,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/filter-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Filter facet values (price bounds, light/difficulty) for the current category/search */
+        get: operations["PublicProductsController_filterOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products/{slug}/related": {
         parameters: {
             query?: never;
@@ -626,7 +643,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Record a product view (deduplicated per IP, 30-minute window) */
+        /**
+         * Record a product view (deduplicated per IP, 30-minute window)
+         * @description Accepts either the product UUID or its slug. Unknown products are ignored silently (204), so this endpoint can never fail a page view.
+         */
         post: operations["PublicProductsController_recordView"];
         delete?: never;
         options?: never;
@@ -713,6 +733,369 @@ export interface paths {
         get: operations["PublicProductsController_home"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{slug}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List visible questions for a product (newest first) */
+        get: operations["QaPublicController_listQuestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/questions/{id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List answers for a question (seller answers first) */
+        get: operations["QaPublicController_listAnswers"];
+        put?: never;
+        /** Answer a question (verified users only) */
+        post: operations["QaPublicController_answer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/answers/{id}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List replies under an answer */
+        get: operations["QaPublicController_listAnswerReplies"];
+        put?: never;
+        /** Reply to an answer (verified users only) */
+        post: operations["QaPublicController_replyToAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reviews/{id}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List replies under a review */
+        get: operations["QaPublicController_listReviewReplies"];
+        put?: never;
+        /** Reply to a review (verified users only) */
+        post: operations["QaPublicController_replyToReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{id}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask a question (verified users only) */
+        post: operations["QaPublicController_ask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/questions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete your question (15 min window once answered) */
+        delete: operations["QaPublicController_deleteQuestion"];
+        options?: never;
+        head?: never;
+        /** Edit your question */
+        patch: operations["QaPublicController_updateQuestion"];
+        trace?: never;
+    };
+    "/api/v1/answers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete your answer */
+        delete: operations["QaPublicController_deleteAnswer"];
+        options?: never;
+        head?: never;
+        /** Edit your answer */
+        patch: operations["QaPublicController_updateAnswer"];
+        trace?: never;
+    };
+    "/api/v1/replies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete your reply */
+        delete: operations["QaPublicController_deleteReply"];
+        options?: never;
+        head?: never;
+        /** Edit your reply */
+        patch: operations["QaPublicController_updateReply"];
+        trace?: never;
+    };
+    "/api/v1/questions/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a question */
+        post: operations["QaPublicController_reportQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/answers/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report an answer */
+        post: operations["QaPublicController_reportAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/replies/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a reply */
+        post: operations["QaPublicController_reportReply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reviews/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a review */
+        post: operations["QaPublicController_reportReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Questions for the seller's products (unanswered|all) */
+        get: operations["QaSellerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/content-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List content reports (questions, answers, replies, reviews) */
+        get: operations["QaAdminController_listReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/content-reports/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve a content report (hide or keep) */
+        post: operations["QaAdminController_resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/questions/{id}/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide a question */
+        post: operations["QaAdminController_hideQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/questions/{id}/unhide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unhide a question */
+        post: operations["QaAdminController_unhideQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/answers/{id}/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide an answer */
+        post: operations["QaAdminController_hideAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/answers/{id}/unhide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unhide an answer */
+        post: operations["QaAdminController_unhideAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/replies/{id}/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide a reply */
+        post: operations["QaAdminController_hideReply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/replies/{id}/unhide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unhide a reply */
+        post: operations["QaAdminController_unhideReply"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1278,7 +1661,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List visible reviews for a product */
+        /**
+         * List visible reviews for a product
+         * @description Offset pagination by default (meta adds `average` + `distribution`); `pagination=cursor` pages by (createdAt,id) for `newest` and by (rating,createdAt,id) for `highest`/`lowest`. Filters: `rating` (1-5), `withPhotos`, `sort`.
+         */
         get: operations["ReviewsController_listForProduct"];
         put?: never;
         post?: never;
@@ -2593,7 +2979,7 @@ export interface components {
         NotificationItemDto: {
             id: string;
             /** @enum {string} */
-            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "SYSTEM";
+            type: "ORDER_PLACED" | "ORDER_STATUS_CHANGED" | "ORDER_CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_RESPONDED" | "NEW_MESSAGE" | "SELLER_APPROVED" | "SELLER_REJECTED" | "SHOP_SUSPENDED" | "SHOP_REACTIVATED" | "PRODUCT_APPROVED" | "PRODUCT_REJECTED" | "LOW_STOCK" | "REVIEW_RECEIVED" | "COMPLAINT_UPDATED" | "PAYOUT_PROCESSED" | "ANNOUNCEMENT" | "QUESTION_ASKED" | "QUESTION_ANSWERED" | "REPLY_RECEIVED" | "SYSTEM";
             title: string;
             body: string;
             data: Record<string, never> | null;
@@ -3135,6 +3521,17 @@ export interface components {
             /** @description Cursor-mode only (`includeTotal=true`, first page): total matching rows */
             total?: number;
         };
+        PriceBoundsDto: {
+            /** @example 50 */
+            min: number | null;
+            /** @example 4500 */
+            max: number | null;
+        };
+        FilterOptionsResponseDto: {
+            price: components["schemas"]["PriceBoundsDto"];
+            light: ("FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT")[];
+            difficulty: ("EASY" | "MODERATE" | "HARD")[];
+        };
         ProductShopSummaryDto: {
             id: string;
             name: string;
@@ -3233,6 +3630,121 @@ export interface components {
             /** @description Resolved homepage sections */
             sections: Record<string, never>[];
         };
+        QaAuthorDto: {
+            id?: string | null;
+            name?: string | null;
+            avatarUrl?: string | null;
+            /** @description The author's account was deleted */
+            deleted: boolean;
+        };
+        ReplyDto: {
+            id: string;
+            answerId: string | null;
+            reviewId: string | null;
+            body: string;
+            isSellerReply: boolean;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            author: components["schemas"]["QaAuthorDto"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AnswerDto: {
+            id: string;
+            questionId: string;
+            body: string;
+            isSellerAnswer: boolean;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            author: components["schemas"]["QaAuthorDto"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            replyCount: number;
+            replies: components["schemas"]["ReplyDto"][];
+        };
+        QuestionDto: {
+            id: string;
+            productId: string;
+            body: string;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            author: components["schemas"]["QaAuthorDto"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            answerCount: number;
+            /** @description The first answers (seller first) */
+            answers: components["schemas"]["AnswerDto"][];
+        };
+        CreateQuestionDto: {
+            body: string;
+        };
+        UpdateQuestionDto: {
+            body: string;
+        };
+        CreateBodyDto: {
+            body: string;
+        };
+        UpdateBodyDto: {
+            body: string;
+        };
+        ContentReportDto: {
+            id: string;
+            /** @enum {string} */
+            targetType: "QUESTION" | "ANSWER" | "REPLY" | "REVIEW";
+            targetId: string;
+            reporterId: string;
+            reason: string;
+            /** @enum {string} */
+            status: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+            resolvedById: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ReportContentDto: {
+            reason: string;
+        };
+        SellerQuestionProductRefDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        SellerQuestionDto: {
+            id: string;
+            productId: string;
+            body: string;
+            /** @enum {string} */
+            status: "VISIBLE" | "HIDDEN";
+            author: components["schemas"]["QaAuthorDto"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            answerCount: number;
+            /** @description The first answers (seller first) */
+            answers: components["schemas"]["AnswerDto"][];
+            product: components["schemas"]["SellerQuestionProductRefDto"];
+        };
+        ContentReportResolveDto: {
+            resolved: boolean;
+            /** @description Whether the reported content was hidden */
+            hidden: boolean;
+        };
+        ResolveContentReportDto: {
+            /** @description true hides the reported content, false keeps it */
+            hide: boolean;
+        };
+        ContentModerationResultDto: {
+            id: string;
+            status: string;
+        };
         SuggestedProductDto: {
             name: string;
             nameBn: string | null;
@@ -3292,7 +3804,9 @@ export interface components {
             shopName: string;
             shopSlug: string;
             shop: components["schemas"]["CartShopInfoDto"];
-            /** @description Delivery charge as a decimal string; null when no districtId passed */
+            /** @description The shop can deliver to the chosen district. null when no districtId was passed, false when a district was chosen but the shop has no active zone covering it, true otherwise. */
+            deliverable: boolean | null;
+            /** @description Delivery charge as a decimal string; null when no districtId passed or not deliverable */
             deliveryCharge: string | null;
             /** @description Free-delivery threshold of the matched zone as a decimal string; null when none or no districtId */
             freeDeliveryAbove: string | null;
@@ -3763,8 +4277,10 @@ export interface components {
         };
         ReviewAuthorRefDto: {
             id: string;
-            name: string;
+            name: string | null;
             avatarUrl: string | null;
+            /** @description The author's account was deleted */
+            deleted: boolean;
         };
         ProductReviewListItemDto: {
             id: string;
@@ -3786,6 +4302,9 @@ export interface components {
             updatedAt: string;
             images: components["schemas"]["ReviewImageDto"][];
             customer: components["schemas"]["ReviewAuthorRefDto"];
+            replyCount: number;
+            /** @description Threaded replies (seller first) */
+            replies: Record<string, never>[];
         };
         ReviewDto: {
             id: string;
@@ -4261,6 +4780,8 @@ export interface components {
             pendingOrders: number;
             unreadNotifications: number;
             lowStockVariants: number;
+            /** @description Visible product questions with no visible answer */
+            unansweredQuestions: number;
         };
         AdminAnalyticsTopShopDto: {
             /**
@@ -5953,8 +6474,14 @@ export interface operations {
                 shop?: string;
                 minPrice?: number;
                 maxPrice?: number;
-                light?: "FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT";
-                difficulty?: "EASY" | "MODERATE" | "HARD";
+                /** @description Light requirement(s); repeat the param or use comma-separated values */
+                light?: ("FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT")[];
+                /** @description Care difficulty(ies); repeat the param or use comma-separated values */
+                difficulty?: ("EASY" | "MODERATE" | "HARD")[];
+                /** @description Only products rated at least this (1–5) with reviews */
+                minRating?: number;
+                /** @description Only products with a discounted variant */
+                onSale?: boolean;
                 isIndoor?: boolean;
                 isPetSafe?: boolean;
                 inStock?: boolean;
@@ -5986,6 +6513,34 @@ export interface operations {
                         success: boolean;
                         data: components["schemas"]["ProductListItemDto"][];
                         meta: components["schemas"]["PaginationMetaDto"] | components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    PublicProductsController_filterOptions: {
+        parameters: {
+            query?: {
+                /** @description Category slug (includes child categories) */
+                category?: string;
+                /** @description Free-text search to narrow the option set */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["FilterOptionsResponseDto"];
                     };
                 };
             };
@@ -6054,7 +6609,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description View recorded (or deduplicated) */
+            /** @description View recorded (or deduplicated/ignored) */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6156,8 +6711,14 @@ export interface operations {
                 shop?: string;
                 minPrice?: number;
                 maxPrice?: number;
-                light?: "FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT";
-                difficulty?: "EASY" | "MODERATE" | "HARD";
+                /** @description Light requirement(s); repeat the param or use comma-separated values */
+                light?: ("FULL_SUN" | "PARTIAL_SHADE" | "SHADE" | "BRIGHT_INDIRECT" | "LOW_LIGHT")[];
+                /** @description Care difficulty(ies); repeat the param or use comma-separated values */
+                difficulty?: ("EASY" | "MODERATE" | "HARD")[];
+                /** @description Only products rated at least this (1–5) with reviews */
+                minRating?: number;
+                /** @description Only products with a discounted variant */
+                onSale?: boolean;
                 isIndoor?: boolean;
                 isPetSafe?: boolean;
                 inStock?: boolean;
@@ -6214,6 +6775,742 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["HomeResponseDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_listQuestions: {
+        parameters: {
+            query?: {
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["QuestionDto"][];
+                        meta: components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_listAnswers: {
+        parameters: {
+            query?: {
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnswerDto"][];
+                        meta: components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_answer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnswerDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_listAnswerReplies: {
+        parameters: {
+            query?: {
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReplyDto"][];
+                        meta: components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_replyToAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReplyDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_listReviewReplies: {
+        parameters: {
+            query?: {
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReplyDto"][];
+                        meta: components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_replyToReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReplyDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_ask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateQuestionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["QuestionDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_deleteQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Question deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QaPublicController_updateQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateQuestionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["QuestionDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_deleteAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Answer deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QaPublicController_updateAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AnswerDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_deleteReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reply deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QaPublicController_updateReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ReplyDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_reportQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportContentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_reportAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportContentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_reportReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportContentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaPublicController_reportReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportContentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaSellerController_list: {
+        parameters: {
+            query?: {
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+                status?: "unanswered" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerQuestionDto"][];
+                        meta: components["schemas"]["CursorPaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_listReports: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                status?: "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
+                targetType?: "QUESTION" | "ANSWER" | "REPLY" | "REVIEW";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportDto"][];
+                        meta: components["schemas"]["PaginationMetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_resolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveContentReportDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentReportResolveDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_hideQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_unhideQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_hideAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_unhideAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_hideReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
+                    };
+                };
+            };
+        };
+    };
+    QaAdminController_unhideReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["ContentModerationResultDto"];
                     };
                 };
             };
@@ -7225,6 +8522,13 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                pagination?: "offset" | "cursor";
+                /** @description Opaque cursor (cursor mode) */
+                cursor?: string;
+                rating?: number;
+                /** @description Only reviews with at least one photo */
+                withPhotos?: boolean;
+                sort?: "newest" | "highest" | "lowest";
             };
             header?: never;
             path: {
@@ -7243,7 +8547,7 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["ProductReviewListItemDto"][];
-                        meta: components["schemas"]["PaginationMetaDto"];
+                        meta: components["schemas"]["PaginationMetaDto"] | components["schemas"]["CursorPaginationMetaDto"];
                     };
                 };
             };

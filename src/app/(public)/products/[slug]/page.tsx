@@ -12,8 +12,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DeliveryEstimator } from "@/features/catalog/components/delivery-estimator";
 import { StarRating } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
-import { ProductInfoTabs, type CareItem } from "@/features/catalog/components/product-info-tabs";
+import {
+  ProductInfoSections,
+  type CareItem,
+} from "@/features/catalog/components/product-info-sections";
 import { RelatedProducts } from "@/features/catalog/components/related-products";
+import { ProductEngagement } from "@/features/qa/components/product-engagement";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
 import { ProductViewBeacon } from "@/features/catalog/components/product-view-beacon";
 import { getDistricts, getProduct } from "@/features/catalog/server";
@@ -152,6 +156,30 @@ async function ProductContent({
     </div>
   );
 
+  const sellerCard = (
+    <div className="flex items-center gap-3">
+      <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
+        {shop.logoUrl ? (
+          <Image src={shop.logoUrl} alt={shop.name} fill sizes="48px" className="object-cover" />
+        ) : null}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-1.5 truncate font-medium">
+          {shop.name}
+          {shop.verified ? <BadgeCheck aria-hidden className="size-4 text-primary" /> : null}
+        </p>
+        <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <Star aria-hidden className="size-3 fill-cta text-cta" />
+          {Number(shop.ratingAvg ?? 0).toFixed(1)}
+          {shop.district ? ` · ${shop.district}` : ""}
+        </p>
+      </div>
+      <Button asChild variant="outline" size="sm">
+        <Link href={`/shops/${shop.slug}`}>{t("viewShop")}</Link>
+      </Button>
+    </div>
+  );
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -212,34 +240,6 @@ async function ProductContent({
             />
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
-            <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
-              {shop.logoUrl ? (
-                <Image
-                  src={shop.logoUrl}
-                  alt={shop.name}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
-              ) : null}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 truncate font-medium">
-                {shop.name}
-                {shop.verified ? <BadgeCheck aria-hidden className="size-4 text-primary" /> : null}
-              </p>
-              <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <Star aria-hidden className="size-3 fill-cta text-cta" />
-                {Number(shop.ratingAvg ?? 0).toFixed(1)}
-                {shop.district ? ` · ${shop.district}` : ""}
-              </p>
-            </div>
-            <Button asChild variant="outline" size="sm">
-              <Link href={`/shops/${shop.slug}`}>{t("viewShop")}</Link>
-            </Button>
-          </div>
-
           {shop.isOnVacation ? (
             <Badge variant="secondary" className="w-fit">
               {t("shopOnVacation")}
@@ -249,13 +249,22 @@ async function ProductContent({
       </div>
 
       <div className="mt-12">
-        <ProductInfoTabs
-          slug={slug}
+        <ProductInfoSections
           description={product.description}
           careItems={careItems}
           instructions={product.careInstructions}
           delivery={deliveryPanel}
           returns={returnsPanel}
+          seller={sellerCard}
+        />
+      </div>
+
+      <div className="mt-12">
+        <ProductEngagement
+          slug={slug}
+          productId={product.id}
+          reviewCount={product.ratingCount}
+          questionCount={0}
         />
       </div>
 
