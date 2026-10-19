@@ -1,8 +1,8 @@
 import { Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { LinkPending } from "@/components/layout/link-pending";
+import { PlantImage } from "@/components/plant-image";
 import { cn } from "@/lib/utils";
 import { formatPriceRange } from "@/lib/format/money";
 
@@ -65,15 +65,13 @@ export function ProductCard({
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted/40 ring-1 ring-border/40">
           <LinkPending className="absolute top-2 right-2 z-10 text-primary" />
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover/card:scale-105 motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
-            />
-          ) : null}
+          <PlantImage
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="transition-transform duration-300 group-hover/card:scale-105 motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
+          />
           {!product.inStock ? (
             <div className="absolute inset-0 grid place-items-center bg-background/55">
               <span className="rounded-full bg-card px-3 py-1 text-xs font-medium text-card-foreground shadow-sm">

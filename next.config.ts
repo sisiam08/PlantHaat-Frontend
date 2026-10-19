@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+const isProduction = process.env.NODE_ENV === "production";
+// With Cloudinary configured, production only allows its host. Without it
+// (offline/dev or a seed-only deployment) local images keep working.
+const allowLocalImages = !isProduction || !cloudName;
+
 const nextConfig: NextConfig = {
   // Allow a throwaway production build in a separate output directory (used for
   // local perf measurement) without clobbering the dev server's `.next`.
@@ -18,13 +24,25 @@ const nextConfig: NextConfig = {
     // parameter is not allowed"). Allowed outside production only: production
     // image hosts (CDN/S3 public base URL) must be publicly addressable.
     dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
-    // The backend storage host (its API_URL) is an explicit port, so the port
-    // must be listed with the pattern for the optimizer to accept the URL.
+    // Production allows only the Cloudinary host (scoped to the cloud name);
+    // localhost is allowed in dev only for local/seed images.
     remotePatterns: [
-      { protocol: "http", hostname: "localhost", port: "5000" },
-      { protocol: "http", hostname: "127.0.0.1", port: "5000" },
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "**.planthaat.com" },
+      ...(cloudName
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: "res.cloudinary.com",
+              pathname: `/${cloudName}/**`,
+            },
+          ]
+        : []),
+      ...(allowLocalImages
+        ? [
+            { protocol: "http" as const, hostname: "localhost", port: "5000" },
+            { protocol: "http" as const, hostname: "127.0.0.1", port: "5000" },
+            { protocol: "https" as const, hostname: "picsum.photos" },
+          ]
+        : []),
     ],
   },
   turbopack: {
@@ -66,9 +84,16 @@ const nextConfig: NextConfig = {
       const connect = ["'self'", realtime, realtimeWs, "http://localhost:5000", "http://127.0.0.1:5000"]
         .filter(Boolean)
         .join(" ");
+      const imgSrc = [
+        "'self'",
+        "data:",
+        "blob:",
+        ...(cloudName ? ["https://res.cloudinary.com"] : []),
+        ...(allowLocalImages ? ["http://localhost:5000", "http://127.0.0.1:5000"] : []),
+      ].join(" ");
       const csp = [
         "default-src 'self'",
-        "img-src 'self' data: blob: https: http://localhost:5000 http://127.0.0.1:5000",
+        `img-src ${imgSrc}`,
         "script-src 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline'",
         "font-src 'self' data:",

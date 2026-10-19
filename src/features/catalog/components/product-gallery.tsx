@@ -1,8 +1,8 @@
 "use client";
 
-import { ImageOff, ZoomIn } from "lucide-react";
+import { ZoomIn } from "lucide-react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
+import { PlantImage } from "@/components/plant-image";
 import { useEffect, useState } from "react";
 
 import {
@@ -60,10 +60,10 @@ export function ProductGallery({
   if (!hasImages) {
     return (
       <div
-        className="grid aspect-square w-full place-items-center rounded-3xl border border-dashed border-border/60 bg-muted/40 text-muted-foreground"
+        className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border/60 bg-muted/40"
         aria-label={label}
       >
-        <ImageOff aria-hidden className="size-10" />
+        <PlantImage src={null} alt={alt} fill sizes="(max-width: 1024px) 50vw, 600px" />
       </div>
     );
   }
@@ -88,7 +88,7 @@ export function ProductGallery({
                     : "border-border/60 hover:border-primary/40",
                 )}
               >
-                <Image src={image.url} alt="" fill sizes="80px" className="object-cover" />
+                <PlantImage src={image.url} alt="" fill sizes="80px" className="object-cover" />
               </button>
             ))}
           </div>
@@ -111,7 +111,7 @@ export function ProductGallery({
           aria-label={label}
           className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-3xl border border-border/60 bg-muted/40 ring-1 ring-border/40"
         >
-          <Image
+          <PlantImage
             src={current.url}
             alt={current.altText ?? alt}
             fill
@@ -138,7 +138,7 @@ export function ProductGallery({
                   aria-label={label}
                   className="relative block aspect-square w-full overflow-hidden rounded-3xl border border-border/60 bg-muted/40 ring-1 ring-border/40"
                 >
-                  <Image
+                  <PlantImage
                     src={image.url}
                     alt={image.altText ?? alt}
                     fill
@@ -167,7 +167,7 @@ export function ProductGallery({
                     index === active ? "border-primary ring-2 ring-ring/40" : "border-border/60",
                   )}
                 >
-                  <Image src={image.url} alt="" fill sizes="64px" className="object-cover" />
+                  <PlantImage src={image.url} alt="" fill sizes="64px" className="object-cover" />
                 </button>
               ))}
             </div>

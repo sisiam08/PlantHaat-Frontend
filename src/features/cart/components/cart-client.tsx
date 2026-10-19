@@ -2,11 +2,11 @@
 
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
+import { PlantImage } from "@/components/plant-image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -431,15 +431,7 @@ function CartLine({
     <div className="grid gap-2 border-t border-border pt-3 first:border-0 first:pt-0">
       <div className="flex items-center gap-3">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40">
-          {item.image ? (
-            <Image
-              src={item.image}
-              alt={item.productName}
-              fill
-              sizes="64px"
-              className="object-cover"
-            />
-          ) : null}
+          <PlantImage src={item.image} alt={item.productName} fill sizes="64px" />
         </div>
         <div className="min-w-0 flex-1">
           <Link href={`/products/${item.slug}`} className="truncate font-medium hover:underline">

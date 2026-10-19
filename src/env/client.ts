@@ -11,6 +11,8 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_DEFAULT_LOCALE: z.enum(["bn", "en"]).default("bn"),
   NEXT_PUBLIC_SUPPORT_PHONE: optionalString,
   NEXT_PUBLIC_SUPPORT_EMAIL: optionalString,
+  /** Cloud name; when set, Cloudinary images use the resizing loader. */
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optionalString,
 });
 
 const parsed = clientEnvSchema.safeParse({
@@ -19,6 +21,7 @@ const parsed = clientEnvSchema.safeParse({
   NEXT_PUBLIC_DEFAULT_LOCALE: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
   NEXT_PUBLIC_SUPPORT_PHONE: process.env.NEXT_PUBLIC_SUPPORT_PHONE,
   NEXT_PUBLIC_SUPPORT_EMAIL: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
 });
 
 if (!parsed.success) {

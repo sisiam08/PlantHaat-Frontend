@@ -89,3 +89,37 @@ then `NEXT_DIST_DIR=.next-prod npx next start -p 3100`.
 - UI primitives come from shadcn/ui (installed via its CLI); colors are design
   tokens only. Bangla uses the self-hosted Hind Siliguri fallback (the supplied
   `Kalpurush.ttf` has no Bengali glyphs / layout tables, so it is not wired).
+
+## Cloudinary image storage
+
+Backend (`backend/`):
+- Env: `STORAGE_DRIVER=auto|cloudinary|s3|local` (auto = Cloudinary when
+  `CLOUDINARY_CLOUD_NAME`/`_API_KEY`/`_API_SECRET` are set, else local),
+  `CLOUDINARY_FOLDER_PREFIX` (default `planthaat/<NODE_ENV>`). Local disk is
+  refused in production; tests always use local.
+- Uploads keep multer memory storage + magic-byte checks + the sharp pipeline
+  (EXIF rotate before stripping, no upscale, 2000 px products / 1600 px others),
+  then stream to Cloudinary. Public images use `type=upload` +
+  `access_mode=public`; seller documents are `type=authenticated` under
+  `planthaat/<env>/private/seller-docs` and are only exposed via a ~5-minute
+  signed URL (the admin document route redirects to it).
+- Orphan control: every upload is a `PENDING` `UploadedAsset`; attaching its URL
+  marks it `ATTACHED`; an hourly cron removes `PENDING` assets older than 24 h.
+- Cloudinary account settings to check: **Settings ? Security ? Restricted media
+  types** must allow PDFs (otherwise signed/private delivery 401s).
+- Live checks after filling the env:
+  `npm run uploads:smoke` (public 200, private unsigned not 200, signed 200,
+  delete) and `npm run uploads:migrate` (dry-run; add `-- --apply` to move local
+  `/uploads/...` files and rewrite stored URLs).
+
+Frontend:
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` enables `src/lib/images/cloudinary-loader.ts`
+  (`f_auto,q_auto,c_limit,w_<width>` inserted after `/upload/`); non-Cloudinary
+  URLs keep the default `/_next/image` optimizer.
+- `PlantImage` (`src/components/plant-image.tsx`) is the single product-image
+  component: fixed-aspect callers, blurred placeholder while loading, the
+  neutral plant placeholder (`public/placeholders/plant-placeholder.webp`) on
+  error or when no image exists. Replace that file with the final artwork.
+- `next.config.ts` allows only `res.cloudinary.com/<cloud>/**` when Cloudinary is
+  configured (production CSP `img-src` likewise); localhost images are allowed in
+  dev and when Cloudinary is not configured.
