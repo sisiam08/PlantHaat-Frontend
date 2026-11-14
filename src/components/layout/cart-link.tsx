@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { ShoppingBag } from "lucide-react";
@@ -27,7 +27,7 @@ export function CartLink() {
   const label = count > 0 ? t("cartAria", { count }) : t("cartEmptyAria");
 
   return (
-    <Button asChild variant="ghost" size="icon" className="relative" aria-label={label}>
+    <Button asChild variant="ghost" size="icon-lg" className="relative" aria-label={label}>
       <Link href="/cart">
         <ShoppingBag aria-hidden />
         {count > 0 ? (
@@ -39,3 +39,4 @@ export function CartLink() {
     </Button>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export function LocaleSwitch({ className }: { className?: string }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-lg"
           aria-label={t("language")}
           className={cn(pending && "opacity-60", className)}
         >
@@ -67,3 +67,5 @@ export function LocaleSwitch({ className }: { className?: string }) {
     </DropdownMenu>
   );
 }
+
+

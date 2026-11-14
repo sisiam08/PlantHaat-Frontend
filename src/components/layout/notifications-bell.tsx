@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Bell } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +21,7 @@ export function NotificationsBell() {
   const label = count > 0 ? `${t("notifications")} (${count})` : t("notifications");
 
   return (
-    <Button asChild variant="ghost" size="icon" className="relative" aria-label={label}>
+    <Button asChild variant="ghost" size="icon-lg" className="relative" aria-label={label}>
       <Link href="/notifications">
         <Bell aria-hidden />
         {count > 0 ? (
@@ -33,3 +33,4 @@ export function NotificationsBell() {
     </Button>
   );
 }
+

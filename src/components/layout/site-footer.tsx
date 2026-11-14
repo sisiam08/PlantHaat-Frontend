@@ -23,7 +23,7 @@ export async function SiteFooter() {
   const t = await getTranslations("footer");
 
   return (
-    <footer className="mt-16 border-t border-border/60 bg-gradient-to-b from-background to-secondary/40">
+    <footer className="mt-16 border-t border-border/60 bg-gradient-to-b from-background to-secondary/40 pb-24 md:pb-0">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-5">
         <div className="grid content-start gap-3 lg:col-span-2">
           <Logo />
