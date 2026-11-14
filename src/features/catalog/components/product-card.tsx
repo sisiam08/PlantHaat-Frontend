@@ -1,10 +1,8 @@
-import { Star } from "lucide-react";
+﻿import { Heart, Plus, Star } from "lucide-react";
 import Link from "next/link";
 
 import { LinkPending } from "@/components/layout/link-pending";
 import { PlantImage } from "@/components/plant-image";
-import { QuickAddButton } from "@/features/cart/components/quick-add";
-import { WishlistHeart } from "@/features/wishlist/components/wishlist-heart";
 import { cn } from "@/lib/utils";
 import { formatPriceRange } from "@/lib/format/money";
 
@@ -63,22 +61,29 @@ function CompactRating({ value, count }: { value: string | number | null | undef
     <span className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground">
       <Star aria-hidden className="size-3 fill-cta text-cta" />
       <span className="font-medium text-foreground">{numeric.toFixed(1)}</span>
-      <span aria-hidden>·</span>
+      <span aria-hidden>Â·</span>
       <span>{count}</span>
       <span className="sr-only">{numeric.toFixed(1)} / 5</span>
     </span>
   );
 }
 
+export interface CardActionLabels {
+  wishlistAdd: string;
+  quickAdd: string;
+}
+
 export function ProductCard({
   product,
   name,
   locale,
+  actionLabels,
   variant = "compact",
 }: {
   product: ProductCardData;
   name: string;
   locale: string;
+  actionLabels: CardActionLabels;
   variant?: "compact" | "featured";
 }) {
   const featured = variant === "featured";
@@ -107,19 +112,31 @@ export function ProductCard({
           />
         </Link>
 
-        <WishlistHeart
-          productId={product.id}
-          slug={product.slug}
-          className="absolute top-1.5 right-1.5 z-20"
-        />
+        <button
+          type="button"
+          data-card-wishlist
+          data-product-id={product.id}
+          data-slug={product.slug}
+          aria-label={actionLabels.wishlistAdd}
+          aria-pressed={false}
+          className="absolute top-1.5 right-1.5 z-20 grid size-11 place-items-center rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-card focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          <Heart aria-hidden className="size-5" />
+        </button>
 
         <div className="absolute right-1.5 bottom-1.5 z-20">
-          <QuickAddButton
-            slug={product.slug}
-            productName={product.name}
-            imageUrl={product.imageUrl}
-            shopName={product.shopName}
-          />
+          <button
+            type="button"
+            data-card-quickadd
+            data-slug={product.slug}
+            data-name={product.name}
+            data-image={product.imageUrl ?? ""}
+            data-shop={product.shopName ?? ""}
+            aria-label={actionLabels.quickAdd}
+            className="grid size-11 place-items-center rounded-full bg-cta text-cta-foreground shadow-sm transition-colors hover:bg-cta-hover focus-visible:ring-3 focus-visible:ring-cta/40 focus-visible:outline-none"
+          >
+            <Plus aria-hidden />
+          </button>
         </div>
 
         {!product.inStock ? (
@@ -181,10 +198,12 @@ export function ProductGrid({
   products,
   locale,
   outOfStockLabel,
+  actionLabels,
 }: {
   products: ProductCardData[];
   locale: string;
   outOfStockLabel: string;
+  actionLabels: CardActionLabels;
 }) {
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -194,6 +213,7 @@ export function ProductGrid({
           product={product}
           name={outOfStockLabel}
           locale={locale}
+          actionLabels={actionLabels}
         />
       ))}
     </div>
@@ -204,18 +224,27 @@ export function ProductRail({
   products,
   locale,
   outOfStockLabel,
+  actionLabels,
 }: {
   products: ProductCardData[];
   locale: string;
   outOfStockLabel: string;
+  actionLabels: CardActionLabels;
 }) {
   return (
     <div className="-mx-4 flex min-w-0 snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-3 md:overflow-visible md:px-0 md:pb-0">
       {products.map((product) => (
         <div key={product.id} className="w-36 shrink-0 snap-start sm:w-40 md:w-auto">
-          <ProductCard product={product} name={outOfStockLabel} locale={locale} />
+          <ProductCard
+            product={product}
+            name={outOfStockLabel}
+            locale={locale}
+            actionLabels={actionLabels}
+          />
         </div>
       ))}
     </div>
   );
 }
+
+

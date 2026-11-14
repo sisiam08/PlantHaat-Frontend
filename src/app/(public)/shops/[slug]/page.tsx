@@ -125,6 +125,10 @@ async function ShopContent({
             products={products.data.map(toProductCardData)}
             locale={locale}
             outOfStockLabel={tp("outOfStock")}
+            actionLabels={{
+              wishlistAdd: tp("wishlistAdd"),
+              quickAdd: tp("quickAdd"),
+            }}
           />
         )}
       </section>

@@ -10,9 +10,9 @@ import cloudinaryLoader, {
   PLANT_PLACEHOLDER,
 } from "@/lib/images/cloudinary-loader";
 
-/** Neutral plant-green 1×1 blur used while non-Cloudinary images load. */
+/** Soft paper tint used while non-Cloudinary images load (never a vivid green). */
 const FALLBACK_BLUR =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5'%3E%3Crect width='4' height='5' fill='%23EFE7D2'/%3E%3C/svg%3E";
 
 export interface PlantImageProps
   extends Omit<

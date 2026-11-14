@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { CardActionsLayer } from "@/features/catalog/components/card-actions-layer";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -20,6 +21,7 @@ export function SiteShell({
       </div>
       <SiteFooter />
       <MobileBottomNav />
+      <CardActionsLayer />
     </div>
   );
 }

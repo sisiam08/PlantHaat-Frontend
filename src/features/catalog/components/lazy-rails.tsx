@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -6,7 +6,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProductRail } from "@/features/catalog/components/product-card";
 import { fetchListPage } from "@/features/catalog/feed";
 import { toProductCardData } from "@/features/catalog/mappers";
@@ -19,19 +18,6 @@ const LAZY_RAILS: { key: "lowLight" | "petSafe"; query: ProductQuery }[] = [
   { key: "lowLight", query: { light: "LOW_LIGHT" } },
   { key: "petSafe", query: { isPetSafe: true } },
 ];
-
-function RailSkeleton() {
-  return (
-    <div className="grid gap-4">
-      <Skeleton className="h-8 w-40" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="aspect-4/5 w-full rounded-2xl" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function LazyRail({ railKey, query }: { railKey: "lowLight" | "petSafe"; query: ProductQuery }) {
   const t = useTranslations("home");
@@ -83,6 +69,10 @@ function LazyRail({ railKey, query }: { railKey: "lowLight" | "petSafe"; query: 
         products={list.data.data.map(toProductCardData)}
         locale={locale}
         outOfStockLabel={tp("outOfStock")}
+        actionLabels={{
+          wishlistAdd: tp("wishlistAdd"),
+          quickAdd: tp("quickAdd"),
+        }}
       />
     </section>
   );
@@ -116,11 +106,10 @@ export function LazyRails() {
           <LazyRail key={rail.key} railKey={rail.key} query={rail.query} />
         ))
       ) : (
-        <>
-          <RailSkeleton />
-          <RailSkeleton />
-        </>
+        <div aria-hidden className="h-16" />
       )}
     </div>
   );
 }
+
+

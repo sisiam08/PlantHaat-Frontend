@@ -80,6 +80,15 @@ export function DashboardClient() {
         <CardContent>
           {data.dailySeries.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("noData")}</p>
+          ) : data.dailySeries.length === 1 ? (
+            <div className="flex h-40 items-center justify-center rounded-xl bg-muted/40">
+              <div className="text-center">
+                <p className="font-heading text-2xl font-semibold">
+                  {formatBdt(data.dailySeries[0].gmv, locale)}
+                </p>
+                <p className="text-xs text-muted-foreground">{data.dailySeries[0].date}</p>
+              </div>
+            </div>
           ) : (
             <div className="flex h-40 items-end gap-1">
               {data.dailySeries.map((point) => {

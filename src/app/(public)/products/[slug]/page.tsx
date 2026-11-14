@@ -249,7 +249,9 @@ async function ProductContent({
               <p className="text-sm text-muted-foreground italic">{product.scientificName}</p>
             ) : null}
             <div className="flex flex-wrap items-center gap-3">
-              <StarRating value={product.ratingAvg} count={product.ratingCount} />
+              {product.ratingCount > 0 ? (
+                <StarRating value={product.ratingAvg} count={product.ratingCount} />
+              ) : null}
               <Badge variant={product.inStock ? "secondary" : "destructive"}>
                 {product.inStock ? t("available") : t("outOfStock")}
               </Badge>

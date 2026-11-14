@@ -390,6 +390,12 @@
     }
   }
 
+  /* Delegated card wishlist state (one client layer, no per-card hydration). */
+  [data-card-wishlist][data-saved="true"] svg {
+    fill: var(--offer);
+    color: var(--offer);
+  }
+
   /* Skeleton shimmer (one sweep, stops under reduced motion). */
   .skeleton-shimmer {
     position: relative;

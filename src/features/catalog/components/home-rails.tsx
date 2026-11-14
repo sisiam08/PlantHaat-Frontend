@@ -59,6 +59,10 @@ export async function HomeRails() {
               products={page.data.map(toProductCardData)}
               locale={locale}
               outOfStockLabel={tp("outOfStock")}
+              actionLabels={{
+                wishlistAdd: tp("wishlistAdd"),
+                quickAdd: tp("quickAdd"),
+              }}
             />
           </section>
         );

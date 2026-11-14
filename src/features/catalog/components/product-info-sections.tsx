@@ -154,8 +154,8 @@ export function ProductInfoSections({
   };
 
   return (
-    <div className="grid gap-4">
-      <div className="sticky top-[var(--header-h)] z-30 -mx-4 border-y border-border/60 bg-background/90 px-4 py-2 backdrop-blur-md ">
+    <div className="grid min-w-0 gap-4 overflow-x-clip">
+      <div className="sticky top-[var(--header-h)] z-30 -mx-4 min-w-0 border-y border-border/60 bg-background/90 px-4 py-2 backdrop-blur-md ">
         <div
           ref={navRef}
           role="navigation"

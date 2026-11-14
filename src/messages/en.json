@@ -212,6 +212,7 @@
  "product": {
   "addToCart": "Add to cart",
   "quickAdd": "Quick add",
+  "quickAddError": "Could not update your wishlist. Try again.",
   "comingSoon": "Coming soon",
   "outOfStock": "Out of stock",
   "inStock": "{count} in stock",

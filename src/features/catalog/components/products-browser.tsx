@@ -283,7 +283,7 @@ function CatalogSearchField() {
         if (timer.current) clearTimeout(timer.current);
         setParam("q", value.trim() || undefined);
       }}
-      className="relative lg:hidden"
+      className="relative md:hidden"
     >
       <Search
         aria-hidden
@@ -772,7 +772,7 @@ export function ProductsBrowser({
                     {t("filters")}
                   </SheetTitle>
                 </SheetHeader>
-                <div className="min-h-0 flex-1 overflow-y-auto px-4">
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-24">
                   <FiltersFields categories={categories} options={filterOptions.data} />
                 </div>
                 <div className="border-t border-border/60 p-4">
@@ -838,6 +838,10 @@ export function ProductsBrowser({
                     product={product}
                     name={tp("outOfStock")}
                     locale={locale}
+                    actionLabels={{
+                      wishlistAdd: tp("wishlistAdd"),
+                      quickAdd: tp("quickAdd"),
+                    }}
                   />
                 ))}
                 {listQuery.isFetchingNextPage

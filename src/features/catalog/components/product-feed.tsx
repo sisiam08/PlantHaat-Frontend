@@ -127,6 +127,10 @@ export function ProductFeed({
               product={product}
               name={tp("outOfStock")}
               locale={locale}
+              actionLabels={{
+                wishlistAdd: tp("wishlistAdd"),
+                quickAdd: tp("quickAdd"),
+              }}
             />
           ))}
           {query.isFetchingNextPage

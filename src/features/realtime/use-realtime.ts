@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { io, type Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 import { useAuth } from "@/features/auth/auth-provider";
 import { apiPost } from "@/lib/api/client";
@@ -116,6 +116,8 @@ export function useRealtime(): void {
       }
 
       const baseUrl = ticket.url?.trim() || configuredUrl;
+      // Lazy chunk: socket.io is only downloaded for authenticated sessions.
+      const { io } = await import("socket.io-client");
       const socket = io(`${baseUrl}${NAMESPACE}`, {
         transports: ["websocket"],
         auth: { ticket: ticket.ticket },

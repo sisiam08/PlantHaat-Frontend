@@ -317,7 +317,13 @@ export function CheckoutClient() {
           <h2 className="text-lg font-semibold">{t("payment")}</h2>
           <Card className="rounded-2xl">
             <CardContent className="flex items-center gap-3">
-              <input type="radio" checked readOnly />
+              <input
+                type="radio"
+                name="paymentMethod"
+                aria-label={t("cod")}
+                checked
+                readOnly
+              />
               <div>
                 <p className="font-medium">{t("cod")}</p>
                 <p className="text-sm text-muted-foreground">{t("codNote")}</p>

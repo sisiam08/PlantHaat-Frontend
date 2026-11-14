@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+﻿import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -92,21 +92,6 @@ async function HomeContent() {
 
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
-      <link
-        rel="preload"
-        href="/fonts/fraunces-latin-var.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/tiro-bangla-bengali-400.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-
       <Hero categories={safeCategories} />
       <TrustStrip />
       <HowItWorksStrip />
@@ -157,3 +142,4 @@ async function HomeContent() {
     </div>
   );
 }
+

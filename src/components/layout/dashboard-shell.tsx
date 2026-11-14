@@ -178,7 +178,7 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
     <nav className="grid gap-4" aria-label={t("dashboard")}>
       {groups.map((group) => (
         <div key={group.key} className="grid gap-0.5">
-          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-[0.12em] text-sidebar-foreground/50 uppercase">
+          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
             {ts(group.key)}
           </p>
           {group.items.map((item) => {
@@ -282,9 +282,14 @@ export function DashboardShell({
           </Button>
 
           {activeItem ? (
-            <h1 className="ml-1 min-w-0 truncate font-heading text-base font-semibold">
-              {navT(activeItem.key)}
-            </h1>
+            <>
+              <span aria-hidden className="hidden text-muted-foreground sm:inline">
+                /
+              </span>
+              <h1 className="min-w-0 truncate font-heading text-base font-semibold">
+                {navT(activeItem.key)}
+              </h1>
+            </>
           ) : null}
 
           <div className="ml-auto flex items-center gap-1">

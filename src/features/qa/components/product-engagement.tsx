@@ -298,7 +298,7 @@ function ReviewsPanel({ slug }: { slug: string }) {
                 type="button"
                 aria-pressed={rating === star}
                 onClick={() => setRating(rating === star ? undefined : star)}
-                className="flex items-center gap-2 text-xs"
+                className="flex min-h-7 items-center gap-2 rounded-md px-1 py-0.5 text-xs"
               >
                 <span className="w-10 shrink-0 text-left text-muted-foreground">
                   {t("stars", { count: star })}

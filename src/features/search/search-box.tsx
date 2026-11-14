@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
@@ -70,6 +70,39 @@ export function SearchBox({ className, autoFocus = false, onNavigate }: SearchBo
       if (blurTimer.current) clearTimeout(blurTimer.current);
     };
   }, []);
+
+  // cmdk hard-codes aria-expanded="true" and points aria-controls at a list
+  // that only exists while the panel is open. Keep the combobox honest (and
+  // axe-clean) by syncing those two attributes with the real open state.
+  useEffect(() => {
+    const input = containerRef.current?.querySelector("input");
+    if (!input) return;
+    const listId = input.getAttribute("aria-controls");
+    const sync = () => {
+      if (open) {
+        if (input.getAttribute("aria-expanded") !== "true") {
+          input.setAttribute("aria-expanded", "true");
+        }
+        if (listId && input.getAttribute("aria-controls") !== listId) {
+          input.setAttribute("aria-controls", listId);
+        }
+      } else {
+        if (input.getAttribute("aria-expanded") !== "false") {
+          input.setAttribute("aria-expanded", "false");
+        }
+        if (input.hasAttribute("aria-controls")) {
+          input.removeAttribute("aria-controls");
+        }
+      }
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(input, {
+      attributes: true,
+      attributeFilter: ["aria-expanded", "aria-controls"],
+    });
+    return () => observer.disconnect();
+  }, [open]);
 
   const close = () => {
     setOpen(false);
@@ -167,3 +200,4 @@ export function MobileSearch({
     </Dialog>
   );
 }
+
