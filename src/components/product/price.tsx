@@ -13,13 +13,24 @@ const SIZE: Record<PriceSize, string> = {
 function moneyParts(value: string | number, locale: string) {
   const numeric = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(numeric)) return [];
-  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-BD", {
+  const parts = new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-BD", {
     style: "currency",
     currency: "BDT",
     currencyDisplay: "narrowSymbol",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).formatToParts(numeric);
+  // The taka sign leads the amount in both locales (৳৭০০ / ৳700).
+  const currency = parts.filter((part) => part.type === "currency");
+  const rest = parts.filter((part) => part.type !== "currency");
+  while (
+    rest.length > 0 &&
+    rest[rest.length - 1].type === "literal" &&
+    /^\s+$/.test(rest[rest.length - 1].value)
+  ) {
+    rest.pop();
+  }
+  return [...currency, ...rest];
 }
 
 function Amount({ value, locale }: { value: string | number; locale: string }) {
