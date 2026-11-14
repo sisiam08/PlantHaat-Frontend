@@ -118,6 +118,7 @@ export function ProductCard({
           data-card-wishlist
           data-product-id={product.id}
           data-slug={product.slug}
+          data-saved="false"
           aria-label={actionLabels.wishlistAdd}
           aria-pressed={false}
           className="absolute top-1.5 right-1.5 z-20 grid size-11 place-items-center rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-card focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
@@ -247,6 +248,7 @@ export function ProductRail({
     </RailScroller>
   );
 }
+
 
 
 

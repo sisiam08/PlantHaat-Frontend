@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, type ReactNode } from "react";
@@ -23,7 +23,7 @@ export function RailScroller({
   };
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full min-w-0", className)}>
       <div
         ref={ref}
         role="region"
@@ -52,3 +52,4 @@ export function RailScroller({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { Mail, Phone } from "lucide-react";
+﻿import { Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -24,7 +24,7 @@ export async function SiteFooter() {
 
   return (
     <footer className="mt-16 border-t border-border/60 bg-gradient-to-b from-background to-secondary/40 pb-24 md:pb-0">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-5">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-5 [&>*]:min-w-0">
         <div className="grid content-start gap-3 lg:col-span-2">
           <Logo />
           <p className="max-w-sm text-sm text-muted-foreground">{t("tagline")}</p>
@@ -55,24 +55,24 @@ export async function SiteFooter() {
 
         <div className="grid content-start gap-3">
           <h2 className="text-sm font-semibold text-foreground">{t("contact")}</h2>
-          <ul className="grid gap-2 text-sm text-muted-foreground">
+          <ul className="grid min-w-0 gap-2 text-sm break-words text-muted-foreground">
             {clientEnv.NEXT_PUBLIC_SUPPORT_PHONE ? (
-              <li className="inline-flex items-center gap-2">
+              <li className="inline-flex min-w-0 items-center gap-2">
                 <Phone aria-hidden className="size-4 text-primary" />
                 <a
                   href={`tel:${clientEnv.NEXT_PUBLIC_SUPPORT_PHONE}`}
-                  className="transition-colors hover:text-foreground"
+                  className="break-all transition-colors hover:text-foreground"
                 >
                   {clientEnv.NEXT_PUBLIC_SUPPORT_PHONE}
                 </a>
               </li>
             ) : null}
             {clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL ? (
-              <li className="inline-flex items-center gap-2">
+              <li className="inline-flex min-w-0 items-center gap-2">
                 <Mail aria-hidden className="size-4 text-primary" />
                 <a
                   href={`mailto:${clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL}`}
-                  className="transition-colors hover:text-foreground"
+                  className="break-all transition-colors hover:text-foreground"
                 >
                   {clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL}
                 </a>
@@ -96,3 +96,5 @@ export async function SiteFooter() {
     </footer>
   );
 }
+
+
