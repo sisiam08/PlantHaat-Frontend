@@ -46,7 +46,8 @@ export function DeliveryZonesClient() {
   });
 
   if (zones.isError) {
-    const missing = zones.error instanceof ApiError && zones.error.code === "SELLER_APPLICATION_INCOMPLETE";
+    const missing =
+      zones.error instanceof ApiError && zones.error.code === "SELLER_APPLICATION_INCOMPLETE";
     return (
       <p className="text-sm text-muted-foreground">{missing ? t("needsShop") : t("loadError")}</p>
     );
@@ -58,12 +59,7 @@ export function DeliveryZonesClient() {
     <div className="grid gap-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        <Button
-          type="button"
-          variant="cta"
-          size="sm"
-          onClick={() => setEditing("new")}
-        >
+        <Button type="button" variant="cta" size="sm" onClick={() => setEditing("new")}>
           {t("add")}
         </Button>
       </div>
@@ -109,12 +105,7 @@ export function DeliveryZonesClient() {
                 </span>
               ) : null}
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditing(zone)}
-                >
+                <Button type="button" variant="outline" size="sm" onClick={() => setEditing(zone)}>
                   {t("edit")}
                 </Button>
                 <Button
@@ -175,9 +166,7 @@ function ZoneForm({
   const [districtIds, setDistrictIds] = useState<number[]>(
     zone?.districts.map((district) => district.id) ?? [],
   );
-  const [districtScopes, setDistrictScopes] = useState<
-    Record<number, "ALL" | "CITY" | "OUTSIDE">
-  >(
+  const [districtScopes, setDistrictScopes] = useState<Record<number, "ALL" | "CITY" | "OUTSIDE">>(
     Object.fromEntries(
       (zone?.districts ?? []).map((district) => [
         district.id,
@@ -227,13 +216,7 @@ function ZoneForm({
       setError(t("validation.charge"));
       return;
     }
-    if (
-      !Number.isInteger(min) ||
-      min < 0 ||
-      !Number.isInteger(max) ||
-      max < 0 ||
-      max < min
-    ) {
+    if (!Number.isInteger(min) || min < 0 || !Number.isInteger(max) || max < 0 || max < min) {
       setError(t("validation.etaRange"));
       return;
     }
@@ -292,15 +275,12 @@ function ZoneForm({
                   </span>
                   {checked ? (
                     <select
-                      className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                      className="h-9 rounded-md border border-input bg-background px-2 text-xs"
                       value={districtScopes[district.id] ?? "ALL"}
                       onChange={(event) =>
                         setDistrictScopes((current) => ({
                           ...current,
-                          [district.id]: event.target.value as
-                            | "ALL"
-                            | "CITY"
-                            | "OUTSIDE",
+                          [district.id]: event.target.value as "ALL" | "CITY" | "OUTSIDE",
                         }))
                       }
                       aria-label={t("areaScope")}

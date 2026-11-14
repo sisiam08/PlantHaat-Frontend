@@ -40,8 +40,7 @@ export function CodRiskClient() {
     retry: false,
   });
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["admin", "cod-risk"] });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin", "cod-risk"] });
 
   const setRiskStatus = useMutation({
     mutationFn: ({ id, next }: { id: string; next: string }) =>
@@ -100,9 +99,7 @@ export function CodRiskClient() {
       </p>
 
       {list.isLoading ? <Skeleton className="h-48 w-full rounded-2xl" /> : null}
-      {list.isError ? (
-        <p className="text-sm text-muted-foreground">{t("loadError")}</p>
-      ) : null}
+      {list.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
       {!list.isLoading && rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("empty")}</p>
       ) : null}
@@ -153,7 +150,7 @@ export function CodRiskClient() {
                     <td className="px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <select
-                          className="h-8 rounded-full border border-input bg-background px-2 text-xs"
+                          className="h-9 rounded-full border border-input bg-background px-2 text-xs"
                           value={row.status}
                           disabled={setRiskStatus.isPending}
                           onChange={(event) =>
@@ -171,9 +168,7 @@ export function CodRiskClient() {
                           size="sm"
                           variant="outline"
                           disabled={whitelist.isPending}
-                          onClick={() =>
-                            whitelist.mutate({ id: row.id, next: !row.isWhitelisted })
-                          }
+                          onClick={() => whitelist.mutate({ id: row.id, next: !row.isWhitelisted })}
                         >
                           {row.isWhitelisted ? t("unwhitelist") : t("whitelist")}
                         </Button>

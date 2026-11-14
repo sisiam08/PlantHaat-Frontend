@@ -10,13 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -28,7 +22,11 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "cn";
 import { fetchFilterOptions, fetchListPage } from "@/features/catalog/feed";
-import { ProductCard, ProductCardSkeleton, type ProductCardData } from "@/features/catalog/components/product-card";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+  type ProductCardData,
+} from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import {
   csvToList,
@@ -43,9 +41,9 @@ import {
   type SearchParams,
 } from "@/features/catalog/query";
 import { queryKeys } from "@/lib/api/query-keys";
+import { useListScrollRestoration } from "@/features/catalog/components/use-list-scroll-restoration";
 
 const LIST_LIMIT = 24;
-const SCROLL_KEY_PREFIX = "ph_list_scroll_";
 const PRICE_DEBOUNCE_MS = 350;
 
 export interface CategoryFilterOption {
@@ -91,8 +89,11 @@ function useCatalogParams() {
       mutate(params);
       params.delete("page");
       const qs = params.toString();
+      const next = qs ? `${pathname}?${qs}` : pathname;
+      const current = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+      if (next === current) return;
 
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      router.replace(next, { scroll: false });
     },
     [router, pathname, searchParams],
   );
@@ -177,9 +178,12 @@ function PriceRange({
     [low, high, update],
   );
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   if (disabled) {
     return null;
@@ -264,9 +268,12 @@ function CatalogSearchField() {
   const [value, setValue] = useState(query.q ?? "");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   const commit = (next: string) => {
     setValue(next);
@@ -348,11 +355,9 @@ function FiltersFields({
         aria-pressed={active}
         onClick={() => setParam("category", active ? undefined : value)}
         className={cn(
-          "w-full rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+          "flex min-h-10 w-full items-center rounded-lg px-2.5 py-2 text-left text-sm transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
           child && "pl-6 text-[0.8125rem]",
-          active
-            ? "bg-primary/10 font-medium text-primary"
-            : "text-foreground hover:bg-muted",
+          active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted",
         )}
       >
         {label}
@@ -370,7 +375,7 @@ function FiltersFields({
             aria-pressed={selectedCategory === ""}
             onClick={() => setParam("category", undefined)}
             className={cn(
-              "w-full rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+              "flex min-h-10 w-full items-center rounded-lg px-2.5 py-2 text-left text-sm transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
               selectedCategory === ""
                 ? "bg-primary/10 font-medium text-primary"
                 : "text-foreground hover:bg-muted",
@@ -381,9 +386,7 @@ function FiltersFields({
           {categories.map((category) => (
             <div key={category.value} className="grid gap-0.5">
               {renderCategory(category.value, category.label, false)}
-              {category.children.map((child) =>
-                renderCategory(child.value, child.label, true),
-              )}
+              {category.children.map((child) => renderCategory(child.value, child.label, true))}
             </div>
           ))}
         </div>
@@ -464,7 +467,7 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
   const t = useTranslations("catalog");
   const { query, setParam } = useCatalogParams();
   const value = query.sort ?? "newest";
-  const sortInteracted = useRef(false);
+  const selectOpen = useRef(false);
   const labels: Record<ProductSort, string> = {
     newest: t("sortNewest"),
     price_asc: t("sortPriceAsc"),
@@ -476,11 +479,11 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
     <Select
       value={value}
       onValueChange={(next) => {
-        if (!sortInteracted.current) return;
+        if (!selectOpen.current) return;
         setParam("sort", next === "newest" ? undefined : next);
       }}
       onOpenChange={(open) => {
-        if (open) sortInteracted.current = true;
+        selectOpen.current = open;
       }}
     >
       <SelectTrigger
@@ -518,7 +521,12 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
 
   const chips: { key: string; value: string; label: string; onRemove: () => void }[] = [];
   if (query.q) {
-    chips.push({ key: "q", value: query.q, label: `â€œ${query.q}â€`, onRemove: () => setParam("q", undefined) });
+    chips.push({
+      key: "q",
+      value: query.q,
+      label: `â€œ${query.q}â€`,
+      onRemove: () => setParam("q", undefined),
+    });
   }
   if (query.category) {
     chips.push({
@@ -559,16 +567,36 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
     });
   }
   if (query.isPetSafe) {
-    chips.push({ key: "isPetSafe", value: "true", label: t("petSafe"), onRemove: () => setParam("isPetSafe", undefined) });
+    chips.push({
+      key: "isPetSafe",
+      value: "true",
+      label: t("petSafe"),
+      onRemove: () => setParam("isPetSafe", undefined),
+    });
   }
   if (query.inStock) {
-    chips.push({ key: "inStock", value: "true", label: t("inStock"), onRemove: () => setParam("inStock", undefined) });
+    chips.push({
+      key: "inStock",
+      value: "true",
+      label: t("inStock"),
+      onRemove: () => setParam("inStock", undefined),
+    });
   }
   if (query.minRating) {
-    chips.push({ key: "minRating", value: query.minRating, label: t("rating4"), onRemove: () => setParam("minRating", undefined) });
+    chips.push({
+      key: "minRating",
+      value: query.minRating,
+      label: t("rating4"),
+      onRemove: () => setParam("minRating", undefined),
+    });
   }
   if (query.onSale) {
-    chips.push({ key: "onSale", value: "true", label: t("onSale"), onRemove: () => setParam("onSale", undefined) });
+    chips.push({
+      key: "onSale",
+      value: "true",
+      label: t("onSale"),
+      onRemove: () => setParam("onSale", undefined),
+    });
   }
 
   if (chips.length === 0) {
@@ -658,8 +686,19 @@ export function ProductsBrowser({
   });
 
   const products = useMemo(() => dedupe(listQuery.data?.pages), [listQuery.data]);
-  const total = listQuery.data?.pages.map((page) => page.meta.total).find((value) => typeof value === "number");
+  const total = listQuery.data?.pages
+    .map((page) => page.meta.total)
+    .find((value) => typeof value === "number");
   const busy = listQuery.isFetching;
+  const loadedPages = listQuery.data?.pages.length ?? 0;
+  const nextCursor = listQuery.data?.pages.at(-1)?.meta.nextCursor ?? null;
+
+  useListScrollRestoration({
+    storageKey: `products:${signature}`,
+    pages: loadedPages,
+    cursor: nextCursor,
+    ready: products.length > 0,
+  });
 
   // Reset scroll to the top of the results on every filter/sort change.
   const previousSignature = useRef(signature);
@@ -670,40 +709,6 @@ export function ProductsBrowser({
       window.scrollTo({ top: 0, behavior: "auto" });
     }
   }, [signature]);
-
-  // Persist the scroll offset per filter combination (session scoped).
-  useEffect(() => {
-    const onScroll = () => {
-      try {
-        sessionStorage.setItem(`${SCROLL_KEY_PREFIX}${signature}`, String(window.scrollY));
-      } catch {
-        // ignore (private mode)
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [signature]);
-
-  const restoredRef = useRef(false);
-  useEffect(() => {
-    if (restoredRef.current || products.length === 0) return;
-    restoredRef.current = true;
-    let saved = 0;
-    try {
-      saved = Number(sessionStorage.getItem(`${SCROLL_KEY_PREFIX}${signature}`) ?? 0);
-    } catch {}
-    if (!saved) return;
-    let frame = 0;
-    const start = performance.now() + 250;
-    const tick = () => {
-      window.scrollTo(0, saved);
-      if (performance.now() - start < 4200 && Math.abs(window.scrollY - saved) > 4) {
-        frame = requestAnimationFrame(tick);
-      }
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [signature, products.length]);
 
   // Infinite scroll sentinel (~600px before the end).
   useEffect(() => {
@@ -758,7 +763,10 @@ export function ProductsBrowser({
         </div>
       </aside>
 
-      <section ref={resultsRef} className="grid content-start gap-5 scroll-mt-[calc(var(--header-h)+1rem)]">
+      <section
+        ref={resultsRef}
+        className="grid content-start gap-5 scroll-mt-[calc(var(--header-h)+1rem)]"
+      >
         <div className="flex flex-col gap-3">
           <CatalogSearchField />
           <div className="flex items-center gap-2 lg:hidden">
@@ -800,7 +808,11 @@ export function ProductsBrowser({
             <div className="grid gap-1">
               <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
               <p className="text-sm text-muted-foreground">
-                {total !== undefined ? t("results", { count: total }) : isFirstLoad ? t("loadingLabel") : null}
+                {total !== undefined
+                  ? t("results", { count: total })
+                  : isFirstLoad
+                    ? t("loadingLabel")
+                    : null}
               </p>
             </div>
             <div className="hidden lg:block">
@@ -813,7 +825,10 @@ export function ProductsBrowser({
 
         <div className="relative">
           {busy && products.length > 0 ? (
-            <div aria-hidden className="absolute inset-x-0 -top-2 h-0.5 overflow-hidden rounded-full">
+            <div
+              aria-hidden
+              className="absolute inset-x-0 -top-2 h-0.5 overflow-hidden rounded-full"
+            >
               <div className="catalog-progress-bar h-full w-1/3 bg-primary" />
             </div>
           ) : null}
@@ -839,7 +854,12 @@ export function ProductsBrowser({
               </div>
             )
           ) : (
-            <div className={cn("transition-opacity", busy ? "pointer-events-none opacity-55" : "opacity-100")}>
+            <div
+              className={cn(
+                "transition-opacity",
+                busy ? "pointer-events-none opacity-55" : "opacity-100",
+              )}
+            >
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
                 {products.map((product) => (
                   <ProductCard
@@ -897,15 +917,3 @@ export function ProductsBrowser({
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

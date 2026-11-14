@@ -1,6 +1,6 @@
 ﻿import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 import { SectionFallback } from "@/components/section-fallback";
@@ -81,7 +81,6 @@ export default function HomePage() {
 
 async function HomeContent() {
   const th = await getTranslations("home");
-  const locale = await getLocale();
   let categories: Awaited<ReturnType<typeof getCategories>> | null = null;
   try {
     categories = await getCategories();
@@ -92,15 +91,6 @@ async function HomeContent() {
 
   return (
     <>
-      {locale === "bn" ? (
-        <link
-          rel="preload"
-          href="/fonts/hind-siliguri-bengali-600.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      ) : null}
       <Hero categories={safeCategories} />
       <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
         <TrustStrip />

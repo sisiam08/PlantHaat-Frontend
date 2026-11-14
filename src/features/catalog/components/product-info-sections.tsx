@@ -169,7 +169,7 @@ export function ProductInfoSections({
               aria-current={active === section.id ? "true" : undefined}
               onClick={() => go(section.id)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+                "inline-flex min-h-10 shrink-0 items-center rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
                 active === section.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/70",
@@ -234,4 +234,3 @@ export function ProductInfoSections({
     </div>
   );
 }
-

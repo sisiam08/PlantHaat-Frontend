@@ -7,11 +7,13 @@ import { useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { fetchFeedPage, type FeedPage } from "@/features/catalog/feed";
-import { ProductCard, ProductCardSkeleton, type ProductCardData } from "@/features/catalog/components/product-card";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+  type ProductCardData,
+} from "@/features/catalog/components/product-card";
 import { queryKeys } from "@/lib/api/query-keys";
-
-const SCROLL_KEY_PREFIX = "ph_feed_scroll_";
-const SEED_KEY = "ph_feed_seed";
+import { useListScrollRestoration } from "@/features/catalog/components/use-list-scroll-restoration";
 
 function dedupe(pages: FeedPage[] | undefined): ProductCardData[] {
   const seen = new Set<string>();
@@ -53,15 +55,15 @@ export function ProductFeed({
   });
 
   const products = useMemo(() => dedupe(query.data?.pages), [query.data]);
+  const loadedPages = query.data?.pages.length ?? 0;
+  const nextCursor = query.data?.pages.at(-1)?.meta.nextCursor ?? null;
 
-  // Keep the seed for the whole session (diagnostics + scroll key).
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(SEED_KEY, seed);
-    } catch {
-      // storage may be unavailable (private mode); non-fatal
-    }
-  }, [seed]);
+  useListScrollRestoration({
+    storageKey: "home",
+    pages: loadedPages,
+    cursor: nextCursor,
+    ready: products.length > 0,
+  });
 
   // Infinite scroll sentinel (~600px before the end).
   useEffect(() => {
@@ -78,41 +80,6 @@ export function ProductFeed({
     observer.observe(element);
     return () => observer.disconnect();
   }, [query]);
-
-  useEffect(() => {
-    const key = `${SCROLL_KEY_PREFIX}${seed}`;
-    const save = () => {
-      try {
-        sessionStorage.setItem(key, String(window.scrollY));
-      } catch {}
-    };
-    let saved = 0;
-    try {
-      saved = Number(sessionStorage.getItem(key) ?? 0);
-    } catch {}
-    if (saved && products.length > 0) {
-      let frame = 0;
-      const start = performance.now() + 250;
-      const tick = () => {
-        window.scrollTo(0, saved);
-        if (performance.now() - start < 4200 && Math.abs(window.scrollY - saved) > 4) {
-          frame = requestAnimationFrame(tick);
-        }
-      };
-      frame = requestAnimationFrame(tick);
-      window.addEventListener("pagehide", save);
-      return () => {
-        cancelAnimationFrame(frame);
-        window.removeEventListener("pagehide", save);
-      };
-    }
-    window.addEventListener("scroll", save, { passive: true });
-    window.addEventListener("pagehide", save);
-    return () => {
-      window.removeEventListener("scroll", save);
-      window.removeEventListener("pagehide", save);
-    };
-  }, [seed, products.length]);
 
   const showInitialError = query.isError && products.length === 0;
 
@@ -170,8 +137,3 @@ export function ProductFeed({
     </section>
   );
 }
-
-
-
-
-

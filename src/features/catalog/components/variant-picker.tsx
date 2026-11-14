@@ -124,6 +124,7 @@ export function VariantPicker({
             variantName: selected.sizeLabel || selected.name,
             slug: product.slug,
             priceDisplay: formatBdt(selected.price, locale),
+            unitPrice: selected.price,
             imageUrl: product.imageUrl ?? null,
             shopName: product.shopName ?? null,
           },
@@ -237,7 +238,7 @@ export function VariantPicker({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-lg"
             aria-label={t("decreaseQty")}
             disabled={quantity <= 1}
             onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -248,7 +249,7 @@ export function VariantPicker({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-lg"
             aria-label={t("increaseQty")}
             disabled={quantity >= Math.min(MAX_QTY, Math.max(selected.stockQty, 1))}
             onClick={() => setQuantity((value) => Math.min(MAX_QTY, value + 1))}

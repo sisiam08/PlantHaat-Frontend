@@ -13,7 +13,9 @@
   font-weight: 400 700;
   font-display: swap;
   src: url("/fonts/inter-latin-var.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
   font-family: "Hind Siliguri";
@@ -21,7 +23,9 @@
   font-weight: 400;
   font-display: swap;
   src: url("/fonts/hind-siliguri-bengali-400.woff2") format("woff2");
-  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
+  unicode-range:
+    U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA,
+    U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
 }
 @font-face {
   font-family: "Hind Siliguri";
@@ -29,23 +33,20 @@
   font-weight: 600;
   font-display: swap;
   src: url("/fonts/hind-siliguri-bengali-600.woff2") format("woff2");
-  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
+  unicode-range:
+    U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA,
+    U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
 }
 @font-face {
-  font-family: "Hind Siliguri";
+  font-family: "Hind Siliguri Fallback";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 600;
   font-display: swap;
-  src: url("/fonts/hind-siliguri-latin-400.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Hind Siliguri";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/hind-siliguri-latin-600.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: local("Nirmala UI"), local("Noto Sans Bengali"), local("Segoe UI");
+  size-adjust: 87%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
 }
 @theme inline {
   --color-background: var(--background);
@@ -55,10 +56,15 @@
      over automatically once frontend/src/fonts/Kalpurush.ttf is supplied and
      @font-face'd; until then Hind Siliguri (self-hosted) renders Bangla. */
   --font-latin: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-bangla: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
-  --font-sans: "Inter", "Hind Siliguri", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-bangla:
+    "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-sans:
+    "Inter", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", ui-sans-serif,
+    system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-heading: "Inter", "Hind Siliguri", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-heading:
+    "Inter", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", ui-sans-serif,
+    system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -255,107 +261,108 @@
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
   }
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-@layer utilities {
-  /* Page-level clearance for a fixed flow bar. The bottom nav hides while a
-     flow bar is mounted, so only the flow bar + safe area need reserving. */
-  .flowbar-space {
-    padding-bottom: calc(var(--flowbar-h) + 1.5rem + env(safe-area-inset-bottom));
-  }
-  @media (min-width: 768px) {
-    .flowbar-space {
-      padding-bottom: 0;
-    }
-  }
-
-  /* Static paper grain — hero band only. Never a fixed, full-page overlay. */
-  .hero-grain {
-    position: relative;
-    isolation: isolate;
-  }
-  .hero-grain::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .hero-grain::before {
-      display: none;
-    }
-  }
-
-  /* The single ambient loop: one desktop hero leaf. */
-  .leaf-drift {
-    animation: leaf-drift 7s var(--ease-inout) infinite;
-  }
-  @keyframes leaf-drift {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) rotate(-2deg);
-    }
-    50% {
-      transform: translate3d(0, -8px, 0) rotate(2deg);
-    }
-  }
-  @media (prefers-reduced-motion: reduce), (max-width: 767px) {
-    .leaf-drift {
-      animation: none;
-    }
-  }
-
-  /* Render the taka sign as a matched glyph inside Inter prices. */
-  .price-currency {
-    font-family: var(--font-bangla);
-    font-size: 1.1em;
-    line-height: 1;
-  }
-
-  /* Delegated card wishlist state (one client layer, no per-card hydration). */
-  [data-card-wishlist][data-saved="true"] svg {
-    fill: var(--offer);
-    color: var(--offer);
-  }
-
-  /* Skeleton shimmer (one sweep, stops under reduced motion). */
-  .skeleton-shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-  .skeleton-shimmer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in oklab, white 55%, transparent),
-      transparent
-    );
-    animation: skeleton-shimmer 1.6s var(--ease-inout) infinite;
-  }
-  @keyframes skeleton-shimmer {
-    100% {
-      transform: translateX(100%);
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .skeleton-shimmer::after {
-      display: none;
+    html {
+      scroll-behavior: auto;
     }
   }
-}
+
+  @layer utilities {
+    /* Page-level clearance for a fixed flow bar. The bottom nav hides while a
+     flow bar is mounted, so only the flow bar + safe area need reserving. */
+    .flowbar-space {
+      padding-bottom: calc(var(--flowbar-h) + 1.5rem + env(safe-area-inset-bottom));
+    }
+    @media (min-width: 768px) {
+      .flowbar-space {
+        padding-bottom: 0;
+      }
+    }
+
+    /* Static paper grain — hero band only. Never a fixed, full-page overlay. */
+    .hero-grain {
+      position: relative;
+      isolation: isolate;
+    }
+    .hero-grain::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.035;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .hero-grain::before {
+        display: none;
+      }
+    }
+
+    /* The single ambient loop: one desktop hero leaf. */
+    .leaf-drift {
+      animation: leaf-drift 7s var(--ease-inout) infinite;
+    }
+    @keyframes leaf-drift {
+      0%,
+      100% {
+        transform: translate3d(0, 0, 0) rotate(-2deg);
+      }
+      50% {
+        transform: translate3d(0, -8px, 0) rotate(2deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce), (max-width: 767px) {
+      .leaf-drift {
+        animation: none;
+      }
+    }
+
+    /* Render the taka sign as a matched glyph inside Inter prices. */
+    .price-currency {
+      font-family: var(--font-bangla);
+      font-size: 1.2em;
+      line-height: 1;
+      vertical-align: -0.03em;
+    }
+
+    /* Delegated card wishlist state (one client layer, no per-card hydration). */
+    [data-card-wishlist][data-saved="true"] svg {
+      fill: var(--offer);
+      color: var(--offer);
+    }
+
+    /* Skeleton shimmer (one sweep, stops under reduced motion). */
+    .skeleton-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton-shimmer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in oklab, white 55%, transparent),
+        transparent
+      );
+      animation: skeleton-shimmer 1.6s var(--ease-inout) infinite;
+    }
+    @keyframes skeleton-shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton-shimmer::after {
+        display: none;
+      }
+    }
+  }
 }
 
 /* Inline pending hint for <Link> navigation (Next `useLinkStatus`): a fixed-size
@@ -413,7 +420,3 @@
     animation: none;
   }
 }
-
-
-
-

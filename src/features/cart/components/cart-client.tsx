@@ -41,6 +41,14 @@ export function CartClient() {
 
 /* ── Guest cart (grouped by shop, delivery-neutral) ─────────────── */
 
+function parseGuestPrice(value: string): number | null {
+  const bengali = "০১২৩৪৫৬৭৮৯";
+  const normalized = value
+    .replace(/[০-৯]/g, (digit) => String(bengali.indexOf(digit)))
+    .replace(/[^0-9.]/g, "");
+  return normalized ? Number(normalized) : null;
+}
+
 function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
   const t = useTranslations("cart");
   const locale = useLocale();
@@ -67,31 +75,38 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
         <Card key={shopName || "no-shop"} className="rounded-2xl">
           <CardContent className="grid gap-3">
             {shopName ? <p className="font-semibold">{shopName}</p> : null}
-            {shopLines.map((line) => (
-              <CartLine
-                key={line.variantId}
-                item={{
-                  variantId: line.variantId,
-                  productId: "",
-                  productName: line.snapshot.productName,
-                  variantName: line.snapshot.variantName,
-                  slug: line.snapshot.slug,
-                  image: line.snapshot.imageUrl ?? null,
-                  unitPrice: line.snapshot.priceDisplay,
-                  quantity: line.quantity,
-                  lineTotal: line.snapshot.priceDisplay,
-                  stockQty: 0,
-                  priceChanged: false,
-                  priceChangedFrom: null,
-                  priceChangedTo: null,
-                  issues: [],
-                }}
-                locale={locale}
-                onQuantity={(next) => setGuestQuantity(line.variantId, next)}
-                onRemove={() => removeGuestLine(line.variantId)}
-                removeLabel={t("remove")}
-              />
-            ))}
+            {shopLines.map((line) => {
+              const unitPrice =
+                line.snapshot.unitPrice != null
+                  ? Number(line.snapshot.unitPrice)
+                  : parseGuestPrice(line.snapshot.priceDisplay);
+              const lineTotal = unitPrice == null ? null : unitPrice * line.quantity;
+              return (
+                <CartLine
+                  key={line.variantId}
+                  item={{
+                    variantId: line.variantId,
+                    productId: "",
+                    productName: line.snapshot.productName,
+                    variantName: line.snapshot.variantName,
+                    slug: line.snapshot.slug,
+                    image: line.snapshot.imageUrl ?? null,
+                    unitPrice: unitPrice == null ? "" : String(unitPrice),
+                    quantity: line.quantity,
+                    lineTotal: lineTotal == null ? "" : String(lineTotal),
+                    stockQty: 0,
+                    priceChanged: false,
+                    priceChangedFrom: null,
+                    priceChangedTo: null,
+                    issues: [],
+                  }}
+                  locale={locale}
+                  onQuantity={(next) => setGuestQuantity(line.variantId, next)}
+                  onRemove={() => removeGuestLine(line.variantId)}
+                  removeLabel={t("remove")}
+                />
+              );
+            })}
           </CardContent>
         </Card>
       ))}

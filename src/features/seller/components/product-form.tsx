@@ -471,7 +471,7 @@ function ImagesCard({ product }: { product: SellerProductView }) {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="xs"
+                    size="sm"
                     disabled={makePrimary.isPending}
                     onClick={() => makePrimary.mutate(image.id)}
                   >
@@ -481,7 +481,7 @@ function ImagesCard({ product }: { product: SellerProductView }) {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="xs"
+                  size="sm"
                   disabled={removeImage.isPending}
                   onClick={() => removeImage.mutate(image.id)}
                 >

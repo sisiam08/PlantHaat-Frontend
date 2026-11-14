@@ -63,7 +63,7 @@ export function ProductGallery({
         className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border/60 bg-muted/40"
         aria-label={label}
       >
-        <PlantImage src={null} alt={alt} fill sizes="(max-width: 1024px) 50vw, 600px" />
+        <PlantImage src={null} alt={alt} fill sizes="(max-width: 1024px) 100vw, 600px" />
       </div>
     );
   }
@@ -116,7 +116,7 @@ export function ProductGallery({
             alt={current.altText ?? alt}
             fill
             priority
-            sizes="(max-width: 1024px) 50vw, 600px"
+            sizes="(max-width: 1024px) 100vw, 600px"
             style={{ transformOrigin: origin, transform: zoom ? "scale(2.2)" : "scale(1)" }}
             className="object-cover transition-transform duration-200 motion-reduce:transition-none"
           />
@@ -143,7 +143,7 @@ export function ProductGallery({
                     alt={image.altText ?? alt}
                     fill
                     priority={index === 0}
-                    sizes="100vw"
+                    sizes="(max-width: 1024px) 100vw, 600px"
                     className="object-cover"
                   />
                 </button>

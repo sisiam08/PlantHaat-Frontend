@@ -10,6 +10,7 @@ export interface GuestCartLine {
     variantName: string;
     slug: string;
     priceDisplay: string;
+    unitPrice?: string;
     imageUrl?: string | null;
     shopName?: string | null;
   };

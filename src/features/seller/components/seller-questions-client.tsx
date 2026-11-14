@@ -19,13 +19,7 @@ import { formatLatinDateTime } from "@/lib/format/date";
 
 type Filter = "unanswered" | "all";
 
-function AnswerBox({
-  questionId,
-  onDone,
-}: {
-  questionId: string;
-  onDone: () => void;
-}) {
+function AnswerBox({ questionId, onDone }: { questionId: string; onDone: () => void }) {
   const t = useTranslations("seller.questions");
   const tErrors = useTranslations("errors");
   const [body, setBody] = useState("");
@@ -59,7 +53,13 @@ function AnswerBox({
   );
 }
 
-function QuestionRow({ question, onChanged }: { question: QaQuestion & { product: { name: string; slug: string } }; onChanged: () => void }) {
+function QuestionRow({
+  question,
+  onChanged,
+}: {
+  question: QaQuestion & { product: { name: string; slug: string } };
+  onChanged: () => void;
+}) {
   const t = useTranslations("seller.questions");
   const [open, setOpen] = useState(question.answerCount === 0);
   return (
@@ -84,7 +84,12 @@ function QuestionRow({ question, onChanged }: { question: QaQuestion & { product
               {t("unanswered")}
             </Badge>
           )}
-          <Button variant="outline" size="sm" className="ms-auto" onClick={() => setOpen((v) => !v)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ms-auto"
+            onClick={() => setOpen((v) => !v)}
+          >
             {t("answer")}
           </Button>
         </div>
@@ -102,7 +107,8 @@ export function SellerQuestionsClient() {
   const query = useInfiniteQuery({
     queryKey: [...queryKeys.qa.questions("seller"), filter],
     initialPageParam: null as string | null,
-    queryFn: ({ pageParam }) => qaApi.sellerQuestions({ status: filter, cursor: pageParam, limit: 10 }),
+    queryFn: ({ pageParam }) =>
+      qaApi.sellerQuestions({ status: filter, cursor: pageParam, limit: 10 }),
     getNextPageParam: (last) => (last.meta.hasMore ? last.meta.nextCursor : undefined),
     staleTime: 30_000,
   });
@@ -127,7 +133,7 @@ export function SellerQuestionsClient() {
             aria-pressed={filter === value}
             onClick={() => setFilter(value)}
             className={cn(
-              "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex min-h-10 items-center rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
               filter === value
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border/60 bg-background hover:bg-muted",

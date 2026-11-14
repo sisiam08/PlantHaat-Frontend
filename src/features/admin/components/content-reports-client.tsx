@@ -35,9 +35,13 @@ function ContentPreview({ report }: { report: ContentReportView }) {
             {target.product.name}
           </Link>
         ) : null}
-        {target.shopName ? <span className="text-xs text-muted-foreground">{target.shopName}</span> : null}
+        {target.shopName ? (
+          <span className="text-xs text-muted-foreground">{target.shopName}</span>
+        ) : null}
         {target.rating ? (
-          <span className="text-xs text-muted-foreground">{t("rating", { rating: target.rating })}</span>
+          <span className="text-xs text-muted-foreground">
+            {t("rating", { rating: target.rating })}
+          </span>
         ) : null}
       </div>
       {target.title ? <span className="font-medium">{target.title}</span> : null}
@@ -78,10 +82,12 @@ export function ContentReportsClient({
     retry: false,
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.reviewReports() });
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.admin.reviewReports() });
 
   const resolve = useMutation({
-    mutationFn: ({ id, hide }: { id: string; hide: boolean }) => qaApi.resolveContentReport(id, hide),
+    mutationFn: ({ id, hide }: { id: string; hide: boolean }) =>
+      qaApi.resolveContentReport(id, hide),
     onSuccess: async () => {
       await invalidate();
       toast.success(t("resolved"));
@@ -90,8 +96,15 @@ export function ContentReportsClient({
   });
 
   const visibility = useMutation({
-    mutationFn: ({ kind: k, id, hide }: { kind: "questions" | "answers" | "replies"; id: string; hide: boolean }) =>
-      hide ? qaApi.hideContent(k, id) : qaApi.unhideContent(k, id),
+    mutationFn: ({
+      kind: k,
+      id,
+      hide,
+    }: {
+      kind: "questions" | "answers" | "replies";
+      id: string;
+      hide: boolean;
+    }) => (hide ? qaApi.hideContent(k, id) : qaApi.unhideContent(k, id)),
     onSuccess: async () => {
       await invalidate();
       toast.success(t("updated"));
@@ -117,7 +130,7 @@ export function ContentReportsClient({
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <select
-          aria-label={t("statusFilter")}
+          aria-label={t("statusLabel")}
           value={status}
           onChange={(event) => {
             setStatus(event.target.value);

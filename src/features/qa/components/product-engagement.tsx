@@ -16,7 +16,13 @@ import { toastApiError } from "@/features/auth/components/error-toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { ProductLightbox } from "@/features/catalog/components/product-lightbox";
 import { StarRating } from "@/features/catalog/components/product-card";
-import { qaApi, type QaAnswer, type QaPage, type QaQuestion, type QaReply } from "@/features/qa/api";
+import {
+  qaApi,
+  type QaAnswer,
+  type QaPage,
+  type QaQuestion,
+  type QaReply,
+} from "@/features/qa/api";
 import { reviewsApi, type ReviewView } from "@/features/reviews/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
@@ -64,7 +70,13 @@ function AuthorBadges({
   );
 }
 
-function ReportButton({ kind, id }: { kind: "questions" | "answers" | "replies" | "reviews"; id: string }) {
+function ReportButton({
+  kind,
+  id,
+}: {
+  kind: "questions" | "answers" | "replies" | "reviews";
+  id: string;
+}) {
   const t = useTranslations("engagement");
   const [pending, setPending] = useState(false);
   return (
@@ -133,7 +145,13 @@ function InlineEditor({
 
 /* ── Review replies ─────────────────────────────────────────────── */
 
-export function ReviewReplies({ reviewId, sellerReply }: { reviewId: string; sellerReply: string | null }) {
+export function ReviewReplies({
+  reviewId,
+  sellerReply,
+}: {
+  reviewId: string;
+  sellerReply: string | null;
+}) {
   const t = useTranslations("engagement");
   const { user } = useAuth();
   const tErrors = useTranslations("errors");
@@ -208,9 +226,13 @@ function ReviewCard({ review }: { review: ReviewView }) {
     <article className="grid gap-2 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
-          <AuthorName author={{ name: review.customer.name, deleted: review.customer.deleted ?? false }} />
+          <AuthorName
+            author={{ name: review.customer.name, deleted: review.customer.deleted ?? false }}
+          />
           <AuthorBadges verified />
-          <span className="text-xs text-muted-foreground">{formatLatinDateTime(review.createdAt)}</span>
+          <span className="text-xs text-muted-foreground">
+            {formatLatinDateTime(review.createdAt)}
+          </span>
         </div>
         <StarRating value={review.rating} />
       </div>
@@ -298,7 +320,7 @@ function ReviewsPanel({ slug }: { slug: string }) {
                 type="button"
                 aria-pressed={rating === star}
                 onClick={() => setRating(rating === star ? undefined : star)}
-                className="flex min-h-7 items-center gap-2 rounded-md px-1 py-0.5 text-xs"
+                className="flex min-h-10 items-center gap-2 rounded-lg px-1.5 py-1 text-xs"
               >
                 <span className="w-10 shrink-0 text-left text-muted-foreground">
                   {t("stars", { count: star })}
@@ -317,7 +339,13 @@ function ReviewsPanel({ slug }: { slug: string }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <FilterPill active={!rating && !withPhotos} onClick={() => { setRating(undefined); setWithPhotos(false); }}>
+        <FilterPill
+          active={!rating && !withPhotos}
+          onClick={() => {
+            setRating(undefined);
+            setWithPhotos(false);
+          }}
+        >
           {t("allReviews")}
         </FilterPill>
         <FilterPill active={withPhotos} onClick={() => setWithPhotos((v) => !v)}>
@@ -327,7 +355,7 @@ function ReviewsPanel({ slug }: { slug: string }) {
           aria-label={t("sort")}
           value={sort}
           onChange={(event) => setSort(event.target.value as "newest" | "highest" | "lowest")}
-          className="ml-auto h-9 rounded-full border border-input bg-background px-3 text-sm"
+          className="ml-auto h-10 rounded-full border border-input bg-background px-3 text-sm"
         >
           <option value="newest">{t("sortNewest")}</option>
           <option value="highest">{t("sortHighest")}</option>
@@ -382,7 +410,7 @@ function FilterPill({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+        "inline-flex min-h-10 items-center rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border/60 bg-background hover:bg-muted",
@@ -434,13 +462,7 @@ function ReplyBox({
   );
 }
 
-function AnswerCard({
-  answer,
-  onChanged,
-}: {
-  answer: QaAnswer;
-  onChanged: () => void;
-}) {
+function AnswerCard({ answer, onChanged }: { answer: QaAnswer; onChanged: () => void }) {
   const t = useTranslations("engagement");
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
@@ -452,7 +474,9 @@ function AnswerCard({
         <div className="flex flex-wrap items-center gap-1.5">
           <AuthorName author={answer.author} />
           <AuthorBadges isSeller={answer.isSellerAnswer} />
-          <span className="text-xs text-muted-foreground">{formatLatinDateTime(answer.createdAt)}</span>
+          <span className="text-xs text-muted-foreground">
+            {formatLatinDateTime(answer.createdAt)}
+          </span>
         </div>
         {isMine ? (
           <div className="flex gap-1">
@@ -533,11 +557,16 @@ function QuestionCard({ question, onChanged }: { question: QaQuestion; onChanged
   const isMine = user?.id === question.author.id;
 
   return (
-    <article id={`question-${question.id}`} className="grid gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+    <article
+      id={`question-${question.id}`}
+      className="grid gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
           <AuthorName author={question.author} />
-          <span className="text-xs text-muted-foreground">{formatLatinDateTime(question.createdAt)}</span>
+          <span className="text-xs text-muted-foreground">
+            {formatLatinDateTime(question.createdAt)}
+          </span>
           <Badge variant="secondary" className="rounded-full text-xs">
             {t("answerCount", { count: question.answerCount })}
           </Badge>
@@ -775,8 +804,18 @@ export function ProductEngagement({
   };
 
   const tabs: { value: Tab; label: string; count: number; icon: typeof Star }[] = [
-    { value: "reviews", label: t("reviewsTab", { count: reviewCount }), count: reviewCount, icon: Star },
-    { value: "qa", label: t("qaTab", { count: questionCount }), count: questionCount, icon: MessageCircleQuestion },
+    {
+      value: "reviews",
+      label: t("reviewsTab", { count: reviewCount }),
+      count: reviewCount,
+      icon: Star,
+    },
+    {
+      value: "qa",
+      label: t("qaTab", { count: questionCount }),
+      count: questionCount,
+      icon: MessageCircleQuestion,
+    },
   ];
 
   return (
@@ -822,9 +861,12 @@ export function ProductEngagement({
         tabIndex={0}
         className="focus-visible:outline-none"
       >
-        {tab === "reviews" ? <ReviewsPanel slug={slug} /> : <QaPanel slug={slug} productId={productId} />}
+        {tab === "reviews" ? (
+          <ReviewsPanel slug={slug} />
+        ) : (
+          <QaPanel slug={slug} productId={productId} />
+        )}
       </div>
     </section>
   );
 }
-

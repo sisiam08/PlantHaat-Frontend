@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getMessages } from "next-intl/server";
 import { Suspense, type ReactNode } from "react";
+import { preload } from "react-dom";
 
 import { AppProviders } from "@/components/providers/app-providers";
 import { clientEnv } from "@/env/client";
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
     default: "PlantHaat",
     template: "%s · PlantHaat",
   },
-  description: "Bangladesh's multi-vendor plant marketplace — verified nurseries, cash on delivery.",
+  description:
+    "Bangladesh's multi-vendor plant marketplace — verified nurseries, cash on delivery.",
 };
 
 /**
@@ -40,6 +42,14 @@ function ShellSkeleton() {
 async function LocalizedApp({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  preload(
+    locale === "bn" ? "/fonts/hind-siliguri-bengali-600.woff2" : "/fonts/inter-latin-var.woff2",
+    {
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
+  );
   return (
     <div lang={locale} className="contents">
       <AppProviders locale={locale} messages={messages}>
@@ -60,20 +70,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <head>
         <meta name="google" content="notranslate" />
-        <link
-          rel="preload"
-          href="/fonts/hind-siliguri-bengali-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/inter-latin-var.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
       </head>
       <body suppressHydrationWarning className="flex min-h-full flex-col">
         <Suspense fallback={<ShellSkeleton />}>
