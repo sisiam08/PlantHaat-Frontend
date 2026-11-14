@@ -112,7 +112,7 @@ export function ProductFeed({
             />
           ))}
           {query.isFetchingNextPage
-            ? Array.from({ length: limit > 12 ? 5 : 4 }).map((_, index) => (
+            ? Array.from({ length: 12 }).map((_, index) => (
                 <ProductCardSkeleton key={`skeleton-${index}`} />
               ))
             : null}

@@ -7,11 +7,7 @@ import {
   ProductsBrowser,
   type CategoryFilterOption,
 } from "@/features/catalog/components/products-browser";
-import {
-  parseProductQuery,
-  signatureOf,
-  type SearchParams,
-} from "@/features/catalog/query";
+import { parseProductQuery, signatureOf, type SearchParams } from "@/features/catalog/query";
 import { getCategories, getProductsCursorPage } from "@/features/catalog/server";
 
 const LIST_LIMIT = 24;
@@ -28,7 +24,7 @@ function ListSkeleton() {
       <div className="grid content-start gap-6">
         <Skeleton className="h-24 w-full" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, index) => (
+          {Array.from({ length: 12 }).map((_, index) => (
             <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
           ))}
         </div>
@@ -37,11 +33,7 @@ function ListSkeleton() {
   );
 }
 
-async function ProductsSection({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
+async function ProductsSection({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const locale = await getLocale();
   const categories = await getCategories();
@@ -69,11 +61,7 @@ async function ProductsSection({
   );
 }
 
-export default function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
+export default function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   return (
     <Suspense fallback={<ListSkeleton />}>
       <ProductsSection searchParams={searchParams} />

@@ -836,7 +836,7 @@ export function ProductsBrowser({
           {products.length === 0 ? (
             isFirstLoad ? (
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
-                {Array.from({ length: 10 }).map((_, index) => (
+                {Array.from({ length: 12 }).map((_, index) => (
                   <ProductCardSkeleton key={index} />
                 ))}
               </div>
@@ -873,7 +873,7 @@ export function ProductsBrowser({
                   />
                 ))}
                 {listQuery.isFetchingNextPage
-                  ? Array.from({ length: 5 }).map((_, index) => (
+                  ? Array.from({ length: 12 }).map((_, index) => (
                       <ProductCardSkeleton key={`skeleton-${index}`} />
                     ))
                   : null}
