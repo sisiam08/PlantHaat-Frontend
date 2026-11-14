@@ -41,6 +41,7 @@ import {
   type SearchParams,
 } from "@/features/catalog/query";
 import { queryKeys } from "@/lib/api/query-keys";
+import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { useListScrollRestoration } from "@/features/catalog/components/use-list-scroll-restoration";
 
 const LIST_LIMIT = 24;
@@ -835,8 +836,8 @@ export function ProductsBrowser({
 
           {products.length === 0 ? (
             isFirstLoad ? (
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
-                {Array.from({ length: 12 }).map((_, index) => (
+              <div data-product-grid className={PRODUCT_GRID_CLASS}>
+                {Array.from({ length: PRODUCT_PAGE_SIZE.catalog }).map((_, index) => (
                   <ProductCardSkeleton key={index} />
                 ))}
               </div>
@@ -860,7 +861,7 @@ export function ProductsBrowser({
                 busy ? "pointer-events-none opacity-55" : "opacity-100",
               )}
             >
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
+              <div data-product-grid className={PRODUCT_GRID_CLASS}>
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -873,7 +874,7 @@ export function ProductsBrowser({
                   />
                 ))}
                 {listQuery.isFetchingNextPage
-                  ? Array.from({ length: 12 }).map((_, index) => (
+                  ? Array.from({ length: PRODUCT_PAGE_SIZE.catalog }).map((_, index) => (
                       <ProductCardSkeleton key={`skeleton-${index}`} />
                     ))
                   : null}

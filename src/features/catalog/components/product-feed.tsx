@@ -13,6 +13,7 @@ import {
   type ProductCardData,
 } from "@/features/catalog/components/product-card";
 import { queryKeys } from "@/lib/api/query-keys";
+import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { useListScrollRestoration } from "@/features/catalog/components/use-list-scroll-restoration";
 
 function dedupe(pages: FeedPage[] | undefined): ProductCardData[] {
@@ -99,7 +100,7 @@ export function ProductFeed({
           <p className="text-sm text-muted-foreground">{t("feedEmpty")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
+        <div data-product-grid className={PRODUCT_GRID_CLASS}>
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -112,7 +113,7 @@ export function ProductFeed({
             />
           ))}
           {query.isFetchingNextPage
-            ? Array.from({ length: 12 }).map((_, index) => (
+            ? Array.from({ length: PRODUCT_PAGE_SIZE.feed }).map((_, index) => (
                 <ProductCardSkeleton key={`skeleton-${index}`} />
               ))
             : null}

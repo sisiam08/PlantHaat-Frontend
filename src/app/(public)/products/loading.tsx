@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 
 export default function ProductsLoading() {
   return (
@@ -6,9 +7,13 @@ export default function ProductsLoading() {
       <Skeleton className="h-96 w-full rounded-2xl" />
       <div className="grid content-start gap-6">
         <Skeleton className="h-24 w-full" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
+        <div data-product-grid className={PRODUCT_GRID_CLASS}>
+          {Array.from({ length: PRODUCT_PAGE_SIZE.catalog }).map((_, index) => (
+            <Skeleton
+              data-product-skeleton
+              key={index}
+              className="aspect-[4/5] w-full rounded-2xl"
+            />
           ))}
         </div>
       </div>

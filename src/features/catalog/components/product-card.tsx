@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Price } from "@/components/product/price";
 import { formatPriceRange } from "@/lib/format/money";
 import { RailScroller } from "@/features/catalog/components/rail-scroller";
+import { PRODUCT_GRID_CLASS } from "@/features/catalog/components/product-grid";
 
 export function StarRating({
   value,
@@ -57,7 +58,13 @@ export interface ProductCardData {
   shopName?: string | null;
 }
 
-function CompactRating({ value, count }: { value: string | number | null | undefined; count: number }) {
+function CompactRating({
+  value,
+  count,
+}: {
+  value: string | number | null | undefined;
+  count: number;
+}) {
   const numeric = Number(value ?? 0);
   return (
     <span className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground">
@@ -160,18 +167,35 @@ export function ProductCard({
     </div>
   );
 }
+export function ProductRailSkeleton({ count = 8 }: { count?: number }) {
+  return (
+    <div className="relative w-full min-w-0">
+      <div className="flex gap-2.5 overflow-hidden md:gap-3" aria-hidden>
+        {Array.from({ length: count }).map((_, index) => (
+          <div key={index} className="w-36 shrink-0 sm:w-40 md:w-44">
+            <ProductCardSkeleton />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProductCardSkeleton({ featured = false }: { featured?: boolean }) {
   return (
     <div
+      data-product-skeleton
       className={cn(
         "overflow-hidden border border-border bg-card",
         featured ? "rounded-2xl" : "rounded-xl",
       )}
     >
       <div className="skeleton-shimmer aspect-4/5 w-full bg-muted" />
-      <div className={cn("grid gap-1.5", featured ? "p-3.5" : "p-2.5")}>
+      <div className={cn("grid gap-1", featured ? "p-3.5" : "p-2.5")}>
         <div className="skeleton-shimmer h-3.5 w-4/5 rounded-full bg-muted" />
-        <div className="skeleton-shimmer h-3 w-1/2 rounded-full bg-muted" />
+        <div className="skeleton-shimmer h-3.5 w-3/5 rounded-full bg-muted" />
+        <div className="skeleton-shimmer h-4 w-1/2 rounded-full bg-muted" />
+        <div className="skeleton-shimmer h-3 w-2/3 rounded-full bg-muted" />
       </div>
     </div>
   );
@@ -189,7 +213,7 @@ export function ProductGrid({
   actionLabels: CardActionLabels;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
+    <div data-product-grid className={PRODUCT_GRID_CLASS}>
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -229,13 +253,3 @@ export function ProductRail({
     </RailScroller>
   );
 }
-
-
-
-
-
-
-
-
-
-

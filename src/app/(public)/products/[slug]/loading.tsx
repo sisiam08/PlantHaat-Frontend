@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProductRailSkeleton } from "@/features/catalog/components/product-card";
 
 export default function ProductDetailLoading() {
   return (
@@ -14,11 +15,7 @@ export default function ProductDetailLoading() {
       </div>
       <div className="mt-14 grid gap-4">
         <Skeleton className="h-7 w-56" />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
-          ))}
-        </div>
+        <ProductRailSkeleton count={8} />
       </div>
     </main>
   );

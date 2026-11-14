@@ -7,6 +7,7 @@ import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { ProductGrid } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { parseProductQuery, type SearchParams } from "@/features/catalog/query";
@@ -32,9 +33,9 @@ function ShopSkeleton() {
   return (
     <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
       <Skeleton className="h-56 w-full rounded-3xl" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Array.from({ length: 12 }).map((_, index) => (
-          <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
+      <div data-product-grid className={PRODUCT_GRID_CLASS}>
+        {Array.from({ length: PRODUCT_PAGE_SIZE.shop }).map((_, index) => (
+          <Skeleton data-product-skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
         ))}
       </div>
     </main>
@@ -50,7 +51,7 @@ async function ShopContent({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
-  const query = parseProductQuery(sp);
+  const query = { ...parseProductQuery(sp), limit: PRODUCT_PAGE_SIZE.shop };
   const locale = await getLocale();
   const t = await getTranslations("shop");
   const tp = await getTranslations("product");

@@ -17,6 +17,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProductRailSkeleton } from "@/features/catalog/components/product-card";
 import { DeliveryEstimator } from "@/features/catalog/components/delivery-estimator";
 import { StarRating } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
@@ -69,11 +70,7 @@ export async function generateMetadata({
   }
 }
 
-export default function ProductPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={<ProductSkeleton />}>
       <ProductContent params={params} />
@@ -101,11 +98,7 @@ function ProductSkeleton() {
   );
 }
 
-async function ProductContent({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+async function ProductContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product: ProductDetail | null = await getProduct(slug);
   if (!product) {
@@ -118,10 +111,7 @@ async function ProductContent({
   const t = await getTranslations("product");
   const tn = await getTranslations("nav");
   const tc = await getTranslations("catalog");
-  const [images, districts] = [
-    product.images as unknown as DetailImage[],
-    await getDistricts(),
-  ];
+  const [images, districts] = [product.images as unknown as DetailImage[], await getDistricts()];
   const variants = product.variants as unknown as VariantView[];
   const shop = product.shop as unknown as DetailShop;
 
@@ -146,9 +136,7 @@ async function ProductContent({
       <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-4">
         <BadgeCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
         <div className="grid gap-0.5 text-sm">
-          <p className="font-medium">
-            {t("dispatchFrom", { district: shop.district ?? "—" })}
-          </p>
+          <p className="font-medium">{t("dispatchFrom", { district: shop.district ?? "—" })}</p>
           <p className="text-muted-foreground">{shop.name}</p>
         </div>
       </div>
@@ -160,7 +148,10 @@ async function ProductContent({
     <div className="grid gap-2 text-sm">
       <h3 className="font-medium">{t("returnsTitle")}</h3>
       <p className="text-muted-foreground">{t("returnsBody")}</p>
-      <Link href="/policies/refund-cancellation" className="font-medium text-primary hover:underline">
+      <Link
+        href="/policies/refund-cancellation"
+        className="font-medium text-primary hover:underline"
+      >
         {t("policyLink")}
       </Link>
     </div>
@@ -242,9 +233,7 @@ async function ProductContent({
         <div className="grid grid-cols-1 content-start gap-6">
           <div className="grid gap-2">
             <h1 className="font-heading text-3xl font-bold">{product.name}</h1>
-            {product.nameBn ? (
-              <p className="text-muted-foreground">{product.nameBn}</p>
-            ) : null}
+            {product.nameBn ? <p className="text-muted-foreground">{product.nameBn}</p> : null}
             {product.scientificName ? (
               <p className="text-sm text-muted-foreground">{product.scientificName}</p>
             ) : null}
@@ -304,11 +293,7 @@ async function ProductContent({
           fallback={
             <div className="grid gap-4">
               <Skeleton className="h-7 w-56" />
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
-                ))}
-              </div>
+              <ProductRailSkeleton count={8} />
             </div>
           }
         >
@@ -327,4 +312,3 @@ async function ProductContent({
     </main>
   );
 }
-

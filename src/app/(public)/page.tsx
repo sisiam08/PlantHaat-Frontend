@@ -11,6 +11,8 @@ import { Hero } from "@/features/catalog/components/hero";
 import { HomeRails } from "@/features/catalog/components/home-rails";
 import { LazyRails } from "@/features/catalog/components/lazy-rails";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
+import { ProductRailSkeleton } from "@/features/catalog/components/product-card";
+import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { TrustStrip } from "@/features/catalog/components/trust-strip";
 import { getHomeFeed, getCategories } from "@/features/catalog/server";
 
@@ -20,11 +22,7 @@ function RailSkeleton() {
   return (
     <section className="grid gap-4">
       <Skeleton className="h-8 w-40" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="aspect-4/5 w-full rounded-2xl" />
-        ))}
-      </div>
+      <ProductRailSkeleton count={8} />
     </section>
   );
 }
@@ -33,8 +31,8 @@ function FeedSkeleton() {
   return (
     <section className="grid gap-5">
       <Skeleton className="h-8 w-32" />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, index) => (
+      <div data-product-grid className={PRODUCT_GRID_CLASS}>
+        {Array.from({ length: PRODUCT_PAGE_SIZE.feed }).map((_, index) => (
           <div key={index} className="grid gap-2">
             <Skeleton className="aspect-4/5 w-full rounded-2xl" />
             <Skeleton className="h-4 w-3/4" />
@@ -95,55 +93,46 @@ async function HomeContent() {
       <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
         <TrustStrip />
 
-      <section aria-labelledby="home-categories" className="grid gap-5">
-        <div className="flex items-end justify-between gap-4">
-          <h2 id="home-categories" className="font-heading text-2xl font-semibold">
-            {th("shopByCategory")}
-          </h2>
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            {th("browseAll")} <ArrowRight aria-hidden className="size-3.5" />
-          </Link>
-        </div>
-        {categories ? (
-          <CategoryBento categories={categories} />
-        ) : (
-          <SectionFallback />
-        )}
-      </section>
-
-      <Suspense
-        fallback={
-          <div className="grid gap-10">
-            <RailSkeleton />
-            <RailSkeleton />
-            <RailSkeleton />
+        <section aria-labelledby="home-categories" className="grid gap-5">
+          <div className="flex items-end justify-between gap-4">
+            <h2 id="home-categories" className="font-heading text-2xl font-semibold">
+              {th("shopByCategory")}
+            </h2>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              {th("browseAll")} <ArrowRight aria-hidden className="size-3.5" />
+            </Link>
           </div>
-        }
-      >
-        <HomeRails />
-      </Suspense>
+          {categories ? <CategoryBento categories={categories} /> : <SectionFallback />}
+        </section>
 
-      <LazyRails />
+        <Suspense
+          fallback={
+            <div className="grid gap-10">
+              <RailSkeleton />
+              <RailSkeleton />
+              <RailSkeleton />
+            </div>
+          }
+        >
+          <HomeRails />
+        </Suspense>
 
-      <section aria-labelledby="home-offers" className="grid gap-4">
-        <h2 id="home-offers" className="font-heading text-2xl font-semibold md:text-3xl">
-          {th("offers")}
-        </h2>
-        <BannerCarousel />
-      </section>
+        <LazyRails />
 
-      <Suspense fallback={<FeedSkeleton />}>
-        <HomeFeedSection />
-      </Suspense>
+        <section aria-labelledby="home-offers" className="grid gap-4">
+          <h2 id="home-offers" className="font-heading text-2xl font-semibold md:text-3xl">
+            {th("offers")}
+          </h2>
+          <BannerCarousel />
+        </section>
+
+        <Suspense fallback={<FeedSkeleton />}>
+          <HomeFeedSection />
+        </Suspense>
       </div>
     </>
   );
 }
-
-
-
-
-
