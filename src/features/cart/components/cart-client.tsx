@@ -1,10 +1,11 @@
 ﻿"use client";
 
 import { AlertTriangle, ShoppingBag, Trash2, X } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { PlantImage } from "@/components/plant-image";
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -15,7 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addressesApi } from "@/features/addresses/api";
 import { useAuth } from "@/features/auth/auth-provider";
+import { toastApiError } from "@/features/auth/components/error-toast";
 import { apiGet } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
@@ -146,49 +149,85 @@ function ServerCart() {
     queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
   });
 
-  const cartKey = [...queryKeys.cart, districtId === "" ? 0 : districtId];
+  const cartKey = useMemo(
+    () => [...queryKeys.cart, districtId === "" ? 0 : districtId],
+    [districtId],
+  );
   const cart = useQuery({
     queryKey: cartKey,
     queryFn: () => cartApi.get(districtId === "" ? undefined : districtId),
+    placeholderData: keepPreviousData,
   });
 
-  // Optimistic quantity/removal: the stepper updates immediately (rollback on
-  // error); money always reconciles from the API response, never client maths.
+  const tErrors = useTranslations("errors");
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const latestSeq = useRef(0);
+  const [quantityErrors, setQuantityErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const pendingTimers = timers.current;
+    return () => {
+      for (const timer of pendingTimers.values()) clearTimeout(timer);
+      pendingTimers.clear();
+    };
+  }, []);
+
+  const applyOptimistic = (variantId: string, quantity: number) => {
+    queryClient.setQueryData<CartView>(cartKey, (previous) =>
+      previous ? recomputeCart(withOptimisticQuantity(previous, variantId, quantity)) : previous,
+    );
+  };
+
+  // Debounce per line. Every click updates the UI immediately; the latest
+  // quantity is sent once the user pauses. A newer click invalidates the
+  // response of any older in-flight request (latest-wins).
+  const scheduleQuantity = (variantId: string, quantity: number) => {
+    setQuantityErrors((previous) => {
+      if (!(variantId in previous)) return previous;
+      const next = { ...previous };
+      delete next[variantId];
+      return next;
+    });
+    applyOptimistic(variantId, quantity);
+
+    const existing = timers.current.get(variantId);
+    if (existing) clearTimeout(existing);
+    const seq = ++latestSeq.current;
+    const timer = setTimeout(() => {
+      timers.current.delete(variantId);
+      update.mutate({ variantId, quantity, seq });
+    }, 350);
+    timers.current.set(variantId, timer);
+  };
+
+  const removeNow = (variantId: string) => {
+    applyOptimistic(variantId, 0);
+    update.mutate({ variantId, quantity: 0, seq: ++latestSeq.current });
+  };
+
   const update = useMutation({
-    mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number }) =>
+    mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number; seq: number }) =>
       quantity <= 0 ? cartApi.removeItem(variantId) : cartApi.putItem(variantId, quantity),
-    onMutate: async ({ variantId, quantity }) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: cartKey });
-      const previous = queryClient.getQueryData<CartView>(cartKey);
-      if (previous) {
-        queryClient.setQueryData(cartKey, withOptimisticQuantity(previous, variantId, quantity));
-      }
-      return { previous };
+      return { previous: queryClient.getQueryData<CartView>(cartKey) };
     },
-    onError: (_error, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(cartKey, context.previous);
-      }
+    onError: (error, variables, context) => {
+      if (variables.seq !== latestSeq.current) return;
+      if (context?.previous) queryClient.setQueryData(cartKey, context.previous);
+      const message =
+        error instanceof ApiError && error.message ? error.message : tErrors("generic");
+      setQuantityErrors((previous) => ({ ...previous, [variables.variantId]: message }));
+      toast.error(message);
     },
-    onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
+    onSuccess: (_data, variables) => {
+      if (variables.seq !== latestSeq.current) return;
+      // The PUT response has no district delivery context. Reconcile with a
+      // district-scoped GET instead of writing that partial view into the cache.
+      void queryClient.invalidateQueries({ queryKey: cartKey });
+    },
   });
-  const remove = useMutation({
-    mutationFn: (variantId: string) => cartApi.removeItem(variantId),
-    onMutate: async (variantId) => {
-      await queryClient.cancelQueries({ queryKey: cartKey });
-      const previous = queryClient.getQueryData<CartView>(cartKey);
-      if (previous) {
-        queryClient.setQueryData(cartKey, withOptimisticQuantity(previous, variantId, 0));
-      }
-      return { previous };
-    },
-    onError: (_error, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(cartKey, context.previous);
-      }
-    },
-    onSuccess: (data: CartView) => queryClient.setQueryData(cartKey, data),
-  });
+
   const removeShop = useMutation({
     mutationFn: (shop: CartShopView) =>
       Promise.all(shop.items.map((item) => cartApi.removeItem(item.variantId))),
@@ -197,18 +236,17 @@ function ServerCart() {
       const previous = queryClient.getQueryData<CartView>(cartKey);
       if (previous) {
         queryClient.setQueryData(cartKey, {
-          ...previous,
+          ...recomputeCart(previous),
           shops: previous.shops.filter((entry) => entry.shopId !== shop.shopId),
         });
       }
       return { previous };
     },
     onError: (_error, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(cartKey, context.previous);
-      }
+      if (context?.previous) queryClient.setQueryData(cartKey, context.previous);
+      toast.error(tErrors("generic"));
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.cart }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: cartKey }),
   });
 
   const changeDistrict = () => {
@@ -224,7 +262,7 @@ function ServerCart() {
   if (cart.isLoading) {
     return <Skeleton className="h-40 w-full rounded-2xl" />;
   }
-  if (cart.isError) {
+  if (cart.isError && !cart.data) {
     return <QueryError message={tc("sectionLoadFailed")} onRetry={() => void cart.refetch()} />;
   }
   if (!cart.data || cart.data.shops.length === 0) {
@@ -270,23 +308,30 @@ function ServerCart() {
         </select>
       </div>
 
+      {cart.isError && cart.data ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {t("deliveryUpdateError")}
+        </div>
+      ) : null}
+
       {view.priceChanged ? (
         <div className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
           {t("priceChangedBanner", { count: view.changedLineCount })}
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="grid gap-4">
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:gap-6">
+        <div className="grid gap-4 lg:gap-5">
           {view.shops.map((shop) => (
             <ShopCard
               key={shop.shopId}
               shop={shop}
               locale={locale}
-              pending={update.isPending || remove.isPending || removeShop.isPending}
+              pending={update.isPending || removeShop.isPending || cart.isFetching}
               noDistrictSelected={districtId === ""}
-              onQuantity={(variantId, next) => update.mutate({ variantId, quantity: next })}
-              onRemove={(variantId) => remove.mutate(variantId)}
+              onQuantity={(variantId, next) => scheduleQuantity(variantId, next)}
+              onRemove={removeNow}
+              quantityErrors={quantityErrors}
               onRemoveAll={() => removeShop.mutate(shop)}
               onChangeDistrict={changeDistrict}
               issueLabel={(code) => t(`issues.${code}`)}
@@ -294,10 +339,24 @@ function ServerCart() {
             />
           ))}
         </div>
-        <CartSummaryBox view={view} actions={checkoutActions} fixedOnMobile={false} />
+        <CartSummaryBox
+          view={view}
+          actions={checkoutActions}
+          fixedOnMobile={false}
+          hasDistrict={districtId !== ""}
+          updating={cart.isFetching || update.isPending}
+          deliveryError={cart.isError && Boolean(cart.data)}
+        />
       </div>
 
-      <CartSummaryBox view={view} actions={checkoutActions} fixedOnMobile />
+      <CartSummaryBox
+        view={view}
+        actions={checkoutActions}
+        fixedOnMobile
+        hasDistrict={districtId !== ""}
+        updating={cart.isFetching || update.isPending}
+        deliveryError={cart.isError && Boolean(cart.data)}
+      />
     </div>
   );
 }
@@ -315,6 +374,7 @@ function ShopCard({
   onChangeDistrict,
   issueLabel,
   removeLabel,
+  quantityErrors,
 }: {
   shop: CartShopView;
   locale: string;
@@ -326,6 +386,7 @@ function ShopCard({
   onChangeDistrict: () => void;
   issueLabel: (code: string) => string;
   removeLabel: string;
+  quantityErrors: Record<string, string>;
 }) {
   const t = useTranslations("cart");
   const notDelivering = shop.deliverable === false;
@@ -365,10 +426,11 @@ function ShopCard({
             onRemove={() => onRemove(item.variantId)}
             issueLabel={issueLabel}
             removeLabel={removeLabel}
+            quantityError={quantityErrors[item.variantId]}
           />
         ))}
 
-        <div className="grid gap-1.5 rounded-xl bg-muted/50 p-3">
+        <div className="grid gap-2 rounded-xl bg-muted/50 p-4">
           <div className="flex justify-between text-sm">
             <span>{t("itemsSubtotal")}</span>
             <Price value={shop.subtotal} locale={locale} size="sm" />
@@ -376,6 +438,8 @@ function ShopCard({
           <ShopDeliveryLine
             shop={shop}
             hint={noDistrictSelected ? t("selectToSee") : t("notDelivering")}
+            unavailable={notDelivering}
+            updating={pending && !noDistrictSelected}
           />
           <FreeDeliveryProgress shop={shop} locale={locale} />
           {!notDelivering ? (
@@ -434,6 +498,7 @@ function CartLine({
   onRemove,
   issueLabel,
   removeLabel,
+  quantityError,
 }: {
   item: CartItemView;
   locale: string;
@@ -441,6 +506,7 @@ function CartLine({
   onRemove: () => void;
   issueLabel?: (code: string) => string;
   removeLabel: string;
+  quantityError?: string;
 }) {
   const t = useTranslations("cart");
   return (
@@ -452,11 +518,14 @@ function CartLine({
         <div className="min-w-0 flex-1">
           <Link
             href={`/products/${item.slug}`}
+            title={item.productName}
             className="line-clamp-2 font-medium hover:underline"
           >
             {item.productName}
           </Link>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.variantName}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground" title={item.variantName}>
+            {item.variantName}
+          </p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
             <span className="font-semibold tabular-nums">
@@ -479,6 +548,7 @@ function CartLine({
           <Trash2 aria-hidden />
         </Button>
       </div>
+      {quantityError ? <p className="text-xs text-destructive">{quantityError}</p> : null}
       {item.issues.length > 0 && issueLabel ? (
         <ul className="grid gap-1 text-xs text-destructive">
           {item.issues.map((issue, index) => (
@@ -504,6 +574,54 @@ function CartLine({
 }
 
 /** Applies an optimistic quantity (0 removes the line) without touching money. */
+function recomputeCart(view: CartView): CartView {
+  let subtotal = 0;
+  let deliveryTotal = 0;
+  let itemCount = 0;
+
+  const shops = view.shops.map((shop) => {
+    let shopSubtotal = 0;
+    const items = shop.items.map((item) => {
+      const unitPrice = Number(item.unitPrice);
+      const lineTotal = Number.isFinite(unitPrice) ? unitPrice * item.quantity : 0;
+      shopSubtotal += lineTotal;
+      itemCount += item.quantity;
+      return { ...item, lineTotal: String(lineTotal) };
+    });
+
+    let deliveryCharge = shop.deliveryCharge == null ? null : Number(shop.deliveryCharge);
+    const freeAbove = shop.freeDeliveryAbove == null ? null : Number(shop.freeDeliveryAbove);
+    if (
+      deliveryCharge != null &&
+      freeAbove != null &&
+      Number.isFinite(freeAbove) &&
+      shopSubtotal >= freeAbove
+    ) {
+      deliveryCharge = 0;
+    }
+    if (deliveryCharge != null && Number.isFinite(deliveryCharge)) {
+      deliveryTotal += deliveryCharge;
+    }
+
+    return {
+      ...shop,
+      items,
+      subtotal: String(shopSubtotal),
+      deliveryCharge: deliveryCharge == null ? null : String(deliveryCharge),
+    };
+  });
+
+  subtotal = shops.reduce((sum, shop) => sum + Number(shop.subtotal), 0);
+  return {
+    ...view,
+    shops,
+    subtotal: String(subtotal),
+    deliveryTotal: String(deliveryTotal),
+    grandTotal: String(subtotal + deliveryTotal),
+    itemCount,
+  };
+}
+
 function withOptimisticQuantity(view: CartView, variantId: string, quantity: number): CartView {
   const shops = view.shops.flatMap((shop) => {
     const items = shop.items.flatMap((item) =>

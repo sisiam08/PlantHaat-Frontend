@@ -287,7 +287,7 @@
   "featured": "ফিচারড",
   "heroBadge": "যাচাইকৃত নার্সারি",
   "heroTitle": "আপনার ঘর সবুজে ভরে তুলুন",
-  "heroSubtitle": "সারা বাংলাদেশে যাচাইকৃত নার্সারির গাছ — ক্যাশ অন ডেলিভারি, নিরাপদ প্যাকেজিং।",
+  "heroSubtitle": "সারা বাংলাদেশে যাচাইকৃত নার্সারির গাছ - ক্যাশ অন ডেলিভারি, নিরাপদ প্যাকেজিং।",
   "heroCta": "গাছ দেখুন",
   "heroCtaSecondary": "দোকান ঘুরে দেখুন",
   "trustVerified": "যাচাইকৃত বিক্রেতা",
@@ -373,7 +373,10 @@
   "separateShipments": "আপনার অর্ডার {count, plural, =1 {# টি দোকান} other {# টি দোকান}} থেকে আলাদাভাবে আসবে; প্রতিটির ডেলিভারি চার্জ আলাদা।",
   "notDeliveringShort": "ডেলিভারি নেই",
   "priceChangedBanner": "{count}টি পণ্যের দাম বদলেছে — চেকআউটে নিশ্চিত করুন",
-  "priceChangedLine": "দাম {from} থেকে {to} হয়েছে"
+  "priceChangedLine": "দাম {from} থেকে {to} হয়েছে",
+  "updatingDelivery": "ডেলিভারি আপডেট হচ্ছে…",
+  "deliveryUpdateError": "ডেলিভারি আপডেট করা যায়নি। আবার চেষ্টা করুন।",
+  "quantityLimit": "এই পণ্যের সর্বোচ্চ পরিমাণে পৌঁছেছেন।"
  },
  "checkout": {
   "title": "চেকআউট",
@@ -1562,7 +1565,7 @@
    "empty": "কোনো রিপোর্ট নেই।",
    "resolved": "রিপোর্ট নিষ্পত্তি হয়েছে",
    "updated": "আপডেট হয়েছে",
-  "rating": "{rating} / 5",
+   "rating": "{rating} / 5",
    "reportReason": "কারণ",
    "hideReview": "রিভিউ লুকান",
    "keepReview": "রিভিউ রাখুন",
@@ -2188,4 +2191,3 @@
   "removePhoto": "ছবি সরান"
  }
 }
-

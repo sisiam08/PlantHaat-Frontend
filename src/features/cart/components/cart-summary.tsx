@@ -13,26 +13,40 @@ import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import type { CartView } from "../types";
 
-function Rows({ view }: { view: CartView }) {
+function Rows({
+  view,
+  hasDistrict,
+  updating,
+}: {
+  view: CartView;
+  hasDistrict: boolean;
+  updating: boolean;
+}) {
   const t = useTranslations("cart");
   const locale = useLocale();
   const showShipmentNote = view.shops.length > 1;
 
   return (
-    <div className="grid gap-2">
-      <div className="flex justify-between text-sm">
+    <div className="grid gap-3">
+      <div data-cart-subtotal className="flex justify-between text-sm">
         <span>{t("itemsSubtotal")}</span>
         <Price value={view.subtotal} locale={locale} size="sm" />
       </div>
       {view.shops.length > 0 ? <div className="text-sm font-medium">{t("delivery")}</div> : null}
       {view.shops.map((shop) => (
         <div key={shop.shopId} className="flex justify-between text-sm text-muted-foreground">
-          <span className="truncate pr-2">{shop.shopName}</span>
-          <span className={shop.deliverable === false ? "text-warning-foreground" : undefined}>
+          <span className="min-w-0 truncate pr-2" title={shop.shopName}>
+            {shop.shopName}
+          </span>
+          <span
+            className={shop.deliverable === false ? "shrink-0 text-warning-foreground" : "shrink-0"}
+          >
             {shop.deliverable === false ? (
               t("notDeliveringShort")
             ) : shop.deliveryCharge != null ? (
               <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+            ) : hasDistrict && updating ? (
+              t("updatingDelivery")
             ) : (
               t("selectDistrictShort")
             )}
@@ -40,11 +54,14 @@ function Rows({ view }: { view: CartView }) {
         </div>
       ))}
       <Separator />
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-sm text-muted-foreground">
         <span>{t("deliveryTotal")}</span>
         <Price value={view.deliveryTotal} locale={locale} size="sm" />
       </div>
-      <div className="flex justify-between font-semibold">
+      <div
+        data-cart-grand
+        className="flex justify-between border-t border-border pt-2 text-base font-bold"
+      >
         <span>{t("grandTotal")}</span>
         <Price value={view.grandTotal} locale={locale} />
       </div>
@@ -65,10 +82,16 @@ export function CartSummaryBox({
   view,
   actions,
   fixedOnMobile = true,
+  hasDistrict = true,
+  updating = false,
+  deliveryError = false,
 }: {
   view: CartView;
   actions?: ReactNode;
   fixedOnMobile?: boolean;
+  hasDistrict?: boolean;
+  updating?: boolean;
+  deliveryError?: boolean;
 }) {
   const t = useTranslations("cart");
   const locale = useLocale();
@@ -79,13 +102,18 @@ export function CartSummaryBox({
       <Card
         className={
           fixedOnMobile
-            ? "hidden rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:grid"
-            : "grid rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)]"
+            ? "hidden rounded-2xl border border-border/60 py-0 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:grid"
+            : "grid rounded-2xl border border-border/60 py-0 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)]"
         }
       >
-        <CardContent className="grid gap-3">
-          <h2 className="font-semibold">{t("summary")}</h2>
-          <Rows view={view} />
+        <CardContent className="grid gap-4 p-4 sm:p-5">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="font-semibold">{t("summary")}</h2>
+            {updating && !deliveryError ? (
+              <span className="text-xs text-muted-foreground">{t("updatingDelivery")}</span>
+            ) : null}
+          </div>
+          <Rows view={view} hasDistrict={hasDistrict} updating={updating} />
           {actions}
         </CardContent>
       </Card>
@@ -108,7 +136,7 @@ export function CartSummaryBox({
                 <SheetTitle>{t("summary")}</SheetTitle>
               </SheetHeader>
               <div className="grid gap-3 px-4 pb-6">
-                <Rows view={view} />
+                <Rows view={view} hasDistrict={hasDistrict} updating={updating} />
               </div>
             </SheetContent>
           </Sheet>

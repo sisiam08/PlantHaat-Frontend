@@ -177,9 +177,9 @@ export function CheckoutClient() {
   });
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-      <div className="grid gap-5">
-        <section className="grid gap-3">
+    <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:gap-6">
+      <div className="grid gap-6">
+        <section className="grid gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">{t("address")}</h2>
             {list.length > 0 ? (
@@ -198,7 +198,7 @@ export function CheckoutClient() {
           {list.map((address) => (
             <label
               key={address.id}
-              className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-card p-3"
+              className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-card p-4"
             >
               <input
                 type="radio"
@@ -207,11 +207,13 @@ export function CheckoutClient() {
                 checked={selectedAddress?.id === address.id}
                 onChange={() => setSelectedId(address.id)}
               />
-              <span className="grid gap-0.5 text-sm">
+              <span className="grid min-w-0 gap-1 text-sm">
                 <span className="font-medium">{address.recipientName}</span>
                 <span className="text-muted-foreground">
-                  {address.addressLine}, {address.area},{" "}
-                  {locale === "bn" ? address.district.nameBn : address.district.name}
+                  <span className="line-clamp-2" title={`${address.addressLine}, ${address.area}`}>
+                    {address.addressLine}, {address.area},{" "}
+                    {locale === "bn" ? address.district.nameBn : address.district.name}
+                  </span>
                 </span>
                 <span className="text-muted-foreground">{address.phone}</span>
               </span>

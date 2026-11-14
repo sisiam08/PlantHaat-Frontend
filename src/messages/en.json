@@ -287,7 +287,7 @@
   "featured": "Featured",
   "heroBadge": "Verified nurseries",
   "heroTitle": "Fill your home with green",
-  "heroSubtitle": "Plants from verified nurseries across Bangladesh — cash on delivery, plant-safe packaging.",
+  "heroSubtitle": "Plants from verified nurseries across Bangladesh - cash on delivery, plant-safe packaging.",
   "heroCta": "Browse plants",
   "heroCtaSecondary": "Explore shops",
   "trustVerified": "Verified sellers",
@@ -373,7 +373,10 @@
   "separateShipments": "Your order arrives separately from {count, plural, =1 {# shop} other {# shops}}; each shop charges its own delivery.",
   "notDeliveringShort": "No delivery",
   "priceChangedBanner": "{count} line(s) changed price — confirm at checkout",
-  "priceChangedLine": "Price changed from {from} to {to}"
+  "priceChangedLine": "Price changed from {from} to {to}",
+  "updatingDelivery": "Updating delivery…",
+  "deliveryUpdateError": "Couldn't update delivery. Try again.",
+  "quantityLimit": "Maximum quantity reached for this item."
  },
  "checkout": {
   "title": "Checkout",
@@ -1562,7 +1565,7 @@
    "empty": "No reports.",
    "resolved": "Report resolved",
    "updated": "Updated",
-  "rating": "{rating} / 5",
+   "rating": "{rating} / 5",
    "reportReason": "Reason",
    "hideReview": "Hide review",
    "keepReview": "Keep review",
@@ -2188,6 +2191,3 @@
   "removePhoto": "Remove photo"
  }
 }
-
-
-

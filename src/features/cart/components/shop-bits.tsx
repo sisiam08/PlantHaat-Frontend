@@ -95,7 +95,17 @@ export function QuantityStepper({
 
 /* ── Delivery line for one shop (charge + estimated days) ───────── */
 
-export function ShopDeliveryLine({ shop, hint }: { shop: CartShopView; hint: string }) {
+export function ShopDeliveryLine({
+  shop,
+  hint,
+  unavailable = false,
+  updating = false,
+}: {
+  shop: CartShopView;
+  hint: string;
+  unavailable?: boolean;
+  updating?: boolean;
+}) {
   const t = useTranslations("cart");
   const locale = useLocale();
 
@@ -103,7 +113,7 @@ export function ShopDeliveryLine({ shop, hint }: { shop: CartShopView; hint: str
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Truck aria-hidden className="size-4" />
-        <span>{hint}</span>
+        <span>{unavailable ? t("notDelivering") : updating ? t("updatingDelivery") : hint}</span>
       </div>
     );
   }
