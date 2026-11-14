@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { FixedBar } from "@/components/layout/fixed-bar";
 import { useAuth } from "@/features/auth/auth-provider";
 import { cartApi } from "@/features/cart/api";
 import { addGuestLine } from "@/features/cart/guest-cart";
@@ -171,20 +172,39 @@ export function VariantPicker({
   return (
     <div className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
       {source.length > 1 ? (
-        <div className="flex flex-wrap gap-2">
-          {source.map((variant) => {
+        <div role="radiogroup" aria-label={t("variantLabel")} className="flex flex-wrap gap-2">
+          {source.map((variant, index) => {
             const active = variant.id === selected.id;
+            const move = (delta: number) => {
+              const next = source[(index + delta + source.length) % source.length];
+              setSelectedId(next.id);
+              const buttons = (document.activeElement?.parentElement?.querySelectorAll(
+                "button[role=radio]",
+              ) ?? []) as NodeListOf<HTMLButtonElement>;
+              buttons[(index + delta + source.length) % source.length]?.focus();
+            };
             return (
               <button
                 key={variant.id}
                 type="button"
-                aria-pressed={active}
+                role="radio"
+                aria-checked={active}
+                tabIndex={active ? 0 : -1}
                 onClick={() => setSelectedId(variant.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                    event.preventDefault();
+                    move(1);
+                  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                    event.preventDefault();
+                    move(-1);
+                  }
+                }}
                 className={cn(
-                  "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                  "min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                   active
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted",
+                    : "border-input bg-background hover:border-primary/40 hover:bg-muted",
                 )}
               >
                 {variant.sizeLabel || variant.name}
@@ -268,25 +288,23 @@ export function VariantPicker({
       </div>
 
       {embedded ? null : (
-        <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
-          <div className="mx-auto flex max-w-7xl items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="font-heading truncate text-lg font-bold text-primary">
-                {formatBdt(selected.price, locale)}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {selected.sizeLabel || selected.name}
-              </p>
-            </div>
-            <Button
-              variant="cta"
-              disabled={adding || outOfStock}
-              onClick={() => void addToCart()}
-            >
-              {outOfStock ? t("outOfStock") : t("addToCart")}
-            </Button>
+        <FixedBar className="md:hidden">
+          <div className="min-w-0 flex-1">
+            <p className="font-heading truncate text-lg font-bold text-primary">
+              {formatBdt(selected.price, locale)}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {selected.sizeLabel || selected.name}
+            </p>
           </div>
-        </div>
+          <Button
+            variant="cta"
+            disabled={adding || outOfStock}
+            onClick={() => void addToCart()}
+          >
+            {outOfStock ? t("outOfStock") : t("addToCart")}
+          </Button>
+        </FixedBar>
       )}
     </div>
   );

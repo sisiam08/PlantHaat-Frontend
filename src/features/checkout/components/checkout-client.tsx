@@ -1,14 +1,18 @@
-"use client";
+﻿"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { QueryError } from "@/components/feedback/query-error";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +21,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addressesApi, type CreateAddressInput } from "@/features/addresses/api";
+import { FormField } from "@/features/auth/components/form-field";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
 import { CartSummaryBox } from "@/features/cart/components/cart-summary";
@@ -50,6 +54,7 @@ interface PriceChangeDetails {
 
 export function CheckoutClient() {
   const t = useTranslations("checkout");
+  const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const locale = useLocale();
   const router = useRouter();
@@ -59,8 +64,6 @@ export function CheckoutClient() {
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [priceChange, setPriceChange] = useState<PriceChangeDetails | null>(null);
-  const [formDistrictId, setFormDistrictId] = useState("");
-  const [formCityScope, setFormCityScope] = useState<"CITY" | "OUTSIDE" | "NA">("NA");
 
   const addresses = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
   const districts = useQuery({
@@ -74,6 +77,35 @@ export function CheckoutClient() {
     list.find((address) => address.isDefault) ??
     list[0];
 
+  const addressSchema = z.object({
+    recipientName: z.string().trim().min(1, t("required")),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^(?:\+?88)?01[3-9]\d{8}$/, t("invalidPhone")),
+    districtId: z.string().min(1, t("required")),
+    area: z.string().trim().min(1, t("required")),
+    addressLine: z.string().trim().min(1, t("required")),
+    postalCode: z.string().trim().max(10).optional(),
+    cityScope: z.enum(["CITY", "OUTSIDE", "NA"]),
+  });
+  type AddressForm = z.infer<typeof addressSchema>;
+
+  const form = useForm<AddressForm>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      recipientName: "",
+      phone: "",
+      districtId: "",
+      area: "",
+      addressLine: "",
+      postalCode: "",
+      cityScope: "NA",
+    },
+  });
+
+  const formDistrictId = form.watch("districtId");
+
   const cart = useQuery({
     queryKey: [...queryKeys.cart, selectedAddress?.districtId ?? 0],
     queryFn: () => cartApi.get(selectedAddress?.districtId),
@@ -86,6 +118,7 @@ export function CheckoutClient() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.addresses });
       setSelectedId(address.id);
       setShowForm(false);
+      form.reset();
     },
     onError: (error) => toastApiError(error, tErrors),
   });
@@ -119,6 +152,15 @@ export function CheckoutClient() {
     },
   });
 
+  if (addresses.isError) {
+    return (
+      <QueryError
+        message={tCommon("sectionLoadFailed")}
+        onRetry={() => void addresses.refetch()}
+      />
+    );
+  }
+
   const confirmPriceChange = () => {
     if (!priceChange) return;
     expectedGrandTotal.current = priceChange.grandTotal;
@@ -126,20 +168,18 @@ export function CheckoutClient() {
     placeOrder.mutate();
   };
 
-  const onSubmitAddress = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  const onSubmitAddress = form.handleSubmit((values) => {
     createAddress.mutate({
-      recipientName: String(form.get("recipientName") ?? ""),
-      phone: String(form.get("phone") ?? ""),
-      districtId: Number(form.get("districtId")),
-      area: String(form.get("area") ?? ""),
-      addressLine: String(form.get("addressLine") ?? ""),
-      postalCode: String(form.get("postalCode") ?? "") || undefined,
-      cityScope: formCityScope,
+      recipientName: values.recipientName,
+      phone: values.phone,
+      districtId: Number(values.districtId),
+      area: values.area,
+      addressLine: values.addressLine,
+      postalCode: values.postalCode || undefined,
+      cityScope: values.cityScope,
       isDefault: list.length === 0,
     });
-  };
+  });
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -185,27 +225,34 @@ export function CheckoutClient() {
           {showForm || list.length === 0 ? (
             <Card className="rounded-2xl">
               <CardContent>
-                <form onSubmit={onSubmitAddress} className="grid gap-3">
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="recipientName">{t("recipientName")}</Label>
-                    <Input id="recipientName" name="recipientName" required />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="phone">{t("phone")}</Label>
-                    <Input id="phone" name="phone" inputMode="tel" required />
-                  </div>
+                <form onSubmit={onSubmitAddress} className="grid gap-3" noValidate>
+                  <FormField
+                    label={t("recipientName")}
+                    autoComplete="name"
+                    error={form.formState.errors.recipientName?.message}
+                    {...form.register("recipientName")}
+                  />
+                  <FormField
+                    label={t("phone")}
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="01XXXXXXXXX"
+                    error={form.formState.errors.phone?.message}
+                    {...form.register("phone")}
+                  />
                   <div className="grid gap-1.5">
                     <Label htmlFor="districtId">{t("district")}</Label>
                     <select
                       id="districtId"
-                      name="districtId"
-                      required
-                      value={formDistrictId}
-                      onChange={(event) => {
-                        setFormDistrictId(event.target.value);
-                        setFormCityScope("NA");
-                      }}
-                      className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+                      aria-invalid={form.formState.errors.districtId ? true : undefined}
+                      aria-describedby={
+                        form.formState.errors.districtId ? "districtId-error" : undefined
+                      }
+                      className="h-11 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                      {...form.register("districtId", {
+                        onChange: () => form.setValue("cityScope", "CITY"),
+                      })}
                     >
                       <option value="">{t("district")}</option>
                       {(districts.data ?? []).map((district) => (
@@ -214,6 +261,11 @@ export function CheckoutClient() {
                         </option>
                       ))}
                     </select>
+                    {form.formState.errors.districtId ? (
+                      <p id="districtId-error" className="text-sm text-destructive">
+                        {form.formState.errors.districtId.message}
+                      </p>
+                    ) : null}
                   </div>
                   {(districts.data ?? []).find(
                     (district) => String(district.id) === formDistrictId,
@@ -222,29 +274,36 @@ export function CheckoutClient() {
                       <Label htmlFor="cityScope">{t("cityScope")}</Label>
                       <select
                         id="cityScope"
-                        value={formCityScope}
-                        onChange={(event) =>
-                          setFormCityScope(event.target.value as "CITY" | "OUTSIDE" | "NA")
-                        }
-                        className="h-10 rounded-full border border-input bg-background px-4 text-sm"
+                        className="h-11 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                        {...form.register("cityScope")}
                       >
+                        <option value="NA" disabled>
+                          {t("cityScope")}
+                        </option>
                         <option value="CITY">{t("insideCity")}</option>
                         <option value="OUTSIDE">{t("outsideCity")}</option>
                       </select>
                     </div>
                   ) : null}
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="area">{t("area")}</Label>
-                    <Input id="area" name="area" required />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="addressLine">{t("addressLine")}</Label>
-                    <Input id="addressLine" name="addressLine" required />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="postalCode">{t("postalCode")}</Label>
-                    <Input id="postalCode" name="postalCode" inputMode="numeric" />
-                  </div>
+                  <FormField
+                    label={t("area")}
+                    autoComplete="address-level2"
+                    error={form.formState.errors.area?.message}
+                    {...form.register("area")}
+                  />
+                  <FormField
+                    label={t("addressLine")}
+                    autoComplete="street-address"
+                    error={form.formState.errors.addressLine?.message}
+                    {...form.register("addressLine")}
+                  />
+                  <FormField
+                    label={t("postalCode")}
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    error={form.formState.errors.postalCode?.message}
+                    {...form.register("postalCode")}
+                  />
                   <Button type="submit" variant="cta" disabled={createAddress.isPending}>
                     {t("saveAddress")}
                   </Button>
@@ -268,9 +327,14 @@ export function CheckoutClient() {
         </section>
       </div>
 
-      <div className="grid gap-4 lg:sticky lg:top-24 lg:self-start">
+      <div className="grid gap-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:self-start">
         {cart.isLoading ? (
           <Skeleton className="h-24 w-full rounded-2xl" />
+        ) : cart.isError ? (
+          <QueryError
+            message={tCommon("sectionLoadFailed")}
+            onRetry={() => void cart.refetch()}
+          />
         ) : cart.data ? (
           <div className="grid gap-4">
             {cart.data.shops.map((shop) => (
@@ -280,7 +344,7 @@ export function CheckoutClient() {
                   {shop.items.map((item) => (
                     <div key={item.variantId} className="flex justify-between text-muted-foreground">
                       <span className="truncate pr-2">
-                        {item.productName} × {formatCount(item.quantity, locale)}
+                        {item.productName} Ã— {formatCount(item.quantity, locale)}
                       </span>
                       <span>{formatBdt(item.lineTotal, locale)}</span>
                     </div>
@@ -347,10 +411,10 @@ export function CheckoutClient() {
             {priceChange?.changedLines.map((line) => (
               <div key={line.variantId} className="flex items-center justify-between gap-3">
                 <span className="min-w-0 truncate">
-                  {line.productName} · {line.variantName}
+                  {line.productName} Â· {line.variantName}
                 </span>
                 <span className="shrink-0 text-muted-foreground">
-                  {formatBdt(line.from, locale)} → {formatBdt(line.to, locale)}
+                  {formatBdt(line.from, locale)} â†’ {formatBdt(line.to, locale)}
                 </span>
               </div>
             ))}
@@ -378,3 +442,4 @@ function hasNotDelivering(view: {
 }): boolean {
   return view.shops.some((shop) => shop.deliverable === false);
 }
+

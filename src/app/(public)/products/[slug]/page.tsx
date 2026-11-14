@@ -8,6 +8,14 @@ import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeliveryEstimator } from "@/features/catalog/components/delivery-estimator";
 import { StarRating } from "@/features/catalog/components/product-card";
@@ -108,6 +116,8 @@ async function ProductContent({
 
   const locale = await getLocale();
   const t = await getTranslations("product");
+  const tn = await getTranslations("nav");
+  const tc = await getTranslations("catalog");
   const [images, districts] = [
     product.images as unknown as DetailImage[],
     await getDistricts(),
@@ -206,13 +216,32 @@ async function ProductContent({
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
+    <main className="mx-auto w-full max-w-7xl px-4 pt-8 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] md:pb-12 lg:pt-12">
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">{tn("home")}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/products">{tc("title")}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="line-clamp-1">{product.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <ProductGallery images={images} alt={product.name} label={t("gallery")} />
 
         <div className="grid grid-cols-1 content-start gap-6">
           <div className="grid gap-2">
-            <h1 className="font-heading text-3xl leading-tight font-bold">{product.name}</h1>
+            <h1 className="font-heading text-3xl font-bold">{product.name}</h1>
             {product.nameBn ? (
               <p className="text-muted-foreground">{product.nameBn}</p>
             ) : null}
@@ -227,7 +256,7 @@ async function ProductContent({
             </div>
           </div>
 
-          <div className="lg:sticky lg:top-24">
+          <div className="lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
             <VariantPicker
               variants={variants}
               product={{
