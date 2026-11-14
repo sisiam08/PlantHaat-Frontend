@@ -79,28 +79,40 @@ export function ProductFeed({
     return () => observer.disconnect();
   }, [query]);
 
-  // Restore / persist scroll position keyed by the feed seed.
   useEffect(() => {
     const key = `${SCROLL_KEY_PREFIX}${seed}`;
-    let saved: string | null = null;
-    try {
-      saved = sessionStorage.getItem(key);
-    } catch {
-      saved = null;
-    }
-    if (saved) {
-      window.scrollTo({ top: Number(saved), behavior: "auto" });
-    }
-    const onScroll = () => {
+    const save = () => {
       try {
         sessionStorage.setItem(key, String(window.scrollY));
-      } catch {
-        // ignore
-      }
+      } catch {}
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [seed]);
+    let saved = 0;
+    try {
+      saved = Number(sessionStorage.getItem(key) ?? 0);
+    } catch {}
+    if (saved && products.length > 0) {
+      let frame = 0;
+      const start = performance.now() + 250;
+      const tick = () => {
+        window.scrollTo(0, saved);
+        if (performance.now() - start < 4200 && Math.abs(window.scrollY - saved) > 4) {
+          frame = requestAnimationFrame(tick);
+        }
+      };
+      frame = requestAnimationFrame(tick);
+      window.addEventListener("pagehide", save);
+      return () => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener("pagehide", save);
+      };
+    }
+    window.addEventListener("scroll", save, { passive: true });
+    window.addEventListener("pagehide", save);
+    return () => {
+      window.removeEventListener("scroll", save);
+      window.removeEventListener("pagehide", save);
+    };
+  }, [seed, products.length]);
 
   const showInitialError = query.isError && products.length === 0;
 
@@ -158,5 +170,8 @@ export function ProductFeed({
     </section>
   );
 }
+
+
+
 
 

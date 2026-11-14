@@ -91,6 +91,7 @@ function useCatalogParams() {
       mutate(params);
       params.delete("page");
       const qs = params.toString();
+
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [router, pathname, searchParams],
@@ -463,6 +464,7 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
   const t = useTranslations("catalog");
   const { query, setParam } = useCatalogParams();
   const value = query.sort ?? "newest";
+  const sortInteracted = useRef(false);
   const labels: Record<ProductSort, string> = {
     newest: t("sortNewest"),
     price_asc: t("sortPriceAsc"),
@@ -473,9 +475,13 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
   return (
     <Select
       value={value}
-      onValueChange={(next) =>
-        setParam("sort", next === "newest" ? undefined : next)
-      }
+      onValueChange={(next) => {
+        if (!sortInteracted.current) return;
+        setParam("sort", next === "newest" ? undefined : next);
+      }}
+      onOpenChange={(open) => {
+        if (open) sortInteracted.current = true;
+      }}
     >
       <SelectTrigger
         aria-label={t("sort")}
@@ -678,24 +684,25 @@ export function ProductsBrowser({
     return () => window.removeEventListener("scroll", onScroll);
   }, [signature]);
 
-  // Restore the saved offset on back navigation once the (cached) first page is
-  // painted. A fresh mount restores; an in-session filter change resets to top.
   const restoredRef = useRef(false);
   useEffect(() => {
-    if (restoredRef.current || products.length === 0) {
-      return;
-    }
+    if (restoredRef.current || products.length === 0) return;
     restoredRef.current = true;
+    let saved = 0;
     try {
-      const saved = sessionStorage.getItem(`${SCROLL_KEY_PREFIX}${signature}`);
-      if (saved) {
-        requestAnimationFrame(() => {
-          window.setTimeout(() => window.scrollTo({ top: Number(saved), behavior: "auto" }), 80);
-        });
+      saved = Number(sessionStorage.getItem(`${SCROLL_KEY_PREFIX}${signature}`) ?? 0);
+    } catch {}
+    if (!saved) return;
+    let frame = 0;
+    const start = performance.now() + 250;
+    const tick = () => {
+      window.scrollTo(0, saved);
+      if (performance.now() - start < 4200 && Math.abs(window.scrollY - saved) > 4) {
+        frame = requestAnimationFrame(tick);
       }
-    } catch {
-      // ignore (private mode)
-    }
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
   }, [signature, products.length]);
 
   // Infinite scroll sentinel (~600px before the end).
@@ -890,6 +897,11 @@ export function ProductsBrowser({
     </main>
   );
 }
+
+
+
+
+
 
 
 
