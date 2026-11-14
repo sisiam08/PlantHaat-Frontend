@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
@@ -36,6 +37,7 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
   const tStatus = useTranslations("admin.orderStatus");
   const tPayment = useTranslations("admin.paymentStatus");
   const tErrors = useTranslations("errors");
+  const tProduct = useTranslations("product");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [nextStatus, setNextStatus] = useState<OrderStatus | "">("");
@@ -185,7 +187,10 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
           {data.items.map((item) => (
             <div key={item.id} className="flex items-start justify-between gap-3">
               <span>
-                {item.productName} · {item.variantName} × {item.quantity}
+                {item.productName} · {item.variantName}
+                <X aria-hidden className="mx-1 inline-block size-3 align-middle" />
+                <span className="sr-only">{tProduct("quantity")} </span>
+                {item.quantity}
               </span>
               <span className="shrink-0">
                 <Price value={item.lineTotal} locale={locale} size="sm" />

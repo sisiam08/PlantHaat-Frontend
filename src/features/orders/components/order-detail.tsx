@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -181,6 +182,7 @@ function ShopOrderCard({
   onCancel: () => void;
   onRequest: () => void;
 }) {
+  const tProduct = useTranslations("product");
   const activeIndex = FLOW.indexOf(shopOrder.status);
   const terminal = shopOrder.status === "CANCELLED" || shopOrder.status === "FAILED_DELIVERY";
 
@@ -248,7 +250,10 @@ function ShopOrderCard({
             <div key={item.id} className="grid gap-2">
               <div className="flex justify-between text-sm">
                 <span>
-                  {item.productName} · {item.variantName} × {item.quantity}
+                  {item.productName} · {item.variantName}
+                  <X aria-hidden className="mx-1 inline-block size-3 align-middle" />
+                  <span className="sr-only">{tProduct("quantity")} </span>
+                  {item.quantity}
                 </span>
                 <span>
                   <Price value={item.lineTotal} locale={locale} size="sm" />
