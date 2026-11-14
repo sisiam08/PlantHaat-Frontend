@@ -9,6 +9,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { Price } from "@/components/product/price";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +24,6 @@ import { uploadsApi } from "@/features/uploads/api";
 import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { CategoryNode } from "@/lib/api/types";
-import { formatBdt } from "@/lib/format/money";
 import { sellerApi } from "../api";
 import { productStatusVariant } from "../status";
 import type {
@@ -69,7 +69,9 @@ export function ProductForm() {
     onError: (error) => toastApiError(error, tErrors),
   });
 
-  return <ProductBasicsForm onSubmit={(input) => create.mutate(input)} pending={create.isPending} />;
+  return (
+    <ProductBasicsForm onSubmit={(input) => create.mutate(input)} pending={create.isPending} />
+  );
 }
 
 /* ───────────────────────── edit ───────────────────────── */
@@ -184,14 +186,11 @@ function ProductBasicsForm({
       scientificName: values.scientificName.trim() || undefined,
       careInstructions: values.careInstructions.trim() || undefined,
       lightRequirement: (values.lightRequirement || undefined) as LightRequirement | undefined,
-      wateringFrequency: (values.wateringFrequency || undefined) as
-        | WateringFrequency
-        | undefined,
+      wateringFrequency: (values.wateringFrequency || undefined) as WateringFrequency | undefined,
       careDifficulty: (values.careDifficulty || undefined) as CareDifficulty | undefined,
       isIndoor: values.isIndoor,
       isPetSafe: values.isPetSafe,
-      matureHeightCm:
-        values.matureHeightCm.trim() && Number.isFinite(height) ? height : undefined,
+      matureHeightCm: values.matureHeightCm.trim() && Number.isFinite(height) ? height : undefined,
       tags: values.tags
         .split(",")
         .map((tag) => tag.trim())
@@ -369,7 +368,9 @@ function StatusCard({ product }: { product: SellerProductView }) {
       </CardHeader>
       <CardContent className="grid gap-3 text-sm">
         {product.rejectionReason ? (
-          <p className="text-destructive">{t("rejectionReason", { reason: product.rejectionReason })}</p>
+          <p className="text-destructive">
+            {t("rejectionReason", { reason: product.rejectionReason })}
+          </p>
         ) : null}
         <p className="text-muted-foreground">{t("statusHint")}</p>
         <div className="flex flex-wrap gap-2">
@@ -619,11 +620,15 @@ function VariantRow({
           )}
           {low ? <Badge variant="destructive">{t("lowStock")}</Badge> : null}
         </div>
-        <span className="text-muted-foreground">
-          {formatBdt(variant.price, locale)}
-          {variant.compareAtPrice != null
-            ? ` · ${t("compareAt")} ${formatBdt(variant.compareAtPrice, locale)}`
-            : ""}
+        <span className="flex flex-wrap items-center gap-1 text-muted-foreground">
+          <Price value={variant.price} locale={locale} size="sm" />
+          {variant.compareAtPrice != null ? (
+            <>
+              <span aria-hidden>·</span>
+              <span>{t("compareAt")}</span>
+              <Price value={variant.compareAtPrice} locale={locale} size="sm" />
+            </>
+          ) : null}
         </span>
         <span className="text-muted-foreground">
           {t("stockLabel")}: {variant.stockQty} · {t("threshold")}: {variant.lowStockThreshold}
@@ -742,7 +747,11 @@ function VariantForm({
     <form onSubmit={submit} className="grid gap-3 rounded-xl border border-border p-3" noValidate>
       <h3 className="font-medium">{variant ? t("editVariant") : t("newVariant")}</h3>
       <div className="grid gap-3 sm:grid-cols-2">
-        <FormField label={t("variantName")} value={name} onChange={(e) => setName(e.target.value)} />
+        <FormField
+          label={t("variantName")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <FormField
           label={t("price")}
           inputMode="decimal"

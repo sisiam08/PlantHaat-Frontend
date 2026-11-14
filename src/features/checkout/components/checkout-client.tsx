@@ -31,7 +31,6 @@ import { CartSummaryBox } from "@/features/cart/components/cart-summary";
 import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
-import { formatBdt } from "@/lib/format/money";
 import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import { checkoutApi } from "../api";
@@ -130,9 +129,7 @@ export function CheckoutClient() {
         {
           addressId: selectedAddress!.id,
           paymentMethod: "COD",
-          expectedGrandTotal: Number(
-            expectedGrandTotal.current ?? cart.data?.grandTotal ?? 0,
-          ),
+          expectedGrandTotal: Number(expectedGrandTotal.current ?? cart.data?.grandTotal ?? 0),
         },
         idempotencyKey.current,
       ),
@@ -155,10 +152,7 @@ export function CheckoutClient() {
 
   if (addresses.isError) {
     return (
-      <QueryError
-        message={tCommon("sectionLoadFailed")}
-        onRetry={() => void addresses.refetch()}
-      />
+      <QueryError message={tCommon("sectionLoadFailed")} onRetry={() => void addresses.refetch()} />
     );
   }
 
@@ -216,7 +210,8 @@ export function CheckoutClient() {
               <span className="grid gap-0.5 text-sm">
                 <span className="font-medium">{address.recipientName}</span>
                 <span className="text-muted-foreground">
-                  {address.addressLine}, {address.area}, {locale === "bn" ? address.district.nameBn : address.district.name}
+                  {address.addressLine}, {address.area},{" "}
+                  {locale === "bn" ? address.district.nameBn : address.district.name}
                 </span>
                 <span className="text-muted-foreground">{address.phone}</span>
               </span>
@@ -268,9 +263,8 @@ export function CheckoutClient() {
                       </p>
                     ) : null}
                   </div>
-                  {(districts.data ?? []).find(
-                    (district) => String(district.id) === formDistrictId,
-                  )?.metro ? (
+                  {(districts.data ?? []).find((district) => String(district.id) === formDistrictId)
+                    ?.metro ? (
                     <div className="grid gap-1.5">
                       <Label htmlFor="cityScope">{t("cityScope")}</Label>
                       <select
@@ -318,13 +312,7 @@ export function CheckoutClient() {
           <h2 className="text-lg font-semibold">{t("payment")}</h2>
           <Card className="rounded-2xl">
             <CardContent className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="paymentMethod"
-                aria-label={t("cod")}
-                checked
-                readOnly
-              />
+              <input type="radio" name="paymentMethod" aria-label={t("cod")} checked readOnly />
               <div>
                 <p className="font-medium">{t("cod")}</p>
                 <p className="text-sm text-muted-foreground">{t("codNote")}</p>
@@ -338,10 +326,7 @@ export function CheckoutClient() {
         {cart.isLoading ? (
           <Skeleton className="h-24 w-full rounded-2xl" />
         ) : cart.isError ? (
-          <QueryError
-            message={tCommon("sectionLoadFailed")}
-            onRetry={() => void cart.refetch()}
-          />
+          <QueryError message={tCommon("sectionLoadFailed")} onRetry={() => void cart.refetch()} />
         ) : cart.data ? (
           <div className="grid gap-4">
             {cart.data.shops.map((shop) => (
@@ -349,7 +334,10 @@ export function CheckoutClient() {
                 <CardContent className="grid gap-1 text-sm">
                   <p className="font-medium">{shop.shopName}</p>
                   {shop.items.map((item) => (
-                    <div key={item.variantId} className="flex justify-between text-muted-foreground">
+                    <div
+                      key={item.variantId}
+                      className="flex justify-between text-muted-foreground"
+                    >
                       <span className="truncate pr-2">
                         {item.productName} Ã— {formatCount(item.quantity, locale)}
                       </span>
@@ -362,12 +350,16 @@ export function CheckoutClient() {
                   </div>
                   <div className="flex justify-between">
                     <span>{t("delivery")}</span>
-                    <span className={shop.deliverable === false ? "text-warning-foreground" : undefined}>
-                      {shop.deliveryCharge != null
-                        ? formatBdt(shop.deliveryCharge, locale)
-                        : shop.deliverable === false
-                          ? t("notDelivering")
-                          : t("selectToSee")}
+                    <span
+                      className={shop.deliverable === false ? "text-warning-foreground" : undefined}
+                    >
+                      {shop.deliveryCharge != null ? (
+                        <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+                      ) : shop.deliverable === false ? (
+                        t("notDelivering")
+                      ) : (
+                        t("selectToSee")
+                      )}
                     </span>
                   </div>
                 </CardContent>
@@ -421,13 +413,20 @@ export function CheckoutClient() {
                   {line.productName} Â· {line.variantName}
                 </span>
                 <span className="shrink-0 text-muted-foreground">
-                  {formatBdt(line.from, locale)} â†’ {formatBdt(line.to, locale)}
+                  <Price value={line.from} locale={locale} size="sm" /> â†’{" "}
+                  <Price value={line.to} locale={locale} size="sm" />
                 </span>
               </div>
             ))}
             <div className="flex justify-between border-t border-border pt-2 font-semibold">
               <span>{t("newTotal")}</span>
-              <span>{priceChange ? formatBdt(priceChange.grandTotal, locale) : ""}</span>
+              <span>
+                {priceChange ? (
+                  <Price value={priceChange.grandTotal} locale={locale} size="sm" />
+                ) : (
+                  ""
+                )}
+              </span>
             </div>
           </div>
           <DialogFooter>
@@ -444,10 +443,6 @@ export function CheckoutClient() {
   );
 }
 
-function hasNotDelivering(view: {
-  shops: { deliverable?: boolean | null }[];
-}): boolean {
+function hasNotDelivering(view: { shops: { deliverable?: boolean | null }[] }): boolean {
   return view.shops.some((shop) => shop.deliverable === false);
 }
-
-

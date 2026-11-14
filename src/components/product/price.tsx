@@ -1,12 +1,13 @@
 ﻿import { formatBdt } from "@/lib/format/money";
 import { cn } from "@/lib/utils";
 
-type PriceSize = "sm" | "md" | "lg";
+type PriceSize = "sm" | "md" | "lg" | "xl";
 
 const SIZE: Record<PriceSize, string> = {
   sm: "text-sm",
   md: "text-base",
   lg: "text-3xl",
+  xl: "text-xl",
 };
 
 function moneyParts(value: string | number, locale: string) {
@@ -64,14 +65,11 @@ export function Price({
     maxValue !== undefined &&
     String(maxValue) !== "" &&
     String(maxValue) !== String(value);
-  const selling = hasRange ? formatBdt(value, locale) : formatBdt(value, locale);
-  if (!selling) return null;
+  if (formatBdt(value, locale) === "") return null;
 
   const compare = formatBdt(compareAt, locale);
   const showCompare =
-    Boolean(compare) &&
-    Number(compareAt) > Number(value) &&
-    Number.isFinite(Number(compareAt));
+    Boolean(compare) && Number(compareAt) > Number(value) && Number.isFinite(Number(compareAt));
 
   return (
     <span
@@ -102,4 +100,3 @@ export function Price({
     </span>
   );
 }
-

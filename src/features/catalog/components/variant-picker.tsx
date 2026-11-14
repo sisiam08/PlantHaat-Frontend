@@ -218,7 +218,9 @@ export function VariantPicker({
       <div className="flex items-baseline gap-2">
         <Price value={selected.price} locale={locale} size="lg" className="text-primary" />
         {showCompareAt ? (
-          <span className="text-sm text-muted-foreground line-through">{formatBdt(selected.compareAtPrice, locale)}</span>
+          <span className="text-sm text-muted-foreground line-through">
+            <Price value={selected.compareAtPrice} locale={locale} size="sm" />
+          </span>
         ) : null}
         <p className={cn("ml-auto text-sm", inStock ? "text-success" : "text-destructive")}>
           {inStock
@@ -287,16 +289,17 @@ export function VariantPicker({
       {embedded ? null : (
         <FixedBar className="md:hidden">
           <div className="min-w-0 flex-1">
-            <Price value={selected.price} locale={locale} size="md" className="truncate text-primary" />
+            <Price
+              value={selected.price}
+              locale={locale}
+              size="md"
+              className="truncate text-primary"
+            />
             <p className="truncate text-xs text-muted-foreground">
               {selected.sizeLabel || selected.name}
             </p>
           </div>
-          <Button
-            variant="cta"
-            disabled={adding || outOfStock}
-            onClick={() => void addToCart()}
-          >
+          <Button variant="cta" disabled={adding || outOfStock} onClick={() => void addToCart()}>
             {outOfStock ? t("outOfStock") : t("addToCart")}
           </Button>
         </FixedBar>
@@ -304,5 +307,3 @@ export function VariantPicker({
     </div>
   );
 }
-
-

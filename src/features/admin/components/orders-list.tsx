@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { adminApi } from "../api";
 import { orderStatusVariant } from "../status";
 import type { OrderStatus } from "../types";
@@ -103,11 +103,11 @@ export function OrdersList({
                   <Badge variant={orderStatusVariant(order.status)}>{tStatus(order.status)}</Badge>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {order.shop.name} · {order.order.orderNumber} ·{" "}
-                  {order.items.length} {t("items")}
+                  {order.shop.name} · {order.order.orderNumber} · {order.items.length} {t("items")}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {formatBdt(order.total, locale)} · {formatLatinDateTime(order.createdAt)}
+                  <Price value={order.total} locale={locale} size="sm" /> ·{" "}
+                  {formatLatinDateTime(order.createdAt)}
                 </span>
               </div>
               <Button asChild variant="outline" size="sm">
@@ -118,7 +118,9 @@ export function OrdersList({
         ))}
       </div>
 
-      {meta ? <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} /> : null}
+      {meta ? (
+        <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} />
+      ) : null}
     </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { Price } from "@/components/product/price";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,9 +60,18 @@ export function AnalyticsClient() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={t("deliveredOrders")} value={String(data.deliveredOrders)} />
-        <Stat label={t("revenue")} value={formatBdt(data.revenue, locale)} />
-        <Stat label={t("commissionPaid")} value={formatBdt(data.commissionPaid, locale)} />
-        <Stat label={t("averageOrderValue")} value={formatBdt(data.averageOrderValue, locale)} />
+        <Stat
+          label={t("revenue")}
+          value={<Price value={data.revenue} locale={locale} size="xl" />}
+        />
+        <Stat
+          label={t("commissionPaid")}
+          value={<Price value={data.commissionPaid} locale={locale} size="xl" />}
+        />
+        <Stat
+          label={t("averageOrderValue")}
+          value={<Price value={data.averageOrderValue} locale={locale} size="xl" />}
+        />
         <Stat
           label={t("rating")}
           value={`${Number(data.rating.avg || 0).toFixed(1)} (${data.rating.count})`}
@@ -157,7 +167,7 @@ export function AnalyticsClient() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <Card className="rounded-2xl">
       <CardContent className="grid gap-1">

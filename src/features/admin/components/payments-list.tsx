@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,21 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { adminApi } from "../api";
 import { paymentStatusVariant } from "../status";
 import { Pager } from "./pager";
 
 const PAGE_SIZE = 20;
-const STATUSES = ["ALL", "PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED"];
+const STATUSES = [
+  "ALL",
+  "PENDING",
+  "PAID",
+  "FAILED",
+  "CANCELLED",
+  "REFUNDED",
+  "PARTIALLY_REFUNDED",
+];
 const METHODS = ["ALL", "COD", "PIPRAPAY", "BKASH", "NAGAD", "CARD", "BANK_TRANSFER"];
 
 export function PaymentsList({
@@ -36,6 +44,7 @@ export function PaymentsList({
   const t = useTranslations("admin.payments");
   const tStatus = useTranslations("admin.paymentStatus");
   const tCommon = useTranslations("admin.common");
+  const locale = useLocale();
   const router = useRouter();
   const page = Math.max(1, initialPage);
   const status = STATUSES.includes(initialStatus) ? initialStatus : "ALL";
@@ -130,7 +139,10 @@ export function PaymentsList({
             <CardContent className="flex flex-wrap items-center justify-between gap-3">
               <div className="grid min-w-0 gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/admin/payments/${payment.id}`} className="font-medium hover:underline">
+                  <Link
+                    href={`/admin/payments/${payment.id}`}
+                    className="font-medium hover:underline"
+                  >
                     {payment.orderNumber}
                   </Link>
                   <Badge variant={paymentStatusVariant(payment.status)}>
@@ -139,7 +151,7 @@ export function PaymentsList({
                   <Badge variant="outline">{payment.method}</Badge>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {formatBdt(payment.amount, "en")}
+                  <Price value={payment.amount} locale={locale} size="sm" />
                   {payment.shopOrderNumber ? ` · ${payment.shopOrderNumber}` : ""} ·{" "}
                   {formatLatinDateTime(payment.createdAt)}
                 </span>

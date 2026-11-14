@@ -9,7 +9,6 @@ import { FixedBar } from "@/components/layout/fixed-bar";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-import { formatBdt } from "@/lib/format/money";
 import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import type { CartView } from "../types";
@@ -30,11 +29,13 @@ function Rows({ view }: { view: CartView }) {
         <div key={shop.shopId} className="flex justify-between text-sm text-muted-foreground">
           <span className="truncate pr-2">{shop.shopName}</span>
           <span className={shop.deliverable === false ? "text-warning-foreground" : undefined}>
-            {shop.deliverable === false
-              ? t("notDeliveringShort")
-              : shop.deliveryCharge != null
-                ? formatBdt(shop.deliveryCharge, locale)
-                : t("selectDistrictShort")}
+            {shop.deliverable === false ? (
+              t("notDeliveringShort")
+            ) : shop.deliveryCharge != null ? (
+              <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+            ) : (
+              t("selectDistrictShort")
+            )}
           </span>
         </div>
       ))}
@@ -117,5 +118,3 @@ export function CartSummaryBox({
     </>
   );
 }
-
-

@@ -3,8 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { sellerApi } from "../api";
 import { orderStatusVariant } from "../status";
 import type { OrderStatus, SellerShopOrderView, TransitionOrderInput } from "../types";
@@ -161,19 +161,35 @@ export function SellerOrderDetail({ id }: { id: string }) {
               <span>
                 {item.productName} · {item.variantName} × {item.quantity}
               </span>
-              <span className="shrink-0">{formatBdt(item.lineTotal, locale)}</span>
+              <span className="shrink-0">
+                <Price value={item.lineTotal} locale={locale} size="sm" />
+              </span>
             </div>
           ))}
           <Separator />
           <div className="grid gap-1">
-            <Row label={t("subtotal")} value={formatBdt(data.subtotal, locale)} />
-            <Row label={t("delivery")} value={formatBdt(data.deliveryCharge, locale)} />
-            <Row label={t("commission")} value={formatBdt(data.commissionAmount, locale)} />
+            <Row
+              label={t("subtotal")}
+              value={<Price value={data.subtotal} locale={locale} size="sm" />}
+            />
+            <Row
+              label={t("delivery")}
+              value={<Price value={data.deliveryCharge} locale={locale} size="sm" />}
+            />
+            <Row
+              label={t("commission")}
+              value={<Price value={data.commissionAmount} locale={locale} size="sm" />}
+            />
             <div className="flex justify-between font-semibold">
               <span>{t("total")}</span>
-              <span>{formatBdt(data.total, locale)}</span>
+              <span>
+                <Price value={data.total} locale={locale} size="sm" />
+              </span>
             </div>
-            <Row label={t("net")} value={formatBdt(data.sellerNetAmount, locale)} />
+            <Row
+              label={t("net")}
+              value={<Price value={data.sellerNetAmount} locale={locale} size="sm" />}
+            />
           </div>
         </CardContent>
       </Card>
@@ -294,7 +310,9 @@ export function SellerOrderDetail({ id }: { id: string }) {
                   <Button
                     type="button"
                     variant="cta"
-                    disabled={transition.isPending || (pending === "CANCELLED" && note.trim().length < 3)}
+                    disabled={
+                      transition.isPending || (pending === "CANCELLED" && note.trim().length < 3)
+                    }
                     onClick={confirmTransition}
                   >
                     {t("confirmAction", { status: tStatus(pending) })}
@@ -337,7 +355,7 @@ export function SellerOrderDetail({ id }: { id: string }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>

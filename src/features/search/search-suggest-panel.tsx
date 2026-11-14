@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { PLANT_PLACEHOLDER } from "@/lib/images/cloudinary-loader";
+import { EMPTY_SUGGESTIONS, fetchSearchSuggestions, type SuggestPayload } from "./api";
 import {
-  EMPTY_SUGGESTIONS,
-  fetchSearchSuggestions,
-  type SuggestPayload,
-} from "./api";
-import { removeRecentSearch, clearRecentSearches, rememberSearch, useRecentSearches } from "./recent-searches";
+  removeRecentSearch,
+  clearRecentSearches,
+  rememberSearch,
+  useRecentSearches,
+} from "./recent-searches";
 
 interface PanelProps {
   query: string;
@@ -121,8 +122,7 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
     onNavigate();
   };
 
-  const hasResults =
-    payload.products.length + payload.categories.length + payload.shops.length > 0;
+  const hasResults = payload.products.length + payload.categories.length + payload.shops.length > 0;
 
   return (
     <CommandList className="max-h-[70vh]">
@@ -184,9 +184,7 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
               {t("loading")}
             </div>
           ) : error ? (
-            <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-              {t("error")}
-            </div>
+            <div className="px-3 py-4 text-center text-sm text-muted-foreground">{t("error")}</div>
           ) : !hasResults ? (
             <div className="px-3 py-4 text-center text-sm text-muted-foreground">
               {t("noMatches", { query: trimmed })}
@@ -209,7 +207,11 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                         />
                       </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {product.inStock ? formatBdt(product.minPrice, locale) : t("outOfStock")}
+                        {product.inStock ? (
+                          <Price value={product.minPrice} locale={locale} size="sm" />
+                        ) : (
+                          t("outOfStock")
+                        )}
                       </span>
                     </CommandItem>
                   ))}
@@ -224,13 +226,12 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                       value={`category:${category.slug}`}
                       onSelect={() => go(`/products?category=${encodeURIComponent(category.slug)}`)}
                     >
-                      <Thumb
-                        src={category.imageUrl}
-                        fallback={<PlantThumbFallback />}
-                      />
+                      <Thumb src={category.imageUrl} fallback={<PlantThumbFallback />} />
                       <span className="min-w-0 flex-1 truncate">
                         <Highlight
-                          text={locale === "bn" && category.nameBn ? category.nameBn : category.name}
+                          text={
+                            locale === "bn" && category.nameBn ? category.nameBn : category.name
+                          }
                           query={trimmed}
                         />
                       </span>
@@ -247,12 +248,17 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                       value={`shop:${shop.slug}`}
                       onSelect={() => go(`/shops/${encodeURIComponent(shop.slug)}`)}
                     >
-                      <Thumb src={shop.logoUrl} fallback={<Store aria-hidden className="size-4" />} />
+                      <Thumb
+                        src={shop.logoUrl}
+                        fallback={<Store aria-hidden className="size-4" />}
+                      />
                       <span className="min-w-0 flex-1 truncate">
                         <Highlight text={shop.name} query={trimmed} />
                       </span>
                       {shop.district ? (
-                        <span className="shrink-0 text-xs text-muted-foreground">{shop.district}</span>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {shop.district}
+                        </span>
                       ) : null}
                     </CommandItem>
                   ))}

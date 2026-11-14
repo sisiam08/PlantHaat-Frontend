@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { sellerApi } from "../api";
 import { orderStatusVariant } from "../status";
 
@@ -103,9 +103,7 @@ export function SellerOrdersList({
               <div className="grid gap-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{order.shopOrderNumber}</span>
-                  <Badge variant={orderStatusVariant(order.status)}>
-                    {tStatus(order.status)}
-                  </Badge>
+                  <Badge variant={orderStatusVariant(order.status)}>{tStatus(order.status)}</Badge>
                   {order.codRisk && order.codRisk !== "OK" ? (
                     <Badge variant="destructive">{t("codRiskBadge")}</Badge>
                   ) : null}
@@ -115,7 +113,9 @@ export function SellerOrdersList({
                   {order.items.length} {t("items")}
                 </span>
               </div>
-              <span className="font-semibold">{formatBdt(order.total, locale)}</span>
+              <span className="font-semibold">
+                <Price value={order.total} locale={locale} size="sm" />
+              </span>
               <Button asChild variant="outline" size="sm">
                 <Link href={`/seller/orders/${order.id}`}>{t("viewDetails")}</Link>
               </Button>

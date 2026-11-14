@@ -3,12 +3,12 @@
 import { BadgeCheck, Minus, Plus, Truck } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { Price } from "@/components/product/price";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { formatBdt } from "@/lib/format/money";
 import { formatRange } from "@/lib/format/number";
 import type { CartShopView } from "../types";
 
@@ -95,13 +95,7 @@ export function QuantityStepper({
 
 /* ── Delivery line for one shop (charge + estimated days) ───────── */
 
-export function ShopDeliveryLine({
-  shop,
-  hint,
-}: {
-  shop: CartShopView;
-  hint: string;
-}) {
+export function ShopDeliveryLine({ shop, hint }: { shop: CartShopView; hint: string }) {
   const t = useTranslations("cart");
   const locale = useLocale();
 
@@ -128,7 +122,9 @@ export function ShopDeliveryLine({
             })
           : t("delivery")}
       </span>
-      <span className="font-medium">{formatBdt(shop.deliveryCharge, locale)}</span>
+      <span className="font-medium">
+        <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+      </span>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { ReviewForm } from "@/features/reviews/components/review-form";
 import { formatDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { queryKeys } from "@/lib/api/query-keys";
 import { ordersApi } from "../api";
 import type { ShopOrderView } from "../types";
@@ -108,23 +108,31 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         <CardContent className="grid gap-2 text-sm">
           <div className="flex justify-between">
             <span>{t("itemsSubtotal")}</span>
-            <span>{formatBdt(detail.subtotal, locale)}</span>
+            <span>
+              <Price value={detail.subtotal} locale={locale} size="sm" />
+            </span>
           </div>
           <div className="text-sm font-medium">{t("delivery")}</div>
           {detail.shopOrders.map((shopOrder) => (
             <div key={shopOrder.id} className="flex justify-between text-muted-foreground">
               <span className="truncate pr-2">{shopOrder.shop.name}</span>
-              <span>{formatBdt(shopOrder.deliveryCharge, locale)}</span>
+              <span>
+                <Price value={shopOrder.deliveryCharge} locale={locale} size="sm" />
+              </span>
             </div>
           ))}
           <Separator />
           <div className="flex justify-between">
             <span>{t("deliveryTotal")}</span>
-            <span>{formatBdt(detail.deliveryTotal, locale)}</span>
+            <span>
+              <Price value={detail.deliveryTotal} locale={locale} size="sm" />
+            </span>
           </div>
           <div className="flex justify-between font-semibold">
             <span>{t("grandTotal")}</span>
-            <span>{formatBdt(detail.grandTotal, locale)}</span>
+            <span>
+              <Price value={detail.grandTotal} locale={locale} size="sm" />
+            </span>
           </div>
           {detail.shopOrders.length > 1 ? (
             <p className="rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
@@ -242,7 +250,9 @@ function ShopOrderCard({
                 <span>
                   {item.productName} · {item.variantName} × {item.quantity}
                 </span>
-                <span>{formatBdt(item.lineTotal, locale)}</span>
+                <span>
+                  <Price value={item.lineTotal} locale={locale} size="sm" />
+                </span>
               </div>
               {shopOrder.status === "DELIVERED" ? (
                 <ReviewForm orderItemId={item.id} productName={item.productName} />
@@ -255,15 +265,21 @@ function ShopOrderCard({
         <div className="grid gap-1 text-sm">
           <div className="flex justify-between">
             <span>{t("itemsSubtotal")}</span>
-            <span>{formatBdt(shopOrder.subtotal, locale)}</span>
+            <span>
+              <Price value={shopOrder.subtotal} locale={locale} size="sm" />
+            </span>
           </div>
           <div className="flex justify-between">
             <span>{t("delivery")}</span>
-            <span>{formatBdt(shopOrder.deliveryCharge, locale)}</span>
+            <span>
+              <Price value={shopOrder.deliveryCharge} locale={locale} size="sm" />
+            </span>
           </div>
           <div className="flex justify-between font-semibold">
             <span>{t("total")}</span>
-            <span>{formatBdt(shopOrder.total, locale)}</span>
+            <span>
+              <Price value={shopOrder.total} locale={locale} size="sm" />
+            </span>
           </div>
         </div>
 

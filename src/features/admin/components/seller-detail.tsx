@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { adminApi } from "../api";
 import { sellerStatusVariant } from "../status";
 import { DocumentViewer } from "./documents-viewer";
@@ -123,7 +123,8 @@ export function SellerDetail({ id }: { id: string }) {
   });
 
   const adjustment = useMutation({
-    mutationFn: () => adminApi.recordAdjustment(id, { amount: Number(adjAmount), note: adjNote.trim() }),
+    mutationFn: () =>
+      adminApi.recordAdjustment(id, { amount: Number(adjAmount), note: adjNote.trim() }),
     onSuccess: async () => {
       setAdjAmount("");
       setAdjNote("");
@@ -271,7 +272,10 @@ export function SellerDetail({ id }: { id: string }) {
                 <Row label={t("businessAddress")} value={data.businessAddress} />
                 <Row label={t("tradeLicense")} value={data.tradeLicenseNo ?? "-"} />
                 <Row label={t("createdAt")} value={formatLatinDateTime(data.createdAt)} />
-                <Row label={t("submittedAt")} value={data.submittedAt ? formatLatinDateTime(data.submittedAt) : "-"} />
+                <Row
+                  label={t("submittedAt")}
+                  value={data.submittedAt ? formatLatinDateTime(data.submittedAt) : "-"}
+                />
               </CardContent>
             </Card>
 
@@ -335,14 +339,15 @@ export function SellerDetail({ id }: { id: string }) {
             </CardHeader>
             <CardContent className="grid gap-3 text-sm">
               {ledger.isLoading ? <Skeleton className="h-20 w-full" /> : null}
-              {ledger.isError ? (
-                <p className="text-muted-foreground">{t("loadError")}</p>
-              ) : null}
+              {ledger.isError ? <p className="text-muted-foreground">{t("loadError")}</p> : null}
               {!ledger.isLoading && ledgerItems.length === 0 ? (
                 <p className="text-muted-foreground">{t("noLedger")}</p>
               ) : null}
               {ledgerItems.map((entry) => (
-                <div key={entry.id} className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-b-0 last:pb-0">
+                <div
+                  key={entry.id}
+                  className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-b-0 last:pb-0"
+                >
                   <div className="grid gap-0.5">
                     <span className="font-medium">{tLedger(entry.type)}</span>
                     {entry.description ? (
@@ -352,7 +357,9 @@ export function SellerDetail({ id }: { id: string }) {
                       {formatLatinDateTime(entry.createdAt)}
                     </span>
                   </div>
-                  <span className="shrink-0">{formatBdt(entry.amount, locale)}</span>
+                  <span className="shrink-0">
+                    <Price value={entry.amount} locale={locale} size="sm" />
+                  </span>
                 </div>
               ))}
               {ledgerMeta ? (
@@ -429,7 +436,11 @@ export function SellerDetail({ id }: { id: string }) {
                   type="button"
                   variant="cta"
                   className="w-fit"
-                  disabled={adjustment.isPending || Number.isNaN(Number(adjAmount)) || adjNote.trim().length < 1}
+                  disabled={
+                    adjustment.isPending ||
+                    Number.isNaN(Number(adjAmount)) ||
+                    adjNote.trim().length < 1
+                  }
                   onClick={() => adjustment.mutate()}
                 >
                   {t("recordAdjustment")}
@@ -482,10 +493,7 @@ export function SellerDetail({ id }: { id: string }) {
             <Button
               type="button"
               variant="destructive"
-              disabled={
-                suspend.isPending ||
-                (cancelOpenOrders && suspendReason.trim().length < 3)
-              }
+              disabled={suspend.isPending || (cancelOpenOrders && suspendReason.trim().length < 3)}
               onClick={() => suspend.mutate()}
             >
               {suspend.isPending ? t("suspending") : t("suspend")}

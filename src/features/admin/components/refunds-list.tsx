@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { adminApi } from "../api";
 import { refundStatusVariant } from "../status";
 import type { RefundStatus } from "../types";
@@ -70,8 +70,7 @@ export function RefundsList({
     router.push(qs ? `/admin/refunds?${qs}` : "/admin/refunds");
   };
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.admin.refunds() });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.refunds() });
 
   const approve = useMutation({
     mutationFn: (id: string) => adminApi.approveRefund(id),
@@ -142,7 +141,9 @@ export function RefundsList({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="grid gap-1 text-sm">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium">{formatBdt(refund.amount, locale)}</span>
+                    <span className="font-medium">
+                      <Price value={refund.amount} locale={locale} size="sm" />
+                    </span>
                     <Badge variant={refundStatusVariant(refund.status)}>
                       {tStatus(refund.status)}
                     </Badge>
@@ -274,7 +275,9 @@ export function RefundsList({
         ))}
       </div>
 
-      {meta ? <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} /> : null}
+      {meta ? (
+        <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} />
+      ) : null}
     </div>
   );
 }

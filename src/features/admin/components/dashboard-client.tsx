@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { Price } from "@/components/product/price";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,9 +58,12 @@ export function DashboardClient() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label={t("gmv")} value={formatBdt(data.gmv, locale)} />
+        <Stat label={t("gmv")} value={<Price value={data.gmv} locale={locale} size="xl" />} />
         <Stat label={t("orders")} value={String(data.orderCount)} />
-        <Stat label={t("commission")} value={formatBdt(data.commissionEarned, locale)} />
+        <Stat
+          label={t("commission")}
+          value={<Price value={data.commissionEarned} locale={locale} size="xl" />}
+        />
         <Stat label={t("pendingApprovals")} value={String(data.pendingApprovals)} />
         <Stat label={t("newCustomers")} value={String(data.newCustomers)} />
         <Stat label={t("newSellers")} value={String(data.newSellers)} />
@@ -84,7 +88,7 @@ export function DashboardClient() {
             <div className="flex h-40 items-center justify-center rounded-xl bg-muted/40">
               <div className="text-center">
                 <p className="font-heading text-2xl font-semibold">
-                  {formatBdt(data.dailySeries[0].gmv, locale)}
+                  <Price value={data.dailySeries[0].gmv} locale={locale} size="sm" />
                 </p>
                 <p className="text-xs text-muted-foreground">{data.dailySeries[0].date}</p>
               </div>
@@ -120,7 +124,9 @@ export function DashboardClient() {
               data.topShops.map((entry, index) => (
                 <div key={entry.shop?.id ?? index} className="flex justify-between gap-3">
                   <span className="truncate">{entry.shop?.name ?? "-"}</span>
-                  <span className="shrink-0">{formatBdt(entry.total, locale)}</span>
+                  <span className="shrink-0">
+                    <Price value={entry.total} locale={locale} size="sm" />
+                  </span>
                 </div>
               ))
             )}
@@ -167,7 +173,7 @@ export function DashboardClient() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <Card className="rounded-2xl">
       <CardContent className="grid gap-1">

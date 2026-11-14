@@ -2,13 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { sellerApi } from "../api";
 import { payoutStatusVariant } from "../status";
 
@@ -41,10 +42,27 @@ export function EarningsClient() {
         </CardHeader>
         <CardContent className="grid gap-3">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <BalanceStat label={t("available")} value={formatBdt(available, locale)} hint={t("availableHint")} tone="primary" />
-            <BalanceStat label={t("pending")} value={formatBdt(pending, locale)} hint={t("pendingHint")} />
-            <BalanceStat label={t("owedToPlatform")} value={formatBdt(owedToPlatform, locale)} hint={t("owedHint")} />
-            <BalanceStat label={t("net")} value={formatBdt(net, locale)} hint={t("netHint")} />
+            <BalanceStat
+              label={t("available")}
+              value={<Price value={available} locale={locale} size="xl" />}
+              hint={t("availableHint")}
+              tone="primary"
+            />
+            <BalanceStat
+              label={t("pending")}
+              value={<Price value={pending} locale={locale} size="xl" />}
+              hint={t("pendingHint")}
+            />
+            <BalanceStat
+              label={t("owedToPlatform")}
+              value={<Price value={owedToPlatform} locale={locale} size="xl" />}
+              hint={t("owedHint")}
+            />
+            <BalanceStat
+              label={t("net")}
+              value={<Price value={net} locale={locale} size="xl" />}
+              hint={t("netHint")}
+            />
           </div>
           <p className="text-sm text-muted-foreground">{t("holdExplanation")}</p>
         </CardContent>
@@ -81,7 +99,9 @@ export function EarningsClient() {
                     {formatLatinDateTime(entry.createdAt)}
                   </span>
                 </div>
-                <span className="shrink-0">{formatBdt(entry.amount, locale)}</span>
+                <span className="shrink-0">
+                  <Price value={entry.amount} locale={locale} size="sm" />
+                </span>
               </div>
             ))
           )}
@@ -112,7 +132,9 @@ export function EarningsClient() {
                     {payout.method ?? "-"} · {formatLatinDateTime(payout.createdAt)}
                   </span>
                 </div>
-                <span className="shrink-0">{formatBdt(payout.amount, locale)}</span>
+                <span className="shrink-0">
+                  <Price value={payout.amount} locale={locale} size="sm" />
+                </span>
               </div>
             ))
           )}
@@ -129,14 +151,16 @@ function BalanceStat({
   tone,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   hint: string;
   tone?: "primary";
 }) {
   return (
     <div className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-3">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className={tone === "primary" ? "text-xl font-bold text-primary" : "text-xl font-semibold"}>
+      <span
+        className={tone === "primary" ? "text-xl font-bold text-primary" : "text-xl font-semibold"}
+      >
         {value}
       </span>
       <span className="text-[11px] text-muted-foreground">{hint}</span>

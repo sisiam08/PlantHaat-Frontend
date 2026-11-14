@@ -22,21 +22,12 @@ import { formatBdt } from "@/lib/format/money";
 import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import { cartApi } from "../api";
-import {
-  getRememberedDistrictId,
-  rememberDistrictId,
-} from "../district-store";
+import { getRememberedDistrictId, rememberDistrictId } from "../district-store";
 import { removeGuestLine, setGuestQuantity } from "../guest-cart";
 import type { CartItemView, CartShopView, CartView } from "../types";
 import { useGuestCart } from "../use-guest-cart";
-import {
-  CartSummaryBox,
-} from "./cart-summary";
-import {
-  QuantityStepper,
-  ShopCardHeader,
-  ShopDeliveryLine,
-} from "./shop-bits";
+import { CartSummaryBox } from "./cart-summary";
+import { QuantityStepper, ShopCardHeader, ShopDeliveryLine } from "./shop-bits";
 
 export function CartClient() {
   const { user } = useAuth();
@@ -75,9 +66,7 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
       {[...shops.entries()].map(([shopName, shopLines]) => (
         <Card key={shopName || "no-shop"} className="rounded-2xl">
           <CardContent className="grid gap-3">
-            {shopName ? (
-              <p className="font-semibold">{shopName}</p>
-            ) : null}
+            {shopName ? <p className="font-semibold">{shopName}</p> : null}
             {shopLines.map((line) => (
               <CartLine
                 key={line.variantId}
@@ -229,9 +218,7 @@ function ServerCart() {
 
   const view = cart.data;
   const notDelivering = view.shops.filter((shop) => shop.deliverable === false);
-  const hasIssues = view.shops.some((shop) =>
-    shop.items.some((item) => item.issues.length > 0),
-  );
+  const hasIssues = view.shops.some((shop) => shop.items.some((item) => item.issues.length > 0));
   const blocked = hasIssues || notDelivering.length > 0;
 
   const checkoutActions = (
@@ -329,8 +316,8 @@ function ShopCard({
   const notDelivering = shop.deliverable === false;
   const shopTotal =
     shop.subtotal != null && shop.deliveryCharge != null
-      ? formatBdt(Number(shop.subtotal) + Number(shop.deliveryCharge), locale)
-      : "";
+      ? Number(shop.subtotal) + Number(shop.deliveryCharge)
+      : null;
 
   return (
     <Card className={notDelivering ? "rounded-2xl border-warning/50" : "rounded-2xl"}>
@@ -347,12 +334,7 @@ function ShopCard({
               <Button variant="outline" size="sm" onClick={onChangeDistrict}>
                 {t("changeDistrict")}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={pending}
-                onClick={onRemoveAll}
-              >
+              <Button variant="ghost" size="sm" disabled={pending} onClick={onRemoveAll}>
                 {t("removeTheseItems")}
               </Button>
             </div>
@@ -374,7 +356,7 @@ function ShopCard({
         <div className="grid gap-1.5 rounded-xl bg-muted/50 p-3">
           <div className="flex justify-between text-sm">
             <span>{t("itemsSubtotal")}</span>
-            <span>{formatBdt(shop.subtotal, locale)}</span>
+            <Price value={shop.subtotal} locale={locale} size="sm" />
           </div>
           <ShopDeliveryLine
             shop={shop}
@@ -384,7 +366,9 @@ function ShopCard({
           {!notDelivering ? (
             <div className="flex justify-between border-t border-border pt-1.5 font-semibold">
               <span>{t("shopTotal")}</span>
-              <span data-shop-total={shop.shopId}>{shopTotal}</span>
+              <span data-shop-total={shop.shopId}>
+                {shopTotal != null ? <Price value={shopTotal} locale={locale} size="sm" /> : null}
+              </span>
             </div>
           ) : null}
         </div>
@@ -465,7 +449,9 @@ function CartLine({
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            <Price value={item.unitPrice} locale={locale} size="sm" /> <X aria-hidden className="mx-1 inline-block size-3 align-middle" /> {formatCount(item.quantity, locale)}
+            <Price value={item.unitPrice} locale={locale} size="sm" />{" "}
+            <X aria-hidden className="mx-1 inline-block size-3 align-middle" />{" "}
+            {formatCount(item.quantity, locale)}
           </p>
         </div>
         <Button
@@ -503,18 +489,10 @@ function CartLine({
 }
 
 /** Applies an optimistic quantity (0 removes the line) without touching money. */
-function withOptimisticQuantity(
-  view: CartView,
-  variantId: string,
-  quantity: number,
-): CartView {
+function withOptimisticQuantity(view: CartView, variantId: string, quantity: number): CartView {
   const shops = view.shops.flatMap((shop) => {
     const items = shop.items.flatMap((item) =>
-      item.variantId === variantId
-        ? quantity <= 0
-          ? []
-          : [{ ...item, quantity }]
-        : [item],
+      item.variantId === variantId ? (quantity <= 0 ? [] : [{ ...item, quantity }]) : [item],
     );
     return items.length === 0 ? [] : [{ ...shop, items }];
   });
@@ -536,4 +514,3 @@ function EmptyCart() {
     />
   );
 }
-

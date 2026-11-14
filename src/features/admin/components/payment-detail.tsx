@@ -1,20 +1,22 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { adminApi } from "../api";
 import { paymentStatusVariant } from "../status";
 
 export function PaymentDetail({ id }: { id: string }) {
   const t = useTranslations("admin.payments");
   const tStatus = useTranslations("admin.paymentStatus");
+  const locale = useLocale();
 
   const query = useQuery({
     queryKey: queryKeys.admin.payments({ id }),
@@ -46,13 +48,19 @@ export function PaymentDetail({ id }: { id: string }) {
           <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-1 text-sm">
-          <Row label={t("amount")} value={formatBdt(payment.amount, "en")} />
+          <Row
+            label={t("amount")}
+            value={<Price value={payment.amount} locale={locale} size="sm" />}
+          />
           <Row label={t("currency")} value={payment.currency} />
           <Row label={t("method")} value={payment.method} />
           <Row label={t("provider")} value={payment.provider ?? "-"} />
           <Row label={t("providerTxnId")} value={payment.providerTxnId ?? "-"} />
           <Row label={t("shopOrder")} value={payment.shopOrderNumber ?? "-"} />
-          <Row label={t("paidAt")} value={payment.paidAt ? formatLatinDateTime(payment.paidAt) : "-"} />
+          <Row
+            label={t("paidAt")}
+            value={payment.paidAt ? formatLatinDateTime(payment.paidAt) : "-"}
+          />
           <Row
             label={t("failedAt")}
             value={payment.failedAt ? formatLatinDateTime(payment.failedAt) : "-"}
@@ -64,7 +72,7 @@ export function PaymentDetail({ id }: { id: string }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex justify-between gap-3">
       <span className="text-muted-foreground">{label}</span>

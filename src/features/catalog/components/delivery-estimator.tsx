@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { Check, Info, PackageCheck, Truck, X } from "lucide-react";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
+import { Price } from "@/components/product/price";
 import { formatBdt } from "@/lib/format/money";
 
 const DISTRICT_KEY = "ph_delivery_district";
@@ -98,7 +99,7 @@ export function DeliveryEstimator({
         <div className="grid gap-2 rounded-xl bg-secondary/40 p-3 text-sm">
           <div className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">{t("deliveryCharge")}</span>
-            <span className="font-medium">{formatBdt(quote.data.charge, locale)}</span>
+            <Price value={quote.data.charge} locale={locale} size="sm" />
           </div>
           {quote.data.estimatedDaysMin !== null && quote.data.estimatedDaysMax !== null ? (
             <div className="flex items-center justify-between gap-2">

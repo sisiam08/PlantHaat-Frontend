@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { adminApi } from "../api";
 import { payoutStatusVariant } from "../status";
 import type { PayoutStatus } from "../types";
@@ -37,6 +37,7 @@ export function PayoutsClient({
   const tMethods = useTranslations("admin.payoutMethods");
   const tCommon = useTranslations("admin.common");
   const tErrors = useTranslations("errors");
+  const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -72,8 +73,7 @@ export function PayoutsClient({
     router.push(qs ? `/admin/payouts?${qs}` : "/admin/payouts");
   };
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.admin.payouts() });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.payouts() });
 
   const create = useMutation({
     mutationFn: () =>
@@ -144,7 +144,8 @@ export function PayoutsClient({
                     </Badge>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {payout.sellerProfile.businessName} · {formatBdt(payout.amount, "en")} ·{" "}
+                    {payout.sellerProfile.businessName} ·{" "}
+                    <Price value={payout.amount} locale={locale} size="sm" /> ·{" "}
                     {formatLatinDateTime(payout.createdAt)}
                   </span>
                   {payout.method ? (
@@ -206,7 +207,9 @@ export function PayoutsClient({
         ))}
       </div>
 
-      {meta ? <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} /> : null}
+      {meta ? (
+        <Pager page={meta.page} totalPages={meta.totalPages} onPage={(p) => go(status, p)} />
+      ) : null}
 
       <Card className="rounded-2xl">
         <CardContent>

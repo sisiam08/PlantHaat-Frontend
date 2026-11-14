@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { adminApi } from "../api";
 import { complaintStatusVariant } from "../status";
 import type { ComplaintStatus } from "../types";
@@ -37,6 +37,7 @@ export function ComplaintDetail({ id }: { id: string }) {
   const tStatus = useTranslations("admin.complaintStatus");
   const tType = useTranslations("admin.complaintType");
   const tErrors = useTranslations("errors");
+  const locale = useLocale();
   const queryClient = useQueryClient();
 
   const [newStatus, setNewStatus] = useState<ComplaintStatus>("UNDER_REVIEW");
@@ -218,7 +219,9 @@ export function ComplaintDetail({ id }: { id: string }) {
           <CardContent className="grid gap-2 text-sm">
             {complaint.refunds.map((refund) => (
               <div key={refund.id} className="flex items-center justify-between gap-3">
-                <span>{formatBdt(refund.amount, "en")}</span>
+                <span>
+                  <Price value={refund.amount} locale={locale} size="sm" />
+                </span>
                 <Badge variant="outline">{refund.status}</Badge>
               </div>
             ))}

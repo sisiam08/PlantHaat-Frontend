@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Price } from "@/components/product/price";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ import { Switch } from "@/components/ui/switch";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
 import { adminApi } from "../api";
 import type { SuspendedSellerOpenOrders } from "../types";
 
@@ -139,7 +139,7 @@ export function SuspendedSellersClient() {
                       {formatDateTime(order.order.placedAt, locale)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
-                      {formatBdt(order.total, locale)}
+                      <Price value={order.total} locale={locale} size="sm" />
                     </td>
                     <td className="px-3 py-2 text-right">
                       <Link
