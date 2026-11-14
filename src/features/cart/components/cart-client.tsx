@@ -1,12 +1,14 @@
 "use client";
 
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle, ShoppingBag, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 import { PlantImage } from "@/components/plant-image";
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -114,6 +116,7 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
 
 function ServerCart() {
   const t = useTranslations("cart");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const districtSectionRef = useRef<HTMLDivElement | null>(null);
@@ -216,7 +219,10 @@ function ServerCart() {
   if (cart.isLoading) {
     return <Skeleton className="h-40 w-full rounded-2xl" />;
   }
-  if (cart.isError || !cart.data || cart.data.shops.length === 0) {
+  if (cart.isError) {
+    return <QueryError message={tc("sectionLoadFailed")} onRetry={() => void cart.refetch()} />;
+  }
+  if (!cart.data || cart.data.shops.length === 0) {
     return <EmptyCart />;
   }
 
@@ -241,7 +247,7 @@ function ServerCart() {
   );
 
   return (
-    <div className="grid gap-4 pb-28 lg:pb-0">
+    <div className="grid gap-4 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <div ref={districtSectionRef} className="grid gap-1.5 sm:max-w-xs">
         <Label htmlFor="cart-district">{t("deliveryDistrict")}</Label>
         <select
@@ -439,23 +445,36 @@ function CartLine({
   const t = useTranslations("cart");
   return (
     <div className="grid gap-2 border-t border-border pt-3 first:border-0 first:pt-0">
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40">
           <PlantImage src={item.image} alt={item.productName} fill sizes="64px" />
         </div>
         <div className="min-w-0 flex-1">
-          <Link href={`/products/${item.slug}`} className="truncate font-medium hover:underline">
+          <Link
+            href={`/products/${item.slug}`}
+            className="line-clamp-2 font-medium hover:underline"
+          >
             {item.productName}
           </Link>
-          <p className="text-sm text-muted-foreground">
-            {item.variantName} · {formatBdt(item.unitPrice, locale)} ·{" "}
-            {formatCount(item.quantity, locale)}
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.variantName}</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
+            <span className="font-semibold tabular-nums">
+              {formatBdt(item.lineTotal, locale)}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {formatBdt(item.unitPrice, locale)} × {formatCount(item.quantity, locale)}
           </p>
         </div>
-        <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
-        <span className="w-20 text-right font-medium">{formatBdt(item.lineTotal, locale)}</span>
-        <Button variant="ghost" size="icon-sm" aria-label={removeLabel} onClick={onRemove}>
-          <Trash2 />
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="shrink-0"
+          aria-label={removeLabel}
+          onClick={onRemove}
+        >
+          <Trash2 aria-hidden />
         </Button>
       </div>
       {item.issues.length > 0 && issueLabel ? (
@@ -504,12 +523,15 @@ function withOptimisticQuantity(
 function EmptyCart() {
   const t = useTranslations("cart");
   return (
-    <Card className="grid place-items-center gap-3 rounded-2xl p-10 text-center">
-      <p className="font-medium">{t("empty")}</p>
-      <p className="text-sm text-muted-foreground">{t("emptyHint")}</p>
-      <Button asChild variant="cta">
-        <Link href="/products">{t("continueShopping")}</Link>
-      </Button>
-    </Card>
+    <EmptyState
+      icon={ShoppingBag}
+      title={t("empty")}
+      description={t("emptyHint")}
+      action={
+        <Button asChild variant="cta">
+          <Link href="/products">{t("continueShopping")}</Link>
+        </Button>
+      }
+    />
   );
 }

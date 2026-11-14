@@ -1,9 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { Package } from "lucide-react";
+
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +16,7 @@ import { formatDateTime } from "@/lib/format/date";
 import { formatBdt } from "@/lib/format/money";
 import { queryKeys } from "@/lib/api/query-keys";
 import { ordersApi } from "../api";
+import type { OrderSummaryView } from "../types";
 
 function statusVariant(status: string): "default" | "secondary" | "destructive" {
   if (status === "CANCELLED" || status === "FAILED_DELIVERY") {
@@ -25,8 +30,20 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
 
 export function OrdersList() {
   const t = useTranslations("orders");
+  const tc = useTranslations("common");
+  const tCatalog = useTranslations("catalog");
   const locale = useLocale();
-  const orders = useQuery({ queryKey: queryKeys.orders(), queryFn: () => ordersApi.list() });
+
+  const orders = useInfiniteQuery({
+    queryKey: queryKeys.orders(),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => ordersApi.list({ page: pageParam }),
+    getNextPageParam: (last) => {
+      const meta = last.meta;
+      if (!meta) return undefined;
+      return meta.page < meta.totalPages ? meta.page + 1 : undefined;
+    },
+  });
 
   if (orders.isLoading) {
     return (
@@ -37,15 +54,31 @@ export function OrdersList() {
     );
   }
 
-  const list = orders.data?.data ?? [];
+  if (orders.isError) {
+    return <QueryError message={tc("sectionLoadFailed")} onRetry={() => void orders.refetch()} />;
+  }
+
+  const seen = new Set<string>();
+  const list: OrderSummaryView[] = [];
+  for (const page of orders.data?.pages ?? []) {
+    for (const order of page.data) {
+      if (seen.has(order.id)) continue;
+      seen.add(order.id);
+      list.push(order);
+    }
+  }
+
   if (list.length === 0) {
     return (
-      <Card className="grid place-items-center gap-3 rounded-2xl p-10 text-center">
-        <p className="font-medium">{t("empty")}</p>
-        <Button asChild variant="cta">
-          <Link href="/products">{t("startShopping")}</Link>
-        </Button>
-      </Card>
+      <EmptyState
+        icon={Package}
+        title={t("empty")}
+        action={
+          <Button asChild variant="cta">
+            <Link href="/products">{t("startShopping")}</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -70,6 +103,19 @@ export function OrdersList() {
           </CardContent>
         </Card>
       ))}
+
+      <div className="flex flex-col items-center gap-2 pt-1">
+        {orders.hasNextPage ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={orders.isFetchingNextPage}
+            onClick={() => void orders.fetchNextPage()}
+          >
+            {orders.isFetchingNextPage ? tc("loading") : tCatalog("loadMore")}
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Autoplay from "embla-carousel-autoplay";
+import { Pause, Play } from "lucide-react";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -55,12 +56,12 @@ function BannerSlide({ banner, priority }: { banner: HomeBanner; priority: boole
     value ? (locale === "en" ? value.en : value.bn) : undefined;
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[3/1]">
+    <div className="relative aspect-4/3 w-full overflow-hidden sm:aspect-16/10 md:aspect-3/1">
       <BannerPicture banner={banner} priority={priority} />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/25 to-transparent md:bg-gradient-to-r md:from-ink/70 md:via-ink/20 md:to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/25 to-transparent md:bg-linear-to-r md:from-ink/70 md:via-ink/20 md:to-transparent" />
       <div className="absolute inset-0 flex flex-col justify-end gap-4 p-6 md:justify-center md:p-14">
         {banner.headline ? (
-          <h2 className="font-heading max-w-xl text-2xl leading-tight font-bold text-cream drop-shadow-sm md:text-4xl lg:text-5xl">
+          <h2 className="font-heading max-w-xl text-2xl font-bold text-cream drop-shadow-sm md:text-4xl lg:text-5xl">
             {pick(banner.headline)}
           </h2>
         ) : null}
@@ -82,8 +83,14 @@ export function BannerCarousel() {
   const reduced = useReducedMotion();
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [autoplay] = useState(() =>
-    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }),
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      stopOnFocusIn: true,
+    }),
   );
 
   useEffect(() => {
@@ -97,6 +104,30 @@ export function BannerCarousel() {
       api.off("reInit", onSelect);
     };
   }, [api]);
+
+  // Keep the visible pause control honest when the plugin stops itself
+  // (focus inside the carousel, mouse enter) rather than on a button click.
+  useEffect(() => {
+    if (!api) return;
+    const onStop = () => setPaused(true);
+    const onPlay = () => setPaused(false);
+    api.on("autoplay:stop", onStop);
+    api.on("autoplay:play", onPlay);
+    return () => {
+      api.off("autoplay:stop", onStop);
+      api.off("autoplay:play", onPlay);
+    };
+  }, [api]);
+
+  const togglePause = () => {
+    if (paused) {
+      autoplay.play();
+      setPaused(false);
+    } else {
+      autoplay.stop();
+      setPaused(true);
+    }
+  };
 
   return (
     <Carousel
@@ -117,7 +148,19 @@ export function BannerCarousel() {
       <CarouselPrevious className="left-3 hidden md:inline-flex" />
       <CarouselNext className="right-3 hidden md:inline-flex" />
 
-      <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
+      {!reduced ? (
+        <button
+          type="button"
+          onClick={togglePause}
+          aria-label={paused ? t("playBanner") : t("pauseBanner")}
+          aria-pressed={paused}
+          className="absolute right-3 bottom-3 z-10 grid size-11 place-items-center rounded-full border border-input bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          {paused ? <Play aria-hidden className="size-4" /> : <Pause aria-hidden className="size-4" />}
+        </button>
+      ) : null}
+
+      <div className="absolute inset-x-0 bottom-2 flex justify-center gap-0.5">
         {HOME_BANNERS.map((banner, index) => (
           <button
             key={banner.id}
@@ -125,11 +168,15 @@ export function BannerCarousel() {
             aria-label={t("slideLabel", { index: index + 1, total: HOME_BANNERS.length })}
             aria-current={index === selected}
             onClick={() => api?.scrollTo(index)}
-            className={cn(
-              "size-2.5 rounded-full transition-colors",
-              index === selected ? "bg-cta" : "bg-cream/60 hover:bg-cream",
-            )}
-          />
+            className="grid size-11 place-items-center rounded-full focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          >
+            <span
+              className={cn(
+                "size-2.5 rounded-full transition-colors",
+                index === selected ? "bg-cta" : "bg-cream/60",
+              )}
+            />
+          </button>
         ))}
       </div>
     </Carousel>

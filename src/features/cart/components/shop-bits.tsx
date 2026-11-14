@@ -58,26 +58,36 @@ export function QuantityStepper({
   quantity: number;
   onChange: (quantity: number) => void;
 }) {
+  const t = useTranslations("product");
   return (
-    <div className="inline-flex items-center rounded-full border border-input">
+    <div
+      role="group"
+      aria-label={t("quantity")}
+      className="inline-flex items-center rounded-full border border-input bg-background"
+    >
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
-        aria-label="-"
-        onClick={() => onChange(quantity - 1)}
+        size="icon-lg"
+        className="rounded-full"
+        aria-label={t("decreaseQty")}
+        disabled={quantity <= 1}
+        onClick={() => onChange(Math.max(1, quantity - 1))}
       >
-        <Minus />
+        <Minus aria-hidden />
       </Button>
-      <span className="w-8 text-center text-sm tabular-nums">{quantity}</span>
+      <span aria-live="polite" className="w-9 text-center text-sm font-medium tabular-nums">
+        {quantity}
+      </span>
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
-        aria-label="+"
+        size="icon-lg"
+        className="rounded-full"
+        aria-label={t("increaseQty")}
         onClick={() => onChange(quantity + 1)}
       >
-        <Plus />
+        <Plus aria-hidden />
       </Button>
     </div>
   );
