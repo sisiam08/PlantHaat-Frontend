@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { ArrowUp, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUp, Search, SlidersHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,12 +17,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "cn";
 import { fetchFilterOptions, fetchListPage } from "@/features/catalog/feed";
-import { ProductCard, type ProductCardData } from "@/features/catalog/components/product-card";
+import { ProductCard, ProductCardSkeleton, type ProductCardData } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import {
   csvToList,
@@ -239,14 +245,62 @@ function FilterChipToggle({
       aria-checked={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+        "min-h-11 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
         active
           ? "border-primary bg-primary text-primary-foreground"
-          : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted",
+          : "border-input bg-background hover:border-primary/40 hover:bg-muted",
       )}
     >
       {children}
     </button>
+  );
+}
+
+/** Inline catalog search on mobile/tablet â€” search is this page's primary tool. */
+function CatalogSearchField() {
+  const t = useTranslations("search");
+  const { query, setParam } = useCatalogParams();
+  const [value, setValue] = useState(query.q ?? "");
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
+
+  const commit = (next: string) => {
+    setValue(next);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setParam("q", next.trim() || undefined), 300);
+  };
+
+  return (
+    <form
+      role="search"
+      action="/products"
+      method="get"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (timer.current) clearTimeout(timer.current);
+        setParam("q", value.trim() || undefined);
+      }}
+      className="relative lg:hidden"
+    >
+      <Search
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <Input
+        name="q"
+        value={value}
+        onChange={(event) => commit(event.target.value)}
+        placeholder={t("placeholder")}
+        aria-label={t("label")}
+        className="pl-10"
+      />
+      <button type="submit" className="sr-only">
+        {t("label")}
+      </button>
+    </form>
   );
 }
 
@@ -417,21 +471,29 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
     rating: t("sortRating"),
   };
   return (
-    <select
-      aria-label={t("sort")}
+    <Select
       value={value}
-      onChange={(event) => setParam("sort", event.target.value === "newest" ? undefined : event.target.value)}
-      className={cn(
-        "h-10 rounded-full border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-        variant === "full" ? "min-w-[11rem]" : "max-w-[9rem]",
-      )}
+      onValueChange={(next) =>
+        setParam("sort", next === "newest" ? undefined : next)
+      }
     >
-      {PRODUCT_SORTS.map((sort) => (
-        <option key={sort} value={sort}>
-          {variant === "compact" ? labels[sort] : `${t("sort")}: ${labels[sort]}`}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger
+        aria-label={t("sort")}
+        className={cn(
+          "h-11 rounded-full border-input px-4 text-sm",
+          variant === "full" ? "min-w-[11rem]" : "w-[9.75rem]",
+        )}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
+        {PRODUCT_SORTS.map((sort) => (
+          <SelectItem key={sort} value={sort}>
+            {labels[sort]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -450,7 +512,7 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
 
   const chips: { key: string; value: string; label: string; onRemove: () => void }[] = [];
   if (query.q) {
-    chips.push({ key: "q", value: query.q, label: `“${query.q}”`, onRemove: () => setParam("q", undefined) });
+    chips.push({ key: "q", value: query.q, label: `â€œ${query.q}â€`, onRemove: () => setParam("q", undefined) });
   }
   if (query.category) {
     chips.push({
@@ -461,12 +523,12 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
     });
   }
   if (query.minPrice !== undefined || query.maxPrice !== undefined) {
-    const min = query.minPrice ?? "…";
-    const max = query.maxPrice ?? "…";
+    const min = query.minPrice ?? "â€¦";
+    const max = query.maxPrice ?? "â€¦";
     chips.push({
       key: "price",
       value: `${min}-${max}`,
-      label: `${t("priceRange")}: ৳${min}–৳${max}`,
+      label: `${t("priceRange")}: à§³${min}â€“à§³${max}`,
       onRemove: () =>
         update((params) => {
           params.delete("minPrice");
@@ -677,7 +739,7 @@ export function ProductsBrowser({
 
   return (
     <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[280px_1fr] lg:py-12">
-      <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
+      <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:block lg:self-start">
         <div className="grid max-h-[calc(100dvh-7rem)] gap-4 overflow-y-auto rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
           <p className="flex items-center gap-2 text-sm font-semibold">
             <SlidersHorizontal aria-hidden className="size-4" />
@@ -687,8 +749,9 @@ export function ProductsBrowser({
         </div>
       </aside>
 
-      <section ref={resultsRef} className="grid content-start gap-5 scroll-mt-24">
+      <section ref={resultsRef} className="grid content-start gap-5 scroll-mt-[calc(var(--header-h)+1rem)]">
         <div className="flex flex-col gap-3">
+          <CatalogSearchField />
           <div className="flex items-center gap-2 lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -715,7 +778,7 @@ export function ProductsBrowser({
                 <div className="border-t border-border/60 p-4">
                   <SheetTrigger asChild>
                     <Button variant="cta" className="w-full">
-                      {t("showResults", { count: total ?? 0 })}
+                      {t("showResultsPlain")}
                     </Button>
                   </SheetTrigger>
                 </div>
@@ -748,13 +811,9 @@ export function ProductsBrowser({
 
           {products.length === 0 ? (
             isFirstLoad ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="grid gap-2">
-                    <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <ProductCardSkeleton key={index} />
                 ))}
               </div>
             ) : showInitialError ? (
@@ -772,7 +831,7 @@ export function ProductsBrowser({
             )
           ) : (
             <div className={cn("transition-opacity", busy ? "pointer-events-none opacity-55" : "opacity-100")}>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -782,12 +841,8 @@ export function ProductsBrowser({
                   />
                 ))}
                 {listQuery.isFetchingNextPage
-                  ? Array.from({ length: 4 }).map((_, index) => (
-                      <div key={`skeleton-${index}`} className="grid gap-2">
-                        <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                      </div>
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                      <ProductCardSkeleton key={`skeleton-${index}`} />
                     ))
                   : null}
               </div>
@@ -830,3 +885,4 @@ export function ProductsBrowser({
     </main>
   );
 }
+

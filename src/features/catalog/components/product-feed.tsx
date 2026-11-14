@@ -5,10 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { fetchFeedPage, type FeedPage } from "@/features/catalog/feed";
-import { ProductCard, type ProductCardData } from "@/features/catalog/components/product-card";
+import { ProductCard, ProductCardSkeleton, type ProductCardData } from "@/features/catalog/components/product-card";
 import { queryKeys } from "@/lib/api/query-keys";
 
 const SCROLL_KEY_PREFIX = "ph_feed_scroll_";
@@ -121,7 +120,7 @@ export function ProductFeed({
           <p className="text-sm text-muted-foreground">{t("feedEmpty")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -131,12 +130,8 @@ export function ProductFeed({
             />
           ))}
           {query.isFetchingNextPage
-            ? Array.from({ length: limit > 12 ? 4 : 2 }).map((_, index) => (
-                <div key={`skeleton-${index}`} className="grid gap-2">
-                  <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
+            ? Array.from({ length: limit > 12 ? 5 : 4 }).map((_, index) => (
+                <ProductCardSkeleton key={`skeleton-${index}`} />
               ))
             : null}
         </div>
