@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/format/date";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { queryKeys } from "@/lib/api/query-keys";
 import { ordersApi } from "../api";
 import type { OrderSummaryView } from "../types";
@@ -96,7 +96,7 @@ export function OrdersList() {
             <Badge variant={statusVariant(order.overallStatus)}>
               {t(`status.${order.overallStatus}`)}
             </Badge>
-            <p className="font-semibold">{formatBdt(order.grandTotal, locale)}</p>
+            <Price value={order.grandTotal} locale={locale} className="font-semibold" />
             <Button asChild variant="outline" size="sm">
               <Link href={`/orders/${order.id}`}>{t("viewDetails")}</Link>
             </Button>
@@ -119,3 +119,4 @@ export function OrdersList() {
     </div>
   );
 }
+

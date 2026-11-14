@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ProductRail } from "@/features/catalog/components/product-card";
@@ -31,6 +31,16 @@ export async function HomeRails() {
       }
     }),
   );
+
+  const seen = new Set<string>();
+  for (const page of pages) {
+    if (!page) continue;
+    page.data = page.data.filter((product) => {
+      if (seen.has(product.id)) return false;
+      seen.add(product.id);
+      return true;
+    });
+  }
 
   return (
     <div className="grid gap-10">
@@ -70,3 +80,4 @@ export async function HomeRails() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   AlarmClock,
@@ -178,7 +178,7 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
     <nav className="grid gap-4" aria-label={t("dashboard")}>
       {groups.map((group) => (
         <div key={group.key} className="grid gap-0.5">
-          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
+          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-normal text-sidebar-foreground/70 uppercase">
             {ts(group.key)}
           </p>
           {group.items.map((item) => {
@@ -307,3 +307,5 @@ export function DashboardShell({
     </div>
   );
 }
+
+

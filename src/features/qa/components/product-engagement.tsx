@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircleQuestion, Star, Trash2, Pencil, Flag } from "lucide-react";
@@ -27,7 +27,7 @@ type Tab = "reviews" | "qa";
 function AuthorName({ author }: { author: { name: string | null; deleted: boolean } }) {
   const t = useTranslations("engagement");
   return (
-    <span className={cn("font-medium", author.deleted && "text-muted-foreground italic")}>
+    <span className={cn("font-medium", author.deleted && "text-muted-foreground")}>
       {author.deleted || !author.name ? t("deletedUser") : author.name}
     </span>
   );
@@ -827,3 +827,4 @@ export function ProductEngagement({
     </section>
   );
 }
+

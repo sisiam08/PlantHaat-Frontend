@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
@@ -120,7 +120,7 @@ export function ProductFeed({
           <p className="text-sm text-muted-foreground">{t("feedEmpty")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -159,3 +159,4 @@ export function ProductFeed({
     </section>
   );
 }
+

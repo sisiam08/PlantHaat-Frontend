@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import type { CartView } from "../types";
 
@@ -22,7 +23,7 @@ function Rows({ view }: { view: CartView }) {
     <div className="grid gap-2">
       <div className="flex justify-between text-sm">
         <span>{t("itemsSubtotal")}</span>
-        <span>{formatBdt(view.subtotal, locale)}</span>
+        <Price value={view.subtotal} locale={locale} size="sm" />
       </div>
       {view.shops.length > 0 ? <div className="text-sm font-medium">{t("delivery")}</div> : null}
       {view.shops.map((shop) => (
@@ -40,11 +41,11 @@ function Rows({ view }: { view: CartView }) {
       <Separator />
       <div className="flex justify-between text-sm">
         <span>{t("deliveryTotal")}</span>
-        <span>{formatBdt(view.deliveryTotal, locale)}</span>
+        <Price value={view.deliveryTotal} locale={locale} size="sm" />
       </div>
       <div className="flex justify-between font-semibold">
         <span>{t("grandTotal")}</span>
-        <span>{formatBdt(view.grandTotal, locale)}</span>
+        <Price value={view.grandTotal} locale={locale} />
       </div>
       {showShipmentNote ? (
         <p className="rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
@@ -93,7 +94,7 @@ export function CartSummaryBox({
         <FixedBar className="lg:hidden">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">{formatCount(view.itemCount, locale)}</p>
-            <p className="truncate font-semibold">{formatBdt(view.grandTotal, locale)}</p>
+            <Price value={view.grandTotal} locale={locale} className="font-semibold" />
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -116,4 +117,5 @@ export function CartSummaryBox({
     </>
   );
 }
+
 

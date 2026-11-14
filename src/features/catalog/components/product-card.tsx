@@ -4,7 +4,8 @@ import Link from "next/link";
 import { LinkPending } from "@/components/layout/link-pending";
 import { PlantImage } from "@/components/plant-image";
 import { cn } from "@/lib/utils";
-import { formatPriceRange } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
+import { RailScroller } from "@/features/catalog/components/rail-scroller";
 
 export function StarRating({
   value,
@@ -159,14 +160,14 @@ export function ProductCard({
           {product.name}
         </Link>
         <div className="flex flex-wrap items-baseline gap-x-1.5">
-          <span
-            className={cn(
-              "font-heading font-semibold text-primary",
-              featured ? "text-lg" : "text-[0.95rem]",
-            )}
-          >
-            {formatPriceRange(product.minPrice, product.maxPrice, locale)}
-          </span>
+          <Price
+            value={product.minPrice}
+            maxValue={product.maxPrice}
+            compareAt={product.compareAtPrice}
+            locale={locale}
+            size={featured ? "md" : "sm"}
+            className="text-primary"
+          />
         </div>
         {reviews > 0 ? <CompactRating value={product.ratingAvg} count={reviews} /> : null}
         {product.shopName ? (
@@ -206,7 +207,7 @@ export function ProductGrid({
   actionLabels: CardActionLabels;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -232,9 +233,9 @@ export function ProductRail({
   actionLabels: CardActionLabels;
 }) {
   return (
-    <div className="-mx-4 flex min-w-0 snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-3 md:overflow-visible md:px-0 md:pb-0">
+    <RailScroller label={outOfStockLabel}>
       {products.map((product) => (
-        <div key={product.id} className="w-36 shrink-0 snap-start sm:w-40 md:w-auto">
+        <div key={product.id} className="w-36 shrink-0 snap-start sm:w-40 md:w-44">
           <ProductCard
             product={product}
             name={outOfStockLabel}
@@ -243,8 +244,11 @@ export function ProductRail({
           />
         </div>
       ))}
-    </div>
+    </RailScroller>
   );
 }
+
+
+
 
 

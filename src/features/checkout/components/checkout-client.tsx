@@ -32,6 +32,7 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import { checkoutApi } from "../api";
 
@@ -352,12 +353,12 @@ export function CheckoutClient() {
                       <span className="truncate pr-2">
                         {item.productName} Ã— {formatCount(item.quantity, locale)}
                       </span>
-                      <span>{formatBdt(item.lineTotal, locale)}</span>
+                      <Price value={item.lineTotal} locale={locale} size="sm" />
                     </div>
                   ))}
                   <div className="flex justify-between border-t border-border pt-1">
                     <span>{t("itemsSubtotal")}</span>
-                    <span>{formatBdt(shop.subtotal, locale)}</span>
+                    <Price value={shop.subtotal} locale={locale} size="sm" />
                   </div>
                   <div className="flex justify-between">
                     <span>{t("delivery")}</span>
@@ -448,4 +449,5 @@ function hasNotDelivering(view: {
 }): boolean {
   return view.shops.some((shop) => shop.deliverable === false);
 }
+
 

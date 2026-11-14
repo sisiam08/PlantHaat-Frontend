@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -18,6 +18,7 @@ import { ApiError } from "@/lib/api/common";
 import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { ProductDetail } from "@/lib/api/types";
+import { Price } from "@/components/product/price";
 import { formatBdt } from "@/lib/format/money";
 import { cn } from "cn";
 
@@ -215,13 +216,9 @@ export function VariantPicker({
       ) : null}
 
       <div className="flex items-baseline gap-2">
-        <p className="font-heading text-3xl font-bold text-primary">
-          {formatBdt(selected.price, locale)}
-        </p>
+        <Price value={selected.price} locale={locale} size="lg" className="text-primary" />
         {showCompareAt ? (
-          <p className="text-sm text-muted-foreground line-through">
-            {formatBdt(selected.compareAtPrice, locale)}
-          </p>
+          <span className="text-sm text-muted-foreground line-through">{formatBdt(selected.compareAtPrice, locale)}</span>
         ) : null}
         <p className={cn("ml-auto text-sm", inStock ? "text-success" : "text-destructive")}>
           {inStock
@@ -290,9 +287,7 @@ export function VariantPicker({
       {embedded ? null : (
         <FixedBar className="md:hidden">
           <div className="min-w-0 flex-1">
-            <p className="font-heading truncate text-lg font-bold text-primary">
-              {formatBdt(selected.price, locale)}
-            </p>
+            <Price value={selected.price} locale={locale} size="md" className="truncate text-primary" />
             <p className="truncate text-xs text-muted-foreground">
               {selected.sizeLabel || selected.name}
             </p>
@@ -309,3 +304,5 @@ export function VariantPicker({
     </div>
   );
 }
+
+

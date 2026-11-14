@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { m, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
@@ -31,7 +31,7 @@ export function HeroComposition({ plates }: { plates: Plate[] }) {
     <div
       ref={ref}
       aria-hidden
-      className="relative hidden h-[420px] select-none md:block"
+      className="relative hidden h-[460px] select-none md:block"
     >
       <m.div style={{ y: backY, scale }} className="absolute inset-0">
         <div className="absolute inset-6 rounded-full bg-[radial-gradient(circle_at_55%_40%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_66%)]" />
@@ -58,8 +58,8 @@ export function HeroComposition({ plates }: { plates: Plate[] }) {
             key={plate.name}
             className={
               index === 0
-                ? "absolute top-16 left-6 w-40 rotate-[-4deg] xl:w-44"
-                : "absolute right-4 bottom-10 w-36 rotate-[5deg] xl:w-40"
+                ? "absolute top-14 left-2 w-48 rotate-[-5deg] xl:w-56"
+                : "absolute right-0 bottom-6 w-44 rotate-[6deg] xl:w-48"
             }
           >
             <div className="overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-[var(--shadow-soft)]">
@@ -96,3 +96,4 @@ export function HeroComposition({ plates }: { plates: Plate[] }) {
     </div>
   );
 }
+

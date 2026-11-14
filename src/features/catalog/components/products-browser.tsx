@@ -811,7 +811,7 @@ export function ProductsBrowser({
 
           {products.length === 0 ? (
             isFirstLoad ? (
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
                 {Array.from({ length: 10 }).map((_, index) => (
                   <ProductCardSkeleton key={index} />
                 ))}
@@ -831,7 +831,7 @@ export function ProductsBrowser({
             )
           ) : (
             <div className={cn("transition-opacity", busy ? "pointer-events-none opacity-55" : "opacity-100")}>
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-6">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -889,4 +889,5 @@ export function ProductsBrowser({
     </main>
   );
 }
+
 

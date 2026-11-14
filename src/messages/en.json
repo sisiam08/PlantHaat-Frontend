@@ -101,7 +101,7 @@
   "name": "Full name",
   "phone": "Mobile number",
   "loginTitle": "Log in",
-  "loginSubtitle": "Sign in to your PlantHaat account",
+  "loginSubtitle": "Log in to your PlantHaat account",
   "signIn": "Log in",
   "registerTitle": "Create an account",
   "registerSubtitle": "Register in under a minute",
@@ -204,7 +204,7 @@
   "loadMore": "Load more",
   "listEnd": "You've reached the end of the list",
   "backToTop": "Back to top",
-  "retry": "Retry",
+  "retry": "Try again",
   "listError": "The list could not be loaded.",
   "clearAll": "Clear all",
   "remove": "Remove"
@@ -318,7 +318,7 @@
   "allPlants": "All plants",
   "trending": "Trending",
   "under500": "Under ৳500",
-  "seeAll": "See all",
+  "seeAll": "View all",
   "offers": "This week's offers",
   "trustComplaint": "48-hour complaint window",
   "feedEnd": "You've seen all plants",
@@ -2190,3 +2190,5 @@
   "removePhoto": "Remove photo"
  }
 }
+
+

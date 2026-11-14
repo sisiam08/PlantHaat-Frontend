@@ -1,4 +1,4 @@
-import { BadgeCheck, Star } from "lucide-react";
+﻿import { BadgeCheck, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -246,7 +246,7 @@ async function ProductContent({
               <p className="text-muted-foreground">{product.nameBn}</p>
             ) : null}
             {product.scientificName ? (
-              <p className="text-sm text-muted-foreground italic">{product.scientificName}</p>
+              <p className="text-sm text-muted-foreground">{product.scientificName}</p>
             ) : null}
             <div className="flex flex-wrap items-center gap-3">
               {product.ratingCount > 0 ? (
@@ -327,3 +327,4 @@ async function ProductContent({
     </main>
   );
 }
+

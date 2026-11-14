@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
-import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { wishlistApi, type WishlistItemView } from "../api";
 
 export function WishlistClient() {
@@ -83,7 +83,7 @@ export function WishlistClient() {
         {items.map((item) => {
           const name =
             locale === "bn" && item.product.nameBn ? item.product.nameBn : item.product.name;
-          const price = item.product.minPrice ? formatBdt(item.product.minPrice, locale) : null;
+          const price = item.product.minPrice;
           return (
             <Card key={item.id}>
               <CardContent className="grid gap-3">
@@ -91,7 +91,7 @@ export function WishlistClient() {
                   {name}
                 </Link>
                 <div className="flex items-center justify-between text-sm">
-                  {price ? <span>{price}</span> : null}
+                  {price ? <Price value={price} locale={locale} size="sm" /> : null}
                   {!item.product.inStock ? (
                     <span className="text-destructive">{t("outOfStock")}</span>
                   ) : null}
@@ -126,3 +126,4 @@ export function WishlistClient() {
     </div>
   );
 }
+

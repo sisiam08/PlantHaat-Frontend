@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { AlertTriangle, ShoppingBag, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
+import { Price } from "@/components/product/price";
 import { formatCount } from "@/lib/format/number";
 import { cartApi } from "../api";
 import {
@@ -460,11 +461,11 @@ function CartLine({
           <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
             <span className="font-semibold tabular-nums">
-              {formatBdt(item.lineTotal, locale)}
+              <Price value={item.lineTotal} locale={locale} size="sm" />
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {formatBdt(item.unitPrice, locale)} × {formatCount(item.quantity, locale)}
+            <Price value={item.unitPrice} locale={locale} size="sm" /> × {formatCount(item.quantity, locale)}
           </p>
         </div>
         <Button
@@ -535,3 +536,4 @@ function EmptyCart() {
     />
   );
 }
+

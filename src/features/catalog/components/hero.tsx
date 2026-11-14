@@ -1,4 +1,4 @@
-import { ArrowRight, Search } from "lucide-react";
+﻿import { ArrowRight, Search } from "lucide-react";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -25,8 +25,8 @@ export async function Hero({ categories }: { categories: CategoryNode[] }) {
     }));
 
   return (
-    <section className="hero-grain relative overflow-hidden rounded-[2rem] border border-border/60 bg-[radial-gradient(120%_120%_at_85%_10%,var(--secondary)_0%,var(--background)_46%,color-mix(in_oklab,var(--secondary)_55%,white)_100%)]">
-      <div className="relative z-10 grid items-center gap-8 px-5 py-10 md:grid-cols-[1.1fr_0.9fr] md:gap-10 md:px-12 md:py-14">
+    <section className="hero-grain relative overflow-hidden border-y border-border/60 bg-[radial-gradient(120%_120%_at_85%_10%,var(--secondary)_0%,var(--background)_46%,color-mix(in_oklab,var(--secondary)_55%,white)_100%)]">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:gap-10 md:px-8 md:py-16">
         <div className="grid gap-5">
           <p className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium text-secondary-foreground">
             <span aria-hidden className="size-1.5 rounded-full bg-success" />
@@ -86,3 +86,4 @@ export async function Hero({ categories }: { categories: CategoryNode[] }) {
     </section>
   );
 }
+

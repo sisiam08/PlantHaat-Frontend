@@ -9,7 +9,6 @@ import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryBento } from "@/features/catalog/components/category-bento";
 import { Hero } from "@/features/catalog/components/hero";
 import { HomeRails } from "@/features/catalog/components/home-rails";
-import { HowItWorksStrip } from "@/features/catalog/components/how-it-works-strip";
 import { LazyRails } from "@/features/catalog/components/lazy-rails";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
 import { TrustStrip } from "@/features/catalog/components/trust-strip";
@@ -91,25 +90,10 @@ async function HomeContent() {
   const safeCategories = categories ?? [];
 
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
-      <link
-        rel="preload"
-        href="/fonts/fraunces-latin-var.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/tiro-bangla-bengali-400.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-
+    <>
       <Hero categories={safeCategories} />
-      <TrustStrip />
-      <HowItWorksStrip />
+      <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
+        <TrustStrip />
 
       <section aria-labelledby="home-categories" className="grid gap-5">
         <div className="flex items-end justify-between gap-4">
@@ -154,7 +138,11 @@ async function HomeContent() {
       <Suspense fallback={<FeedSkeleton />}>
         <HomeFeedSection />
       </Suspense>
-    </div>
+      </div>
+    </>
   );
 }
+
+
+
 
