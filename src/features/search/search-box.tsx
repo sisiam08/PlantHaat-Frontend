@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Command } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -117,28 +118,40 @@ export function SearchBox({ className, autoFocus = false, onNavigate }: SearchBo
   );
 }
 
-/** Mobile: a full-width trigger that opens a full-screen search overlay. */
-export function MobileSearch({ className }: { className?: string }) {
+/** Mobile: a full-screen search overlay via the header icon (or a field trigger). */
+export function MobileSearch({
+  className,
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   const t = useTranslations("search");
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
-          type="button"
-          aria-label={t("open")}
-          className={cn(
-            "relative flex h-11 w-full items-center rounded-full border border-border/60 bg-muted/50 pr-4 pl-10 text-left text-sm text-muted-foreground",
-            className,
-          )}
-        >
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2"
-          />
-          {t("placeholder")}
-        </button>
+        {compact ? (
+          <Button variant="ghost" size="icon-lg" aria-label={t("open")} className={className}>
+            <Search aria-hidden />
+          </Button>
+        ) : (
+          <button
+            type="button"
+            aria-label={t("open")}
+            className={cn(
+              "relative flex h-11 w-full items-center rounded-full border border-border/60 bg-muted/50 pr-4 pl-10 text-left text-sm text-muted-foreground",
+              className,
+            )}
+          >
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2"
+            />
+            {t("placeholder")}
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent
         showCloseButton

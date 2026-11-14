@@ -15,7 +15,7 @@ export function SiteShell({
     <div className="flex min-h-full flex-1 flex-col">
       <SiteHeader />
       {banner}
-      <div id="main" className="flex flex-1 flex-col pb-20 md:pb-0">
+      <div id="main" className="flex flex-1 flex-col pb-24 md:pb-0">
         {children}
       </div>
       <SiteFooter />

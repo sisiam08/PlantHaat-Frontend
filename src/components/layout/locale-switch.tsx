@@ -21,6 +21,11 @@ const LOCALES = [
   { value: "en", labelKey: "languageEn" },
 ] as const;
 
+/** Shared by the header switch and the mobile account menu. */
+export function writeLocaleCookie(next: string) {
+  document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function LocaleSwitch({ className }: { className?: string }) {
   const t = useTranslations("shell");
   const router = useRouter();
@@ -31,7 +36,7 @@ export function LocaleSwitch({ className }: { className?: string }) {
     if (next === locale) {
       return;
     }
-    document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000; samesite=lax`;
+    writeLocaleCookie(next);
     startTransition(() => {
       router.refresh();
     });

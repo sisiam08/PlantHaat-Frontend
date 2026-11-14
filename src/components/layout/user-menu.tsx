@@ -3,7 +3,8 @@
 import { Heart, LayoutDashboard, LogOut, Package, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useTransition } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,26 +13,63 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/auth-provider";
+import { writeLocaleCookie } from "./locale-switch";
 
 export function UserMenu() {
   const t = useTranslations("shell");
+  const locale = useLocale();
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
   if (!user) {
     return (
-      <div className="flex items-center gap-1.5">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/login">{t("login")}</Link>
-        </Button>
-        <Button asChild size="sm" className="hidden sm:inline-flex">
-          <Link href="/register">{t("register")}</Link>
-        </Button>
-      </div>
+      <>
+        <div className="hidden items-center gap-1.5 md:flex">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/login">{t("login")}</Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/register">{t("register")}</Link>
+          </Button>
+        </div>
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-lg" aria-label={t("accountMenu")}>
+                <User aria-hidden />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem asChild>
+                <Link href="/login">{t("login")}</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/register">{t("register")}</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup
+                value={locale}
+                onValueChange={(next) => {
+                  if (next === locale) return;
+                  writeLocaleCookie(next);
+                  startTransition(() => router.refresh());
+                }}
+              >
+                <DropdownMenuRadioItem value="bn">{t("languageBn")}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="en">{t("languageEn")}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </>
     );
   }
 
@@ -85,6 +123,19 @@ export function UserMenu() {
             <Heart aria-hidden /> {t("wishlist")}
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={locale}
+          onValueChange={(next) => {
+            if (next === locale) return;
+            writeLocaleCookie(next);
+            startTransition(() => router.refresh());
+          }}
+        >
+          <DropdownMenuRadioItem value="bn">{t("languageBn")}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="en">{t("languageEn")}</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
