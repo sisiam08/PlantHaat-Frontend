@@ -30,7 +30,8 @@ test.describe("storefront", () => {
     const initial = await cards.count();
     expect(initial).toBeGreaterThan(0);
 
-    await page.locator("select:visible").first().selectOption("price_asc");
+    await page.locator('[data-slot="select-trigger"]:visible').first().click();
+    await page.getByRole("option").nth(1).click();
     await expect(page).toHaveURL(/sort=price_asc/);
 
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -40,8 +41,10 @@ test.describe("storefront", () => {
 
   test("header search shows suggestions", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60000 });
-    const input = page.getByPlaceholder(/খুঁজুন|Search/i).first();
-    await input.click();
+    if ((page.viewportSize()?.width ?? 1280) < 768) {
+      await page.locator("header button:has(svg.lucide-search)").click();
+    }
+    const input = page.locator("input[cmdk-input]:visible").first();
     await input.fill("mons");
     await expect(page.getByText(/Monstera|মনস্টেরা/i).first()).toBeVisible({ timeout: 15_000 });
   });

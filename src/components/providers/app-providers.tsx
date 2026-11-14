@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/features/auth/auth-provider";
 import { RealtimeBridge } from "@/features/realtime/realtime-bridge";
+import { LocaleLang } from "./locale-lang";
 import { MotionProvider } from "./motion-provider";
 import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
@@ -27,7 +28,8 @@ export function AppProviders({
       forcedTheme="light"
       disableTransitionOnChange
     >
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Dhaka">
+        <LocaleLang locale={locale} />
         <MotionProvider>
           <QueryProvider>
             <AuthProvider>

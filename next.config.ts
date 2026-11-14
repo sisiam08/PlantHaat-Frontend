@@ -21,9 +21,9 @@ const nextConfig: NextConfig = {
     contentDispositionType: "attachment",
     // The dev backend serves uploads from http://localhost:5000, which resolves
     // to a private IP and is blocked by the optimizer's SSRF guard ("url"
-    // parameter is not allowed"). Allowed outside production only: production
-    // image hosts (CDN/S3 public base URL) must be publicly addressable.
-    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
+    // parameter is not allowed"). Keep that allowance only while local images
+    // are the configured source (dev, or a production deploy with no CDN).
+    dangerouslyAllowLocalIP: allowLocalImages,
     // Production allows only the Cloudinary host (scoped to the cloud name);
     // localhost is allowed in dev only for local/seed images.
     remotePatterns: [
