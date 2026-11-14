@@ -60,52 +60,103 @@ interface NavItem {
   exact?: boolean;
 }
 
-const SELLER_NAV: NavItem[] = [
-  { href: "/seller/dashboard", key: "dashboard", icon: LayoutDashboard },
-  { href: "/seller/products", key: "products", icon: Package },
-  { href: "/seller/orders", key: "orders", icon: ShoppingCart },
-  { href: "/seller/cancellation-requests", key: "cancellations", icon: Undo2 },
-  { href: "/seller/questions", key: "questions", icon: MessageCircleQuestion },
-  { href: "/seller/reviews", key: "reviews", icon: Star },
-  { href: "/seller/complaints", key: "complaints", icon: Flag },
-  { href: "/seller/earnings", key: "earnings", icon: Wallet },
-  { href: "/seller/analytics", key: "analytics", icon: BarChart3 },
-  { href: "/seller/shop", key: "shop", icon: Store },
-  { href: "/seller/delivery-zones", key: "zones", icon: MapPin },
-  { href: "/seller/payout-accounts", key: "payouts", icon: CreditCard },
-  { href: "/seller/apply", key: "apply", icon: FileText },
+const SELLER_GROUPS: { key: string; items: NavItem[] }[] = [
+  { key: "groupOverview", items: [{ href: "/seller/dashboard", key: "dashboard", icon: LayoutDashboard }] },
+  {
+    key: "groupSell",
+    items: [
+      { href: "/seller/products", key: "products", icon: Package },
+      { href: "/seller/questions", key: "questions", icon: MessageCircleQuestion },
+      { href: "/seller/reviews", key: "reviews", icon: Star },
+    ],
+  },
+  {
+    key: "groupFulfil",
+    items: [
+      { href: "/seller/orders", key: "orders", icon: ShoppingCart },
+      { href: "/seller/cancellation-requests", key: "cancellations", icon: Undo2 },
+      { href: "/seller/complaints", key: "complaints", icon: Flag },
+    ],
+  },
+  {
+    key: "groupMoney",
+    items: [
+      { href: "/seller/earnings", key: "earnings", icon: Wallet },
+      { href: "/seller/analytics", key: "analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    key: "groupShop",
+    items: [
+      { href: "/seller/shop", key: "shop", icon: Store },
+      { href: "/seller/delivery-zones", key: "zones", icon: MapPin },
+      { href: "/seller/payout-accounts", key: "payouts", icon: CreditCard },
+      { href: "/seller/apply", key: "apply", icon: FileText },
+    ],
+  },
 ];
 
-const ADMIN_NAV: NavItem[] = [
-  { href: "/admin", key: "dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/sellers", key: "sellers", icon: Users },
-  { href: "/admin/users", key: "users", icon: UsersRound },
-  { href: "/admin/shops", key: "shops", icon: Store },
-  { href: "/admin/products", key: "products", icon: Package },
-  { href: "/admin/categories", key: "categories", icon: Tags },
-  { href: "/admin/orders", key: "orders", icon: ShoppingCart },
-  { href: "/admin/stuck-orders", key: "stuckOrders", icon: AlarmClock },
-  { href: "/admin/suspended-sellers", key: "suspendedSellers", icon: UserX },
-  { href: "/admin/cod-risk", key: "codRisk", icon: ShieldAlert },
-  { href: "/admin/refunds", key: "refunds", icon: RotateCcw },
-  { href: "/admin/payouts", key: "payouts", icon: Wallet },
-  { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
-  { href: "/admin/complaints", key: "complaints", icon: MessageSquareWarning },
-  { href: "/admin/content-reports", key: "contentReports", icon: MessageCircleQuestion },
-  { href: "/admin/review-reports", key: "reviewReports", icon: Flag },
-  { href: "/admin/banners", key: "banners", icon: ImageIcon },
-  { href: "/admin/homepage-sections", key: "homepageSections", icon: LayoutTemplate },
-  { href: "/admin/announcements", key: "announcements", icon: Megaphone },
-  { href: "/admin/payments", key: "payments", icon: CreditCard },
-  { href: "/admin/reconciliation", key: "reconciliation", icon: Scale },
-  { href: "/admin/audit-logs", key: "auditLogs", icon: ScrollText },
-  { href: "/admin/settings", key: "settings", icon: Settings },
+const ADMIN_GROUPS: { key: string; items: NavItem[] }[] = [
+  { key: "groupOverview", items: [{ href: "/admin", key: "dashboard", icon: LayoutDashboard, exact: true }] },
+  {
+    key: "groupPeople",
+    items: [
+      { href: "/admin/sellers", key: "sellers", icon: Users },
+      { href: "/admin/users", key: "users", icon: UsersRound },
+      { href: "/admin/shops", key: "shops", icon: Store },
+      { href: "/admin/suspended-sellers", key: "suspendedSellers", icon: UserX },
+    ],
+  },
+  {
+    key: "groupCatalog",
+    items: [
+      { href: "/admin/products", key: "products", icon: Package },
+      { href: "/admin/categories", key: "categories", icon: Tags },
+    ],
+  },
+  {
+    key: "groupOrders",
+    items: [
+      { href: "/admin/orders", key: "orders", icon: ShoppingCart },
+      { href: "/admin/stuck-orders", key: "stuckOrders", icon: AlarmClock },
+      { href: "/admin/cod-risk", key: "codRisk", icon: ShieldAlert },
+    ],
+  },
+  {
+    key: "groupFinance",
+    items: [
+      { href: "/admin/refunds", key: "refunds", icon: RotateCcw },
+      { href: "/admin/payouts", key: "payouts", icon: Wallet },
+      { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
+      { href: "/admin/payments", key: "payments", icon: CreditCard },
+      { href: "/admin/reconciliation", key: "reconciliation", icon: Scale },
+    ],
+  },
+  {
+    key: "groupContent",
+    items: [
+      { href: "/admin/complaints", key: "complaints", icon: MessageSquareWarning },
+      { href: "/admin/content-reports", key: "contentReports", icon: MessageCircleQuestion },
+      { href: "/admin/review-reports", key: "reviewReports", icon: Flag },
+      { href: "/admin/banners", key: "banners", icon: ImageIcon },
+      { href: "/admin/homepage-sections", key: "homepageSections", icon: LayoutTemplate },
+      { href: "/admin/announcements", key: "announcements", icon: Megaphone },
+    ],
+  },
+  {
+    key: "groupSystem",
+    items: [
+      { href: "/admin/audit-logs", key: "auditLogs", icon: ScrollText },
+      { href: "/admin/settings", key: "settings", icon: Settings },
+    ],
+  },
 ];
 
 function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => void }) {
   const t = useTranslations(`${role}.nav`);
+  const ts = useTranslations("shell");
   const pathname = usePathname();
-  const items = role === "admin" ? ADMIN_NAV : SELLER_NAV;
+  const groups = role === "admin" ? ADMIN_GROUPS : SELLER_GROUPS;
 
   const dashboard = useQuery({
     queryKey: queryKeys.seller.dashboard,
@@ -124,40 +175,50 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
     role === "admin" ? (adminOverview.data?.suspendedSellerOpenOrders ?? 0) : 0;
 
   return (
-    <nav className="grid gap-1" aria-label={t("dashboard")}>
-      {items.map((item) => {
-        const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-        const Icon = item.icon;
-        const badge =
-          item.key === "questions" && unanswered > 0
-            ? unanswered
-            : item.key === "suspendedSellers" && suspendedOpenOrders > 0
-              ? suspendedOpenOrders
-              : null;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-              active
-                ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            )}
-          >
-            <Icon aria-hidden className="size-4 shrink-0" />
-            <span className="truncate">{t(item.key)}</span>
-            {badge ? (
-              <Badge variant="destructive" className="ms-auto rounded-full px-1.5 py-0 text-[10px]">
-                {badge}
-              </Badge>
-            ) : null}
-            <LinkPending className={cn("shrink-0", badge ? "" : "ms-auto")} />
-          </Link>
-        );
-      })}
+    <nav className="grid gap-4" aria-label={t("dashboard")}>
+      {groups.map((group) => (
+        <div key={group.key} className="grid gap-0.5">
+          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-[0.12em] text-sidebar-foreground/50 uppercase">
+            {ts(group.key)}
+          </p>
+          {group.items.map((item) => {
+            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            const Icon = item.icon;
+            const badge =
+              item.key === "questions" && unanswered > 0
+                ? unanswered
+                : item.key === "suspendedSellers" && suspendedOpenOrders > 0
+                  ? suspendedOpenOrders
+                  : null;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onNavigate}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <Icon aria-hidden className="size-4 shrink-0" />
+                <span className="truncate">{t(item.key)}</span>
+                {badge ? (
+                  <Badge
+                    variant="destructive"
+                    className="ms-auto rounded-full px-1.5 py-0 text-[10px]"
+                  >
+                    {badge}
+                  </Badge>
+                ) : null}
+                <LinkPending className={cn("shrink-0", badge ? "" : "ms-auto")} />
+              </Link>
+            );
+          })}
+        </div>
+      ))}
     </nav>
   );
 }
@@ -172,7 +233,15 @@ export function DashboardShell({
   banner?: ReactNode;
 }) {
   const t = useTranslations("shell");
+  const navT = useTranslations(`${role}.nav`);
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const groups = role === "admin" ? ADMIN_GROUPS : SELLER_GROUPS;
+  const activeItem = groups
+    .flatMap((group) => group.items)
+    .find((item) =>
+      item.exact ? pathname === item.href : pathname.startsWith(item.href),
+    );
 
   return (
     <div className="flex min-h-dvh flex-1 bg-background">
@@ -211,6 +280,12 @@ export function DashboardShell({
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link href="/">{t("storefront")}</Link>
           </Button>
+
+          {activeItem ? (
+            <h1 className="ml-1 min-w-0 truncate font-heading text-base font-semibold">
+              {navT(activeItem.key)}
+            </h1>
+          ) : null}
 
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitch />

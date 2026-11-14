@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { QueryError } from "@/components/feedback/query-error";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/auth-provider";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -24,6 +25,7 @@ const STATUS_VARIANT: Record<SellerStatus, "default" | "secondary" | "destructiv
 export function DashboardClient() {
   const t = useTranslations("seller.dashboard");
   const tStatus = useTranslations("seller.status");
+  const tc = useTranslations("common");
   const { user } = useAuth();
 
   const application = useQuery({
@@ -51,6 +53,15 @@ export function DashboardClient() {
 
   if (application.isLoading) {
     return <Skeleton className="h-48 w-full" />;
+  }
+
+  if (application.isError) {
+    return (
+      <QueryError
+        message={tc("sectionLoadFailed")}
+        onRetry={() => void application.refetch()}
+      />
+    );
   }
 
   return (
@@ -89,29 +100,45 @@ export function DashboardClient() {
 
       {approved ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label={t("pendingOrders")} value={dashboard.data?.pendingOrders} loading={dashboard.isLoading} />
-            <Stat
-              label={t("unansweredQuestions")}
-              value={dashboard.data?.unansweredQuestions}
-              loading={dashboard.isLoading}
+          {dashboard.isError ? (
+            <QueryError
+              message={tc("sectionLoadFailed")}
+              onRetry={() => void dashboard.refetch()}
             />
-            <Stat
-              label={t("unreadNotifications")}
-              value={dashboard.data?.unreadNotifications}
-              loading={dashboard.isLoading}
-            />
-            <Stat
-              label={t("lowStock")}
-              value={dashboard.data?.lowStockVariants}
-              loading={dashboard.isLoading}
-            />
-            <Stat
-              label={t("stuckOrders")}
-              value={dashboard.data?.stuckOrders}
-              loading={dashboard.isLoading}
-            />
-          </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <Stat
+                href="/seller/orders"
+                label={t("pendingOrders")}
+                value={dashboard.data?.pendingOrders}
+                loading={dashboard.isLoading}
+              />
+              <Stat
+                href="/seller/questions"
+                label={t("unansweredQuestions")}
+                value={dashboard.data?.unansweredQuestions}
+                loading={dashboard.isLoading}
+              />
+              <Stat
+                href="/seller/notifications"
+                label={t("unreadNotifications")}
+                value={dashboard.data?.unreadNotifications}
+                loading={dashboard.isLoading}
+              />
+              <Stat
+                href="/seller/products"
+                label={t("lowStock")}
+                value={dashboard.data?.lowStockVariants}
+                loading={dashboard.isLoading}
+              />
+              <Stat
+                href="/seller/orders"
+                label={t("stuckOrders")}
+                value={dashboard.data?.stuckOrders}
+                loading={dashboard.isLoading}
+              />
+            </div>
+          )}
 
           <Card>
             <CardHeader>
@@ -138,7 +165,19 @@ export function DashboardClient() {
                   </div>
                 </>
               ) : null}
-              {shop.isError ? <p className="text-muted-foreground">{t("noShop")}</p> : null}
+              {shop.isError ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-muted-foreground">{t("noShop")}</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void shop.refetch()}
+                  >
+                    {tc("retry")}
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
 
@@ -168,21 +207,29 @@ function Stat({
   label,
   value,
   loading,
+  href,
 }: {
   label: string;
   value: number | undefined;
   loading: boolean;
+  href?: string;
 }) {
-  return (
-    <Card>
+  const card = (
+    <Card className="h-full transition-colors hover:border-primary/40">
       <CardContent className="grid gap-1">
         <span className="text-sm text-muted-foreground">{label}</span>
         {loading ? (
           <Skeleton className="h-8 w-16" />
         ) : (
-          <span className="text-2xl font-bold">{value ?? 0}</span>
+          <span className="font-heading text-2xl font-semibold tabular-nums">{value ?? 0}</span>
         )}
       </CardContent>
     </Card>
+  );
+  if (!href) return card;
+  return (
+    <Link href={href} className="block rounded-xl focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none">
+      {card}
+    </Link>
   );
 }
