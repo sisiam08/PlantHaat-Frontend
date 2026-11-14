@@ -41,9 +41,11 @@ async function LocalizedApp({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <AppProviders locale={locale} messages={messages}>
-      {children}
-    </AppProviders>
+    <div lang={locale} className="contents">
+      <AppProviders locale={locale} messages={messages}>
+        {children}
+      </AppProviders>
+    </div>
   );
 }
 
@@ -51,11 +53,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="bn"
+      translate="no"
       data-scroll-behavior="smooth"
-      className="h-full antialiased"
+      className="h-full antialiased notranslate"
       suppressHydrationWarning
     >
       <head>
+        <meta name="google" content="notranslate" />
         <link
           rel="preload"
           href="/fonts/hind-siliguri-bengali-400.woff2"

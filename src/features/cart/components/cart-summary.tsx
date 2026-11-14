@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FixedBar } from "@/components/layout/fixed-bar";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -76,8 +77,8 @@ export function CartSummaryBox({
       <Card
         className={
           fixedOnMobile
-            ? "hidden rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24 lg:grid"
-            : "grid rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-24"
+            ? "hidden rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:grid"
+            : "grid rounded-2xl border border-border/60 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)]"
         }
       >
         <CardContent className="grid gap-3">
@@ -89,31 +90,30 @@ export function CartSummaryBox({
 
       {/* Mobile fixed bar + bottom sheet */}
       {fixedOnMobile ? (
-        <div className="fixed inset-x-0 bottom-14 z-40 border-t border-border/60 bg-card/95 px-4 py-3 shadow-[0_-4px_16px_rgb(0_0_0_/_0.04)] backdrop-blur-md lg:hidden">
-          <div className="mx-auto flex w-full max-w-7xl items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-muted-foreground">{formatCount(view.itemCount, locale)}</p>
-              <p className="truncate font-semibold">{formatBdt(view.grandTotal, locale)}</p>
-            </div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm">
-                  {t("summaryDetails")}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto rounded-t-2xl">
-                <SheetHeader>
-                  <SheetTitle>{t("summary")}</SheetTitle>
-                </SheetHeader>
-                <div className="grid gap-3 px-4 pb-6">
-                  <Rows view={view} />
-                </div>
-              </SheetContent>
-            </Sheet>
-            {actions}
+        <FixedBar className="lg:hidden">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground">{formatCount(view.itemCount, locale)}</p>
+            <p className="truncate font-semibold">{formatBdt(view.grandTotal, locale)}</p>
           </div>
-        </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                {t("summaryDetails")}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle>{t("summary")}</SheetTitle>
+              </SheetHeader>
+              <div className="grid gap-3 px-4 pb-6">
+                <Rows view={view} />
+              </div>
+            </SheetContent>
+          </Sheet>
+          {actions}
+        </FixedBar>
       ) : null}
     </>
   );
 }
+
