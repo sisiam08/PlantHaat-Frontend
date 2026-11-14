@@ -27,7 +27,7 @@ export async function HowItWorksStrip() {
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
               <step.icon aria-hidden className="size-4" />
             </span>
-            <span className="text-xs leading-tight font-medium text-foreground sm:text-sm">
+            <span className="text-xs leading-normal font-medium text-foreground sm:text-sm">
               {step.label}
             </span>
             {index < steps.length - 1 ? <span className="sr-only">·</span> : null}
