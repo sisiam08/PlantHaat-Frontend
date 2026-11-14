@@ -276,6 +276,7 @@ function ServerCart() {
 
   const checkoutActions = (
     <Button
+      data-cart-checkout
       asChild={!blocked}
       variant="cta"
       size="lg"
@@ -342,21 +343,12 @@ function ServerCart() {
         <CartSummaryBox
           view={view}
           actions={checkoutActions}
-          fixedOnMobile={false}
+          showMobileBar
           hasDistrict={districtId !== ""}
           updating={cart.isFetching || update.isPending}
           deliveryError={cart.isError && Boolean(cart.data)}
         />
       </div>
-
-      <CartSummaryBox
-        view={view}
-        actions={checkoutActions}
-        fixedOnMobile
-        hasDistrict={districtId !== ""}
-        updating={cart.isFetching || update.isPending}
-        deliveryError={cart.isError && Boolean(cart.data)}
-      />
     </div>
   );
 }
@@ -510,12 +502,16 @@ function CartLine({
 }) {
   const t = useTranslations("cart");
   return (
-    <div className="grid gap-2 border-t border-border pt-3 first:border-0 first:pt-0">
-      <div className="flex items-start gap-3">
-        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40">
-          <PlantImage src={item.image} alt={item.productName} fill sizes="64px" />
+    <div
+      data-cart-line
+      className="grid gap-2 border-t border-border pt-3 first:border-0 first:pt-0"
+    >
+      <div className="grid grid-cols-[64px_minmax(0,1fr)_44px] items-start gap-3 md:grid-cols-[72px_minmax(0,1fr)_auto_112px_44px] md:items-center md:gap-4">
+        <div className="relative row-span-2 size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40 md:row-span-1 md:size-[72px]">
+          <PlantImage src={item.image} alt={item.productName} fill sizes="72px" />
         </div>
-        <div className="min-w-0 flex-1">
+
+        <div data-cart-info className="col-start-2 row-start-1 min-w-0">
           <Link
             href={`/products/${item.slug}`}
             title={item.productName}
@@ -526,22 +522,31 @@ function CartLine({
           <p className="mt-0.5 truncate text-xs text-muted-foreground" title={item.variantName}>
             {item.variantName}
           </p>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-            <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
-            <span className="font-semibold tabular-nums">
-              <Price value={item.lineTotal} locale={locale} size="sm" />
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            <Price value={item.unitPrice} locale={locale} size="sm" />{" "}
-            <X aria-hidden className="mx-1 inline-block size-3 align-middle" />{" "}
+          <p data-cart-unit className="mt-1 whitespace-nowrap text-xs text-muted-foreground">
+            <Price value={item.unitPrice} locale={locale} size="sm" /> <span aria-hidden>×</span>{" "}
+            <span className="sr-only">quantity </span>
             {formatCount(item.quantity, locale)}
           </p>
         </div>
+
+        <div
+          data-cart-stepper
+          className="col-start-2 row-start-2 justify-self-start md:col-start-3 md:row-start-1 md:justify-self-end"
+        >
+          <QuantityStepper quantity={item.quantity} onChange={onQuantity} />
+        </div>
+
+        <div
+          data-cart-line-total
+          className="col-start-3 row-start-2 shrink-0 justify-self-end text-right font-semibold tabular-nums md:col-start-4 md:row-start-1"
+        >
+          <Price value={item.lineTotal} locale={locale} size="sm" />
+        </div>
+
         <Button
           variant="ghost"
           size="icon-lg"
-          className="shrink-0"
+          className="col-start-3 row-start-1 shrink-0 md:col-start-5 md:row-start-1"
           aria-label={removeLabel}
           onClick={onRemove}
         >
