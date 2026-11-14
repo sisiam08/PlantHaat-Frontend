@@ -174,7 +174,7 @@
   "priceRange": "মূল্য পরিসীমা",
   "light": "আলোর প্রয়োজন",
   "difficulty": "পরিচর্যার কাঠিন্য",
-  "rating4": "৪★ ও উপরে",
+  "rating4": "৪ তারা ও বেশি",
   "onSale": "ছাড়ে আছে",
   "showResults": "{count}টি ফলাফল দেখুন",
   "showResultsPlain": "ফলাফল দেখুন",
@@ -211,8 +211,6 @@
  },
  "product": {
   "addToCart": "কার্টে যোগ করুন",
-  "quickAdd": "দ্রুত যোগ করুন",
-  "quickAddError": "উইশলিস্ট আপডেট করা যায়নি। আবার চেষ্টা করুন।",
   "comingSoon": "শীঘ্রই আসছে",
   "outOfStock": "স্টকে নেই",
   "inStock": "{count}টি স্টকে",
@@ -1564,7 +1562,7 @@
    "empty": "কোনো রিপোর্ট নেই।",
    "resolved": "রিপোর্ট নিষ্পত্তি হয়েছে",
    "updated": "আপডেট হয়েছে",
-   "rating": "{rating}★",
+  "rating": "{rating} / 5",
    "reportReason": "কারণ",
    "hideReview": "রিভিউ লুকান",
    "keepReview": "রিভিউ রাখুন",
@@ -2154,7 +2152,7 @@
   "replySent": "উত্তর পাঠানো হয়েছে।",
   "openPhoto": "ছবি বড় করে দেখুন",
   "basedOn": "{count}টি রিভিউর ভিত্তিতে",
-  "stars": "{count}★",
+  "stars": "{count} তারা",
   "allReviews": "সব রিভিউ",
   "withPhotos": "ছবিসহ",
   "sort": "সাজান",
@@ -2190,3 +2188,4 @@
   "removePhoto": "ছবি সরান"
  }
 }
+

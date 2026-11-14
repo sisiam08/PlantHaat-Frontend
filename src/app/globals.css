@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -368,6 +368,13 @@
     .leaf-drift {
       animation: none;
     }
+  }
+
+  /* Render the taka sign as a matched glyph inside Inter prices. */
+  .price-currency {
+    font-family: var(--font-bangla);
+    font-size: 1.1em;
+    line-height: 1;
   }
 
   /* Delegated card wishlist state (one client layer, no per-card hydration). */

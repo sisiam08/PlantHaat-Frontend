@@ -689,7 +689,9 @@ export function ProductsBrowser({
     try {
       const saved = sessionStorage.getItem(`${SCROLL_KEY_PREFIX}${signature}`);
       if (saved) {
-        window.scrollTo({ top: Number(saved), behavior: "auto" });
+        requestAnimationFrame(() => {
+          window.setTimeout(() => window.scrollTo({ top: Number(saved), behavior: "auto" }), 80);
+        });
       }
     } catch {
       // ignore (private mode)
@@ -840,7 +842,6 @@ export function ProductsBrowser({
                     locale={locale}
                     actionLabels={{
                       wishlistAdd: tp("wishlistAdd"),
-                      quickAdd: tp("quickAdd"),
                     }}
                   />
                 ))}
@@ -889,5 +890,10 @@ export function ProductsBrowser({
     </main>
   );
 }
+
+
+
+
+
 
 

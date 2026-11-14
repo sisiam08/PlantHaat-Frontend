@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { AlertTriangle, ShoppingBag, Trash2 } from "lucide-react";
+import { AlertTriangle, ShoppingBag, Trash2, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -465,7 +465,7 @@ function CartLine({
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            <Price value={item.unitPrice} locale={locale} size="sm" /> × {formatCount(item.quantity, locale)}
+            <Price value={item.unitPrice} locale={locale} size="sm" /> <X aria-hidden className="mx-1 inline-block size-3 align-middle" /> {formatCount(item.quantity, locale)}
           </p>
         </div>
         <Button

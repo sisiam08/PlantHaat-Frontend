@@ -1,12 +1,13 @@
 "use client";
 
-import { ImageIcon, Search, Store, Tag } from "lucide-react";
+import { Search, Store, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { formatBdt } from "@/lib/format/money";
+import { PLANT_PLACEHOLDER } from "@/lib/images/cloudinary-loader";
 import {
   EMPTY_SUGGESTIONS,
   fetchSearchSuggestions,
@@ -38,6 +39,13 @@ function Highlight({ text, query }: { text: string; query: string }) {
       </mark>
       {text.slice(index + needle.length)}
     </>
+  );
+}
+
+function PlantThumbFallback() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={PLANT_PLACEHOLDER} alt="" className="size-full object-cover" />
   );
 }
 
@@ -142,7 +150,7 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                     removeRecentSearch(item);
                   }}
                 >
-                  ×
+                  <X aria-hidden className="size-3" />
                 </button>
               </CommandItem>
             ))}
@@ -193,7 +201,7 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                       value={`product:${product.slug}`}
                       onSelect={() => go(`/products/${encodeURIComponent(product.slug)}`)}
                     >
-                      <Thumb src={product.image} fallback={<ImageIcon aria-hidden className="size-4" />} />
+                      <Thumb src={product.image} fallback={<PlantThumbFallback />} />
                       <span className="min-w-0 flex-1 truncate">
                         <Highlight
                           text={locale === "bn" && product.nameBn ? product.nameBn : product.name}
@@ -218,7 +226,7 @@ export default function SearchSuggestPanel({ query, onPickQuery, onNavigate }: P
                     >
                       <Thumb
                         src={category.imageUrl}
-                        fallback={<Tag aria-hidden className="size-4" />}
+                        fallback={<PlantThumbFallback />}
                       />
                       <span className="min-w-0 flex-1 truncate">
                         <Highlight

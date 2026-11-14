@@ -1,10 +1,11 @@
-﻿import { Heart, Plus, Star } from "lucide-react";
+﻿import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 
 import { LinkPending } from "@/components/layout/link-pending";
 import { PlantImage } from "@/components/plant-image";
 import { cn } from "@/lib/utils";
 import { Price } from "@/components/product/price";
+import { formatPriceRange } from "@/lib/format/money";
 import { RailScroller } from "@/features/catalog/components/rail-scroller";
 
 export function StarRating({
@@ -62,7 +63,7 @@ function CompactRating({ value, count }: { value: string | number | null | undef
     <span className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground">
       <Star aria-hidden className="size-3 fill-cta text-cta" />
       <span className="font-medium text-foreground">{numeric.toFixed(1)}</span>
-      <span aria-hidden>Â·</span>
+      <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground" />
       <span>{count}</span>
       <span className="sr-only">{numeric.toFixed(1)} / 5</span>
     </span>
@@ -71,7 +72,6 @@ function CompactRating({ value, count }: { value: string | number | null | undef
 
 export interface CardActionLabels {
   wishlistAdd: string;
-  quickAdd: string;
 }
 
 export function ProductCard({
@@ -89,6 +89,7 @@ export function ProductCard({
 }) {
   const featured = variant === "featured";
   const reviews = product.ratingCount ?? 0;
+  const priceLabel = formatPriceRange(product.minPrice, product.maxPrice, locale);
 
   return (
     <div
@@ -97,12 +98,12 @@ export function ProductCard({
         featured ? "rounded-2xl" : "rounded-xl",
       )}
     >
-      <div className="relative aspect-4/5 overflow-hidden bg-[color-mix(in_oklab,var(--secondary)_28%,white)]">
-        <Link
-          href={`/products/${product.slug}`}
-          aria-label={product.name}
-          className="absolute inset-0 block"
-        >
+      <Link
+        href={`/products/${product.slug}`}
+        aria-label={priceLabel ? `${product.name} — ${priceLabel}` : product.name}
+        className="flex h-full flex-col"
+      >
+        <div className="relative aspect-4/5 overflow-hidden bg-[color-mix(in_oklab,var(--secondary)_28%,white)]">
           <LinkPending className="absolute top-2 right-2 z-10 text-primary" />
           <PlantImage
             src={product.imageUrl}
@@ -111,56 +112,24 @@ export function ProductCard({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             className="transition-transform duration-300 group-hover/card:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
           />
-        </Link>
-
-        <button
-          type="button"
-          data-card-wishlist
-          data-product-id={product.id}
-          data-slug={product.slug}
-          data-saved="false"
-          aria-label={actionLabels.wishlistAdd}
-          aria-pressed={false}
-          className="absolute top-1.5 right-1.5 z-20 grid size-11 place-items-center rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-card focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-        >
-          <Heart aria-hidden className="size-5" />
-        </button>
-
-        <div className="absolute right-1.5 bottom-1.5 z-20">
-          <button
-            type="button"
-            data-card-quickadd
-            data-slug={product.slug}
-            data-name={product.name}
-            data-image={product.imageUrl ?? ""}
-            data-shop={product.shopName ?? ""}
-            aria-label={actionLabels.quickAdd}
-            className="grid size-11 place-items-center rounded-full bg-cta text-cta-foreground shadow-sm transition-colors hover:bg-cta-hover focus-visible:ring-3 focus-visible:ring-cta/40 focus-visible:outline-none"
-          >
-            <Plus aria-hidden />
-          </button>
+          {!product.inStock ? (
+            <div className="absolute inset-0 z-10 grid place-items-center bg-background/60">
+              <span className="rounded-full bg-card px-3 py-1 text-xs font-medium text-card-foreground shadow-sm">
+                {name}
+              </span>
+            </div>
+          ) : null}
         </div>
 
-        {!product.inStock ? (
-          <div className="absolute inset-0 z-10 grid place-items-center bg-background/60">
-            <span className="rounded-full bg-card px-3 py-1 text-xs font-medium text-card-foreground shadow-sm">
-              {name}
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      <div className={cn("grid gap-1", featured ? "p-3.5" : "p-2.5")}>
-        <Link
-          href={`/products/${product.slug}`}
-          className={cn(
-            "line-clamp-2 font-medium hover:underline",
-            featured ? "text-base leading-snug" : "text-[0.8125rem] leading-snug",
-          )}
-        >
-          {product.name}
-        </Link>
-        <div className="flex flex-wrap items-baseline gap-x-1.5">
+        <div className={cn("grid gap-1", featured ? "p-3.5" : "p-2.5")}>
+          <p
+            className={cn(
+              "line-clamp-2 font-medium",
+              featured ? "text-base leading-snug" : "text-sm leading-snug",
+            )}
+          >
+            {product.name}
+          </p>
           <Price
             value={product.minPrice}
             maxValue={product.maxPrice}
@@ -169,16 +138,28 @@ export function ProductCard({
             size={featured ? "md" : "sm"}
             className="text-primary"
           />
+          {reviews > 0 ? <CompactRating value={product.ratingAvg} count={reviews} /> : null}
+          {product.shopName ? (
+            <p className="line-clamp-1 text-xs text-muted-foreground">{product.shopName}</p>
+          ) : null}
         </div>
-        {reviews > 0 ? <CompactRating value={product.ratingAvg} count={reviews} /> : null}
-        {product.shopName ? (
-          <p className="line-clamp-1 text-[0.7rem] text-muted-foreground">{product.shopName}</p>
-        ) : null}
-      </div>
+      </Link>
+
+      <button
+        type="button"
+        data-card-wishlist
+        data-product-id={product.id}
+        data-slug={product.slug}
+        data-saved="false"
+        aria-label={actionLabels.wishlistAdd}
+        aria-pressed={false}
+        className="absolute top-1.5 right-1.5 z-20 grid size-11 place-items-center rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-card focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      >
+        <Heart aria-hidden className="size-5" />
+      </button>
     </div>
   );
 }
-
 export function ProductCardSkeleton({ featured = false }: { featured?: boolean }) {
   return (
     <div
@@ -248,6 +229,10 @@ export function ProductRail({
     </RailScroller>
   );
 }
+
+
+
+
 
 
 

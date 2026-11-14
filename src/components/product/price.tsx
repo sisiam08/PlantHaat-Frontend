@@ -1,18 +1,46 @@
-import { formatBdt, formatPriceRange } from "@/lib/format/money";
+﻿import { formatBdt } from "@/lib/format/money";
 import { cn } from "@/lib/utils";
 
 type PriceSize = "sm" | "md" | "lg";
 
 const SIZE: Record<PriceSize, string> = {
-  sm: "text-[0.95rem]",
+  sm: "text-sm",
   md: "text-base",
   lg: "text-3xl",
 };
 
+function moneyParts(value: string | number, locale: string) {
+  const numeric = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(numeric)) return [];
+  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-BD", {
+    style: "currency",
+    currency: "BDT",
+    currencyDisplay: "narrowSymbol",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).formatToParts(numeric);
+}
+
+function Amount({ value, locale }: { value: string | number; locale: string }) {
+  return (
+    <>
+      {moneyParts(value, locale).map((part, index) =>
+        part.type === "currency" ? (
+          <span key={index} className="price-currency">
+            {part.value}
+          </span>
+        ) : (
+          <span key={index}>{part.value}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 /**
  * The one price renderer. Plain body font, tabular numerals, no display face,
- * no italic, no tracking. Selling price is 700; compare-at is muted and
- * struck through at a smaller size.
+ * no italic, no tracking. The ৳ is an explicit span so it can be optically
+ * matched to the Inter digits in English.
  */
 export function Price({
   value,
@@ -36,9 +64,7 @@ export function Price({
     maxValue !== undefined &&
     String(maxValue) !== "" &&
     String(maxValue) !== String(value);
-  const selling = hasRange
-    ? formatPriceRange(value, maxValue, locale)
-    : formatBdt(value, locale);
+  const selling = hasRange ? formatBdt(value, locale) : formatBdt(value, locale);
   if (!selling) return null;
 
   const compare = formatBdt(compareAt, locale);
@@ -54,7 +80,15 @@ export function Price({
         className,
       )}
     >
-      <span className={cn("font-bold whitespace-nowrap", SIZE[size])}>{selling}</span>
+      <span className={cn("font-bold whitespace-nowrap", SIZE[size])}>
+        <Amount value={value as string | number} locale={locale} />
+        {hasRange ? (
+          <>
+            <span aria-hidden> – </span>
+            <Amount value={maxValue as string | number} locale={locale} />
+          </>
+        ) : null}
+      </span>
       {showCompare ? (
         <span
           className={cn(
@@ -62,9 +96,10 @@ export function Price({
             compareClassName,
           )}
         >
-          {compare}
+          <Amount value={compareAt as string | number} locale={locale} />
         </span>
       ) : null}
     </span>
   );
 }
+

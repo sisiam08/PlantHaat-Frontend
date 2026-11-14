@@ -174,7 +174,7 @@
   "priceRange": "Price range",
   "light": "Light requirement",
   "difficulty": "Care difficulty",
-  "rating4": "Rated 4★ & up",
+  "rating4": "Rated 4 stars & up",
   "onSale": "On sale",
   "showResults": "Show {count} results",
   "showResultsPlain": "Show results",
@@ -211,8 +211,6 @@
  },
  "product": {
   "addToCart": "Add to cart",
-  "quickAdd": "Quick add",
-  "quickAddError": "Could not update your wishlist. Try again.",
   "comingSoon": "Coming soon",
   "outOfStock": "Out of stock",
   "inStock": "{count} in stock",
@@ -1564,7 +1562,7 @@
    "empty": "No reports.",
    "resolved": "Report resolved",
    "updated": "Updated",
-   "rating": "{rating}★",
+  "rating": "{rating} / 5",
    "reportReason": "Reason",
    "hideReview": "Hide review",
    "keepReview": "Keep review",
@@ -2154,7 +2152,7 @@
   "replySent": "Reply sent.",
   "openPhoto": "Open photo",
   "basedOn": "Based on {count} reviews",
-  "stars": "{count}★",
+  "stars": "{count} stars",
   "allReviews": "All reviews",
   "withPhotos": "With photos",
   "sort": "Sort",
@@ -2190,5 +2188,6 @@
   "removePhoto": "Remove photo"
  }
 }
+
 
 

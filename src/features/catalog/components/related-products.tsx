@@ -1,4 +1,4 @@
-import { getLocale, getTranslations } from "next-intl/server";
+﻿import { getLocale, getTranslations } from "next-intl/server";
 
 import { ProductRail } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
@@ -39,9 +39,9 @@ export async function RelatedProducts({
         outOfStockLabel={t("outOfStock")}
         actionLabels={{
           wishlistAdd: t("wishlistAdd"),
-          quickAdd: t("quickAdd"),
         }}
       />
     </section>
   );
 }
+

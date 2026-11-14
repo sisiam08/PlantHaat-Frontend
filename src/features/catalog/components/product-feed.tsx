@@ -129,7 +129,6 @@ export function ProductFeed({
               locale={locale}
               actionLabels={{
                 wishlistAdd: tp("wishlistAdd"),
-                quickAdd: tp("quickAdd"),
               }}
             />
           ))}
@@ -159,4 +158,5 @@ export function ProductFeed({
     </section>
   );
 }
+
 

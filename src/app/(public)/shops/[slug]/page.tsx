@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+﻿import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -127,7 +127,6 @@ async function ShopContent({
             outOfStockLabel={tp("outOfStock")}
             actionLabels={{
               wishlistAdd: tp("wishlistAdd"),
-              quickAdd: tp("quickAdd"),
             }}
           />
         )}
@@ -149,3 +148,4 @@ export default function ShopPage({
     </Suspense>
   );
 }
+

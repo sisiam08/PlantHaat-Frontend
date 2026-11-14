@@ -71,7 +71,6 @@ export async function HomeRails() {
               outOfStockLabel={tp("outOfStock")}
               actionLabels={{
                 wishlistAdd: tp("wishlistAdd"),
-                quickAdd: tp("quickAdd"),
               }}
             />
           </section>
@@ -80,4 +79,5 @@ export async function HomeRails() {
     </div>
   );
 }
+
 

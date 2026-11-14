@@ -71,7 +71,6 @@ function LazyRail({ railKey, query }: { railKey: "lowLight" | "petSafe"; query: 
         outOfStockLabel={tp("outOfStock")}
         actionLabels={{
           wishlistAdd: tp("wishlistAdd"),
-          quickAdd: tp("quickAdd"),
         }}
       />
     </section>
@@ -111,5 +110,6 @@ export function LazyRails() {
     </div>
   );
 }
+
 
 
