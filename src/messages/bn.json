@@ -11,7 +11,9 @@
   "search": "খুঁজুন",
   "comingSoon": "শীঘ্রই আসছে",
   "error": "সমস্যা হয়েছে",
-  "sectionLoadFailed": "লোড করা যায়নি — আবার চেষ্টা করুন"
+  "sectionLoadFailed": "লোড করা যায়নি — আবার চেষ্টা করুন",
+  "quantityShort": "পরিমাণ {count}",
+  "each": "প্রতিটি"
  },
  "nav": {
   "home": "হোম",
@@ -412,7 +414,12 @@
   "cancel": "বাতিল",
   "cityScope": "এলাকার ধরন",
   "insideCity": "ঢাকা সিটির ভেতরে",
-  "outsideCity": "ঢাকা সিটির বাইরে"
+  "outsideCity": "ঢাকা সিটির বাইরে",
+  "edit": "সম্পাদনা",
+  "shopSubtotal": "দোকানের উপমোট",
+  "showAllShops": "সব {count}টি দোকান দেখান",
+  "showFewerShops": "কম দোকান দেখান",
+  "summaryNote": "ক্যাশ অন ডেলিভারি। পণ্য পৌঁছালে পরিশোধ করুন।"
  },
  "orders": {
   "title": "আমার অর্ডার",

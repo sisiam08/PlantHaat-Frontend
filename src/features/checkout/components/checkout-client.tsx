@@ -27,13 +27,13 @@ import { addressesApi, type CreateAddressInput } from "@/features/addresses/api"
 import { FormField } from "@/features/auth/components/form-field";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
-import { CartSummaryBox } from "@/features/cart/components/cart-summary";
 import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
 import { Price } from "@/components/product/price";
-import { formatCount } from "@/lib/format/number";
+import { cn } from "@/lib/utils";
 import { checkoutApi } from "../api";
+import { CheckoutSummary } from "./checkout-summary";
 
 interface PriceChangeLine {
   variantId: string;
@@ -189,10 +189,11 @@ export function CheckoutClient() {
   });
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:gap-6">
-      <div className="grid gap-6">
-        <section className="grid gap-4">
-          <div className="flex items-center justify-between">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      <div className="grid content-start gap-6 self-start">
+        <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
+        <section data-checkout-section className="grid content-start gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{t("address")}</h2>
             {list.length > 0 ? (
               <Button variant="outline" size="sm" onClick={() => setShowForm((value) => !value)}>
@@ -201,40 +202,58 @@ export function CheckoutClient() {
             ) : null}
           </div>
 
-          {list.length === 0 && !showForm ? (
-            <Button variant="outline" onClick={() => setShowForm(true)}>
-              {t("addNewAddress")}
-            </Button>
-          ) : null}
+          <div data-section-cards className="grid gap-3">
+            {list.length === 0 && !showForm ? (
+              <Button variant="outline" onClick={() => setShowForm(true)}>
+                {t("addNewAddress")}
+              </Button>
+            ) : null}
 
-          {list.map((address) => (
-            <label
-              key={address.id}
-              className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-card p-4"
-            >
-              <input
-                type="radio"
-                name="address"
-                className="mt-1"
-                checked={selectedAddress?.id === address.id}
-                onChange={() => setSelectedId(address.id)}
-              />
-              <span className="grid min-w-0 gap-1 text-sm">
-                <span className="font-medium">{address.recipientName}</span>
-                <span className="text-muted-foreground">
-                  <span className="line-clamp-2" title={`${address.addressLine}, ${address.area}`}>
+            {list.map((address) => (
+              <div
+                key={address.id}
+                data-section-card
+                className={cn(
+                  "flex items-start gap-3 rounded-2xl border bg-card p-4",
+                  selectedAddress?.id === address.id
+                    ? "border-primary ring-1 ring-primary/20"
+                    : "border-border",
+                )}
+              >
+                <input
+                  id={`address-${address.id}`}
+                  type="radio"
+                  name="address"
+                  className="mt-1"
+                  checked={selectedAddress?.id === address.id}
+                  onChange={() => setSelectedId(address.id)}
+                />
+                <label
+                  htmlFor={`address-${address.id}`}
+                  className="min-w-0 flex-1 cursor-pointer text-sm"
+                >
+                  <span className="block font-medium">{address.recipientName}</span>
+                  <span
+                    className="line-clamp-2 block text-muted-foreground"
+                    title={`${address.addressLine}, ${address.area}`}
+                  >
                     {address.addressLine}, {address.area},{" "}
                     {locale === "bn" ? address.district.nameBn : address.district.name}
                   </span>
-                </span>
-                <span className="text-muted-foreground">{address.phone}</span>
-              </span>
-            </label>
-          ))}
+                  <span className="block text-muted-foreground">{address.phone}</span>
+                </label>
+                <Link
+                  href="/account/addresses"
+                  className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  {t("edit")}
+                </Link>
+              </div>
+            ))}
 
           {showForm || list.length === 0 ? (
-            <Card className="rounded-2xl">
-              <CardContent>
+            <Card data-section-card className="rounded-2xl [--card-spacing:0px]">
+              <CardContent className="p-4">
                 <form onSubmit={onSubmitAddress} className="grid gap-3" noValidate>
                   <FormField
                     label={t("recipientName")}
@@ -320,12 +339,20 @@ export function CheckoutClient() {
               </CardContent>
             </Card>
           ) : null}
+          </div>
         </section>
 
-        <section className="grid gap-3">
+        <section data-checkout-section className="grid content-start gap-3">
           <h2 className="text-lg font-semibold">{t("payment")}</h2>
-          <Card className="rounded-2xl">
-            <CardContent className="flex items-center gap-3">
+          <div role="radiogroup" aria-label={t("payment")} className="grid gap-2">
+            <label
+              data-section-card
+              data-payment-option="COD"
+              className={cn(
+                "flex cursor-pointer items-start gap-3 rounded-2xl border bg-card p-4",
+                codBlocked ? "border-border opacity-60" : "border-primary ring-1 ring-primary/20",
+              )}
+            >
               <input
                 type="radio"
                 name="paymentMethod"
@@ -333,93 +360,45 @@ export function CheckoutClient() {
                 checked
                 readOnly
                 disabled={codBlocked}
+                className="mt-1"
               />
-              <div>
-                <p className="font-medium">{t("cod")}</p>
-                <p className="text-sm text-muted-foreground">{t("codNote")}</p>
+              <span className="min-w-0">
+                <span className="block font-medium">{t("cod")}</span>
+                <span className="block text-sm text-muted-foreground">{t("codNote")}</span>
                 {!codEnabled ? (
-                  <p className="text-sm text-destructive">
+                  <span className="block text-sm text-destructive">
                     Cash on delivery is currently unavailable.
-                  </p>
+                  </span>
                 ) : codOverLimit ? (
-                  <p className="text-sm text-destructive">
+                  <span className="block text-sm text-destructive">
                     Cash on delivery is available for orders up to ৳{codMax}.
-                  </p>
+                  </span>
                 ) : null}
-              </div>
-            </CardContent>
-          </Card>
+              </span>
+            </label>
+          </div>
         </section>
       </div>
 
-      <div className="grid gap-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:self-start">
+      <div className="min-w-0 self-start lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-2rem)] lg:flex-col">
         {cart.isLoading ? (
           <Skeleton className="h-24 w-full rounded-2xl" />
         ) : cart.isError ? (
           <QueryError message={tCommon("sectionLoadFailed")} onRetry={() => void cart.refetch()} />
         ) : cart.data ? (
-          <div className="grid gap-4">
-            {cart.data.shops.map((shop) => (
-              <Card key={shop.shopId} className="rounded-2xl">
-                <CardContent className="grid gap-1 text-sm">
-                  <p className="font-medium">{shop.shopName}</p>
-                  {shop.items.map((item) => (
-                    <div
-                      key={item.variantId}
-                      className="flex justify-between text-muted-foreground"
-                    >
-                      <span className="truncate pr-2">
-                        {item.productName} × {formatCount(item.quantity, locale)}
-                      </span>
-                      <Price value={item.lineTotal} locale={locale} size="sm" />
-                    </div>
-                  ))}
-                  <div className="flex justify-between border-t border-border pt-1">
-                    <span>{t("itemsSubtotal")}</span>
-                    <Price value={shop.subtotal} locale={locale} size="sm" />
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("delivery")}</span>
-                    <span
-                      className={shop.deliverable === false ? "text-warning-foreground" : undefined}
-                    >
-                      {shop.deliveryCharge != null ? (
-                        <Price value={shop.deliveryCharge} locale={locale} size="sm" />
-                      ) : shop.deliverable === false ? (
-                        t("notDelivering")
-                      ) : (
-                        t("selectToSee")
-                      )}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            <CartSummaryBox view={cart.data} />
-            {hasNotDelivering(cart.data) ? (
-              <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
-                {t("notDeliveringBlocked")}
-              </p>
-            ) : null}
-            <Button
-              variant="cta"
-              size="lg"
-              disabled={
-                !selectedAddress ||
-                placeOrder.isPending ||
-                cart.data.shops.length === 0 ||
-                hasNotDelivering(cart.data) ||
-                codBlocked ||
-                publicSettings.isLoading
-              }
-              onClick={() => placeOrder.mutate()}
-            >
-              {placeOrder.isPending ? t("submitting") : t("placeOrder")}
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/cart">{t("backToCart")}</Link>
-            </Button>
-          </div>
+          <CheckoutSummary
+            view={cart.data}
+            disabled={
+              !selectedAddress ||
+              cart.data.shops.length === 0 ||
+              hasNotDelivering(cart.data) ||
+              codBlocked ||
+              publicSettings.isLoading
+            }
+            pending={placeOrder.isPending}
+            onPlaceOrder={() => placeOrder.mutate()}
+            warning={hasNotDelivering(cart.data) ? t("notDeliveringBlocked") : undefined}
+          />
         ) : (
           <Button variant="cta" size="lg" disabled={true}>
             {t("placeOrder")}

@@ -1,12 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Price } from "@/components/product/price";
+import { ProductLine } from "@/components/product/quantity-line";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,6 @@ export function SellerOrderDetail({ id }: { id: string }) {
   const t = useTranslations("seller.orders");
   const tStatus = useTranslations("seller.orderStatus");
   const tErrors = useTranslations("errors");
-  const tProduct = useTranslations("product");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [pending, setPending] = useState<OrderStatus | null>(null);
@@ -159,17 +158,15 @@ export function SellerOrderDetail({ id }: { id: string }) {
         </CardHeader>
         <CardContent className="grid gap-2 text-sm">
           {data.items.map((item) => (
-            <div key={item.id} className="flex items-start justify-between gap-3">
-              <span>
-                {item.productName} · {item.variantName}
-                <X aria-hidden className="mx-1 inline-block size-3 align-middle" />
-                <span className="sr-only">{tProduct("quantity")} </span>
-                {item.quantity}
-              </span>
-              <span className="shrink-0">
-                <Price value={item.lineTotal} locale={locale} size="sm" />
-              </span>
-            </div>
+            <ProductLine
+              key={item.id}
+              name={item.productName}
+              variantName={item.variantName}
+              quantity={item.quantity}
+              unitPrice={item.unitPrice}
+              lineTotal={item.lineTotal}
+              locale={locale}
+            />
           ))}
           <Separator />
           <div className="grid gap-1">

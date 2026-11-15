@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { AlertTriangle, ShoppingBag, Trash2, X } from "lucide-react";
+import { AlertTriangle, ShoppingBag, Trash2 } from "lucide-react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -16,13 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addressesApi } from "@/features/addresses/api";
 import { useAuth } from "@/features/auth/auth-provider";
-import { toastApiError } from "@/features/auth/components/error-toast";
 import { apiGet } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 import { Price } from "@/components/product/price";
+import { QuantityLine } from "@/components/product/quantity-line";
 import { formatCount } from "@/lib/format/number";
 import { cartApi } from "../api";
 import { getRememberedDistrictId, rememberDistrictId } from "../district-store";
@@ -522,11 +522,9 @@ function CartLine({
           <p className="mt-0.5 truncate text-xs text-muted-foreground" title={item.variantName}>
             {item.variantName}
           </p>
-          <p data-cart-unit className="mt-1 whitespace-nowrap text-xs text-muted-foreground">
-            <Price value={item.unitPrice} locale={locale} size="sm" /> <span aria-hidden>×</span>{" "}
-            <span className="sr-only">quantity </span>
-            {formatCount(item.quantity, locale)}
-          </p>
+          <div data-cart-unit className="mt-1">
+            <QuantityLine quantity={item.quantity} unitPrice={item.unitPrice} locale={locale} />
+          </div>
         </div>
 
         <div

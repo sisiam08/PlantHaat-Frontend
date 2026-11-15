@@ -1,12 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Price } from "@/components/product/price";
+import { ProductLine } from "@/components/product/quantity-line";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -182,7 +182,6 @@ function ShopOrderCard({
   onCancel: () => void;
   onRequest: () => void;
 }) {
-  const tProduct = useTranslations("product");
   const activeIndex = FLOW.indexOf(shopOrder.status);
   const terminal = shopOrder.status === "CANCELLED" || shopOrder.status === "FAILED_DELIVERY";
 
@@ -248,17 +247,14 @@ function ShopOrderCard({
         <div className="grid gap-2">
           {shopOrder.items.map((item) => (
             <div key={item.id} className="grid gap-2">
-              <div className="flex justify-between text-sm">
-                <span>
-                  {item.productName} · {item.variantName}
-                  <X aria-hidden className="mx-1 inline-block size-3 align-middle" />
-                  <span className="sr-only">{tProduct("quantity")} </span>
-                  {item.quantity}
-                </span>
-                <span>
-                  <Price value={item.lineTotal} locale={locale} size="sm" />
-                </span>
-              </div>
+              <ProductLine
+                name={item.productName}
+                variantName={item.variantName}
+                quantity={item.quantity}
+                unitPrice={item.unitPrice}
+                lineTotal={item.lineTotal}
+                locale={locale}
+              />
               {shopOrder.status === "DELIVERED" ? (
                 <ReviewForm orderItemId={item.id} productName={item.productName} />
               ) : null}

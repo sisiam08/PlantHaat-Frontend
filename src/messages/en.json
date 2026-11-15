@@ -11,7 +11,9 @@
   "search": "Search",
   "comingSoon": "Coming soon",
   "error": "Something went wrong",
-  "sectionLoadFailed": "Couldn't load — try again"
+  "sectionLoadFailed": "Couldn't load — try again",
+  "quantityShort": "Qty {count}",
+  "each": "each"
  },
  "nav": {
   "home": "Home",
@@ -412,7 +414,12 @@
   "cancel": "Cancel",
   "cityScope": "Area type",
   "insideCity": "Inside Dhaka city",
-  "outsideCity": "Outside Dhaka city"
+  "outsideCity": "Outside Dhaka city",
+  "edit": "Edit",
+  "shopSubtotal": "Shop subtotal",
+  "showAllShops": "Show all {count} shops",
+  "showFewerShops": "Show fewer shops",
+  "summaryNote": "Cash on delivery. You pay when the order arrives."
  },
  "orders": {
   "title": "My orders",
