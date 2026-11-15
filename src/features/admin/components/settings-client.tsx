@@ -57,6 +57,30 @@ export function SettingsClient() {
     }
   }, [settings.data]);
 
+  const paymentIssues = useMemo(() => {
+    const issues: Record<string, string> = {};
+    const valid = (key: string) => /^01[3-9]\d{8}$/.test(String(values[key] ?? "").trim());
+    for (const provider of [
+      { enabled: "payment.bkash.enabled", number: "payment.bkash.number", label: "bKash" },
+      { enabled: "payment.nagad.enabled", number: "payment.nagad.number", label: "Nagad" },
+    ]) {
+      if (values[provider.enabled] === true && !valid(provider.number)) {
+        issues[provider.enabled] =
+          `${provider.label} needs a valid receiving number before it can be enabled.`;
+      }
+    }
+    const providerReady = ["payment.bkash", "payment.nagad"].some(
+      (prefix) => values[`${prefix}.enabled`] === true && valid(`${prefix}.number`),
+    );
+    if (values["payment.advance.enabled"] === true && !providerReady) {
+      issues["payment.advance.enabled"] = "Enable bKash or Nagad with a valid number first.";
+    }
+    if (values["payment.cod.enabled"] === false && values["payment.advance.enabled"] === false) {
+      issues["payment.advance.enabled"] = "At least one of COD or Advance must stay enabled.";
+    }
+    return issues;
+  }, [values]);
+
   const dirty = useMemo(
     () =>
       Object.keys(values).filter(
@@ -102,6 +126,10 @@ export function SettingsClient() {
   const lastChange = (key: string) => history.data?.find((entry) => entry.key === key);
 
   const onSave = () => {
+    if (Object.keys(paymentIssues).length > 0) {
+      toast.error("Fix the payment settings errors before saving.");
+      return;
+    }
     if (sensitiveDirty.length > 1) {
       toast.error("Please save sensitive settings one at a time.");
       return;
@@ -142,7 +170,7 @@ export function SettingsClient() {
               <TabsContent key={group} value={group} className="grid gap-5">
                 {group === "payments" ? (
                   <div className="rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm">
-                    <p className="font-medium">Payment page preview</p>
+                    <p className="font-medium">Payment settings summary</p>
                     <p className="mt-1 text-muted-foreground">
                       bKash: {String(values["payment.bkash.number"] || "not set")} · Nagad:{" "}
                       {String(values["payment.nagad.number"] || "not set")}
@@ -153,19 +181,31 @@ export function SettingsClient() {
                     </p>
                   </div>
                 ) : null}
-                {definitions
-                  .filter((definition) => definition.group === group)
-                  .map((definition) => (
-                    <SettingField
-                      key={definition.key}
-                      definition={definition}
-                      value={values[definition.key]}
-                      locale={locale}
-                      last={lastChange(definition.key)}
-                      onChange={(value) => setValue(definition.key, value)}
-                      onReset={() => setValue(definition.key, definition.default)}
-                    />
-                  ))}
+                <div className="grid gap-4 md:grid-cols-2">
+                  {definitions
+                    .filter((definition) => definition.group === group)
+                    .map((definition) => (
+                      <SettingField
+                        key={definition.key}
+                        definition={definition}
+                        value={values[definition.key]}
+                        locale={locale}
+                        last={lastChange(definition.key)}
+                        error={paymentIssues[definition.key]}
+                        disabled={
+                          (definition.key === "payment.bkash.enabled" ||
+                            definition.key === "payment.nagad.enabled") &&
+                          !/^01[3-9]\d{8}$/.test(
+                            String(
+                              values[definition.key.replace(".enabled", ".number")] ?? "",
+                            ).trim(),
+                          )
+                        }
+                        onChange={(value) => setValue(definition.key, value)}
+                        onReset={() => setValue(definition.key, definition.default)}
+                      />
+                    ))}
+                </div>
                 {group === "payments" ? (
                   <p className="text-xs text-muted-foreground">
                     At least one payment method must stay enabled.
@@ -242,6 +282,8 @@ function SettingField({
   value,
   locale,
   last,
+  error,
+  disabled,
   onChange,
   onReset,
 }: {
@@ -249,6 +291,8 @@ function SettingField({
   value: unknown;
   locale: string;
   last?: { createdAt: string; updatedById: string | null };
+  error?: string;
+  disabled?: boolean;
   onChange: (value: unknown) => void;
   onReset: () => void;
 }) {
@@ -266,6 +310,7 @@ function SettingField({
           <Checkbox
             id={definition.key}
             checked={value === true}
+            disabled={disabled}
             onCheckedChange={(checked) => onChange(checked === true)}
           />
           Enabled
@@ -297,6 +342,12 @@ function SettingField({
           onChange={(event) => onChange(event.target.value)}
         />
       )}
+      <p className="text-xs text-muted-foreground">
+        {definition.isSensitive
+          ? "Changes apply to new orders only. Requires password."
+          : definition.labelEn}
+      </p>
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
       <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
         <span>Default: {String(definition.default)}</span>
         {definition.isSensitive ? <span>Sensitive · requires password</span> : null}
