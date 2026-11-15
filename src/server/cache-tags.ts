@@ -4,6 +4,7 @@ export const CACHE_TAGS = {
   categories: "categories",
   products: "products",
   shops: "shops",
+  settings: "settings",
 } as const;
 
 export function productTag(slug: string): string {
@@ -74,6 +75,7 @@ const MUTATION_TAG_RULES: MutationTagRule[] = [
     method: "DELETE",
     tags: [CACHE_TAGS.home, CACHE_TAGS.banners],
   },
+  { test: /^\/admin\/settings$/, method: "PATCH", tags: [CACHE_TAGS.settings] },
   { test: /^\/seller\/shop/, method: "PATCH", tags: [CACHE_TAGS.shops] },
   { test: /^\/seller\/shop\//, method: "POST", tags: [CACHE_TAGS.shops] },
   { test: /^\/seller\/delivery-zones/, method: "POST", tags: [CACHE_TAGS.shops] },

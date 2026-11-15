@@ -1,10 +1,20 @@
-﻿import { Mail, Phone } from "lucide-react";
+﻿import { Mail, MessageCircle, Phone } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { clientEnv } from "@/env/client";
+import { getPublicSettings } from "@/server/public-settings";
 import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
+
+function text(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function whatsappHref(number: string): string {
+  const digits = number.replace(/\D/g, "");
+  return `https://wa.me/${digits.startsWith("88") ? digits : `88${digits}`}`;
+}
 
 function FooterLink({ href, label }: { href: string; label: string }) {
   return (
@@ -21,6 +31,10 @@ function FooterLink({ href, label }: { href: string; label: string }) {
 
 export async function SiteFooter() {
   const t = await getTranslations("footer");
+  const settings = await getPublicSettings();
+  const phone = text(settings["support.phone"]) || clientEnv.NEXT_PUBLIC_SUPPORT_PHONE;
+  const email = text(settings["support.email"]) || clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL;
+  const whatsapp = text(settings["support.whatsapp"]);
 
   return (
     <footer className="mt-16 border-t border-border/60 bg-gradient-to-b from-background to-secondary/40 pb-24 md:pb-0">
@@ -56,29 +70,45 @@ export async function SiteFooter() {
         <div className="grid content-start gap-3">
           <h2 className="text-sm font-semibold text-foreground">{t("contact")}</h2>
           <ul className="grid min-w-0 gap-2 text-sm break-words text-muted-foreground">
-            {clientEnv.NEXT_PUBLIC_SUPPORT_PHONE ? (
+            {phone ? (
               <li className="inline-flex min-w-0 items-center gap-2">
                 <Phone aria-hidden className="size-4 text-primary" />
                 <a
-                  href={`tel:${clientEnv.NEXT_PUBLIC_SUPPORT_PHONE}`}
+                  href={`tel:${phone}`}
                   className="break-all transition-colors hover:text-foreground"
                 >
-                  {clientEnv.NEXT_PUBLIC_SUPPORT_PHONE}
+                  {phone}
                 </a>
               </li>
             ) : null}
-            {clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL ? (
+            {email ? (
               <li className="inline-flex min-w-0 items-center gap-2">
                 <Mail aria-hidden className="size-4 text-primary" />
                 <a
-                  href={`mailto:${clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL}`}
+                  href={`mailto:${email}`}
                   className="break-all transition-colors hover:text-foreground"
                 >
-                  {clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL}
+                  {email}
+                </a>
+              </li>
+            ) : null}
+            {whatsapp ? (
+              <li className="inline-flex min-w-0 items-center gap-2">
+                <MessageCircle aria-hidden className="size-4 text-primary" />
+                <a
+                  href={whatsappHref(whatsapp)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="break-all transition-colors hover:text-foreground"
+                >
+                  {t("whatsapp")} · {whatsapp}
                 </a>
               </li>
             ) : null}
           </ul>
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">{t("needHelp")}</span> {t("helpHint")}
+          </p>
         </div>
       </div>
 

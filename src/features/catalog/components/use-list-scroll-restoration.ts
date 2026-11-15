@@ -37,8 +37,10 @@ export function useListScrollRestoration({
   const cursorRef = useRef(cursor);
   const key = `${STORAGE_PREFIX}${storageKey}`;
 
-  pagesRef.current = pages;
-  cursorRef.current = cursor;
+  useEffect(() => {
+    pagesRef.current = pages;
+    cursorRef.current = cursor;
+  }, [pages, cursor]);
 
   useEffect(() => {
     if (typeof history !== "undefined") {

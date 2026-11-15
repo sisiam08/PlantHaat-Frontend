@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -46,17 +45,12 @@ export function SettingsClient() {
     queryFn: () => adminApi.getSettingsHistory(),
   });
 
-  const [values, setValues] = useState<AdminSettings>({});
-  const [initial, setInitial] = useState<AdminSettings>({});
+  const [draft, setDraft] = useState<AdminSettings | null>(null);
   const [reauthKey, setReauthKey] = useState<string | null>(null);
+  const [reauthError, setReauthError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    if (settings.data) {
-      setValues(settings.data);
-      setInitial(settings.data);
-    }
-  }, [settings.data]);
+  const initial = useMemo(() => settings.data ?? {}, [settings.data]);
+  const values = draft ?? initial;
 
   const paymentIssues = useMemo(() => {
     const issues: Record<string, string> = {};
@@ -65,6 +59,10 @@ export function SettingsClient() {
       { enabled: "payment.bkash.enabled", number: "payment.bkash.number", label: "bKash" },
       { enabled: "payment.nagad.enabled", number: "payment.nagad.number", label: "Nagad" },
     ]) {
+      const number = String(values[provider.number] ?? "").trim();
+      if (number && !valid(provider.number)) {
+        issues[provider.number] = `${provider.label}: enter a valid 01XXXXXXXXX number.`;
+      }
       if (values[provider.enabled] === true && !valid(provider.number)) {
         issues[provider.enabled] =
           `${provider.label} needs a valid receiving number before it can be enabled.`;
@@ -107,10 +105,10 @@ export function SettingsClient() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settings });
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settingsHistory() });
-      setInitial(values);
+      setDraft(null);
       setReauthKey(null);
       setPassword("");
-      toast.success(t("saved"));
+      toast.success(t("savedMessage"));
     },
     onError: (error) => toastApiError(error, tErrors),
   });
@@ -129,11 +127,11 @@ export function SettingsClient() {
 
   const onSave = () => {
     if (Object.keys(paymentIssues).length > 0) {
-      toast.error("Fix the payment settings errors before saving.");
+      toast.error(t("fixPaymentErrors"));
       return;
     }
     if (sensitiveDirty.length > 1) {
-      toast.error("Please save sensitive settings one at a time.");
+      toast.error(t("saveSensitiveOne"));
       return;
     }
     if (sensitiveDirty.length === 1) {
@@ -147,14 +145,16 @@ export function SettingsClient() {
     if (!reauthKey) return;
     try {
       const { token } = await adminApi.reauthenticateSettings(reauthKey, password);
+      setReauthError(null);
       save.mutate({ token });
     } catch (error) {
+      setReauthError(error instanceof Error ? error.message : tErrors("generic"));
       toastApiError(error, tErrors);
     }
   };
 
   const setValue = (key: string, value: unknown) =>
-    setValues((current) => ({ ...current, [key]: value }));
+    setDraft((current) => ({ ...(current ?? initial), [key]: value }));
 
   return (
     <div className="grid gap-5">
@@ -171,43 +171,82 @@ export function SettingsClient() {
             {GROUPS.map((group) => (
               <TabsContent key={group} value={group} className="grid gap-5">
                 {group === "payments" ? (
-                  <div className="rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm">
-                    <p className="font-medium">Payment settings summary</p>
-                    <p className="mt-1 text-muted-foreground">
-                      bKash: {String(values["payment.bkash.number"] || "not set")} · Nagad:{" "}
-                      {String(values["payment.nagad.number"] || "not set")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Advance: {values["payment.advance.enabled"] ? "enabled" : "disabled"} · COD:{" "}
-                      {values["payment.cod.enabled"] ? "enabled" : "disabled"}
-                    </p>
-                  </div>
-                ) : null}
-                <div className="grid gap-4 md:grid-cols-2">
-                  {definitions
-                    .filter((definition) => definition.group === group)
-                    .map((definition) => (
-                      <SettingField
-                        key={definition.key}
-                        definition={definition}
-                        value={values[definition.key]}
-                        locale={locale}
-                        last={lastChange(definition.key)}
-                        error={paymentIssues[definition.key]}
-                        disabled={
-                          (definition.key === "payment.bkash.enabled" ||
-                            definition.key === "payment.nagad.enabled") &&
-                          !/^01[3-9]\d{8}$/.test(
-                            String(
-                              values[definition.key.replace(".enabled", ".number")] ?? "",
-                            ).trim(),
-                          )
-                        }
-                        onChange={(value) => setValue(definition.key, value)}
-                        onReset={() => setValue(definition.key, definition.default)}
-                      />
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    {[
+                      {
+                        title: "bKash",
+                        keys: ["payment.bkash.enabled", "payment.bkash.number"],
+                      },
+                      {
+                        title: "Nagad",
+                        keys: ["payment.nagad.enabled", "payment.nagad.number"],
+                      },
+                      {
+                        title: "Timing & account",
+                        keys: [
+                          "payment.expiryHours",
+                          "payment.slaHours",
+                          "payment.lateGraceHours",
+                          "payment.verificationText",
+                          "payment.accountNote",
+                        ],
+                      },
+                      {
+                        title: "Checkout methods",
+                        keys: ["payment.cod.enabled", "payment.advance.enabled"],
+                      },
+                    ].map((card) => (
+                      <div
+                        key={card.title}
+                        className="grid content-start gap-3 rounded-xl border border-border/60 bg-secondary/20 p-4"
+                      >
+                        <h3 className="font-heading text-sm font-semibold">{card.title}</h3>
+                        {card.keys.map((key) => {
+                          const definition = definitions.find((entry) => entry.key === key);
+                          if (!definition) return null;
+                          return (
+                            <SettingField
+                              key={definition.key}
+                              definition={definition}
+                              value={values[definition.key]}
+                              locale={locale}
+                              last={lastChange(definition.key)}
+                              error={paymentIssues[definition.key]}
+                              disabled={
+                                (definition.key === "payment.bkash.enabled" ||
+                                  definition.key === "payment.nagad.enabled") &&
+                                !/^01[3-9]\d{8}$/.test(
+                                  String(
+                                    values[definition.key.replace(".enabled", ".number")] ?? "",
+                                  ).trim(),
+                                )
+                              }
+                              onChange={(value) => setValue(definition.key, value)}
+                              onReset={() => setValue(definition.key, definition.default)}
+                            />
+                          );
+                        })}
+                      </div>
                     ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {definitions
+                      .filter((definition) => definition.group === group)
+                      .map((definition) => (
+                        <SettingField
+                          key={definition.key}
+                          definition={definition}
+                          value={values[definition.key]}
+                          locale={locale}
+                          last={lastChange(definition.key)}
+                          error={paymentIssues[definition.key]}
+                          onChange={(value) => setValue(definition.key, value)}
+                          onReset={() => setValue(definition.key, definition.default)}
+                        />
+                      ))}
+                  </div>
+                )}
                 {group === "payments" ? (
                   <p className="text-xs text-muted-foreground">
                     At least one payment method must stay enabled.
@@ -216,13 +255,21 @@ export function SettingsClient() {
               </TabsContent>
             ))}
           </Tabs>
-          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border/60 pt-5">
+          <div className="sticky bottom-0 z-10 -mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-border/60 bg-card/95 px-5 py-4 backdrop-blur">
             <Button variant="cta" disabled={save.isPending || dirty.length === 0} onClick={onSave}>
               {t("save")}
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={save.isPending || dirty.length === 0}
+              onClick={() => setDraft(null)}
+            >
+              {t("discard")}
+            </Button>
             {dirty.length > 0 ? (
               <span className="text-xs text-muted-foreground">
-                {dirty.length} unsaved change(s)
+                {dirty.length === 1 ? t("unsavedOne") : t("unsavedMany", { count: dirty.length })}
               </span>
             ) : null}
           </div>
@@ -231,7 +278,7 @@ export function SettingsClient() {
 
       <Card className="rounded-2xl py-0">
         <CardContent className="p-5">
-          <h2 className="mb-3 font-semibold">Recent settings history</h2>
+          <h2 className="mb-3 font-semibold">{t("historyTitle")}</h2>
           <div className="grid gap-2 text-sm">
             {history.data?.slice(0, 12).map((entry) => (
               <div
@@ -246,19 +293,25 @@ export function SettingsClient() {
               </div>
             ))}
             {history.data?.length === 0 ? (
-              <p className="text-muted-foreground">No changes yet.</p>
+              <p className="text-muted-foreground">{t("noHistory")}</p>
             ) : null}
           </div>
         </CardContent>
       </Card>
 
-      <AlertDialog open={Boolean(reauthKey)} onOpenChange={(open) => !open && setReauthKey(null)}>
+      <AlertDialog
+        open={Boolean(reauthKey)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReauthKey(null);
+            setReauthError(null);
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm sensitive change</AlertDialogTitle>
-            <AlertDialogDescription>
-              Enter your admin password to change {reauthKey}. This applies to new orders only.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("reauthTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("reauthBody", { key: reauthKey ?? "" })}</AlertDialogDescription>
           </AlertDialogHeader>
           <Input
             type="password"
@@ -267,11 +320,21 @@ export function SettingsClient() {
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Admin password"
           />
+          {reauthError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {reauthError}
+            </p>
+          ) : null}
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmReauth} disabled={!password || save.isPending}>
-              Confirm and save
-            </AlertDialogAction>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="cta"
+              onClick={confirmReauth}
+              disabled={!password || save.isPending}
+            >
+              {t("confirmSave")}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -298,9 +361,14 @@ function SettingField({
   onChange: (value: unknown) => void;
   onReset: () => void;
 }) {
+  const t = useTranslations("admin.settings");
   const label = locale === "bn" ? definition.labelBn : definition.labelEn;
+  const help =
+    definition.helpEn && definition.helpBn
+      ? `${definition.helpEn} · ${definition.helpBn}`
+      : `${definition.labelEn} · ${definition.labelBn}`;
   return (
-    <div className="grid gap-1.5 rounded-xl border border-border/50 p-4">
+    <div data-setting-key={definition.key} className="grid gap-1.5 rounded-xl border border-border/50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Label htmlFor={definition.key} className="flex items-center gap-2">
           {label}
@@ -313,8 +381,14 @@ function SettingField({
             {definition.wired ? "Active" : "Not active yet"}
           </span>
         </Label>
-        <Button type="button" variant="ghost" size="sm" onClick={onReset}>
-          Reset to default
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          data-setting-reset={definition.key}
+          onClick={onReset}
+        >
+          {t("resetDefault")}
         </Button>
       </div>
       {definition.type === "boolean" ? (
@@ -325,7 +399,7 @@ function SettingField({
             disabled={disabled}
             onCheckedChange={(checked) => onChange(checked === true)}
           />
-          Enabled
+          {t("enabled")}
         </label>
       ) : definition.type === "number" ? (
         <Input
@@ -354,15 +428,16 @@ function SettingField({
           onChange={(event) => onChange(event.target.value)}
         />
       )}
-      <p className="text-xs text-muted-foreground">
-        {definition.isSensitive
-          ? "Changes apply to new orders only. Requires password."
-          : definition.labelEn}
+      <p className="text-xs text-muted-foreground">{help}</p>
+      <p className="text-[11px] text-muted-foreground">
+        {definition.isSensitive ? t("effectNewOrders") : t("effectPageLoads")}
       </p>
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
       <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
-        <span>Default: {String(definition.default)}</span>
-        {definition.isSensitive ? <span>Sensitive · requires password</span> : null}
+        <span>
+          {t("defaultLabel")}: {String(definition.default)}
+        </span>
+        {definition.isSensitive ? <span>{t("sensitiveNote")}</span> : null}
         {last ? <span>Last changed {new Date(last.createdAt).toLocaleString(locale)}</span> : null}
       </div>
     </div>

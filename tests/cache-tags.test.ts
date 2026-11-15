@@ -14,6 +14,10 @@ describe("tagsForMutation", () => {
     expect(tags).toContain("banners");
   });
 
+  it("maps an admin settings save to the settings tag", () => {
+    expect(tagsForMutation("/admin/settings", "PATCH")).toEqual(["settings"]);
+  });
+
   it("ignores GET requests", () => {
     expect(tagsForMutation("/seller/products", "GET")).toEqual([]);
   });

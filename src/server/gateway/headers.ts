@@ -11,6 +11,7 @@ const FORWARD_REQUEST_HEADERS = [
   "idempotency-key",
   "user-agent",
   "x-request-id",
+  "x-settings-reauth",
 ] as const;
 
 const HOP_BY_HOP = new Set([

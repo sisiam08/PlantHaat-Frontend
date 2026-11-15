@@ -48,6 +48,9 @@
   "delivery": "Delivery policy",
   "phone": "Phone",
   "email": "Email",
+  "whatsapp": "WhatsApp",
+  "needHelp": "Need help?",
+  "helpHint": "Message us with your order number and photos.",
   "preferences": "Preferences",
   "rights": "All rights reserved",
   "madeWith": "Made with care in Bangladesh"
@@ -273,7 +276,7 @@
   "deliveryPolicy": "Delivery policy",
   "deliveryTab": "Delivery & returns",
   "returnsTitle": "Returns & complaints",
-  "returnsBody": "Damaged plants can be reported with photos within 48 hours of delivery.",
+  "returnsBody": "Damaged plants can be reported with photos within {hours} hours of delivery.",
   "policyLink": "View policy",
   "relatedTitle": "More from this category",
   "shopOnVacation": "This shop is currently on vacation"
@@ -320,7 +323,7 @@
   "under500": "Under ৳500",
   "seeAll": "View all",
   "offers": "This week's offers",
-  "trustComplaint": "48-hour complaint window",
+  "trustComplaint": "{hours}-hour complaint window",
   "feedEnd": "You've seen all plants",
   "loadMore": "Load more",
   "feedError": "Couldn't load plants.",
@@ -1102,7 +1105,7 @@
    "owedHint": "From commission/payouts",
    "net": "Net",
    "netHint": "Pending + available",
-   "holdExplanation": "Positive earnings unlock 48 h after delivery; they stay held while a complaint on that shop order is open.",
+   "holdExplanation": "Positive earnings unlock after the return window; they stay held while a complaint on that shop order is open.",
    "pendingBadge": "On hold"
   },
   "ledgerType": {
@@ -1207,7 +1210,7 @@
    "topProducts": "Top products",
    "topDistricts": "Top districts",
    "stuckOrders": "Stuck orders",
-   "suspendedSellerOpenOrders": "Suspended sellers' open orders",
+   "suspendedSellerOpenOrders": "Suspended seller's open orders",
    "falseDeliveryFlags": "False delivery reports"
   },
   "sellerStatus": {
@@ -1674,7 +1677,25 @@
    "title": "Settings",
    "loadError": "Could not load settings.",
    "saved": "Settings saved",
+   "savedMessage": "Saved. Customers will see this on new page loads",
    "save": "Save",
+   "discard": "Discard",
+   "unsavedOne": "1 unsaved change",
+   "unsavedMany": "{count} unsaved changes",
+   "resetDefault": "Reset to default",
+   "enabled": "Enabled",
+   "defaultLabel": "Default",
+   "sensitiveNote": "Sensitive — requires password",
+   "effectPageLoads": "Customers see this on new page loads.",
+   "effectNewOrders": "Applies to new orders only.",
+   "historyTitle": "Recent settings history",
+   "noHistory": "No changes yet.",
+   "reauthTitle": "Confirm sensitive change",
+   "reauthBody": "Enter your admin password to change {key}. This applies to new orders only.",
+   "confirmSave": "Confirm and save",
+   "cancel": "Cancel",
+   "fixPaymentErrors": "Fix the payment settings errors before saving.",
+   "saveSensitiveOne": "Please save sensitive settings one at a time.",
    "keys": {
     "commissionDefault": "Default commission rate (%)",
     "productAutoApprove": "Auto-approve products",
@@ -1752,7 +1773,7 @@
    "open": "Open"
   },
   "suspendedSellers": {
-   "title": "Suspended sellers' open orders",
+   "title": "Suspended seller's open orders",
    "subtitle": "Review and cancel unfinished orders of suspended sellers.",
    "loadError": "Could not load orders.",
    "okBadge": "OK",
@@ -1937,7 +1958,7 @@
     },
     {
      "q": "What if the plant arrives damaged?",
-     "a": "File a complaint with photos within 48 hours of delivery and we will help quickly."
+     "a": "File a complaint with photos within the return window and we will help quickly."
     },
     {
      "q": "Can I cancel or return?",
@@ -1997,6 +2018,7 @@
    "lead": "Questions, support or feedback — we are here to help.",
    "phoneLabel": "Phone",
    "emailLabel": "Email",
+   "whatsappLabel": "WhatsApp",
    "hoursLabel": "Support hours",
    "hoursValue": "Every day, 9:00 AM – 9:00 PM",
    "addressLabel": "Address",
@@ -2065,7 +2087,7 @@
      },
      {
       "title": "Damaged or wrong plants",
-      "body": "File a complaint with photos within 48 hours of delivery. After verification we offer a refund or replacement."
+      "body": "File a complaint with photos within the return window. After verification we offer a refund or replacement."
      },
      {
       "title": "Refunds",

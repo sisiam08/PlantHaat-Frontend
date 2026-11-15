@@ -655,6 +655,8 @@ export interface AdminSettingDefinition {
   group: "payments" | "orders" | "wallet" | "payouts" | "support" | "platform";
   labelEn: string;
   labelBn: string;
+  helpEn?: string;
+  helpBn?: string;
   isPublic?: boolean;
   isSensitive?: boolean;
   wired?: boolean;

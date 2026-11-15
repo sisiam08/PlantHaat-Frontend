@@ -32,6 +32,8 @@ import { ProductViewBeacon } from "@/features/catalog/components/product-view-be
 import { getDistricts, getProduct } from "@/features/catalog/server";
 import type { ProductDetail } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
+import { formatCount } from "@/lib/format/number";
+import { getPublicSettings } from "@/server/public-settings";
 
 interface DetailImage {
   url: string;
@@ -111,6 +113,8 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
   const t = await getTranslations("product");
   const tn = await getTranslations("nav");
   const tc = await getTranslations("catalog");
+  const settings = await getPublicSettings();
+  const returnHours = Number(settings["return.windowHours"] ?? 48);
   const [images, districts] = [product.images as unknown as DetailImage[], await getDistricts()];
   const variants = product.variants as unknown as VariantView[];
   const shop = product.shop as unknown as DetailShop;
@@ -147,7 +151,9 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
   const returnsPanel = (
     <div className="grid gap-2 text-sm">
       <h3 className="font-medium">{t("returnsTitle")}</h3>
-      <p className="text-muted-foreground">{t("returnsBody")}</p>
+      <p className="text-muted-foreground">
+        {t("returnsBody", { hours: formatCount(returnHours, locale) })}
+      </p>
       <Link
         href="/policies/refund-cancellation"
         className="font-medium text-primary hover:underline"

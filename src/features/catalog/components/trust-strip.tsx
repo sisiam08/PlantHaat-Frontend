@@ -1,9 +1,15 @@
 ﻿import { BadgeCheck, Banknote, PackageCheck, ShieldCheck, Search, ShoppingCart, Truck } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
-/** Static trust row — no marquee, no animation. */
+import { formatCount } from "@/lib/format/number";
+import { getPublicSettings } from "@/server/public-settings";
+
+/** Static trust row - no marquee, no animation. */
 export async function TrustStrip() {
   const t = await getTranslations("home");
+  const locale = await getLocale();
+  const settings = await getPublicSettings();
+  const windowHours = Number(settings["return.windowHours"] ?? 48);
   const steps = [
     { icon: Search, label: t("howStep1") },
     { icon: ShoppingCart, label: t("howStep2") },
@@ -13,7 +19,10 @@ export async function TrustStrip() {
     { icon: BadgeCheck, label: t("trustVerified") },
     { icon: Banknote, label: t("trustCod") },
     { icon: PackageCheck, label: t("trustPackaging") },
-    { icon: ShieldCheck, label: t("trustComplaint") },
+    {
+      icon: ShieldCheck,
+      label: t("trustComplaint", { hours: formatCount(windowHours, locale) }),
+    },
   ];
 
   return (

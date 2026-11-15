@@ -1,4 +1,4 @@
-import { Clock, Mail, MapPin, Phone, Store } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Phone, Store } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -9,6 +9,11 @@ import { StaticPage } from "@/components/layout/static-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { clientEnv } from "@/env/client";
+import { getPublicSettings } from "@/server/public-settings";
+
+function text(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("static.contact");
@@ -25,12 +30,14 @@ export default function ContactPage() {
 
 async function ContactContent() {
   const t = await getTranslations("static.contact");
-  const phone = clientEnv.NEXT_PUBLIC_SUPPORT_PHONE;
-  const email = clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL;
+  const settings = await getPublicSettings();
+  const phone = text(settings["support.phone"]) || clientEnv.NEXT_PUBLIC_SUPPORT_PHONE;
+  const email = text(settings["support.email"]) || clientEnv.NEXT_PUBLIC_SUPPORT_EMAIL;
+  const whatsapp = text(settings["support.whatsapp"]);
 
   return (
     <StaticPage title={t("title")} lead={t("lead")}>
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {phone ? (
           <Card className="rounded-2xl">
             <CardContent className="grid gap-2">
@@ -54,6 +61,25 @@ async function ContactContent() {
               <span className="text-sm text-muted-foreground">{t("emailLabel")}</span>
               <a href={`mailto:${email}`} className="font-medium break-all hover:text-primary">
                 {email}
+              </a>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {whatsapp ? (
+          <Card className="rounded-2xl">
+            <CardContent className="grid gap-2">
+              <span className="grid size-10 place-items-center rounded-2xl bg-secondary text-primary">
+                <MessageCircle aria-hidden className="size-5" />
+              </span>
+              <span className="text-sm text-muted-foreground">{t("whatsappLabel")}</span>
+              <a
+                href={`https://wa.me/${whatsapp.replace(/\D/g, "").startsWith("88") ? whatsapp.replace(/\D/g, "") : `88${whatsapp.replace(/\D/g, "")}`}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium break-all hover:text-primary"
+              >
+                {whatsapp}
               </a>
             </CardContent>
           </Card>
