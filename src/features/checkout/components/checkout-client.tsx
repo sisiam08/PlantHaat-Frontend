@@ -106,6 +106,13 @@ export function CheckoutClient() {
 
   const formDistrictId = form.watch("districtId");
 
+  const publicSettings = useQuery({
+    queryKey: ["settings", "public"],
+    queryFn: () =>
+      apiGet<Record<string, unknown>>("/settings/public").then((result) => result.data),
+    staleTime: 60_000,
+  });
+
   const cart = useQuery({
     queryKey: [...queryKeys.cart, selectedAddress?.districtId ?? 0],
     queryFn: () => cartApi.get(selectedAddress?.districtId),
@@ -122,6 +129,11 @@ export function CheckoutClient() {
     },
     onError: (error) => toastApiError(error, tErrors),
   });
+
+  const codEnabled = publicSettings.data?.["payment.cod.enabled"] !== false;
+  const codMax = Number(publicSettings.data?.["order.codMaxAmount"] ?? 0);
+  const codOverLimit = codMax > 0 && Number(cart.data?.grandTotal ?? 0) > codMax;
+  const codBlocked = !codEnabled || codOverLimit;
 
   const placeOrder = useMutation({
     mutationFn: () =>
@@ -314,10 +326,26 @@ export function CheckoutClient() {
           <h2 className="text-lg font-semibold">{t("payment")}</h2>
           <Card className="rounded-2xl">
             <CardContent className="flex items-center gap-3">
-              <input type="radio" name="paymentMethod" aria-label={t("cod")} checked readOnly />
+              <input
+                type="radio"
+                name="paymentMethod"
+                aria-label={t("cod")}
+                checked
+                readOnly
+                disabled={codBlocked}
+              />
               <div>
                 <p className="font-medium">{t("cod")}</p>
                 <p className="text-sm text-muted-foreground">{t("codNote")}</p>
+                {!codEnabled ? (
+                  <p className="text-sm text-destructive">
+                    Cash on delivery is currently unavailable.
+                  </p>
+                ) : codOverLimit ? (
+                  <p className="text-sm text-destructive">
+                    Cash on delivery is available for orders up to ৳{codMax}.
+                  </p>
+                ) : null}
               </div>
             </CardContent>
           </Card>
@@ -367,7 +395,7 @@ export function CheckoutClient() {
                 </CardContent>
               </Card>
             ))}
-            <CartSummaryBox view={cart.data} fixedOnMobile={false} />
+            <CartSummaryBox view={cart.data} />
             {hasNotDelivering(cart.data) ? (
               <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
                 {t("notDeliveringBlocked")}
@@ -380,7 +408,9 @@ export function CheckoutClient() {
                 !selectedAddress ||
                 placeOrder.isPending ||
                 cart.data.shops.length === 0 ||
-                hasNotDelivering(cart.data)
+                hasNotDelivering(cart.data) ||
+                codBlocked ||
+                publicSettings.isLoading
               }
               onClick={() => placeOrder.mutate()}
             >
