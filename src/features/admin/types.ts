@@ -657,6 +657,7 @@ export interface AdminSettingDefinition {
   labelBn: string;
   isPublic?: boolean;
   isSensitive?: boolean;
+  wired?: boolean;
 }
 
 export interface AdminSettingHistory {

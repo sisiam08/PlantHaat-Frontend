@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { adminApi } from "../api";
@@ -75,8 +76,9 @@ export function SettingsClient() {
     if (values["payment.advance.enabled"] === true && !providerReady) {
       issues["payment.advance.enabled"] = "Enable bKash or Nagad with a valid number first.";
     }
-    if (values["payment.cod.enabled"] === false && values["payment.advance.enabled"] === false) {
-      issues["payment.advance.enabled"] = "At least one of COD or Advance must stay enabled.";
+    if (values["payment.cod.enabled"] === false) {
+      issues["payment.cod.enabled"] =
+        "COD cannot be disabled until Advance payment is live and a provider number is configured.";
     }
     return issues;
   }, [values]);
@@ -300,7 +302,17 @@ function SettingField({
   return (
     <div className="grid gap-1.5 rounded-xl border border-border/50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label htmlFor={definition.key}>{label}</Label>
+        <Label htmlFor={definition.key} className="flex items-center gap-2">
+          {label}
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-[10px] font-medium",
+              definition.wired ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
+            )}
+          >
+            {definition.wired ? "Active" : "Not active yet"}
+          </span>
+        </Label>
         <Button type="button" variant="ghost" size="sm" onClick={onReset}>
           Reset to default
         </Button>
