@@ -369,7 +369,7 @@ export function CheckoutClient() {
                       className="flex justify-between text-muted-foreground"
                     >
                       <span className="truncate pr-2">
-                        {item.productName} Ã— {formatCount(item.quantity, locale)}
+                        {item.productName} × {formatCount(item.quantity, locale)}
                       </span>
                       <Price value={item.lineTotal} locale={locale} size="sm" />
                     </div>
@@ -442,10 +442,10 @@ export function CheckoutClient() {
             {priceChange?.changedLines.map((line) => (
               <div key={line.variantId} className="flex items-center justify-between gap-3">
                 <span className="min-w-0 truncate">
-                  {line.productName} Â· {line.variantName}
+                  {line.productName} · {line.variantName}
                 </span>
                 <span className="shrink-0 text-muted-foreground">
-                  <Price value={line.from} locale={locale} size="sm" /> â†’{" "}
+                  <Price value={line.from} locale={locale} size="sm" /> →{" "}
                   <Price value={line.to} locale={locale} size="sm" />
                 </span>
               </div>

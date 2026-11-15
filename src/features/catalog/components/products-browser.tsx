@@ -262,7 +262,7 @@ function FilterChipToggle({
   );
 }
 
-/** Inline catalog search on mobile/tablet â€” search is this page's primary tool. */
+/** Inline catalog search on mobile/tablet — search is this page's primary tool. */
 function CatalogSearchField() {
   const t = useTranslations("search");
   const { query, setParam } = useCatalogParams();
@@ -394,7 +394,7 @@ function FiltersFields({
       </div>
 
       <PriceRange
-        key={`${options?.price.min ?? "n"}-${options?.price.max ?? "n"}-${query.minPrice ?? ""}-${query.maxPrice ?? ""}`}
+        key={`${options?.price.min ?? "n"}-${options?.price.max ?? "n"}-${query.minPrice ?? "∞"}-${query.maxPrice ?? "∞"}`}
         bounds={options?.price ?? { min: null, max: null }}
         query={query}
         update={update}
@@ -525,7 +525,7 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
     chips.push({
       key: "q",
       value: query.q,
-      label: `â€œ${query.q}â€`,
+      label: `“${query.q}”`,
       onRemove: () => setParam("q", undefined),
     });
   }
@@ -538,12 +538,12 @@ function ActiveFilterChips({ categories }: { categories: CategoryFilterOption[] 
     });
   }
   if (query.minPrice !== undefined || query.maxPrice !== undefined) {
-    const min = query.minPrice ?? "â€¦";
-    const max = query.maxPrice ?? "â€¦";
+    const min = query.minPrice ?? "∞";
+    const max = query.maxPrice ?? "∞";
     chips.push({
       key: "price",
       value: `${min}-${max}`,
-      label: `${t("priceRange")}: à§³${min}â€“à§³${max}`,
+      label: `${t("priceRange")}: ৳${min}–৳${max}`,
       onRemove: () =>
         update((params) => {
           params.delete("minPrice");
