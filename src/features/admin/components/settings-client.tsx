@@ -1,125 +1,307 @@
-"use client";
+﻿"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { adminApi } from "../api";
-import type { AdminSettings } from "../types";
+import type { AdminSettingDefinition, AdminSettings } from "../types";
 
-const NUMBER_KEYS = [
-  { key: "commission.default", label: "commissionDefault" },
-  { key: "order.sellerConfirmTimeoutHours", label: "sellerConfirmTimeoutHours" },
-  { key: "complaint.windowHours", label: "complaintWindowHours" },
-  { key: "review.windowDays", label: "reviewWindowDays" },
-  { key: "checkout.maxQtyPerItem", label: "checkoutMaxQtyPerItem" },
-  { key: "shop.maxPerSeller", label: "shopMaxPerSeller" },
-] as const;
-const BOOLEAN_KEYS = [
-  { key: "product.autoApprove", label: "productAutoApprove" },
-  { key: "payments.online.enabled", label: "paymentsOnlineEnabled" },
-] as const;
+const GROUPS = ["payments", "orders", "wallet", "payouts", "support"] as const;
 
 export function SettingsClient() {
   const t = useTranslations("admin.settings");
-  const query = useQuery({
-    queryKey: queryKeys.admin.settings,
-    queryFn: adminApi.getSettings,
-    retry: false,
-  });
-
-  if (query.isLoading) {
-    return <Skeleton className="h-48 w-full rounded-2xl" />;
-  }
-  if (query.isError || !query.data) {
-    return <p className="text-sm text-muted-foreground">{t("loadError")}</p>;
-  }
-
-  return <SettingsForm initial={query.data} />;
-}
-
-function SettingsForm({ initial }: { initial: AdminSettings }) {
-  const t = useTranslations("admin.settings");
   const tErrors = useTranslations("errors");
+  const locale = useLocale();
   const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: queryKeys.admin.settings, queryFn: adminApi.getSettings });
+  const registry = useQuery({
+    queryKey: queryKeys.admin.settingsRegistry,
+    queryFn: adminApi.getSettingsRegistry,
+  });
+  const history = useQuery({
+    queryKey: queryKeys.admin.settingsHistory(),
+    queryFn: () => adminApi.getSettingsHistory(),
+  });
 
-  const [numbers, setNumbers] = useState<Record<string, string>>(() => {
-    const next: Record<string, string> = {};
-    for (const { key } of NUMBER_KEYS) {
-      next[key] = initial[key] === undefined ? "" : String(initial[key]);
+  const [values, setValues] = useState<AdminSettings>({});
+  const [initial, setInitial] = useState<AdminSettings>({});
+  const [reauthKey, setReauthKey] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (settings.data) {
+      setValues(settings.data);
+      setInitial(settings.data);
     }
-    return next;
-  });
-  const [booleans, setBooleans] = useState<Record<string, boolean>>(() => {
-    const next: Record<string, boolean> = {};
-    for (const { key } of BOOLEAN_KEYS) {
-      next[key] = Boolean(initial[key]);
-    }
-    return next;
-  });
+  }, [settings.data]);
+
+  const dirty = useMemo(
+    () =>
+      Object.keys(values).filter(
+        (key) => JSON.stringify(values[key]) !== JSON.stringify(initial[key]),
+      ),
+    [values, initial],
+  );
+
+  useEffect(() => {
+    const guard = (event: BeforeUnloadEvent) => {
+      if (dirty.length > 0) event.preventDefault();
+    };
+    window.addEventListener("beforeunload", guard);
+    return () => window.removeEventListener("beforeunload", guard);
+  }, [dirty.length]);
 
   const save = useMutation({
-    mutationFn: () => {
-      const values: AdminSettings = {};
-      for (const { key } of NUMBER_KEYS) {
-        const raw = numbers[key];
-        if (raw !== undefined && raw !== "") values[key] = Number(raw);
-      }
-      for (const { key } of BOOLEAN_KEYS) {
-        values[key] = booleans[key] ?? false;
-      }
-      return adminApi.updateSettings(values);
+    mutationFn: async ({ token }: { token?: string }) => {
+      const changed = Object.fromEntries(dirty.map((key) => [key, values[key]]));
+      return adminApi.updateSettings(changed, token);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settings });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settingsHistory() });
+      setInitial(values);
+      setReauthKey(null);
+      setPassword("");
       toast.success(t("saved"));
     },
     onError: (error) => toastApiError(error, tErrors),
   });
 
+  if (settings.isLoading || registry.isLoading)
+    return <Skeleton className="h-64 w-full rounded-2xl" />;
+  if (settings.isError || registry.isError || !registry.data) {
+    return <p className="text-sm text-muted-foreground">{t("loadError")}</p>;
+  }
+
+  const definitions = registry.data;
+  const sensitiveDirty = dirty.filter(
+    (key) => definitions.find((entry) => entry.key === key)?.isSensitive,
+  );
+  const lastChange = (key: string) => history.data?.find((entry) => entry.key === key);
+
+  const onSave = () => {
+    if (sensitiveDirty.length > 1) {
+      toast.error("Please save sensitive settings one at a time.");
+      return;
+    }
+    if (sensitiveDirty.length === 1) {
+      setReauthKey(sensitiveDirty[0]!);
+      return;
+    }
+    save.mutate({});
+  };
+
+  const confirmReauth = async () => {
+    if (!reauthKey) return;
+    try {
+      const { token } = await adminApi.reauthenticateSettings(reauthKey, password);
+      save.mutate({ token });
+    } catch (error) {
+      toastApiError(error, tErrors);
+    }
+  };
+
+  const setValue = (key: string, value: unknown) =>
+    setValues((current) => ({ ...current, [key]: value }));
+
   return (
-    <Card className="rounded-2xl">
-      <CardContent className="grid gap-5">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {NUMBER_KEYS.map(({ key, label }) => (
-            <div key={key} className="grid gap-1.5">
-              <Label htmlFor={key}>{t(`keys.${label}`)}</Label>
-              <Input
-                id={key}
-                inputMode="numeric"
-                value={numbers[key] ?? ""}
-                onChange={(event) => setNumbers({ ...numbers, [key]: event.target.value })}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="grid gap-3">
-          {BOOLEAN_KEYS.map(({ key, label }) => (
-            <div key={key} className="flex items-center gap-2">
-              <Checkbox
-                id={key}
-                checked={booleans[key] ?? false}
-                onCheckedChange={(value) => setBooleans({ ...booleans, [key]: value === true })}
-              />
-              <Label htmlFor={key}>{t(`keys.${label}`)}</Label>
-            </div>
-          ))}
-        </div>
-        <div>
-          <Button type="button" variant="cta" disabled={save.isPending} onClick={() => save.mutate()}>
-            {t("save")}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-5">
+      <Card className="rounded-2xl py-0">
+        <CardContent className="p-5">
+          <Tabs defaultValue="payments">
+            <TabsList className="mb-5 flex h-auto flex-wrap justify-start gap-1">
+              {GROUPS.map((group) => (
+                <TabsTrigger key={group} value={group} className="capitalize">
+                  {group.replace("-", " ")}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {GROUPS.map((group) => (
+              <TabsContent key={group} value={group} className="grid gap-5">
+                {group === "payments" ? (
+                  <div className="rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm">
+                    <p className="font-medium">Payment page preview</p>
+                    <p className="mt-1 text-muted-foreground">
+                      bKash: {String(values["payment.bkash.number"] || "not set")} · Nagad:{" "}
+                      {String(values["payment.nagad.number"] || "not set")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Advance: {values["payment.advance.enabled"] ? "enabled" : "disabled"} · COD:{" "}
+                      {values["payment.cod.enabled"] ? "enabled" : "disabled"}
+                    </p>
+                  </div>
+                ) : null}
+                {definitions
+                  .filter((definition) => definition.group === group)
+                  .map((definition) => (
+                    <SettingField
+                      key={definition.key}
+                      definition={definition}
+                      value={values[definition.key]}
+                      locale={locale}
+                      last={lastChange(definition.key)}
+                      onChange={(value) => setValue(definition.key, value)}
+                      onReset={() => setValue(definition.key, definition.default)}
+                    />
+                  ))}
+                {group === "payments" ? (
+                  <p className="text-xs text-muted-foreground">
+                    At least one payment method must stay enabled.
+                  </p>
+                ) : null}
+              </TabsContent>
+            ))}
+          </Tabs>
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border/60 pt-5">
+            <Button variant="cta" disabled={save.isPending || dirty.length === 0} onClick={onSave}>
+              {t("save")}
+            </Button>
+            {dirty.length > 0 ? (
+              <span className="text-xs text-muted-foreground">
+                {dirty.length} unsaved change(s)
+              </span>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl py-0">
+        <CardContent className="p-5">
+          <h2 className="mb-3 font-semibold">Recent settings history</h2>
+          <div className="grid gap-2 text-sm">
+            {history.data?.slice(0, 12).map((entry) => (
+              <div
+                key={entry.id}
+                className="flex flex-wrap justify-between gap-2 border-b border-border/50 pb-2"
+              >
+                <span className="font-medium">{entry.key}</span>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(entry.createdAt).toLocaleString(locale)} · {String(entry.oldValue)} →{" "}
+                  {String(entry.newValue)}
+                </span>
+              </div>
+            ))}
+            {history.data?.length === 0 ? (
+              <p className="text-muted-foreground">No changes yet.</p>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={Boolean(reauthKey)} onOpenChange={(open) => !open && setReauthKey(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm sensitive change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter your admin password to change {reauthKey}. This applies to new orders only.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            type="password"
+            value={password}
+            autoComplete="current-password"
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Admin password"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmReauth} disabled={!password || save.isPending}>
+              Confirm and save
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+function SettingField({
+  definition,
+  value,
+  locale,
+  last,
+  onChange,
+  onReset,
+}: {
+  definition: AdminSettingDefinition;
+  value: unknown;
+  locale: string;
+  last?: { createdAt: string; updatedById: string | null };
+  onChange: (value: unknown) => void;
+  onReset: () => void;
+}) {
+  const label = locale === "bn" ? definition.labelBn : definition.labelEn;
+  return (
+    <div className="grid gap-1.5 rounded-xl border border-border/50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label htmlFor={definition.key}>{label}</Label>
+        <Button type="button" variant="ghost" size="sm" onClick={onReset}>
+          Reset to default
+        </Button>
+      </div>
+      {definition.type === "boolean" ? (
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox
+            id={definition.key}
+            checked={value === true}
+            onCheckedChange={(checked) => onChange(checked === true)}
+          />
+          Enabled
+        </label>
+      ) : definition.type === "number" ? (
+        <Input
+          id={definition.key}
+          type="number"
+          value={value === undefined || value === null ? "" : String(value)}
+          onChange={(event) => onChange(event.target.value === "" ? 0 : Number(event.target.value))}
+        />
+      ) : definition.type === "json" ? (
+        <Textarea
+          id={definition.key}
+          rows={3}
+          value={JSON.stringify(value ?? definition.default, null, 2)}
+          onChange={(event) => {
+            try {
+              onChange(JSON.parse(event.target.value));
+            } catch {
+              // keep the last valid value; inline validation is shown on save
+            }
+          }}
+        />
+      ) : (
+        <Input
+          id={definition.key}
+          value={value === undefined || value === null ? "" : String(value)}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      )}
+      <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
+        <span>Default: {String(definition.default)}</span>
+        {definition.isSensitive ? <span>Sensitive · requires password</span> : null}
+        {last ? <span>Last changed {new Date(last.createdAt).toLocaleString(locale)}</span> : null}
+      </div>
+    </div>
   );
 }

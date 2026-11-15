@@ -14,6 +14,8 @@ import type {
   AdminRefundView,
   AdminSellerDetail,
   AdminSellerListItem,
+  AdminSettingDefinition,
+  AdminSettingHistory,
   AdminSettings,
   AdminShopListItem,
   AdminShopOrderView,
@@ -56,9 +58,7 @@ export const adminApi = {
 
   /* ───────────────────────── sellers ───────────────────────── */
   listSellers: (params?: { status?: string; page?: number; limit?: number }) =>
-    apiGet<AdminSellerListItem[]>("/admin/sellers", qs(params)).then((result) =>
-      paginated(result),
-    ),
+    apiGet<AdminSellerListItem[]>("/admin/sellers", qs(params)).then((result) => paginated(result)),
   getSeller: (id: string) =>
     apiGet<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}`).then(
       (result) => result.data,
@@ -78,10 +78,7 @@ export const adminApi = {
     apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/suspend`, input).then(
       (result) => result.data,
     ),
-  bulkCancelSellerOrders: (
-    id: string,
-    input: { reason: string; restock?: boolean },
-  ) =>
+  bulkCancelSellerOrders: (id: string, input: { reason: string; restock?: boolean }) =>
     apiPost<BulkCancelResult>(
       `/admin/sellers/${encodeURIComponent(id)}/bulk-cancel-orders`,
       input,
@@ -98,10 +95,7 @@ export const adminApi = {
     apiPost<AdminSellerDetail>(`/admin/sellers/${encodeURIComponent(id)}/reactivate`).then(
       (result) => result.data,
     ),
-  listSellerLedger: (
-    id: string,
-    params?: { type?: string; page?: number; limit?: number },
-  ) =>
+  listSellerLedger: (id: string, params?: { type?: string; page?: number; limit?: number }) =>
     apiGet<LedgerEntryView[]>(`/admin/sellers/${encodeURIComponent(id)}/ledger`, qs(params)).then(
       (result) => paginated(result),
     ),
@@ -153,9 +147,9 @@ export const adminApi = {
       paginated(result),
     ),
   approveProduct: (id: string) =>
-    apiPost<{ id: string; status: string }>(`/admin/products/${encodeURIComponent(id)}/approve`).then(
-      (result) => result.data,
-    ),
+    apiPost<{ id: string; status: string }>(
+      `/admin/products/${encodeURIComponent(id)}/approve`,
+    ).then((result) => result.data),
   rejectProduct: (id: string, reason: string) =>
     apiPost<{ id: string; status: string }>(`/admin/products/${encodeURIComponent(id)}/reject`, {
       reason,
@@ -166,8 +160,7 @@ export const adminApi = {
     }).then((result) => result.data),
 
   /* ───────────────────────── categories ───────────────────────── */
-  listCategories: () =>
-    apiGet<AdminCategory[]>("/admin/categories").then((result) => result.data),
+  listCategories: () => apiGet<AdminCategory[]>("/admin/categories").then((result) => result.data),
   createCategory: (input: CategoryInput) =>
     apiPost<AdminCategory>("/admin/categories", input).then((result) => result.data),
   updateCategory: (id: string, input: Partial<CategoryInput>) =>
@@ -264,10 +257,7 @@ export const adminApi = {
     apiGet<AdminComplaintView>(`/admin/complaints/${encodeURIComponent(id)}`).then(
       (result) => result.data,
     ),
-  updateComplaintStatus: (
-    id: string,
-    input: { status: string; resolutionNote?: string },
-  ) =>
+  updateComplaintStatus: (id: string, input: { status: string; resolutionNote?: string }) =>
     apiPost<AdminComplaintView>(`/admin/complaints/${encodeURIComponent(id)}/status`, input).then(
       (result) => result.data,
     ),
@@ -318,9 +308,10 @@ export const adminApi = {
   createHomepageSection: (input: HomepageSectionInput) =>
     apiPost<AdminHomepageSection>("/admin/homepage-sections", input).then((result) => result.data),
   updateHomepageSection: (id: string, input: Partial<HomepageSectionInput>) =>
-    apiPatch<AdminHomepageSection>(`/admin/homepage-sections/${encodeURIComponent(id)}`, input).then(
-      (result) => result.data,
-    ),
+    apiPatch<AdminHomepageSection>(
+      `/admin/homepage-sections/${encodeURIComponent(id)}`,
+      input,
+    ).then((result) => result.data),
   removeHomepageSection: (id: string) =>
     apiDelete<unknown>(`/admin/homepage-sections/${encodeURIComponent(id)}`).then(() => undefined),
 
@@ -346,10 +337,23 @@ export const adminApi = {
     limit?: number;
   }) =>
     apiGet<AdminAuditLog[]>("/admin/audit-logs", qs(params)).then((result) => paginated(result)),
-  getSettings: () =>
-    apiGet<AdminSettings>("/admin/settings").then((result) => result.data),
-  updateSettings: (values: AdminSettings) =>
-    apiPatch<AdminSettings>("/admin/settings", { values }).then((result) => result.data),
+  getSettings: () => apiGet<AdminSettings>("/admin/settings").then((result) => result.data),
+  getSettingsRegistry: () =>
+    apiGet<AdminSettingDefinition[]>("/admin/settings/registry").then((result) => result.data),
+  getSettingsHistory: (key?: string) =>
+    apiGet<AdminSettingHistory[]>("/admin/settings/history", qs({ key })).then(
+      (result) => result.data,
+    ),
+  reauthenticateSettings: (key: string, password: string) =>
+    apiPost<{ token: string; expiresAt: string }>("/admin/settings/reauth", { key, password }).then(
+      (result) => result.data,
+    ),
+  updateSettings: (values: AdminSettings, reauthToken?: string) =>
+    apiPatch<AdminSettings>(
+      "/admin/settings",
+      { values },
+      reauthToken ? { headers: { "x-settings-reauth": reauthToken } } : undefined,
+    ).then((result) => result.data),
   listCodRisk: (params?: { status?: string; q?: string; page?: number; limit?: number }) =>
     apiGet<CodRiskProfile[]>("/admin/cod-risk", qs(params)).then((result) => paginated(result)),
   setCodRiskStatus: (id: string, input: { status: string; note?: string }) =>

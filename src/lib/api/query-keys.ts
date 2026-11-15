@@ -22,8 +22,7 @@ export const queryKeys = {
       ["catalog", "shop-products", slug, filters] as const,
   },
   qa: {
-    questions: (slug: string, sortKey = "newest") =>
-      ["qa", "questions", slug, sortKey] as const,
+    questions: (slug: string, sortKey = "newest") => ["qa", "questions", slug, sortKey] as const,
     answers: (questionId: string) => ["qa", "answers", questionId] as const,
     answerReplies: (answerId: string) => ["qa", "answer-replies", answerId] as const,
     reviewReplies: (reviewId: string) => ["qa", "review-replies", reviewId] as const,
@@ -34,8 +33,7 @@ export const queryKeys = {
   order: (id: string) => ["orders", id] as const,
   addresses: ["addresses"] as const,
   wishlist: (filters?: Record<string, unknown>) => ["wishlist", filters ?? {}] as const,
-  notifications: (filters?: Record<string, unknown>) =>
-    ["notifications", filters ?? {}] as const,
+  notifications: (filters?: Record<string, unknown>) => ["notifications", filters ?? {}] as const,
   notificationsUnreadCount: ["notifications", "unread-count"] as const,
   complaints: (filters?: Record<string, unknown>) => ["complaints", filters ?? {}] as const,
   complaint: (id: string) => ["complaints", id] as const,
@@ -45,8 +43,7 @@ export const queryKeys = {
     shop: ["seller", "shop"] as const,
     deliveryZones: ["seller", "delivery-zones"] as const,
     payoutAccounts: ["seller", "payout-accounts"] as const,
-    products: (filters?: Record<string, unknown>) =>
-      ["seller", "products", filters ?? {}] as const,
+    products: (filters?: Record<string, unknown>) => ["seller", "products", filters ?? {}] as const,
     product: (id: string) => ["seller", "product", id] as const,
     orders: (filters?: Record<string, unknown>) => ["seller", "orders", filters ?? {}] as const,
     order: (id: string) => ["seller", "order", id] as const,
@@ -55,8 +52,7 @@ export const queryKeys = {
     complaints: (filters?: Record<string, unknown>) =>
       ["seller", "complaints", filters ?? {}] as const,
     earnings: ["seller", "earnings"] as const,
-    analytics: (range?: Record<string, unknown>) =>
-      ["seller", "analytics", range ?? {}] as const,
+    analytics: (range?: Record<string, unknown>) => ["seller", "analytics", range ?? {}] as const,
   },
   admin: {
     sellers: (filters?: Record<string, unknown>) => ["admin", "sellers", filters ?? {}] as const,
@@ -81,7 +77,10 @@ export const queryKeys = {
     announcements: (filters?: Record<string, unknown>) =>
       ["admin", "announcements", filters ?? {}] as const,
     settings: ["admin", "settings"] as const,
-    auditLogs: (filters?: Record<string, unknown>) => ["admin", "audit-logs", filters ?? {}] as const,
+    settingsRegistry: ["admin", "settings", "registry"] as const,
+    settingsHistory: (key?: string) => ["admin", "settings", "history", key ?? "all"] as const,
+    auditLogs: (filters?: Record<string, unknown>) =>
+      ["admin", "audit-logs", filters ?? {}] as const,
     analytics: (range?: Record<string, unknown>) => ["admin", "analytics", range ?? {}] as const,
   },
 } as const;

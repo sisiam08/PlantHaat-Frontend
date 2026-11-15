@@ -12,29 +12,14 @@ import type { components } from "@/lib/api/schema";
 export type SellerStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
 export type SellerType = "NURSERY" | "INDIVIDUAL_GROWER" | "RESELLER";
 export type SellerDocumentType =
-  | "NID_FRONT"
-  | "NID_BACK"
-  | "TRADE_LICENSE"
-  | "NURSERY_PHOTO"
-  | "OTHER";
+  "NID_FRONT" | "NID_BACK" | "TRADE_LICENSE" | "NURSERY_PHOTO" | "OTHER";
 export type PayoutMethod = "BKASH" | "NAGAD" | "ROCKET" | "BANK";
 export type PayoutStatus = "PENDING" | "PROCESSING" | "PAID" | "FAILED";
 export type ShopStatus = "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
 export type ProductStatus =
-  | "DRAFT"
-  | "PENDING_REVIEW"
-  | "ACTIVE"
-  | "INACTIVE"
-  | "REJECTED"
-  | "REMOVED";
+  "DRAFT" | "PENDING_REVIEW" | "ACTIVE" | "INACTIVE" | "REJECTED" | "REMOVED";
 export type OrderStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "PACKED"
-  | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED"
-  | "FAILED_DELIVERY";
+  "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED_DELIVERY";
 export type ComplaintStatus =
   | "OPEN"
   | "SELLER_RESPONDED"
@@ -44,21 +29,11 @@ export type ComplaintStatus =
   | "REJECTED"
   | "CLOSED";
 export type ComplaintType =
-  | "DAMAGED_PLANT"
-  | "WRONG_ITEM"
-  | "NOT_AS_DESCRIBED"
-  | "NOT_DELIVERED"
-  | "LATE_DELIVERY"
-  | "OTHER";
+  "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
 export type RefundStatus = "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED";
 export type PaymentMethod = "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
 export type PaymentStatus =
-  | "PENDING"
-  | "PAID"
-  | "FAILED"
-  | "CANCELLED"
-  | "REFUNDED"
-  | "PARTIALLY_REFUNDED";
+  "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
 export type ReportStatus = "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
 export type ReviewStatus = "VISIBLE" | "HIDDEN";
 export type LedgerEntryType =
@@ -73,11 +48,7 @@ export type AnnouncementAudience = "ALL" | "CUSTOMERS" | "SELLERS";
 export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN";
 export type UserStatus = "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
 export type HomepageSectionType =
-  | "FEATURED_CATEGORIES"
-  | "FEATURED_PRODUCTS"
-  | "FEATURED_SHOPS"
-  | "NEW_ARRIVALS"
-  | "BANNER_STRIP";
+  "FEATURED_CATEGORIES" | "FEATURED_PRODUCTS" | "FEATURED_SHOPS" | "NEW_ARRIVALS" | "BANNER_STRIP";
 
 /* ───────────────────────── Dashboard / analytics ───────────────────────── */
 
@@ -676,4 +647,25 @@ export interface CodRiskProfile {
   addressFingerprint: string | null;
   createdAt: string;
   updatedAt: string;
+}
+export interface AdminSettingDefinition {
+  key: string;
+  type: "boolean" | "number" | "string" | "json";
+  default: unknown;
+  group: "payments" | "orders" | "wallet" | "payouts" | "support" | "platform";
+  labelEn: string;
+  labelBn: string;
+  isPublic?: boolean;
+  isSensitive?: boolean;
+}
+
+export interface AdminSettingHistory {
+  id: string;
+  key: string;
+  sequence: number;
+  oldValue: unknown;
+  newValue: unknown;
+  updatedById: string | null;
+  reason: string | null;
+  createdAt: string;
 }
