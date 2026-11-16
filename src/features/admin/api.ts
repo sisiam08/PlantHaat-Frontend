@@ -344,8 +344,8 @@ export const adminApi = {
     apiGet<AdminSettingHistory[]>("/admin/settings/history", qs({ key })).then(
       (result) => result.data,
     ),
-  reauthenticateSettings: (key: string, password: string) =>
-    apiPost<{ token: string; expiresAt: string }>("/admin/settings/reauth", { key, password }).then(
+  reauthenticateSettings: (keys: string[], password: string) =>
+    apiPost<{ token: string; expiresAt: string }>("/admin/settings/reauth", { keys, password }).then(
       (result) => result.data,
     ),
   updateSettings: (values: AdminSettings, reauthToken?: string) =>

@@ -54,7 +54,7 @@ async function patchSettings(
 }
 
 async function reauth(api: APIRequestContext, key: string, password = ADMIN.password) {
-  return api.post("/api/v1/admin/settings/reauth", { data: { key, password } });
+  return api.post("/api/v1/admin/settings/reauth", { data: { keys: [key], password } });
 }
 
 async function restore(

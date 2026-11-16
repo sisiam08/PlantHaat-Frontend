@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
+import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
 
@@ -35,7 +36,12 @@ export function SettingsClient() {
   const tErrors = useTranslations("errors");
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const settings = useQuery({ queryKey: queryKeys.admin.settings, queryFn: adminApi.getSettings });
+  const settings = useQuery({
+    queryKey: queryKeys.admin.settings,
+    queryFn: adminApi.getSettings,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
   const registry = useQuery({
     queryKey: queryKeys.admin.settingsRegistry,
     queryFn: adminApi.getSettingsRegistry,
@@ -46,8 +52,9 @@ export function SettingsClient() {
   });
 
   const [draft, setDraft] = useState<AdminSettings | null>(null);
-  const [reauthKey, setReauthKey] = useState<string | null>(null);
+  const [reauthKeys, setReauthKeys] = useState<string[] | null>(null);
   const [reauthError, setReauthError] = useState<string | null>(null);
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
   const [password, setPassword] = useState("");
   const initial = useMemo(() => settings.data ?? {}, [settings.data]);
   const values = draft ?? initial;
@@ -106,11 +113,19 @@ export function SettingsClient() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settings });
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settingsHistory() });
       setDraft(null);
-      setReauthKey(null);
+      setReauthKeys(null);
       setPassword("");
+      setServerErrors({});
       toast.success(t("savedMessage"));
     },
-    onError: (error) => toastApiError(error, tErrors),
+    onError: (error) => {
+      const apiError = toApiError(error);
+      const details = apiError.details;
+      if (details && typeof details === "object" && !Array.isArray(details)) {
+        setServerErrors(details as Record<string, string>);
+      }
+      toastApiError(error, tErrors);
+    },
   });
 
   if (settings.isLoading || registry.isLoading)
@@ -134,17 +149,17 @@ export function SettingsClient() {
       toast.error(t("saveSensitiveOne"));
       return;
     }
-    if (sensitiveDirty.length === 1) {
-      setReauthKey(sensitiveDirty[0]!);
+    if (sensitiveDirty.length > 0) {
+      setReauthKeys(sensitiveDirty);
       return;
     }
     save.mutate({});
   };
 
   const confirmReauth = async () => {
-    if (!reauthKey) return;
+    if (!reauthKeys) return;
     try {
-      const { token } = await adminApi.reauthenticateSettings(reauthKey, password);
+      const { token } = await adminApi.reauthenticateSettings(reauthKeys, password);
       setReauthError(null);
       save.mutate({ token });
     } catch (error) {
@@ -153,8 +168,15 @@ export function SettingsClient() {
     }
   };
 
-  const setValue = (key: string, value: unknown) =>
+  const setValue = (key: string, value: unknown) => {
     setDraft((current) => ({ ...(current ?? initial), [key]: value }));
+    setServerErrors((current) => {
+      if (!(key in current)) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  };
 
   return (
     <div className="grid gap-5">
@@ -211,7 +233,7 @@ export function SettingsClient() {
                               value={values[definition.key]}
                               locale={locale}
                               last={lastChange(definition.key)}
-                              error={paymentIssues[definition.key]}
+                              error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
                               disabled={
                                 (definition.key === "payment.bkash.enabled" ||
                                   definition.key === "payment.nagad.enabled") &&
@@ -240,7 +262,7 @@ export function SettingsClient() {
                           value={values[definition.key]}
                           locale={locale}
                           last={lastChange(definition.key)}
-                          error={paymentIssues[definition.key]}
+                          error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
                           onChange={(value) => setValue(definition.key, value)}
                           onReset={() => setValue(definition.key, definition.default)}
                         />
@@ -300,10 +322,10 @@ export function SettingsClient() {
       </Card>
 
       <AlertDialog
-        open={Boolean(reauthKey)}
+        open={Boolean(reauthKeys)}
         onOpenChange={(open) => {
           if (!open) {
-            setReauthKey(null);
+            setReauthKeys(null);
             setReauthError(null);
           }
         }}
@@ -311,7 +333,9 @@ export function SettingsClient() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("reauthTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("reauthBody", { key: reauthKey ?? "" })}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {t("reauthBody", { key: reauthKeys?.join(", ") ?? "" })}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
             type="password"
