@@ -17,5 +17,9 @@ export default defineConfig({
     include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
     css: false,
     clearMocks: true,
+    // Repo-wide scan tests (encoding, message coverage, settings) take longer
+    // than the 5s default when the full suite runs with many jsdom workers.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
   },
 });

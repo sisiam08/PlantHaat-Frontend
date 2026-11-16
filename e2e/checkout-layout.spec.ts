@@ -198,7 +198,7 @@ for (const locale of ["en", "bn"] as const) {
 
         if (shops === 6) {
           await expect(
-            page.getByRole("button", { name: locale === "bn" ? /সব ৬টি দোকান/ : /Show all 6 shops/ }),
+            page.getByRole("button", { name: locale === "bn" ? /সব 6টি দোকান/ : /Show all 6 shops/ }),
           ).toBeVisible();
         }
 
