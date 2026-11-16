@@ -91,7 +91,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (pathname.startsWith("/admin") && role !== "ADMIN") {
     return NextResponse.redirect(new URL(roleHome(role), request.url));
   }
-  if (pathname.startsWith("/seller") && role !== "SELLER" && role !== "ADMIN") {
+  // Customers may open the seller application while signed in; everything else
+  // under /seller needs a seller (or admin) role.
+  const isSellerApply = pathname === "/seller/apply" || pathname.startsWith("/seller/apply/");
+  if (pathname.startsWith("/seller") && !isSellerApply && role !== "SELLER" && role !== "ADMIN") {
     return NextResponse.redirect(new URL(roleHome(role), request.url));
   }
 
