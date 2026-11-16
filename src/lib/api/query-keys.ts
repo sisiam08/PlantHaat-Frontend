@@ -31,6 +31,8 @@ export const queryKeys = {
   checkout: ["checkout"] as const,
   orders: (filters?: Record<string, unknown>) => ["orders", filters ?? {}] as const,
   order: (id: string) => ["orders", id] as const,
+  payment: (orderId: string) => ["payments", "order", orderId] as const,
+  sellerPayment: (shopOrderId: string) => ["payments", "seller", shopOrderId] as const,
   addresses: ["addresses"] as const,
   wishlist: (filters?: Record<string, unknown>) => ["wishlist", filters ?? {}] as const,
   notifications: (filters?: Record<string, unknown>) => ["notifications", filters ?? {}] as const,
@@ -64,6 +66,8 @@ export const queryKeys = {
     user: (id: string) => ["admin", "user", id] as const,
     orders: (filters?: Record<string, unknown>) => ["admin", "orders", filters ?? {}] as const,
     payments: (filters?: Record<string, unknown>) => ["admin", "payments", filters ?? {}] as const,
+    advancePayments: (filter?: string) => ["admin", "advance-payments", filter ?? "all"] as const,
+    advanceRefunds: ["admin", "advance-refunds"] as const,
     complaints: (filters?: Record<string, unknown>) =>
       ["admin", "complaints", filters ?? {}] as const,
     refunds: (filters?: Record<string, unknown>) => ["admin", "refunds", filters ?? {}] as const,

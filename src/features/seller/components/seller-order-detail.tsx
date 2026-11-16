@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
+import { PaymentBadge } from "@/features/payments/components/payment-badge";
 import { sellerApi } from "../api";
 import { orderStatusVariant } from "../status";
 import type { OrderStatus, SellerShopOrderView, TransitionOrderInput } from "../types";
@@ -37,6 +38,7 @@ export function SellerOrderDetail({ id }: { id: string }) {
   const t = useTranslations("seller.orders");
   const tStatus = useTranslations("seller.orderStatus");
   const tErrors = useTranslations("errors");
+  const tp = useTranslations("payments");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [pending, setPending] = useState<OrderStatus | null>(null);
@@ -79,6 +81,8 @@ export function SellerOrderDetail({ id }: { id: string }) {
 
   const data: SellerShopOrderView = order.data;
   const allowed = SELLER_TRANSITIONS[data.status] ?? [];
+  const paymentBlocked =
+    data.order.paymentMethod === "ADVANCE" && data.order.paymentStatus !== "PAID";
 
   const confirmTransition = () => {
     if (!pending) return;
@@ -143,6 +147,9 @@ export function SellerOrderDetail({ id }: { id: string }) {
             <Badge variant="destructive">{t("codRiskBadge")}</Badge>
           ) : null}
           <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
+          {data.order.paymentMethod === "ADVANCE" ? (
+            <PaymentBadge status={data.order.paymentStatus === "PAID" ? "PAID" : "UNPAID"} />
+          ) : null}
         </div>
       </div>
 
@@ -233,19 +240,34 @@ export function SellerOrderDetail({ id }: { id: string }) {
             <CardTitle>{t("actions")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
+            {paymentBlocked ? (
+              <div className="grid gap-1 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
+                <span className="flex items-center gap-2 font-medium">
+                  <PaymentBadge status="UNPAID" />
+                  {tp("sellerWaiting")}
+                </span>
+                <span>{tp("sellerBlocked")}</span>
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-2">
-              {allowed.map((status) => (
-                <Button
-                  key={status}
-                  type="button"
-                  variant={
-                    status === "CANCELLED" || status === "FAILED_DELIVERY" ? "outline" : "cta"
-                  }
-                  onClick={() => setPending(status)}
-                >
-                  {t(`actions_${status}`)}
-                </Button>
-              ))}
+              {allowed.map((status) => {
+                const blocked =
+                  paymentBlocked && status !== "CANCELLED" && status !== "FAILED_DELIVERY";
+                return (
+                  <Button
+                    key={status}
+                    type="button"
+                    variant={
+                      status === "CANCELLED" || status === "FAILED_DELIVERY" ? "outline" : "cta"
+                    }
+                    disabled={blocked}
+                    title={blocked ? tp("sellerBlocked") : undefined}
+                    onClick={() => setPending(status)}
+                  >
+                    {t(`actions_${status}`)}
+                  </Button>
+                );
+              })}
             </div>
 
             {pending ? (

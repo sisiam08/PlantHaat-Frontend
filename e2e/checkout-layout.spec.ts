@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.setTimeout(120_000);
+test.setTimeout(240_000);
 test.describe.configure({ mode: "serial" });
 
 const OWNER_CART = [

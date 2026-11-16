@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/format/date";
 import { Price } from "@/components/product/price";
 import { queryKeys } from "@/lib/api/query-keys";
+import { PaymentBadge } from "@/features/payments/components/payment-badge";
 import { ordersApi } from "../api";
 import type { OrderSummaryView } from "../types";
 
@@ -32,6 +33,7 @@ export function OrdersList() {
   const t = useTranslations("orders");
   const tc = useTranslations("common");
   const tCatalog = useTranslations("catalog");
+  const tp = useTranslations("payments");
   const locale = useLocale();
 
   const orders = useInfiniteQuery({
@@ -96,7 +98,17 @@ export function OrdersList() {
             <Badge variant={statusVariant(order.overallStatus)}>
               {t(`status.${order.overallStatus}`)}
             </Badge>
+            {order.paymentMethod === "ADVANCE" ? (
+              <PaymentBadge status={order.paymentStatus === "PAID" ? "PAID" : "UNPAID"} />
+            ) : null}
             <Price value={order.grandTotal} locale={locale} className="font-semibold" />
+            {order.paymentMethod === "ADVANCE" &&
+            order.paymentStatus !== "PAID" &&
+            order.overallStatus !== "CANCELLED" ? (
+              <Button asChild variant="cta" size="sm">
+                <Link href={`/checkout/payment/${order.id}`}>{tp("completePayment")}</Link>
+              </Button>
+            ) : null}
             <Button asChild variant="outline" size="sm">
               <Link href={`/orders/${order.id}`}>{t("viewDetails")}</Link>
             </Button>

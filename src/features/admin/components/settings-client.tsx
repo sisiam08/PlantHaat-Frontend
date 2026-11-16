@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaymentPreview } from "@/features/payments/components/payment-preview";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
@@ -271,9 +272,12 @@ export function SettingsClient() {
                   </div>
                 )}
                 {group === "payments" ? (
-                  <p className="text-xs text-muted-foreground">
-                    At least one payment method must stay enabled.
-                  </p>
+                  <div className="grid gap-3">
+                    <PaymentPreview values={values} />
+                    <p className="text-xs text-muted-foreground">
+                      At least one payment method must stay enabled.
+                    </p>
+                  </div>
                 ) : null}
               </TabsContent>
             ))}

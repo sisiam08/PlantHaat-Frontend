@@ -4087,7 +4087,7 @@ export interface components {
              * @default COD
              * @enum {string}
              */
-            paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            paymentMethod: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             note?: string;
             /**
              * @description Grand total the customer saw on the cart. When it no longer matches, checkout returns 409 PRICE_CHANGED and applies nothing.
@@ -4108,7 +4108,7 @@ export interface components {
             orderId: string;
             shopOrderId: string | null;
             /** @enum {string} */
-            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            method: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             provider: string | null;
             /** @enum {string} */
             status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
@@ -4141,7 +4141,7 @@ export interface components {
             shippingPostalCode: string | null;
             deliveryNote: string | null;
             /** @enum {string} */
-            paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            paymentMethod: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             /** @enum {string} */
             paymentStatus: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
             /** @description Decimal as string */
@@ -4211,7 +4211,9 @@ export interface components {
             orderNumber: string;
             customerId: string;
             /** @enum {string} */
-            paymentMethod: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            paymentMethod: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            /** @enum {string} */
+            paymentStatus: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
         };
         SellerShopOrderRefDto: {
             id: string;
@@ -4508,7 +4510,7 @@ export interface components {
             /** @enum {string} */
             status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED";
             /** @enum {string|null} */
-            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER" | null;
+            method: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER" | null;
             reference: string | null;
             note: string | null;
             requestedById: string;
@@ -4529,7 +4531,7 @@ export interface components {
         };
         ProcessRefundDto: {
             /** @enum {string} */
-            method?: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            method?: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             reference?: string;
             note?: string;
         };
@@ -5453,7 +5455,7 @@ export interface components {
             amount: string;
             currency: string;
             /** @enum {string} */
-            method: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+            method: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             provider: string | null;
             /** @enum {string} */
             status: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
@@ -10772,7 +10774,7 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 status?: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-                method?: "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+                method?: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
                 /** @description Order id or order number */
                 order?: string;
                 from?: string;

@@ -135,13 +135,20 @@ export function CheckoutClient() {
   const codMax = Number(publicSettings.data?.["order.codMaxAmount"] ?? 0);
   const codOverLimit = codMax > 0 && Number(cart.data?.grandTotal ?? 0) > codMax;
   const codBlocked = !codEnabled || codOverLimit;
+  const advanceEnabled =
+    publicSettings.data?.["payment.advance.enabled"] === true &&
+    (publicSettings.data?.["payment.bkash.enabled"] === true ||
+      publicSettings.data?.["payment.nagad.enabled"] === true);
+  const [method, setMethod] = useState<"COD" | "ADVANCE">("COD");
+  const effectiveMethod: "COD" | "ADVANCE" =
+    method === "COD" && codBlocked && advanceEnabled ? "ADVANCE" : method;
 
   const placeOrder = useMutation({
     mutationFn: () =>
       checkoutApi.place(
         {
           addressId: selectedAddress!.id,
-          paymentMethod: "COD",
+          paymentMethod: effectiveMethod,
           expectedGrandTotal: Number(expectedGrandTotal.current ?? cart.data?.grandTotal ?? 0),
         },
         idempotencyKey.current,
@@ -153,7 +160,9 @@ export function CheckoutClient() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       await queryClient.invalidateQueries({ queryKey: queryKeys.orders() });
       toast.success(t("orderPlaced"));
-      router.push(`/orders/${order.id}`);
+      router.push(
+        effectiveMethod === "ADVANCE" ? `/checkout/payment/${order.id}` : `/orders/${order.id}`,
+      );
     },
     onError: async (error) => {
       const apiError = toApiError(error);
@@ -354,15 +363,18 @@ export function CheckoutClient() {
               data-payment-option="COD"
               className={cn(
                 "flex cursor-pointer items-start gap-3 rounded-2xl border bg-card p-4",
-                codBlocked ? "border-border opacity-60" : "border-primary ring-1 ring-primary/20",
+                effectiveMethod === "COD"
+                  ? "border-primary ring-1 ring-primary/20"
+                  : "border-border",
+                codBlocked && "opacity-60",
               )}
             >
               <input
                 type="radio"
                 name="paymentMethod"
                 aria-label={t("cod")}
-                checked
-                readOnly
+                checked={effectiveMethod === "COD"}
+                onChange={() => setMethod("COD")}
                 disabled={codBlocked}
                 className="mt-1"
               />
@@ -370,16 +382,54 @@ export function CheckoutClient() {
                 <span className="block font-medium">{t("cod")}</span>
                 <span className="block text-sm text-muted-foreground">{t("codNote")}</span>
                 {!codEnabled ? (
-                  <span className="block text-sm text-destructive">
-                    Cash on delivery is currently unavailable.
-                  </span>
+                  <span className="block text-sm text-destructive">{t("codUnavailable")}</span>
                 ) : codOverLimit ? (
                   <span className="block text-sm text-destructive">
-                    Cash on delivery is available for orders up to ৳{codMax}.
+                    {t("codLimit")}{" "}
+                    <Price value={codMax} locale={locale} size="sm" />.
                   </span>
                 ) : null}
               </span>
             </label>
+
+            {advanceEnabled ? (
+              <label
+                data-section-card
+                data-payment-option="ADVANCE"
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-2xl border bg-card p-4",
+                  effectiveMethod === "ADVANCE"
+                    ? "border-primary ring-1 ring-primary/20"
+                    : "border-border",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  aria-label={t("advance")}
+                  checked={effectiveMethod === "ADVANCE"}
+                  onChange={() => setMethod("ADVANCE")}
+                  className="mt-1"
+                />
+                <span className="min-w-0">
+                  <span className="block font-medium">{t("advance")}</span>
+                  <span className="block text-sm text-muted-foreground">{t("advanceNote")}</span>
+                  <span className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">{t("advanceAmount")}:</span>
+                    <Price value={cart.data?.grandTotal} locale={locale} size="sm" />
+                  </span>
+                  <span className="mt-1 block text-xs font-medium text-primary">
+                    {t("payNowAdvance")}
+                  </span>
+                </span>
+              </label>
+            ) : null}
+
+            {!codEnabled && !advanceEnabled ? (
+              <p className="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
+                {t("orderingUnavailable")}
+              </p>
+            ) : null}
           </div>
         </section>
       </div>
@@ -396,12 +446,15 @@ export function CheckoutClient() {
               !selectedAddress ||
               cart.data.shops.length === 0 ||
               hasNotDelivering(cart.data) ||
-              codBlocked ||
+              (effectiveMethod === "COD" ? codBlocked : !advanceEnabled) ||
               publicSettings.isLoading
             }
             pending={placeOrder.isPending}
             onPlaceOrder={() => placeOrder.mutate()}
             warning={hasNotDelivering(cart.data) ? t("notDeliveringBlocked") : undefined}
+            note={
+              effectiveMethod === "ADVANCE" ? t("summaryNoteAdvance") : t("summaryNote")
+            }
           />
         ) : (
           <Button variant="cta" size="lg" disabled={true}>

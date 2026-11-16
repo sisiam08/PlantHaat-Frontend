@@ -22,12 +22,14 @@ export function CheckoutSummary({
   pending,
   onPlaceOrder,
   warning,
+  note,
 }: {
   view: CartView;
   disabled: boolean;
   pending: boolean;
   onPlaceOrder: () => void;
   warning?: string;
+  note?: string;
 }) {
   const t = useTranslations("checkout");
   const locale = useLocale();
@@ -159,7 +161,7 @@ export function CheckoutSummary({
               <Price value={view.grandTotal} locale={locale} />
             </span>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">{t("summaryNote")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{note ?? t("summaryNote")}</p>
           <div className="mt-3 grid gap-2">
             <div ref={placeRef}>
               <Button

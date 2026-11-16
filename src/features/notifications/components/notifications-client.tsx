@@ -38,6 +38,13 @@ function notificationHref(item: NotificationItem): string | null {
   ) {
     return `/orders/${data.orderId}`;
   }
+  if (typeof data.orderId === "string" && typeof data.intentId === "string") {
+    const status = typeof data.status === "string" ? data.status : "";
+    if (status === "UNDERPAID" || status === "REJECTED") {
+      return `/checkout/payment/${data.orderId}`;
+    }
+    return `/orders/${data.orderId}`;
+  }
   return null;
 }
 

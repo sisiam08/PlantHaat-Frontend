@@ -3,6 +3,7 @@
 import {
   AlarmClock,
   BarChart3,
+  ClipboardCheck,
   CreditCard,
   FileText,
   Flag,
@@ -41,6 +42,7 @@ import { useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { adminApi } from "@/features/admin/api";
+import { paymentsApi } from "@/features/payments/api";
 import { sellerApi } from "@/features/seller/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -129,6 +131,8 @@ const ADMIN_GROUPS: { key: string; items: NavItem[] }[] = [
       { href: "/admin/payouts", key: "payouts", icon: Wallet },
       { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
       { href: "/admin/payments", key: "payments", icon: CreditCard },
+      { href: "/admin/advance-payments", key: "advancePayments", icon: ClipboardCheck },
+      { href: "/admin/advance-refunds", key: "advanceRefunds", icon: RotateCcw },
       { href: "/admin/reconciliation", key: "reconciliation", icon: Scale },
     ],
   },
@@ -173,6 +177,18 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
   });
   const suspendedOpenOrders =
     role === "admin" ? (adminOverview.data?.suspendedSellerOpenOrders ?? 0) : 0;
+  const advancePending = useQuery({
+    queryKey: queryKeys.admin.advancePayments("pending"),
+    queryFn: () => paymentsApi.admin.list("pending"),
+    enabled: role === "admin",
+    retry: false,
+  });
+  const advanceRefunds = useQuery({
+    queryKey: queryKeys.admin.advanceRefunds,
+    queryFn: paymentsApi.admin.refunds,
+    enabled: role === "admin",
+    retry: false,
+  });
 
   return (
     <nav className="grid gap-4" aria-label={t("dashboard")}>
@@ -189,7 +205,11 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
                 ? unanswered
                 : item.key === "suspendedSellers" && suspendedOpenOrders > 0
                   ? suspendedOpenOrders
-                  : null;
+                  : item.key === "advancePayments" && (advancePending.data?.length ?? 0) > 0
+                    ? advancePending.data?.length
+                    : item.key === "advanceRefunds" && (advanceRefunds.data?.length ?? 0) > 0
+                      ? advanceRefunds.data?.length
+                      : null;
             return (
               <Link
                 key={item.href}

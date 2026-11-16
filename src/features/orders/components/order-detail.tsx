@@ -19,6 +19,8 @@ import { ReviewForm } from "@/features/reviews/components/review-form";
 import { formatDateTime } from "@/lib/format/date";
 import { formatCount } from "@/lib/format/number";
 import { queryKeys } from "@/lib/api/query-keys";
+import { paymentsApi } from "@/features/payments/api";
+import { PaymentBadge } from "@/features/payments/components/payment-badge";
 import { ordersApi } from "../api";
 import type { ShopOrderView } from "../types";
 
@@ -89,6 +91,8 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           <p className="text-muted-foreground">{detail.contactPhone}</p>
         </CardContent>
       </Card>
+
+      {detail.paymentMethod === "ADVANCE" ? <OrderPaymentPanel orderId={detail.id} /> : null}
 
       {detail.shopOrders.map((shopOrder) => (
         <ShopOrderCard
@@ -165,6 +169,106 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         </Card>
       ) : null}
     </div>
+  );
+}
+
+function OrderPaymentPanel({ orderId }: { orderId: string }) {
+  const t = useTranslations("orders");
+  const tp = useTranslations("payments");
+  const locale = useLocale();
+  const payment = useQuery({
+    queryKey: queryKeys.payment(orderId),
+    queryFn: () => paymentsApi.get(orderId),
+    retry: 1,
+  });
+
+  if (payment.isLoading) {
+    return <Skeleton className="h-28 w-full rounded-2xl" />;
+  }
+  if (payment.isError || !payment.data) {
+    return (
+      <Card className="rounded-2xl">
+        <CardContent className="text-sm text-muted-foreground">{tp("loadError")}</CardContent>
+      </Card>
+    );
+  }
+  const info = payment.data;
+  const payable =
+    info.status === "UNPAID" || info.status === "REJECTED" || info.status === "EXPIRED";
+  return (
+    <Card className="rounded-2xl" data-order-payment>
+      <CardContent className="grid gap-3 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">{t("paymentStatus")}</h2>
+          <PaymentBadge status={info.status} />
+        </div>
+        <div className="grid gap-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">{tp("amountDue")}</span>
+            <Price value={info.amountDue} locale={locale} size="sm" />
+          </div>
+          {info.paidAmount !== "0" ? (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{tp("status.PAID")}</span>
+              <Price value={info.paidAmount} locale={locale} size="sm" />
+            </div>
+          ) : null}
+          {info.refundedAmount !== "0" ? (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{tp("refundAmount")}</span>
+              <Price value={info.refundedAmount} locale={locale} size="sm" />
+            </div>
+          ) : null}
+        </div>
+        {info.status === "PENDING_VERIFICATION" ? (
+          <p className="text-muted-foreground">
+            {tp("pendingBody", {
+              trxId: info.submissions[0]?.trxId ?? "",
+              verificationText: info.instructions.verificationText,
+            })}
+          </p>
+        ) : null}
+        {info.status === "REJECTED" ? (
+          <p className="text-destructive">
+            {tp("rejectedReason", { reason: info.submissions[0]?.rejectReason ?? "" })}
+          </p>
+        ) : null}
+        {payable ? (
+          <Button asChild variant="cta" size="sm" className="w-fit">
+            <Link href={`/checkout/payment/${orderId}`}>{tp("completePayment")}</Link>
+          </Button>
+        ) : null}
+        {info.submissions.length > 0 ? (
+          <div className="grid gap-1 border-t border-border pt-2">
+            <p className="text-xs font-medium text-muted-foreground">{tp("timeline")}</p>
+            {info.submissions.map((submission) => (
+              <div key={submission.id} className="grid gap-0.5">
+                <p className="text-xs text-muted-foreground">
+                  {submission.provider} · {submission.trxId} ·{" "}
+                  {tp(
+                    `status.${
+                      submission.status === "VERIFIED"
+                        ? "PAID"
+                        : submission.status === "REJECTED"
+                          ? "REJECTED"
+                          : "PENDING_VERIFICATION"
+                    }`,
+                  )}{" "}
+                  · {formatDateTime(submission.createdAt, locale)}
+                </p>
+                {submission.reviewedAt ? (
+                  <p className="text-xs text-muted-foreground">
+                    {submission.status === "VERIFIED"
+                      ? tp("verifiedAt", { time: formatDateTime(submission.reviewedAt, locale) })
+                      : tp("rejectedAt", { time: formatDateTime(submission.reviewedAt, locale) })}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
 

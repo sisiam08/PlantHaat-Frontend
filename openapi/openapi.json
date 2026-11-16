@@ -10057,6 +10057,7 @@
               "type": "string",
               "enum": [
                 "COD",
+                "ADVANCE",
                 "PIPRAPAY",
                 "BKASH",
                 "NAGAD",
@@ -14668,6 +14669,7 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
@@ -14744,6 +14746,7 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
@@ -14868,6 +14871,7 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
@@ -15132,11 +15136,23 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
               "CARD",
               "BANK_TRANSFER"
+            ]
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "FAILED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED"
             ]
           }
         },
@@ -15144,7 +15160,8 @@
           "id",
           "orderNumber",
           "customerId",
-          "paymentMethod"
+          "paymentMethod",
+          "paymentStatus"
         ]
       },
       "SellerShopOrderRefDto": {
@@ -16199,6 +16216,7 @@
             "nullable": true,
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
@@ -16284,6 +16302,7 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",
@@ -19579,6 +19598,7 @@
             "type": "string",
             "enum": [
               "COD",
+              "ADVANCE",
               "PIPRAPAY",
               "BKASH",
               "NAGAD",

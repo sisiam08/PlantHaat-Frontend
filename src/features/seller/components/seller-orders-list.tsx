@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
+import { PaymentBadge } from "@/features/payments/components/payment-badge";
 import { sellerApi } from "../api";
 import { orderStatusVariant } from "../status";
 
@@ -104,6 +105,11 @@ export function SellerOrdersList({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{order.shopOrderNumber}</span>
                   <Badge variant={orderStatusVariant(order.status)}>{tStatus(order.status)}</Badge>
+                  {order.order.paymentMethod === "ADVANCE" ? (
+                    <PaymentBadge
+                      status={order.order.paymentStatus === "PAID" ? "PAID" : "UNPAID"}
+                    />
+                  ) : null}
                   {order.codRisk && order.codRisk !== "OK" ? (
                     <Badge variant="destructive">{t("codRiskBadge")}</Badge>
                   ) : null}

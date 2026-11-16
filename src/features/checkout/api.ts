@@ -3,7 +3,7 @@ import type { OrderDetailView } from "../orders/types";
 
 export interface CheckoutInput {
   addressId: string;
-  paymentMethod: "COD";
+  paymentMethod: "COD" | "ADVANCE";
   note?: string;
   expectedGrandTotal?: number;
 }

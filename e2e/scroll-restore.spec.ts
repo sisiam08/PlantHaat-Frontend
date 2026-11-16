@@ -29,8 +29,9 @@ async function applyInStockAndSort(page: import("@playwright/test").Page, width:
       .getByRole("button", { name: /ফিল্টার|Filters/ })
       .first()
       .click();
-    await page.waitForTimeout(300);
-    await page.locator('[role="switch"]:visible').nth(1).click();
+    await page.locator('[role="dialog"][data-state="open"]').waitFor({ timeout: 15_000 });
+    await page.locator("#filter-in-stock:visible").click();
+    await expect(page).toHaveURL(/inStock=true/);
     await page.keyboard.press("Escape");
   } else {
     await page.locator("#filter-in-stock").click();
