@@ -191,7 +191,7 @@ for (const locale of ["en", "bn"] as const) {
         expect(metrics.overflowX).toBe(false);
         expect(metrics.mojibake).toBe(false);
         const quantityPattern =
-          locale === "bn" ? /^পরিমাণ [০-৯]+ · প্রতিটি ৳[০-৯]/ : /^Qty \d+ · ৳[\d,]+ each$/;
+          locale === "bn" ? /^পরিমাণ [0-9]+ · প্রতিটি ৳[0-9]/ : /^Qty \d+ · ৳[\d,]+ each$/;
         for (const text of metrics.quantityTexts) {
           expect(text.replace(/\s+/g, " ").trim()).toMatch(quantityPattern);
         }
@@ -238,7 +238,7 @@ for (const locale of ["en", "bn"] as const) {
         expect(metrics.mojibake).toBe(false);
         for (const text of metrics.quantityTexts) {
           expect(text.replace(/\s+/g, " ").trim()).toMatch(
-            locale === "bn" ? /^পরিমাণ [০-৯]+ · প্রতিটি ৳[০-৯]/ : /^Qty \d+ · ৳[\d,]+ each$/,
+            locale === "bn" ? /^পরিমাণ [0-9]+ · প্রতিটি ৳[0-9]/ : /^Qty \d+ · ৳[\d,]+ each$/,
           );
         }
 

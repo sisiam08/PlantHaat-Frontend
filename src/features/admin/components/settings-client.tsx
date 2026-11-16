@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
+import { formatDateTime } from "@/lib/format/date";
 import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
@@ -309,7 +310,7 @@ export function SettingsClient() {
               >
                 <span className="font-medium">{entry.key}</span>
                 <span className="text-xs text-muted-foreground">
-                  {new Date(entry.createdAt).toLocaleString(locale)} · {String(entry.oldValue)} →{" "}
+                  {formatDateTime(entry.createdAt, locale)} · {String(entry.oldValue)} →{" "}
                   {String(entry.newValue)}
                 </span>
               </div>
@@ -462,7 +463,7 @@ function SettingField({
           {t("defaultLabel")}: {String(definition.default)}
         </span>
         {definition.isSensitive ? <span>{t("sensitiveNote")}</span> : null}
-        {last ? <span>Last changed {new Date(last.createdAt).toLocaleString(locale)}</span> : null}
+        {last ? <span>Last changed {formatDateTime(last.createdAt, locale)}</span> : null}
       </div>
     </div>
   );

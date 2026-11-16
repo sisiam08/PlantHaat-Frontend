@@ -81,7 +81,7 @@ function Rows({
       </div>
       {showShipmentNote ? (
         <p className="mt-4 rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
-          {t("separateShipments", { count: view.shops.length })}
+          {t("separateShipments", { count: formatCount(view.shops.length, locale) })}
         </p>
       ) : null}
     </div>

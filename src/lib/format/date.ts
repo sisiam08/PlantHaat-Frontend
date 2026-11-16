@@ -5,9 +5,10 @@ export function formatDateTime(value: string | number | Date, locale: string): s
   if (Number.isNaN(date.getTime())) {
     return "";
   }
-  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-BD", {
+  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
     dateStyle: "medium",
     timeStyle: "short",
+    numberingSystem: "latn",
     timeZone: TIME_ZONE,
   }).format(date);
 }

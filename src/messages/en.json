@@ -375,7 +375,7 @@
   "notDeliveringBlocked": "One or more shops don't deliver to this address's district — go back to the cart to change district or remove those items.",
   "changeDistrict": "Change district",
   "removeTheseItems": "Remove these items",
-  "separateShipments": "Your order arrives separately from {count, plural, =1 {# shop} other {# shops}}; each shop charges its own delivery.",
+  "separateShipments": "Your order arrives separately from {count} shops; each shop charges its own delivery.",
   "notDeliveringShort": "No delivery",
   "priceChangedBanner": "{count} line(s) changed price — confirm at checkout",
   "priceChangedLine": "Price changed from {from} to {to}",
@@ -522,7 +522,7 @@
  "notifications": {
   "title": "Notifications",
   "empty": "No notifications yet",
-  "unread": "{count, plural, =0 {No unread} one {# unread} other {# unread}}",
+  "unread": "{count} unread",
   "markRead": "Mark read",
   "markAllRead": "Mark all read",
   "types": {

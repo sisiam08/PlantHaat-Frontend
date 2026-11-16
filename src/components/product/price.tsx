@@ -1,4 +1,4 @@
-﻿import { formatBdt } from "@/lib/format/money";
+import { formatBdt } from "@/lib/format/money";
 import { cn } from "@/lib/utils";
 
 type PriceSize = "sm" | "md" | "lg" | "xl";
@@ -13,10 +13,11 @@ const SIZE: Record<PriceSize, string> = {
 function moneyParts(value: string | number, locale: string) {
   const numeric = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(numeric)) return [];
-  const parts = new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-BD", {
+  const parts = new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
     style: "currency",
     currency: "BDT",
     currencyDisplay: "narrowSymbol",
+    numberingSystem: "latn",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).formatToParts(numeric);

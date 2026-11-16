@@ -3,12 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { formatCount } from "@/lib/format/number";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { NotificationItem } from "@/lib/api/types";
 import { notificationsApi } from "../api";
@@ -43,6 +44,7 @@ function notificationHref(item: NotificationItem): string | null {
 export function NotificationsClient() {
   const t = useTranslations("notifications");
   const tTypes = useTranslations("notifications.types");
+  const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -79,7 +81,7 @@ export function NotificationsClient() {
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {t("unread", { count: unread.data ?? 0 })}
+          {t("unread", { count: formatCount(unread.data ?? 0, locale) })}
         </p>
         <Button
           type="button"

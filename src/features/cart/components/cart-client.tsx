@@ -45,10 +45,7 @@ export function CartClient() {
 /* ── Guest cart (grouped by shop, delivery-neutral) ─────────────── */
 
 function parseGuestPrice(value: string): number | null {
-  const bengali = "০১২৩৪৫৬৭৮৯";
-  const normalized = value
-    .replace(/[০-৯]/g, (digit) => String(bengali.indexOf(digit)))
-    .replace(/[^0-9.]/g, "");
+  const normalized = value.replace(/[^0-9.]/g, "");
   return normalized ? Number(normalized) : null;
 }
 

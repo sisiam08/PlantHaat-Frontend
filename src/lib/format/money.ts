@@ -10,13 +10,24 @@ export function formatBdt(value: string | number | null | undefined, locale = "b
   if (!Number.isFinite(numeric)) {
     return "";
   }
-  return new Intl.NumberFormat(locale === "bn" ? "bn-BD" : "en-BD", {
+  const parts = new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
     style: "currency",
     currency: "BDT",
     currencyDisplay: "narrowSymbol",
+    numberingSystem: "latn",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(numeric);
+  }).formatToParts(numeric);
+  const currency = parts.filter((part) => part.type === "currency");
+  const rest = parts.filter((part) => part.type !== "currency");
+  while (
+    rest.length > 0 &&
+    rest[rest.length - 1].type === "literal" &&
+    /^\s+$/.test(rest[rest.length - 1].value)
+  ) {
+    rest.pop();
+  }
+  return [...currency, ...rest].map((part) => part.value).join("");
 }
 
 export function formatPriceRange(
@@ -32,5 +43,5 @@ export function formatPriceRange(
   if (!maxStr || minStr === maxStr) {
     return minStr;
   }
-  return `${minStr} – ${maxStr}`;
+  return `${minStr} - ${maxStr}`;
 }

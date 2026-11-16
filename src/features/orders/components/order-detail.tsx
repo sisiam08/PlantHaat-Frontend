@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { ReviewForm } from "@/features/reviews/components/review-form";
 import { formatDateTime } from "@/lib/format/date";
+import { formatCount } from "@/lib/format/number";
 import { queryKeys } from "@/lib/api/query-keys";
 import { ordersApi } from "../api";
 import type { ShopOrderView } from "../types";
@@ -137,7 +138,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           </div>
           {detail.shopOrders.length > 1 ? (
             <p className="rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
-              {t("separateShipments", { count: detail.shopOrders.length })}
+              {t("separateShipments", { count: formatCount(detail.shopOrders.length, locale) })}
             </p>
           ) : null}
         </CardContent>
