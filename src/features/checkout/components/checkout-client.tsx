@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +27,7 @@ import { addressesApi, type CreateAddressInput } from "@/features/addresses/api"
 import { FormField } from "@/features/auth/components/form-field";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
+import { clearGuestCart, markGuestCartHandled } from "@/features/cart/guest-cart";
 import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
@@ -146,6 +147,9 @@ export function CheckoutClient() {
         idempotencyKey.current,
       ),
     onSuccess: async (order) => {
+      clearGuestCart();
+      markGuestCartHandled();
+      queryClient.removeQueries({ queryKey: queryKeys.cart });
       await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       await queryClient.invalidateQueries({ queryKey: queryKeys.orders() });
       toast.success(t("orderPlaced"));

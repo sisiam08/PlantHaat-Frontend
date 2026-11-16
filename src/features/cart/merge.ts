@@ -1,4 +1,10 @@
-import { clearGuestCart, readGuestCart } from "./guest-cart";
+import {
+  clearGuestCart,
+  guestCartHandledAt,
+  guestCartUpdatedAt,
+  markGuestCartHandled,
+  readGuestCart,
+} from "./guest-cart";
 import { cartApi } from "./api";
 import { MAX_CART_QUANTITY } from "./types";
 
@@ -9,6 +15,12 @@ import { MAX_CART_QUANTITY } from "./types";
 export async function mergeGuestCart(): Promise<void> {
   const guestLines = readGuestCart();
   if (guestLines.length === 0) {
+    return;
+  }
+  // A snapshot that predates the last merge/order is stale; never replay it.
+  if (guestCartUpdatedAt() <= guestCartHandledAt()) {
+    clearGuestCart();
+    markGuestCartHandled();
     return;
   }
 
@@ -32,4 +44,5 @@ export async function mergeGuestCart(): Promise<void> {
   }
 
   clearGuestCart();
+  markGuestCartHandled();
 }

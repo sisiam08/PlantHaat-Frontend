@@ -17,6 +17,8 @@ export interface GuestCartLine {
 }
 
 const STORAGE_KEY = "ph_guest_cart_v1";
+const UPDATED_KEY = "ph_guest_cart_v1_updated_at";
+const HANDLED_KEY = "ph_guest_cart_v1_handled_at";
 const CHANGE_EVENT = "ph-guest-cart-change";
 
 function isLine(value: unknown): value is GuestCartLine {
@@ -59,6 +61,7 @@ export function writeGuestCart(lines: GuestCartLine[]): void {
     return;
   }
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+  window.localStorage.setItem(UPDATED_KEY, String(Date.now()));
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
@@ -91,6 +94,32 @@ export function removeGuestLine(variantId: string): GuestCartLine[] {
 
 export function clearGuestCart(): void {
   writeGuestCart([]);
+}
+
+export function guestCartUpdatedAt(): number {
+  if (typeof window === "undefined") return 0;
+  return Number(window.localStorage.getItem(UPDATED_KEY) ?? 0) || 0;
+}
+
+export function guestCartHandledAt(): number {
+  if (typeof window === "undefined") return 0;
+  return Number(window.localStorage.getItem(HANDLED_KEY) ?? 0) || 0;
+}
+
+/** Marks the guest snapshot as merged/ordered so it can never be replayed. */
+export function markGuestCartHandled(at = Date.now()): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(HANDLED_KEY, String(at));
+}
+
+export function clearGuestCartPermanently(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(UPDATED_KEY);
+  window.localStorage.removeItem(HANDLED_KEY);
+  cachedRaw = null;
+  cachedLines = [];
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 export function subscribeGuestCart(listener: () => void): () => void {
