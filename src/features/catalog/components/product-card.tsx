@@ -1,4 +1,4 @@
-﻿import { Heart, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 
 import { LinkPending } from "@/components/layout/link-pending";
@@ -58,22 +58,34 @@ export interface ProductCardData {
   shopName?: string | null;
 }
 
-function CompactRating({
+function CardRating({
   value,
   count,
+  locale,
 }: {
   value: string | number | null | undefined;
   count: number;
+  locale: string;
 }) {
+  if (count <= 0) {
+    return <div data-card-rating-placeholder className="min-h-5" aria-hidden />;
+  }
   const numeric = Number(value ?? 0);
+  const rating = numeric.toFixed(1);
   return (
-    <span className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground">
-      <Star aria-hidden className="size-3 fill-cta text-cta" />
-      <span className="font-medium text-foreground">{numeric.toFixed(1)}</span>
-      <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground" />
-      <span>{count}</span>
-      <span className="sr-only">{numeric.toFixed(1)} / 5</span>
-    </span>
+    <div
+      data-card-rating
+      aria-label={
+        locale === "bn"
+          ? `৫-এর মধ্যে ${rating} রেটিং, ${count}টি রিভিউ`
+          : `Rated ${rating} out of 5 from ${count} reviews`
+      }
+      className="flex min-h-5 items-center gap-1 text-xs text-muted-foreground"
+    >
+      <Star aria-hidden className="size-3.5 fill-cta text-cta" />
+      <span className="font-medium text-foreground">{rating}</span>
+      <span>({count})</span>
+    </div>
   );
 }
 
@@ -145,10 +157,7 @@ export function ProductCard({
             size={featured ? "md" : "sm"}
             className="text-primary"
           />
-          {reviews > 0 ? <CompactRating value={product.ratingAvg} count={reviews} /> : null}
-          {product.shopName ? (
-            <p className="line-clamp-1 text-xs text-muted-foreground">{product.shopName}</p>
-          ) : null}
+          <CardRating value={product.ratingAvg} count={reviews} locale={locale} />
         </div>
       </Link>
 
