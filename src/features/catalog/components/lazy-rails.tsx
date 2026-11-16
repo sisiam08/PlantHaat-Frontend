@@ -72,6 +72,10 @@ function LazyRail({ railKey, query }: { railKey: "lowLight" | "petSafe"; query: 
         actionLabels={{
           wishlistAdd: tp("wishlistAdd"),
         }}
+        ratingLabels={{
+          noReviews: tp("noReviews"),
+          aria: tp.raw("ratingAriaLabel") as string,
+        }}
       />
     </section>
   );

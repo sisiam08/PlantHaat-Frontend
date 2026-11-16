@@ -871,6 +871,10 @@ export function ProductsBrowser({
                     actionLabels={{
                       wishlistAdd: tp("wishlistAdd"),
                     }}
+                    ratingLabels={{
+                      noReviews: tp("noReviews"),
+                      aria: tp.raw("ratingAriaLabel") as string,
+                    }}
                   />
                 ))}
                 {listQuery.isFetchingNextPage

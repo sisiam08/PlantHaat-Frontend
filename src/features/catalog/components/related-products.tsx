@@ -40,6 +40,10 @@ export async function RelatedProducts({
         actionLabels={{
           wishlistAdd: t("wishlistAdd"),
         }}
+        ratingLabels={{
+          noReviews: t("noReviews"),
+          aria: t.raw("ratingAriaLabel") as string,
+        }}
       />
     </section>
   );

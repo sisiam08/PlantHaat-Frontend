@@ -4552,6 +4552,9 @@ export interface components {
             minPrice: string;
             /** @description Decimal as string */
             maxPrice: string;
+            /** @description Decimal as string */
+            ratingAvg: string;
+            ratingCount: number;
             /** Format: date-time */
             deletedAt: string | null;
             shop: components["schemas"]["WishlistedShopRefDto"];

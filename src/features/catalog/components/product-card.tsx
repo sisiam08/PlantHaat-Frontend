@@ -58,31 +58,43 @@ export interface ProductCardData {
   shopName?: string | null;
 }
 
-function CardRating({
+export interface CardRatingLabels {
+  /** Visible + accessible text when the product has no reviews yet. */
+  noReviews: string;
+  /** ICU-style template with {rating} and {count} placeholders. */
+  aria: string;
+}
+
+export function CardRating({
   value,
   count,
-  locale,
+  labels,
 }: {
   value: string | number | null | undefined;
   count: number;
-  locale: string;
+  labels: CardRatingLabels;
 }) {
   if (count <= 0) {
-    return <div data-card-rating-placeholder className="min-h-5" aria-hidden />;
+    return (
+      <div
+        data-card-rating
+        data-card-rating-empty
+        aria-label={labels.noReviews}
+        className="flex min-h-5 items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Star aria-hidden className="size-3.5 shrink-0" />
+        <span className="truncate">{labels.noReviews}</span>
+      </div>
+    );
   }
-  const numeric = Number(value ?? 0);
-  const rating = numeric.toFixed(1);
+  const rating = Number(value ?? 0).toFixed(1);
   return (
     <div
       data-card-rating
-      aria-label={
-        locale === "bn"
-          ? `৫-এর মধ্যে ${rating} রেটিং, ${count}টি রিভিউ`
-          : `Rated ${rating} out of 5 from ${count} reviews`
-      }
+      aria-label={labels.aria.replace("{rating}", rating).replace("{count}", String(count))}
       className="flex min-h-5 items-center gap-1 text-xs text-muted-foreground"
     >
-      <Star aria-hidden className="size-3.5 fill-cta text-cta" />
+      <Star aria-hidden className="size-3.5 shrink-0 fill-cta text-cta" />
       <span className="font-medium text-foreground">{rating}</span>
       <span>({count})</span>
     </div>
@@ -98,12 +110,14 @@ export function ProductCard({
   name,
   locale,
   actionLabels,
+  ratingLabels,
   variant = "compact",
 }: {
   product: ProductCardData;
   name: string;
   locale: string;
   actionLabels: CardActionLabels;
+  ratingLabels: CardRatingLabels;
   variant?: "compact" | "featured";
 }) {
   const featured = variant === "featured";
@@ -157,7 +171,7 @@ export function ProductCard({
             size={featured ? "md" : "sm"}
             className="text-primary"
           />
-          <CardRating value={product.ratingAvg} count={reviews} locale={locale} />
+          <CardRating value={product.ratingAvg} count={reviews} labels={ratingLabels} />
         </div>
       </Link>
 
@@ -215,11 +229,13 @@ export function ProductGrid({
   locale,
   outOfStockLabel,
   actionLabels,
+  ratingLabels,
 }: {
   products: ProductCardData[];
   locale: string;
   outOfStockLabel: string;
   actionLabels: CardActionLabels;
+  ratingLabels: CardRatingLabels;
 }) {
   return (
     <div data-product-grid className={PRODUCT_GRID_CLASS}>
@@ -230,6 +246,7 @@ export function ProductGrid({
           name={outOfStockLabel}
           locale={locale}
           actionLabels={actionLabels}
+          ratingLabels={ratingLabels}
         />
       ))}
     </div>
@@ -241,11 +258,13 @@ export function ProductRail({
   locale,
   outOfStockLabel,
   actionLabels,
+  ratingLabels,
 }: {
   products: ProductCardData[];
   locale: string;
   outOfStockLabel: string;
   actionLabels: CardActionLabels;
+  ratingLabels: CardRatingLabels;
 }) {
   return (
     <RailScroller label={outOfStockLabel}>
@@ -256,6 +275,7 @@ export function ProductRail({
             name={outOfStockLabel}
             locale={locale}
             actionLabels={actionLabels}
+            ratingLabels={ratingLabels}
           />
         </div>
       ))}

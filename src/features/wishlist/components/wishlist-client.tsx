@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { Price } from "@/components/product/price";
+import { CardRating } from "@/features/catalog/components/product-card";
 import { wishlistApi, type WishlistItemView } from "../api";
 
 export function WishlistClient() {
@@ -22,6 +23,7 @@ export function WishlistClient() {
   const tc = useTranslations("common");
   const tCatalog = useTranslations("catalog");
   const tErrors = useTranslations("errors");
+  const tp = useTranslations("product");
   const locale = useLocale();
   const queryClient = useQueryClient();
 
@@ -96,6 +98,14 @@ export function WishlistClient() {
                     <span className="text-destructive">{t("outOfStock")}</span>
                   ) : null}
                 </div>
+                <CardRating
+                  value={item.product.ratingAvg}
+                  count={item.product.ratingCount}
+                  labels={{
+                    noReviews: tp("noReviews"),
+                    aria: tp.raw("ratingAriaLabel") as string,
+                  }}
+                />
                 <Button
                   type="button"
                   variant="outline"

@@ -13,6 +13,8 @@ export interface WishlistItemView {
     minPrice: string | null;
     maxPrice: string | null;
     inStock: boolean;
+    ratingAvg: string;
+    ratingCount: number;
     imageUrl?: string | null;
   };
 }

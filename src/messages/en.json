@@ -258,6 +258,8 @@
   "decreaseQty": "Decrease quantity",
   "increaseQty": "Increase quantity",
   "wishlistAdd": "Add to wishlist",
+  "noReviews": "No reviews yet",
+  "ratingAriaLabel": "Rated {rating} out of 5 from {count} reviews",
   "wishlistRemove": "Remove from wishlist",
   "wishlistAdded": "Added to wishlist",
   "wishlistRemoved": "Removed from wishlist",

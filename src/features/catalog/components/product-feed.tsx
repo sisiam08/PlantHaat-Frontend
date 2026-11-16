@@ -110,6 +110,10 @@ export function ProductFeed({
               actionLabels={{
                 wishlistAdd: tp("wishlistAdd"),
               }}
+              ratingLabels={{
+                noReviews: tp("noReviews"),
+                aria: tp.raw("ratingAriaLabel") as string,
+              }}
             />
           ))}
           {query.isFetchingNextPage

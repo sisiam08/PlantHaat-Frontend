@@ -258,6 +258,8 @@
   "decreaseQty": "পরিমাণ কমান",
   "increaseQty": "পরিমাণ বাড়ান",
   "wishlistAdd": "উইশলিস্টে যোগ করুন",
+  "noReviews": "এখনও রিভিউ নেই",
+  "ratingAriaLabel": "{count}টি রিভিউ থেকে 5-এর মধ্যে {rating} রেটিং",
   "wishlistRemove": "উইশলিস্ট থেকে সরান",
   "wishlistAdded": "উইশলিস্টে যোগ হয়েছে",
   "wishlistRemoved": "উইশলিস্ট থেকে সরানো হয়েছে",

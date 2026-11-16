@@ -16366,6 +16366,13 @@
             "type": "string",
             "description": "Decimal as string"
           },
+          "ratingAvg": {
+            "type": "string",
+            "description": "Decimal as string"
+          },
+          "ratingCount": {
+            "type": "number"
+          },
           "deletedAt": {
             "type": "string",
             "nullable": true,
@@ -16384,6 +16391,8 @@
           "inStock",
           "minPrice",
           "maxPrice",
+          "ratingAvg",
+          "ratingCount",
           "deletedAt",
           "shop"
         ]

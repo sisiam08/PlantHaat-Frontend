@@ -129,6 +129,10 @@ async function ShopContent({
             actionLabels={{
               wishlistAdd: tp("wishlistAdd"),
             }}
+            ratingLabels={{
+              noReviews: tp("noReviews"),
+              aria: tp.raw("ratingAriaLabel") as string,
+            }}
           />
         )}
       </section>
