@@ -2,17 +2,27 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { AuthCard } from "@/features/auth/components/auth-card";
+import { AuthEntryGuard } from "@/features/auth/components/auth-entry-guard";
 import { RegisterForm } from "@/features/auth/components/register-form";
+import { redirectIfAuthenticated } from "@/server/auth-entry";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
   return { title: t("registerTitle") };
 }
 
-export default async function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; returnTo?: string; callbackUrl?: string }>;
+}) {
+  const params = await searchParams;
+  const next = params.next ?? params.returnTo ?? params.callbackUrl ?? null;
+  await redirectIfAuthenticated(next);
   const t = await getTranslations("auth");
   return (
     <AuthCard title={t("registerTitle")} subtitle={t("registerSubtitle")}>
+      <AuthEntryGuard next={next} />
       <RegisterForm />
     </AuthCard>
   );
