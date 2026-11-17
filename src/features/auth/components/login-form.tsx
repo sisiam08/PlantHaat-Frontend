@@ -65,7 +65,7 @@ export function LoginForm() {
         {...register("password")}
       />
       <div className="flex justify-end">
-        <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+        <Link href="/forgot-password" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none text-sm">
           {t("forgotPassword")}
         </Link>
       </div>
@@ -74,7 +74,7 @@ export function LoginForm() {
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         {t("noAccount")}{" "}
-        <Link href="/register" className="font-medium text-primary hover:underline">
+        <Link href="/register" className="inline-flex min-h-11 items-center font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none">
           {t("createAccount")}
         </Link>
       </p>

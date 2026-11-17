@@ -1,9 +1,10 @@
+import { PageContainer } from "@/components/layout/page-container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 
 export default function ProductsLoading() {
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[280px_1fr] lg:py-12">
+    <PageContainer className="gap-8 lg:grid-cols-[280px_1fr]">
       <Skeleton className="h-96 w-full rounded-2xl" />
       <div className="grid content-start gap-6">
         <Skeleton className="h-24 w-full" />
@@ -17,6 +18,6 @@ export default function ProductsLoading() {
           ))}
         </div>
       </div>
-    </main>
+    </PageContainer>
   );
 }

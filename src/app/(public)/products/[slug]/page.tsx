@@ -1,4 +1,4 @@
-﻿import { BadgeCheck, Star } from "lucide-react";
+import { BadgeCheck, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,7 +83,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
 function ProductSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <Skeleton className="aspect-square w-full rounded-3xl" />
         <div className="grid grid-cols-1 content-start gap-6">
@@ -96,7 +97,7 @@ function ProductSkeleton() {
         <Skeleton className="h-10 w-full max-w-md" />
         <Skeleton className="h-32 w-full rounded-2xl" />
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -213,7 +214,7 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 pt-8 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] md:pb-12 lg:pt-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-8 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] md:pb-12 lg:pt-12">
       <Breadcrumb className="mb-5">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -238,7 +239,7 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
 
         <div className="grid grid-cols-1 content-start gap-6">
           <div className="grid gap-2">
-            <h1 className="font-heading text-3xl font-bold">{product.name}</h1>
+            <PageHeader title={product.name} />
             {product.nameBn ? <p className="text-muted-foreground">{product.nameBn}</p> : null}
             {product.scientificName ? (
               <p className="text-sm text-muted-foreground">{product.scientificName}</p>
@@ -315,6 +316,6 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <span className="sr-only">{formatBdt(product.minPrice, locale)}</span>
-    </main>
+    </div>
   );
 }

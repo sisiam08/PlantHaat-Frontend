@@ -3,7 +3,7 @@ import { ProductRailSkeleton } from "@/features/catalog/components/product-card"
 
 export default function ProductDetailLoading() {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 lg:py-12">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <Skeleton className="aspect-square w-full rounded-3xl" />
         <div className="grid grid-cols-1 content-start gap-6">
@@ -17,6 +17,6 @@ export default function ProductDetailLoading() {
         <Skeleton className="h-7 w-56" />
         <ProductRailSkeleton count={8} />
       </div>
-    </main>
+    </div>
   );
 }

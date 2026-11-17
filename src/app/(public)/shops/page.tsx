@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShopCard } from "@/features/catalog/components/shop-card";
@@ -22,14 +24,14 @@ function readPage(searchParams: SearchParams): number {
 
 function ShopsSkeleton() {
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+    <PageContainer className="gap-8">
       <Skeleton className="h-10 w-48" />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton key={index} className="h-40 w-full rounded-2xl" />
         ))}
       </div>
-    </main>
+    </PageContainer>
   );
 }
 
@@ -37,13 +39,12 @@ async function ShopsContent({ searchParams }: { searchParams: Promise<SearchPara
   const sp = await searchParams;
   const page = readPage(sp);
   const t = await getTranslations("shop");
+  const tc = await getTranslations("catalog");
   const shops = await getShops(page);
 
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
-      <header className="grid gap-1 border-b border-border/60 pb-4">
-        <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
-      </header>
+    <PageContainer className="gap-8">
+      <PageHeader title={t("title")} className="border-b border-border/60 pb-4" />
       {shops.data.length === 0 ? (
         <div className="grid place-items-center rounded-2xl border border-dashed border-border/60 p-12 text-center text-muted-foreground">
           {t("noProducts")}
@@ -58,8 +59,10 @@ async function ShopsContent({ searchParams }: { searchParams: Promise<SearchPara
       {shops.meta.totalPages > 1 ? (
         <nav className="flex items-center justify-between">
           {page > 1 ? (
-            <Button asChild variant="outline">
-              <Link href={`/shops?page=${page - 1}`}>‹</Link>
+            <Button asChild variant="outline" className="min-h-11 min-w-11 px-0">
+              <Link href={`/shops?page=${page - 1}`} aria-label={tc("prev")}>
+                ‹
+              </Link>
             </Button>
           ) : (
             <span />
@@ -68,15 +71,17 @@ async function ShopsContent({ searchParams }: { searchParams: Promise<SearchPara
             {shops.meta.page} / {shops.meta.totalPages}
           </span>
           {page < shops.meta.totalPages ? (
-            <Button asChild variant="outline">
-              <Link href={`/shops?page=${page + 1}`}>›</Link>
+            <Button asChild variant="outline" className="min-h-11 min-w-11 px-0">
+              <Link href={`/shops?page=${page + 1}`} aria-label={tc("next")}>
+                ›
+              </Link>
             </Button>
           ) : (
             <span />
           )}
         </nav>
       ) : null}
-    </main>
+    </PageContainer>
   );
 }
 

@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +16,7 @@ import { complaintsApi } from "../api";
 
 export function ComplaintsClient() {
   const t = useTranslations("complaints");
+  const tErrors = useTranslations("errors");
   const query = useQuery({
     queryKey: queryKeys.complaints(),
     queryFn: () => complaintsApi.list(),
@@ -23,9 +26,13 @@ export function ComplaintsClient() {
     return <Skeleton className="h-32 w-full" />;
   }
 
+  if (query.isError) {
+    return <QueryError message={tErrors("generic")} onRetry={() => void query.refetch()} />;
+  }
+
   const items = query.data?.data ?? [];
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">{t("empty")}</p>;
+    return <EmptyState title={t("empty")} />;
   }
 
   return (

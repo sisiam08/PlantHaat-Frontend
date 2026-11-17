@@ -20,7 +20,7 @@ export async function Pagination({
   const nextQuery = { ...query, page: Math.min(meta.totalPages, meta.page + 1) };
 
   return (
-    <nav className="flex items-center justify-between gap-4 pt-2" aria-label="Pagination">
+    <nav className="flex items-center justify-between gap-4 pt-2" aria-label={t("paginationLabel")}>
       {meta.page > 1 ? (
         <Button asChild variant="outline">
           <Link href={productsHref(prevQuery)}>{t("prev")}</Link>

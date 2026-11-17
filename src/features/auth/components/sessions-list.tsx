@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,32 +56,21 @@ export function SessionsList() {
   }
 
   if (sessionsQuery.isError) {
-    return (
-      <div className="grid gap-3">
-        <p className="text-sm text-muted-foreground">{tErrors("generic")}</p>
-        <Button variant="outline" onClick={() => void sessionsQuery.refetch()}>
-          {tErrors("generic")}
-        </Button>
-      </div>
-    );
+    return <QueryError message={tErrors("generic")} onRetry={() => void sessionsQuery.refetch()} />;
   }
 
   const sessions = sessionsQuery.data ?? [];
 
   return (
     <div className="grid gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        </div>
+      <div className="flex justify-end">
         <Button variant="outline" onClick={() => void handleLogoutAll()}>
           {t("logoutAll")}
         </Button>
       </div>
 
       {sessions.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : (
         <div className="grid gap-3">
           {sessions.map((session) => (

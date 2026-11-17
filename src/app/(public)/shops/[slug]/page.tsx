@@ -1,10 +1,13 @@
-﻿import { Star } from "lucide-react";
+import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
@@ -31,14 +34,14 @@ export async function generateMetadata({
 
 function ShopSkeleton() {
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+    <PageContainer className="gap-8">
       <Skeleton className="h-56 w-full rounded-3xl" />
       <div data-product-grid className={PRODUCT_GRID_CLASS}>
         {Array.from({ length: PRODUCT_PAGE_SIZE.shop }).map((_, index) => (
           <Skeleton data-product-skeleton key={index} className="aspect-[4/5] w-full rounded-2xl" />
         ))}
       </div>
-    </main>
+    </PageContainer>
   );
 }
 
@@ -65,7 +68,7 @@ async function ShopContent({
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:py-12">
+    <PageContainer className="gap-8">
       <section className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
         {shop.bannerUrl ? (
           <div className="relative h-40 w-full overflow-hidden bg-muted/40 md:h-56">
@@ -94,7 +97,7 @@ async function ShopContent({
             ) : null}
           </div>
           <div className="min-w-0">
-            <h1 className="font-heading truncate text-2xl font-bold">{shop.name}</h1>
+            <PageHeader title={shop.name} />
             <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
               <Star aria-hidden className="size-3.5 fill-cta text-cta" />
               {Number(shop.ratingAvg).toFixed(1)} · {shop.ratingCount}
@@ -116,7 +119,7 @@ async function ShopContent({
       ) : null}
 
       <section className="grid gap-5">
-        <h2 className="font-heading text-xl font-semibold">{t("products")}</h2>
+        <SectionHeader title={t("products")} />
         {products.data.length === 0 ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-border/60 p-12 text-center text-sm text-muted-foreground">
             {t("noProducts")}
@@ -136,7 +139,7 @@ async function ShopContent({
           />
         )}
       </section>
-    </main>
+    </PageContainer>
   );
 }
 

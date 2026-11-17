@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageContainer } from "@/components/layout/page-container";
 import { OrderDetail } from "@/features/orders/components/order-detail";
 
 export const metadata: Metadata = {
@@ -14,8 +15,8 @@ export default async function OrderDetailPage({
 }) {
   const { id } = await params;
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 lg:py-12">
+    <PageContainer width="reading">
       <OrderDetail orderId={id} />
-    </main>
+    </PageContainer>
   );
 }

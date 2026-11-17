@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { SessionsList } from "@/features/auth/components/sessions-list";
 
 export const metadata: Metadata = {
@@ -7,10 +10,12 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function SessionsPage() {
+export default async function SessionsPage() {
+  const t = await getTranslations("auth.sessions");
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
+    <PageContainer width="form">
+      <PageHeader title={t("title")} description={t("subtitle")} />
       <SessionsList />
-    </div>
+    </PageContainer>
   );
 }

@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { QueryError } from "@/components/feedback/query-error";
+import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,22 +41,18 @@ export function ComplaintDetail({ id }: { id: string }) {
     return <Skeleton className="h-48 w-full" />;
   }
   if (query.isError || !query.data) {
-    return <p className="text-sm text-muted-foreground">{tErrors("generic")}</p>;
+    return <QueryError message={tErrors("generic")} onRetry={() => void query.refetch()} />;
   }
 
   const complaint = query.data;
 
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold">{t(`types.${complaint.type}`)}</h1>
-          <p className="text-sm text-muted-foreground">
-            {formatLatinDateTime(complaint.createdAt)}
-          </p>
-        </div>
-        <Badge>{t(`status.${complaint.status}`)}</Badge>
-      </div>
+      <PageHeader
+        title={t(`types.${complaint.type}`)}
+        description={formatLatinDateTime(complaint.createdAt)}
+        actions={<Badge>{t(`status.${complaint.status}`)}</Badge>}
+      />
 
       <Card>
         <CardContent className="grid gap-2 text-sm">

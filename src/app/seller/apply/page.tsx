@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { ApplyWizard } from "@/features/seller/components/apply-wizard";
 import { requireSession } from "@/server/session";
 
@@ -16,12 +18,9 @@ export default async function SellerApplyPage() {
   await requireSession();
   const t = await getTranslations("seller.apply");
   return (
-    <main className="mx-auto grid w-full max-w-3xl gap-6 px-4 py-8">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </div>
+    <PageContainer width="form">
+      <PageHeader title={t("title")} description={t("subtitle")} />
       <ApplyWizard />
-    </main>
+    </PageContainer>
   );
 }

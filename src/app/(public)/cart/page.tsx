@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-skeleton";
 import { CartClient } from "@/features/cart/components/cart-client";
 
@@ -21,9 +23,9 @@ export default function CartPage() {
 async function CartContent() {
   const t = await getTranslations("cart");
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 lg:py-12">
-      <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
+    <PageContainer>
+      <PageHeader title={t("title")} />
       <CartClient />
-    </main>
+    </PageContainer>
   );
 }

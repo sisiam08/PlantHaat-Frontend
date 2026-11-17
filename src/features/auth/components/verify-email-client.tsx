@@ -48,7 +48,7 @@ export function VerifyEmailClient() {
         <Alert variant="destructive">
           <AlertDescription>{t("verifyFailed")}</AlertDescription>
         </Alert>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" size="lg">
           <Link href="/login">{t("backToLogin")}</Link>
         </Button>
       </div>
@@ -60,7 +60,7 @@ export function VerifyEmailClient() {
       <Alert>
         <AlertDescription>{t("verifySuccess")}</AlertDescription>
       </Alert>
-      <Button asChild variant="cta">
+      <Button asChild variant="cta" size="lg">
         <Link href="/">{t("loginTitle")}</Link>
       </Button>
     </div>

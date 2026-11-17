@@ -13,7 +13,9 @@
   "error": "Something went wrong",
   "sectionLoadFailed": "Couldn't load — try again",
   "quantityShort": "Qty {count}",
-  "each": "each"
+  "each": "each",
+  "backHome": "Back to home",
+  "errorBody": "An unexpected error occurred. Please try again."
  },
  "nav": {
   "home": "Home",
@@ -205,6 +207,7 @@
   "emptyHint": "Try changing the filters.",
   "prev": "Previous",
   "next": "Next",
+  "paginationLabel": "Pagination",
   "filters": "Filters",
   "loadMore": "Load more",
   "listEnd": "You've reached the end of the list",

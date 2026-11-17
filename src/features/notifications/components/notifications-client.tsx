@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,9 +103,7 @@ export function NotificationsClient() {
       </div>
 
       {list.isLoading ? <Skeleton className="h-32 w-full" /> : null}
-      {list.data?.data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
-      ) : null}
+      {list.data?.data.length === 0 ? <EmptyState title={t("empty")} /> : null}
 
       <div className="grid gap-2">
         {list.data?.data.map((item) => {

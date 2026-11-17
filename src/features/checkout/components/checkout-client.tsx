@@ -204,7 +204,6 @@ export function CheckoutClient() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       <div className="grid content-start gap-6 self-start">
-        <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
         <section data-checkout-section className="grid content-start gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{t("address")}</h2>

@@ -7,6 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { QueryError } from "@/components/feedback/query-error";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { Price } from "@/components/product/price";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -185,24 +187,24 @@ export function PaymentPage({ orderId }: { orderId: string }) {
 
   if (payment.isLoading) {
     return (
-      <div className="mx-auto grid w-full max-w-3xl gap-4 px-4 py-8">
+      <PageContainer width="form" className="gap-4">
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="h-40 w-full rounded-2xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
-      </div>
+      </PageContainer>
     );
   }
 
   if (payment.isError || dataless) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+      <PageContainer width="form">
         <QueryError message={t("loadError")} onRetry={() => void payment.refetch()} />
         <div className="mt-4 text-center">
           <Button asChild variant="outline">
             <Link href="/orders">{t("backToOrders")}</Link>
           </Button>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -216,14 +218,14 @@ export function PaymentPage({ orderId }: { orderId: string }) {
         : "secondary";
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-4 px-4 py-8">
-      <header className="grid gap-1">
+    <PageContainer width="form" className="gap-4">
+      <div className="grid gap-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="font-heading text-2xl font-bold">{t("title")}</h1>
+          <PageHeader title={t("title")} />
           <Badge variant={statusTone}>{t(`status.${status}`)}</Badge>
         </div>
         <p className="text-sm text-muted-foreground">{t("subtitle", { number: info.orderNumber })}</p>
-      </header>
+      </div>
 
       <Card className="rounded-2xl">
         <CardContent className="grid gap-2">
@@ -478,7 +480,7 @@ export function PaymentPage({ orderId }: { orderId: string }) {
           <Link href="/orders">{t("backToOrders")}</Link>
         </Button>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

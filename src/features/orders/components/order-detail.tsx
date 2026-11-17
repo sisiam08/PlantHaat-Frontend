@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
+import { QueryError } from "@/components/feedback/query-error";
+import { PageHeader } from "@/components/layout/page-header";
 import { Price } from "@/components/product/price";
 import { ProductLine } from "@/components/product/quantity-line";
 
@@ -65,22 +67,18 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     return <Skeleton className="h-52 w-full rounded-2xl" />;
   }
   if (order.isError || !order.data) {
-    return <p className="text-sm text-muted-foreground">{tErrors("generic")}</p>;
+    return <QueryError message={tErrors("generic")} onRetry={() => void order.refetch()} />;
   }
 
   const detail = order.data;
 
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold">{detail.orderNumber}</h1>
-          <p className="text-sm text-muted-foreground">
-            {formatDateTime(detail.placedAt, locale)} · {detail.paymentMethod}
-          </p>
-        </div>
-        <Badge>{t(`status.${detail.overallStatus}`)}</Badge>
-      </div>
+      <PageHeader
+        title={detail.orderNumber}
+        description={`${formatDateTime(detail.placedAt, locale)} · ${detail.paymentMethod}`}
+        actions={<Badge>{t(`status.${detail.overallStatus}`)}</Badge>}
+      />
 
       <Card className="rounded-2xl">
         <CardContent className="grid gap-1 text-sm">

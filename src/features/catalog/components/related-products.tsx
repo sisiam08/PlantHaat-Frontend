@@ -1,5 +1,6 @@
-﻿import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
+import { SectionHeader } from "@/components/layout/section-header";
 import { ProductRail } from "@/features/catalog/components/product-card";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { getRelated } from "@/features/catalog/server";
@@ -32,7 +33,7 @@ export async function RelatedProducts({
 
   return (
     <section className="grid grid-cols-1 gap-5">
-      <h2 className="font-heading text-2xl font-semibold">{t("relatedTitle")}</h2>
+      <SectionHeader title={t("relatedTitle")} />
       <ProductRail
         label={t("relatedTitle")}
         products={cards}

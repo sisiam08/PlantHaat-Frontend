@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 import { PageLoading } from "@/components/layout/page-skeleton";
+import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { requireSession } from "@/server/session";
@@ -27,7 +28,8 @@ async function NotAllowedContent() {
   const t = await getTranslations("errors");
   const nav = await getTranslations("nav");
   return (
-    <main className="mx-auto grid w-full max-w-xl place-items-center px-4 py-16">
+    <div className="mx-auto grid w-full max-w-xl place-items-center px-4 py-16">
+      <PageHeader title={t("FORBIDDEN_ROLE")} className="sr-only" />
       <EmptyState
         icon={ShieldOff}
         title={t("FORBIDDEN_ROLE")}
@@ -37,6 +39,6 @@ async function NotAllowedContent() {
           </Button>
         }
       />
-    </main>
+    </div>
   );
 }

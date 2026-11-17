@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ArrowUp, Search, SlidersHorizontal, X } from "lucide-react";
@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -751,9 +753,15 @@ export function ProductsBrowser({
   const showInitialError = listQuery.isError && products.length === 0;
   // Avoid a narrow flash of "0 results" before the first fetch resolves.
   const isFirstLoad = listQuery.isLoading && products.length === 0;
+  const resultsLabel =
+    total !== undefined
+      ? t("results", { count: total })
+      : isFirstLoad
+        ? t("loadingLabel")
+        : undefined;
 
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[280px_1fr] lg:py-12">
+    <PageContainer className="gap-8 lg:grid-cols-[280px_1fr]">
       <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:block lg:self-start">
         <div className="grid max-h-[calc(100dvh-7rem)] gap-4 overflow-y-auto rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
           <p className="flex items-center gap-2 text-sm font-semibold">
@@ -805,21 +813,16 @@ export function ProductsBrowser({
             <SortSelect variant="compact" />
           </div>
 
-          <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-4">
-            <div className="grid gap-1">
-              <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
-              <p className="text-sm text-muted-foreground">
-                {total !== undefined
-                  ? t("results", { count: total })
-                  : isFirstLoad
-                    ? t("loadingLabel")
-                    : null}
-              </p>
-            </div>
-            <div className="hidden lg:block">
-              <SortSelect variant="full" />
-            </div>
-          </div>
+          <PageHeader
+            title={t("title")}
+            description={resultsLabel}
+            actions={
+              <div className="hidden lg:block">
+                <SortSelect variant="full" />
+              </div>
+            }
+            className="border-b border-border/60 pb-4"
+          />
 
           <ActiveFilterChips categories={categories} />
         </div>
@@ -919,6 +922,6 @@ export function ProductsBrowser({
           <ArrowUp aria-hidden />
         </button>
       ) : null}
-    </main>
+    </PageContainer>
   );
 }
