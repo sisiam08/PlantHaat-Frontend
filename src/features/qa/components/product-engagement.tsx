@@ -223,7 +223,7 @@ function ReviewCard({ review }: { review: ReviewView }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const images = review.images ?? [];
   return (
-    <article className="grid gap-2 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+    <article className="grid gap-2 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
           <AuthorName
@@ -559,7 +559,7 @@ function QuestionCard({ question, onChanged }: { question: QaQuestion; onChanged
   return (
     <article
       id={`question-${question.id}`}
-      className="grid gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
+      className="grid gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">

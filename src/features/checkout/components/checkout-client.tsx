@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,6 +13,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { QueryError } from "@/components/feedback/query-error";
 import {
   Dialog,
@@ -55,6 +57,7 @@ interface PriceChangeDetails {
 
 export function CheckoutClient() {
   const t = useTranslations("checkout");
+  const tCart = useTranslations("cart");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const locale = useLocale();
@@ -181,6 +184,21 @@ export function CheckoutClient() {
     );
   }
 
+  if (cart.data && cart.data.shops.length === 0) {
+    return (
+      <EmptyState
+        icon={ShoppingBag}
+        title={tCart("empty")}
+        description={tCart("emptyHint")}
+        action={
+          <Button asChild variant="cta">
+            <Link href="/products">{tCart("continueShopping")}</Link>
+          </Button>
+        }
+      />
+    );
+  }
+
   const confirmPriceChange = () => {
     if (!priceChange) return;
     expectedGrandTotal.current = priceChange.grandTotal;
@@ -256,7 +274,7 @@ export function CheckoutClient() {
                 </label>
                 <Link
                   href="/account/addresses"
-                  className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
                 >
                   {t("edit")}
                 </Link>

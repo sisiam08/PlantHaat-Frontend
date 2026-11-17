@@ -30,6 +30,7 @@ const FLOW = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED"];
 
 export function OrderDetail({ orderId }: { orderId: string }) {
   const t = useTranslations("orders");
+  const tCheckout = useTranslations("checkout");
   const tErrors = useTranslations("errors");
   const locale = useLocale();
   const queryClient = useQueryClient();
@@ -76,7 +77,9 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     <div className="grid gap-5">
       <PageHeader
         title={detail.orderNumber}
-        description={`${formatDateTime(detail.placedAt, locale)} · ${detail.paymentMethod}`}
+        description={`${formatDateTime(detail.placedAt, locale)} · ${
+          detail.paymentMethod === "ADVANCE" ? tCheckout("advance") : tCheckout("cod")
+        }`}
         actions={<Badge>{t(`status.${detail.overallStatus}`)}</Badge>}
       />
 
@@ -197,7 +200,7 @@ function OrderPaymentPanel({ orderId }: { orderId: string }) {
     <Card className="rounded-2xl" data-order-payment>
       <CardContent className="grid gap-3 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">{t("paymentStatus")}</h2>
+          <h2 className="text-lg font-semibold">{t("paymentStatus")}</h2>
           <PaymentBadge status={info.status} />
         </div>
         <div className="grid gap-1">
@@ -306,7 +309,7 @@ function ShopOrderCard({
         {shopOrder.kind === "REPLACEMENT" && shopOrder.parent ? (
           <Link
             href={`/orders/${shopOrder.parent.orderId}`}
-            className="text-xs text-primary underline-offset-4 hover:underline"
+            className="inline-flex min-h-11 items-center text-xs text-primary underline-offset-4 hover:underline"
           >
             {t("replacementFor", { number: shopOrder.parent.shopOrderNumber })}
           </Link>
@@ -317,7 +320,7 @@ function ShopOrderCard({
               <Link
                 key={replacement.id}
                 href={`/orders/${replacement.orderId}`}
-                className="text-primary underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline"
               >
                 {t("replacementCreated", { number: replacement.shopOrderNumber })}
               </Link>

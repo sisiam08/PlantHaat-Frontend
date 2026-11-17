@@ -122,7 +122,7 @@ export function CartSummaryBox({
     <>
       <Card
         ref={cardRef}
-        className="grid h-fit w-full self-start rounded-2xl border border-border/60 py-0 shadow-sm lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:max-h-[calc(100vh-var(--header-h)-2rem)] lg:overflow-y-auto"
+        className="grid h-fit w-full self-start rounded-xl border border-border/60 py-0 shadow-[var(--shadow-soft)] lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:max-h-[calc(100vh-var(--header-h)-2rem)] lg:overflow-y-auto"
       >
         <CardContent className="grid gap-4 p-5">
           <div className="flex items-baseline justify-between gap-2">

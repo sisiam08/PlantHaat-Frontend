@@ -128,7 +128,12 @@ export function ProductGallery({
 
       {/* Mobile: swipeable main image + thumbnail strip + dots */}
       <div className="md:hidden">
-        <Carousel setApi={setMobileApi} opts={{ loop: false }} className="overflow-hidden">
+        <Carousel
+          setApi={setMobileApi}
+          opts={{ loop: false }}
+          aria-label={label}
+          className="overflow-hidden"
+        >
           <CarouselContent className="ml-0">
             {images.map((image, index) => (
               <CarouselItem key={`${image.url}-${index}`} className="pl-0">

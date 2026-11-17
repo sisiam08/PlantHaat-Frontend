@@ -491,8 +491,9 @@ function SortSelect({ variant }: { variant: "full" | "compact" }) {
     >
       <SelectTrigger
         aria-label={t("sort")}
+        size="lg"
         className={cn(
-          "h-11 rounded-full border-input px-4 text-sm",
+          "rounded-full border-input px-4 text-sm",
           variant === "full" ? "min-w-[11rem]" : "w-[9.75rem]",
         )}
       >
@@ -763,7 +764,7 @@ export function ProductsBrowser({
   return (
     <PageContainer className="gap-8 lg:grid-cols-[280px_1fr]">
       <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:block lg:self-start">
-        <div className="grid max-h-[calc(100dvh-7rem)] gap-4 overflow-y-auto rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+        <div className="grid max-h-[calc(100dvh-7rem)] gap-4 overflow-y-auto rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]">
           <p className="flex items-center gap-2 text-sm font-semibold">
             <SlidersHorizontal aria-hidden className="size-4" />
             {t("filters")}

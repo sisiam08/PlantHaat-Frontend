@@ -120,7 +120,10 @@ export function NotificationsClient() {
                     <Link
                       href={href}
                       onClick={() => open(item)}
-                      className={cn("text-sm hover:underline", isUnread && "font-semibold")}
+                      className={cn(
+                        "inline-flex min-h-11 items-center text-sm hover:underline",
+                        isUnread && "font-semibold",
+                      )}
                     >
                       {title}
                     </Link>

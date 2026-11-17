@@ -11,6 +11,9 @@ export const HOME_RAIL_EXCLUDED_CATEGORY_SLUGS = new Set([
 
 export const HOME_RAIL_LIMIT = 8;
 
+/** Below this many unique in-stock plants a rail is hidden instead of padded. */
+export const HOME_RAIL_MIN = 4;
+
 export interface HomeRailCandidate {
   id: string;
   inStock: boolean;

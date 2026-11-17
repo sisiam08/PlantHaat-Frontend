@@ -172,7 +172,7 @@ export function VariantPicker({
   };
 
   return (
-    <div className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+    <div className="grid gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]">
       {source.length > 1 ? (
         <div role="radiogroup" aria-label={t("variantLabel")} className="flex flex-wrap gap-2">
           {source.map((variant, index) => {

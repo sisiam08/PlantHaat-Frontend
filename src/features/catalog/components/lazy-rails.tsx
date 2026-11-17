@@ -15,6 +15,7 @@ import { fetchListPage } from "@/features/catalog/feed";
 import {
   curateHomeRailProducts,
   HOME_RAIL_LIMIT,
+  HOME_RAIL_MIN,
 } from "@/features/catalog/home-rail-products";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { productsHref, type ProductQuery } from "@/features/catalog/query";
@@ -47,7 +48,7 @@ function LazyRailBlock({
   const tp = useTranslations("product");
   const locale = useLocale();
 
-  if (!loading && !isError && products.length === 0) return null;
+  if (!loading && !isError && products.length < HOME_RAIL_MIN) return null;
 
   return (
     <HomeSection labelledBy={id}>

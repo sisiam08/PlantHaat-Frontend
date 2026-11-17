@@ -18,9 +18,11 @@ export default async function SellerApplyPage() {
   await requireSession();
   const t = await getTranslations("seller.apply");
   return (
-    <PageContainer width="form">
-      <PageHeader title={t("title")} description={t("subtitle")} />
-      <ApplyWizard />
-    </PageContainer>
+    <main id="main" className="flex-1">
+      <PageContainer width="form">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <ApplyWizard />
+      </PageContainer>
+    </main>
   );
 }

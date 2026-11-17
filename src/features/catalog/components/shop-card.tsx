@@ -15,7 +15,7 @@ export interface ShopCardData {
 
 export function ShopCard({ shop }: { shop: ShopCardData }) {
   return (
-    <div className="group/card overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <div className="group/card overflow-hidden rounded-xl border border-border/60 bg-card text-card-foreground shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link href={`/shops/${shop.slug}`} className="flex items-center gap-4 p-4">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
           {shop.logoUrl ? (

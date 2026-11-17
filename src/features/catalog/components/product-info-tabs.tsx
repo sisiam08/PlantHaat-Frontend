@@ -30,7 +30,7 @@ function CareGrid({ items }: { items: CareItem[] }) {
         return (
           <div
             key={item.key}
-            className="grid gap-1 rounded-2xl border border-border/60 bg-card p-3 shadow-sm"
+            className="grid gap-1 rounded-xl border border-border/60 bg-card p-3 shadow-[var(--shadow-soft)]"
           >
             <Icon aria-hidden className="size-4 text-primary" />
             <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -48,7 +48,7 @@ function CarePanel({ items, instructions }: { items: CareItem[]; instructions?: 
     <div className="grid gap-3">
       <CareGrid items={items} />
       {instructions ? (
-        <div className="grid gap-1.5 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+        <div className="grid gap-1.5 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]">
           <p className="text-sm font-medium">{t("careInstructions")}</p>
           <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
             {instructions}

@@ -188,7 +188,7 @@ export function PaymentPage({ orderId }: { orderId: string }) {
   if (payment.isLoading) {
     return (
       <PageContainer width="form" className="gap-4">
-        <Skeleton className="h-10 w-2/3" />
+        <PageHeader title={t("title")} />
         <Skeleton className="h-40 w-full rounded-2xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
       </PageContainer>
@@ -197,9 +197,10 @@ export function PaymentPage({ orderId }: { orderId: string }) {
 
   if (payment.isError || dataless) {
     return (
-      <PageContainer width="form">
+      <PageContainer width="form" className="gap-4">
+        <PageHeader title={t("title")} />
         <QueryError message={t("loadError")} onRetry={() => void payment.refetch()} />
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <Button asChild variant="outline">
             <Link href="/orders">{t("backToOrders")}</Link>
           </Button>
@@ -460,7 +461,7 @@ export function PaymentPage({ orderId }: { orderId: string }) {
               <MessageCircle aria-hidden className="size-4" />
               <span>{t("helpTitle")}</span>
               <a
-                className="font-medium text-primary underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 items-center font-medium text-primary underline-offset-4 hover:underline"
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noreferrer"

@@ -62,7 +62,7 @@ function CollapsibleText({ text }: { text: string }) {
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
+          className="inline-flex min-h-11 w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           {expanded ? t("readLess") : t("readMore")}
           <ChevronDown
@@ -90,7 +90,7 @@ function SectionCard({
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className="scroll-mt-28 rounded-3xl border border-border/60 bg-card p-5 shadow-sm sm:p-6"
+      className="scroll-mt-28 rounded-2xl border border-border/60 bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6"
     >
       <div className="mb-4 flex items-center gap-2.5">
         <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -227,7 +227,10 @@ export function ProductInfoSections({
           {t("secure")}
         </Badge>
         <span>{t("secureNote")}</span>
-        <Link href="/policies/delivery" className="font-medium text-primary hover:underline">
+        <Link
+          href="/policies/delivery"
+          className="inline-flex min-h-11 items-center font-medium text-primary hover:underline"
+        >
           {t("policy")}
         </Link>
       </div>

@@ -68,7 +68,7 @@ export function DeliveryEstimator({
   };
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+    <div className="grid gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]">
       <div className="flex items-center gap-2">
         <Truck aria-hidden className="size-5 text-primary" />
         <p className="font-medium">{t("deliveryToYou")}</p>
@@ -140,7 +140,10 @@ export function DeliveryEstimator({
         <li className="inline-flex items-center gap-1.5">
           <Info aria-hidden className="size-3.5 text-primary" />
           {t("deliveredBySeller")} ·{" "}
-          <Link href="/policies/delivery" className="font-medium text-primary hover:underline">
+          <Link
+          href="/policies/delivery"
+          className="inline-flex min-h-11 items-center font-medium text-primary hover:underline"
+        >
             {t("deliveryPolicy")}
           </Link>
         </li>

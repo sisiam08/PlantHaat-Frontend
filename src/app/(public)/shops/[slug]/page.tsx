@@ -69,7 +69,7 @@ async function ShopContent({
 
   return (
     <PageContainer className="gap-8">
-      <section className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
+      <section className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-soft)]">
         {shop.bannerUrl ? (
           <div className="relative h-40 w-full overflow-hidden bg-muted/40 md:h-56">
             <Image

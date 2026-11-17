@@ -56,11 +56,12 @@ export function CheckoutSummary({
         data-checkout-summary
         className={cn(
           "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl [--card-spacing:0px]",
-          "lg:max-h-[calc(100vh-var(--header-h)-2rem)]",
+          "lg:max-h-[calc(100dvh-var(--header-h)-7rem)]",
         )}
       >
         <div
           data-summary-scroll
+          tabIndex={0}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
         >
           <h2 data-cart-summary className="font-semibold">

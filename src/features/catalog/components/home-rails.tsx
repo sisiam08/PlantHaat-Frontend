@@ -2,12 +2,12 @@
 
 import { HomeSection } from "@/components/layout/home-section";
 import { SectionHeader } from "@/components/layout/section-header";
-import { SectionFallback } from "@/components/section-fallback";
 import { LazyRails } from "@/features/catalog/components/lazy-rails";
 import { ProductRail } from "@/features/catalog/components/product-card";
 import {
   curateHomeRailProducts,
   HOME_RAIL_LIMIT,
+  HOME_RAIL_MIN,
 } from "@/features/catalog/home-rail-products";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { productsHref, type ProductQuery } from "@/features/catalog/query";
@@ -57,18 +57,14 @@ export async function HomeRails() {
     return { ...rail, products, title: t(rail.key) };
   });
 
-  if (rails.every((rail) => rail.products.length === 0)) {
-    return (
-      <HomeSection ariaLabel={t("trending")}>
-        <SectionFallback />
-      </HomeSection>
-    );
+  if (rails.every((rail) => rail.products.length < HOME_RAIL_MIN)) {
+    return null;
   }
 
   return (
     <>
       {rails.map((rail) => {
-        if (rail.products.length === 0) return null;
+        if (rail.products.length < HOME_RAIL_MIN) return null;
         return (
           <HomeSection key={rail.key} labelledBy={`rail-${rail.key}`}>
             <div className="grid gap-4">

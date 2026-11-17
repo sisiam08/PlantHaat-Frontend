@@ -32,10 +32,10 @@ export function UserMenu() {
     return (
       <>
         <div className="hidden items-center gap-1.5 md:flex">
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="ghost" size="lg">
             <Link href="/login">{t("login")}</Link>
           </Button>
-          <Button asChild size="sm">
+          <Button asChild size="lg">
             <Link href="/register">{t("register")}</Link>
           </Button>
         </div>
