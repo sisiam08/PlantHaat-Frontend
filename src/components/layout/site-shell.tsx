@@ -16,9 +16,9 @@ export function SiteShell({
     <div className="flex min-h-full flex-1 flex-col">
       <SiteHeader />
       {banner}
-      <div id="main" className="flex flex-1 flex-col pb-24 md:pb-0">
+      <main id="main" className="flex flex-1 flex-col pb-24 md:pb-0">
         {children}
-      </div>
+      </main>
       <SiteFooter />
       <MobileBottomNav />
       <CardActionsLayer />

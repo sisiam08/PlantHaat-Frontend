@@ -37,7 +37,7 @@ export function SiteHeader() {
       >
         {t("skipToContent")}
       </a>
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-3 sm:px-4">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
         <Logo />
         <SearchBar className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">

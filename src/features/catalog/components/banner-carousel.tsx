@@ -61,9 +61,9 @@ function BannerSlide({ banner, priority }: { banner: HomeBanner; priority: boole
       <div className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/25 to-transparent md:bg-linear-to-r md:from-ink/70 md:via-ink/20 md:to-transparent" />
       <div className="absolute inset-0 flex flex-col justify-end gap-4 p-6 md:justify-center md:p-14">
         {banner.headline ? (
-          <h2 className="font-heading max-w-xl text-2xl font-bold text-cream drop-shadow-sm md:text-4xl lg:text-5xl">
+          <p className="font-heading max-w-xl text-2xl font-bold text-cream drop-shadow-sm md:text-4xl lg:text-5xl">
             {pick(banner.headline)}
-          </h2>
+          </p>
         ) : null}
         {banner.cta ? (
           <Link
@@ -134,7 +134,7 @@ export function BannerCarousel() {
       setApi={setApi}
       opts={{ loop: true, align: "start" }}
       plugins={reduced ? [] : [autoplay]}
-      aria-label={t("bannerLabel")}
+      aria-label={t("bannerCarouselLabel")}
       className="overflow-hidden rounded-3xl border border-border/60"
     >
       <CarouselContent className="ml-0">

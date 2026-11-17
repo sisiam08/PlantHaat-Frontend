@@ -1,4 +1,4 @@
-﻿import { Mail, MessageCircle, Phone } from "lucide-react";
+import { Mail, MessageCircle, Phone } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -21,7 +21,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
     <li>
       <Link
         href={href}
-        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {label}
       </Link>
@@ -75,7 +75,7 @@ export async function SiteFooter() {
                 <Phone aria-hidden className="size-4 text-primary" />
                 <a
                   href={`tel:${phone}`}
-                  className="break-all transition-colors hover:text-foreground"
+                  className="inline-flex min-h-11 items-center break-all transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   {phone}
                 </a>
@@ -86,7 +86,7 @@ export async function SiteFooter() {
                 <Mail aria-hidden className="size-4 text-primary" />
                 <a
                   href={`mailto:${email}`}
-                  className="break-all transition-colors hover:text-foreground"
+                  className="inline-flex min-h-11 items-center break-all transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   {email}
                 </a>
@@ -99,7 +99,7 @@ export async function SiteFooter() {
                   href={whatsappHref(whatsapp)}
                   target="_blank"
                   rel="noreferrer"
-                  className="break-all transition-colors hover:text-foreground"
+                  className="inline-flex min-h-11 items-center break-all transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   {t("whatsapp")} · {whatsapp}
                 </a>

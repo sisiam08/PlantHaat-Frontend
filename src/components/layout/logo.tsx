@@ -17,11 +17,11 @@ export function Logo({
     <Link
       href="/"
       aria-label="PlantHaat"
-      className={cn("group inline-flex items-center gap-2 rounded-full", className)}
+      className={cn("group inline-flex min-h-11 items-center gap-2 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none", className)}
     >
       <span
         className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-2xl shadow-sm transition-transform duration-200 group-hover:-rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0",
+          "grid size-9 shrink-0 place-items-center rounded-2xl shadow-[var(--shadow-soft)] transition-transform duration-200 group-hover:-rotate-6 motion-reduce:transition-none motion-reduce:group-hover:rotate-0",
           tone === "sidebar"
             ? "bg-sidebar-primary text-sidebar-primary-foreground"
             : "bg-primary text-primary-foreground",

@@ -1,46 +1,44 @@
-﻿import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+﻿import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
+import { HomeSection } from "@/components/layout/home-section";
+import { SectionHeader } from "@/components/layout/section-header";
 import { SectionFallback } from "@/components/section-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryBento } from "@/features/catalog/components/category-bento";
 import { Hero } from "@/features/catalog/components/hero";
 import { HomeRails } from "@/features/catalog/components/home-rails";
-import { LazyRails } from "@/features/catalog/components/lazy-rails";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
-import { ProductRailSkeleton } from "@/features/catalog/components/product-card";
+import {
+  ProductCardSkeleton,
+  ProductRailSkeleton,
+} from "@/features/catalog/components/product-card";
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { TrustStrip } from "@/features/catalog/components/trust-strip";
+import { getPlaceholderCategoryImageUrls } from "@/features/catalog/category-image.server";
 import { getHomeFeed, getCategories } from "@/features/catalog/server";
 
 const FEED_LIMIT = 12;
 
-function RailSkeleton() {
+function RailSectionSkeleton() {
   return (
-    <section className="grid gap-4">
-      <Skeleton className="h-8 w-40" />
-      <ProductRailSkeleton count={8} />
-    </section>
+    <HomeSection>
+      <div className="grid gap-4" aria-hidden>
+        <Skeleton className="h-9 w-40 md:h-10" />
+        <ProductRailSkeleton count={8} />
+      </div>
+    </HomeSection>
   );
 }
 
 function FeedSkeleton() {
   return (
-    <section className="grid gap-5">
-      <Skeleton className="h-8 w-32" />
-      <div data-product-grid className={PRODUCT_GRID_CLASS}>
-        {Array.from({ length: PRODUCT_PAGE_SIZE.feed }).map((_, index) => (
-          <div key={index} className="grid gap-2">
-            <Skeleton className="aspect-4/5 w-full rounded-2xl" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </div>
-        ))}
-      </div>
-    </section>
+    <div data-product-grid className={PRODUCT_GRID_CLASS} aria-hidden>
+      {Array.from({ length: PRODUCT_PAGE_SIZE.feed }).map((_, index) => (
+        <ProductCardSkeleton key={index} />
+      ))}
+    </div>
   );
 }
 
@@ -56,15 +54,40 @@ async function HomeFeedSection() {
 
 function HomeSkeleton() {
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
-      <Skeleton className="aspect-4/3 w-full rounded-[2rem] md:aspect-[16/7]" />
-      <Skeleton className="h-16 w-full rounded-2xl" />
-      <Skeleton className="h-24 w-full rounded-2xl" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, index) => (
-          <Skeleton key={index} className="aspect-square w-full rounded-2xl" />
-        ))}
+    <div aria-hidden>
+      <div className="mx-auto w-full max-w-7xl px-4">
+        <Skeleton className="aspect-4/3 w-full rounded-[2rem] md:aspect-[16/7]" />
       </div>
+      <HomeSection>
+        <Skeleton className="h-20 w-full rounded-2xl" />
+      </HomeSection>
+      <HomeSection>
+        <div className="grid gap-4">
+          <Skeleton className="h-9 w-48 md:h-10" />
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <Skeleton key={index} className="aspect-square w-full rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </HomeSection>
+      <RailSectionSkeleton />
+      <RailSectionSkeleton />
+      <RailSectionSkeleton />
+      <RailSectionSkeleton />
+      <RailSectionSkeleton />
+      <HomeSection>
+        <div className="grid gap-4">
+          <Skeleton className="h-9 w-40 md:h-10" />
+          <Skeleton className="aspect-4/3 w-full rounded-3xl md:aspect-3/1" />
+        </div>
+      </HomeSection>
+      <HomeSection className="pb-8 md:pb-12">
+        <div className="grid gap-4">
+          <Skeleton className="h-9 w-32 md:h-10" />
+          <FeedSkeleton />
+        </div>
+      </HomeSection>
     </div>
   );
 }
@@ -86,53 +109,65 @@ async function HomeContent() {
     categories = null;
   }
   const safeCategories = categories ?? [];
+  const placeholderImageUrls = await getPlaceholderCategoryImageUrls(safeCategories);
 
   return (
     <>
-      <Hero categories={safeCategories} />
-      <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-6 md:gap-12 md:py-10">
+      <Hero categories={safeCategories} placeholderImageUrls={placeholderImageUrls} />
+
+      <HomeSection ariaLabel={th("trustLabel")}>
         <TrustStrip />
+      </HomeSection>
 
-        <section aria-labelledby="home-categories" className="grid gap-5">
-          <div className="flex items-end justify-between gap-4">
-            <h2 id="home-categories" className="font-heading text-2xl font-semibold">
-              {th("shopByCategory")}
-            </h2>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-            >
-              {th("browseAll")} <ArrowRight aria-hidden className="size-3.5" />
-            </Link>
-          </div>
-          {categories ? <CategoryBento categories={categories} /> : <SectionFallback />}
-        </section>
+      <HomeSection labelledBy="home-categories">
+        <div className="grid gap-4">
+          <SectionHeader
+            id="home-categories"
+            title={th("shopByCategory")}
+            action={{ href: "/products", label: th("browseAllProducts") }}
+          />
+          {categories ? (
+            <CategoryBento
+              categories={categories}
+              placeholderImageUrls={placeholderImageUrls}
+            />
+          ) : (
+            <SectionFallback />
+          )}
+        </div>
+      </HomeSection>
 
-        <Suspense
-          fallback={
-            <div className="grid gap-10">
-              <RailSkeleton />
-              <RailSkeleton />
-              <RailSkeleton />
-            </div>
-          }
-        >
-          <HomeRails />
-        </Suspense>
+      <Suspense
+        fallback={
+          <>
+            <RailSectionSkeleton />
+            <RailSectionSkeleton />
+            <RailSectionSkeleton />
+          </>
+        }
+      >
+        <HomeRails />
+      </Suspense>
 
-        <LazyRails />
-
-        <section aria-labelledby="home-offers" className="grid gap-4">
-          <h2 id="home-offers" className="font-heading text-2xl font-semibold md:text-3xl">
-            {th("offers")}
-          </h2>
+      <HomeSection labelledBy="home-highlights">
+        <div className="grid gap-4">
+          <SectionHeader id="home-highlights" title={th("bannerLabel")} />
           <BannerCarousel />
-        </section>
+        </div>
+      </HomeSection>
 
-        <Suspense fallback={<FeedSkeleton />}>
-          <HomeFeedSection />
-        </Suspense>
-      </div>
+      <HomeSection labelledBy="home-all-plants" className="pb-8 md:pb-12">
+        <div className="grid gap-4">
+          <SectionHeader
+            id="home-all-plants"
+            title={th("allProducts")}
+            subtitle={th("allProductsSubtitle")}
+          />
+          <Suspense fallback={<FeedSkeleton />}>
+            <HomeFeedSection />
+          </Suspense>
+        </div>
+      </HomeSection>
     </>
   );
 }

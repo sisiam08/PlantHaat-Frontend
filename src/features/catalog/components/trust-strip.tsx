@@ -26,10 +26,7 @@ export async function TrustStrip() {
   ];
 
   return (
-    <section
-      aria-label={t("trustVerified")}
-      className="rounded-2xl border border-border/60 bg-secondary/50 px-4 py-3"
-    >
+    <div className="rounded-2xl border border-border/60 bg-secondary/50 px-4 py-3">
       <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-4 sm:text-sm">
         {items.map((item) => {
           const Icon = item.icon;
@@ -41,7 +38,7 @@ export async function TrustStrip() {
           );
         })}
       </ul>
-      <ol className="mt-2 grid grid-cols-3 items-center gap-2 border-t border-border/60 pt-2 text-center text-[0.68rem] leading-snug font-medium text-secondary-foreground sm:text-xs">
+      <ol className="mt-2 grid grid-cols-3 items-center gap-2 border-t border-border/60 pt-2 text-center text-xs leading-snug font-medium text-secondary-foreground">
         {steps.map((step) => (
           <li key={step.label} className="flex items-center justify-center gap-1.5">
             <step.icon aria-hidden className="size-3.5 shrink-0 text-primary" />
@@ -49,7 +46,7 @@ export async function TrustStrip() {
           </li>
         ))}
       </ol>
-    </section>
+    </div>
   );
 }
 

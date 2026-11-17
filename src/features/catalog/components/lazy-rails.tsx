@@ -1,88 +1,93 @@
-﻿"use client";
+"use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ProductRail } from "@/features/catalog/components/product-card";
+import { HomeSection } from "@/components/layout/home-section";
+import { SectionHeader } from "@/components/layout/section-header";
+import {
+  ProductRail,
+  ProductRailSkeleton,
+} from "@/features/catalog/components/product-card";
 import { fetchListPage } from "@/features/catalog/feed";
+import {
+  curateHomeRailProducts,
+  HOME_RAIL_LIMIT,
+} from "@/features/catalog/home-rail-products";
 import { toProductCardData } from "@/features/catalog/mappers";
 import { productsHref, type ProductQuery } from "@/features/catalog/query";
 import { queryKeys } from "@/lib/api/query-keys";
 
-const LIMIT = 8;
+const LIMIT = 24;
 
-const LAZY_RAILS: { key: "lowLight" | "petSafe"; query: ProductQuery }[] = [
-  { key: "lowLight", query: { light: "LOW_LIGHT" } },
-  { key: "petSafe", query: { isPetSafe: true } },
-];
+const LOW_LIGHT_QUERY: ProductQuery = { light: "LOW_LIGHT", inStock: true };
+const PET_SAFE_QUERY: ProductQuery = { isPetSafe: true, inStock: true };
 
-function LazyRail({ railKey, query }: { railKey: "lowLight" | "petSafe"; query: ProductQuery }) {
+function LazyRailBlock({
+  id,
+  title,
+  query,
+  products,
+  loading,
+  isError,
+  retry,
+}: {
+  id: string;
+  title: string;
+  query: ProductQuery;
+  products: ReturnType<typeof toProductCardData>[];
+  loading: boolean;
+  isError: boolean;
+  retry: () => void;
+}) {
   const t = useTranslations("home");
-  const tCatalog = useTranslations("catalog");
+  const tc = useTranslations("catalog");
   const tp = useTranslations("product");
   const locale = useLocale();
 
-  const list = useQuery({
-    queryKey: queryKeys.catalog.list(`rail:${railKey}`),
-    queryFn: ({ signal }) =>
-      fetchListPage(query as Record<string, unknown>, null, LIMIT, signal),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  if (list.isError) {
-    return (
-      <section className="grid gap-3">
-        <h2 className="font-heading text-2xl font-semibold">
-          {railKey === "lowLight" ? tCatalog("lightOption.LOW_LIGHT") : tCatalog("petSafe")}
-        </h2>
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-muted-foreground">{tCatalog("listError")}</p>
-          <Button type="button" variant="outline" size="sm" onClick={() => void list.refetch()}>
-            {tCatalog("retry")}
-          </Button>
-        </div>
-      </section>
-    );
-  }
-
-  if (!list.data || list.data.data.length === 0) {
-    return null;
-  }
+  if (!loading && !isError && products.length === 0) return null;
 
   return (
-    <section className="grid gap-4">
-      <div className="flex items-end justify-between gap-4">
-        <h2 className="font-heading text-2xl font-semibold md:text-3xl">
-          {railKey === "lowLight" ? tCatalog("lightOption.LOW_LIGHT") : tCatalog("petSafe")}
-        </h2>
-        <Link
-          href={productsHref(query)}
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          {t("seeAll")}
-        </Link>
+    <HomeSection labelledBy={id}>
+      <div className="grid gap-4" aria-busy={loading}>
+        <SectionHeader
+          id={id}
+          title={title}
+          action={{ href: productsHref(query), label: t("seeAll") }}
+          actionAriaLabel={`${t("seeAll")}: ${title}`}
+        />
+        {isError ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">{tc("listError")}</p>
+            <Button type="button" variant="outline" size="sm" onClick={retry}>
+              {tc("retry")}
+            </Button>
+          </div>
+        ) : loading ? (
+          <ProductRailSkeleton count={HOME_RAIL_LIMIT} />
+        ) : (
+          <ProductRail
+            label={title}
+            products={products}
+            locale={locale}
+            outOfStockLabel={tp("outOfStock")}
+            actionLabels={{ wishlistAdd: tp("wishlistAdd") }}
+            ratingLabels={{
+              noReviews: tp("noReviews"),
+              aria: tp.raw("ratingAriaLabel") as string,
+            }}
+          />
+        )}
       </div>
-      <ProductRail
-        products={list.data.data.map(toProductCardData)}
-        locale={locale}
-        outOfStockLabel={tp("outOfStock")}
-        actionLabels={{
-          wishlistAdd: tp("wishlistAdd"),
-        }}
-        ratingLabels={{
-          noReviews: tp("noReviews"),
-          aria: tp.raw("ratingAriaLabel") as string,
-        }}
-      />
-    </section>
+    </HomeSection>
   );
 }
 
 /** Two extra rails that only fetch when their sentinel approaches the viewport. */
-export function LazyRails() {
+export function LazyRails({ excludeIds = [] }: { excludeIds?: readonly string[] }) {
+  const tc = useTranslations("catalog");
   const sentinel = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -102,18 +107,59 @@ export function LazyRails() {
     return () => observer.disconnect();
   }, []);
 
+  const lowLight = useQuery({
+    queryKey: queryKeys.catalog.list("rail:lowLight"),
+    queryFn: ({ signal }) =>
+      fetchListPage(LOW_LIGHT_QUERY as Record<string, unknown>, null, LIMIT, signal),
+    enabled: visible,
+    staleTime: 5 * 60 * 1000,
+  });
+  const petSafe = useQuery({
+    queryKey: queryKeys.catalog.list("rail:petSafe"),
+    queryFn: ({ signal }) =>
+      fetchListPage(PET_SAFE_QUERY as Record<string, unknown>, null, LIMIT, signal),
+    enabled: visible,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const alreadyShown = new Set(excludeIds);
+  const lowLightProducts = lowLight.data
+    ? curateHomeRailProducts(lowLight.data.data, {
+        limit: HOME_RAIL_LIMIT,
+        excludeIds: alreadyShown,
+      })
+    : [];
+  const petSafeProducts = petSafe.data
+    ? curateHomeRailProducts(petSafe.data.data, {
+        limit: HOME_RAIL_LIMIT,
+        excludeIds: new Set([
+          ...alreadyShown,
+          ...lowLightProducts.map((product) => product.id),
+        ]),
+      })
+    : [];
+
   return (
-    <div ref={sentinel} className="grid gap-10">
-      {visible ? (
-        LAZY_RAILS.map((rail) => (
-          <LazyRail key={rail.key} railKey={rail.key} query={rail.query} />
-        ))
-      ) : (
-        <div aria-hidden className="h-16" />
-      )}
-    </div>
+    <>
+      <div ref={sentinel} aria-hidden className="h-px w-full" />
+      <LazyRailBlock
+        id="rail-low-light"
+        title={tc("lightOption.LOW_LIGHT")}
+        query={LOW_LIGHT_QUERY}
+        products={lowLightProducts.map(toProductCardData)}
+        loading={!visible || lowLight.isPending}
+        isError={lowLight.isError}
+        retry={() => void lowLight.refetch()}
+      />
+      <LazyRailBlock
+        id="rail-pet-safe"
+        title={tc("petSafe")}
+        query={PET_SAFE_QUERY}
+        products={petSafeProducts.map(toProductCardData)}
+        loading={!visible || petSafe.isPending}
+        isError={petSafe.isError}
+        retry={() => void petSafe.refetch()}
+      />
+    </>
   );
 }
-
-
-

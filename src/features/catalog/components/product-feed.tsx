@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
@@ -85,9 +85,7 @@ export function ProductFeed({
   const showInitialError = query.isError && products.length === 0;
 
   return (
-    <section className="grid gap-5">
-      <h2 className="font-heading text-2xl font-semibold">{t("allPlants")}</h2>
-
+    <div className="grid gap-5">
       {showInitialError ? (
         <div className="grid place-items-center gap-3 rounded-2xl border border-dashed border-border/60 p-10 text-center">
           <p className="text-sm text-muted-foreground">{t("feedError")}</p>
@@ -126,19 +124,31 @@ export function ProductFeed({
 
       <div ref={sentinelRef} aria-hidden className="h-1 w-full" />
 
-      <div className="flex flex-col items-center gap-2">
-        {query.hasNextPage ? (
-          <Button
-            variant="outline"
-            disabled={query.isFetchingNextPage}
-            onClick={() => void query.fetchNextPage()}
-          >
-            {t("loadMore")}
+      {query.isFetchNextPageError ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 p-6 text-center"
+        >
+          <p className="text-sm text-muted-foreground">{t("feedError")}</p>
+          <Button variant="outline" onClick={() => void query.fetchNextPage()}>
+            {t("retry")}
           </Button>
-        ) : products.length > 0 ? (
-          <p className="text-sm text-muted-foreground">{t("feedEnd")}</p>
-        ) : null}
-      </div>
-    </section>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-2">
+          {query.hasNextPage ? (
+            <Button
+              variant="outline"
+              disabled={query.isFetchingNextPage}
+              onClick={() => void query.fetchNextPage()}
+            >
+              {t("loadMore")}
+            </Button>
+          ) : products.length > 0 ? (
+            <p className="text-sm text-muted-foreground">{t("feedEnd")}</p>
+          ) : null}
+        </div>
+      )}
+    </div>
   );
 }

@@ -127,15 +127,11 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group/card relative h-full overflow-hidden border border-border bg-card text-card-foreground transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        "group/card relative h-full overflow-hidden border border-border bg-card text-card-foreground shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] focus-within:ring-2 focus-within:ring-ring/60 focus-within:ring-offset-2 focus-within:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         featured ? "rounded-2xl" : "rounded-xl",
       )}
     >
-      <Link
-        href={`/products/${product.slug}`}
-        aria-label={priceLabel ? `${product.name} — ${priceLabel}` : product.name}
-        className="flex h-full flex-col"
-      >
+      <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
         <div className="relative aspect-4/5 overflow-hidden bg-[color-mix(in_oklab,var(--secondary)_28%,white)]">
           <LinkPending className="absolute top-2 right-2 z-10 text-primary" />
           <PlantImage
@@ -209,7 +205,7 @@ export function ProductCardSkeleton({ featured = false }: { featured?: boolean }
     <div
       data-product-skeleton
       className={cn(
-        "overflow-hidden border border-border bg-card",
+        "overflow-hidden border border-border bg-card shadow-[var(--shadow-soft)]",
         featured ? "rounded-2xl" : "rounded-xl",
       )}
     >
@@ -256,18 +252,20 @@ export function ProductGrid({
 export function ProductRail({
   products,
   locale,
+  label,
   outOfStockLabel,
   actionLabels,
   ratingLabels,
 }: {
   products: ProductCardData[];
   locale: string;
+  label: string;
   outOfStockLabel: string;
   actionLabels: CardActionLabels;
   ratingLabels: CardRatingLabels;
 }) {
   return (
-    <RailScroller label={outOfStockLabel}>
+    <RailScroller label={label}>
       {products.map((product) => (
         <div key={product.id} className="w-36 shrink-0 snap-start sm:w-40 md:w-44">
           <ProductCard

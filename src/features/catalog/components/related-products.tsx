@@ -34,6 +34,7 @@ export async function RelatedProducts({
     <section className="grid grid-cols-1 gap-5">
       <h2 className="font-heading text-2xl font-semibold">{t("relatedTitle")}</h2>
       <ProductRail
+        label={t("relatedTitle")}
         products={cards}
         locale={locale}
         outOfStockLabel={t("outOfStock")}
