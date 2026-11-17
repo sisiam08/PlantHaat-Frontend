@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { roleHome, useAuth } from "../auth-provider";
 import { toastApiError } from "./error-toast";
 import { FormField } from "./form-field";
@@ -17,6 +18,7 @@ export function RegisterForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
   const { register: registerUser } = useAuth();
+  const hydrated = useHydrated();
   const router = useRouter();
 
   const schema = z
@@ -64,7 +66,14 @@ export function RegisterForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
+    <form
+      onSubmit={onSubmit}
+      method="post"
+      className="grid gap-4"
+      noValidate
+      inert={!hydrated}
+      aria-busy={!hydrated}
+    >
       <FormField label={t("name")} autoComplete="name" error={errors.name?.message} {...register("name")} />
       <FormField
         label={t("email")}
@@ -96,7 +105,13 @@ export function RegisterForm() {
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
-      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
+      <Button
+        type="submit"
+        variant="cta"
+        size="lg"
+        loading={isSubmitting}
+        disabled={!hydrated || isSubmitting}
+      >
         {t("createAccount")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

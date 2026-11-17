@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { sanitizeReturnTo } from "@/lib/navigation";
 import { roleHome, useAuth } from "../auth-provider";
 import { toastApiError } from "./error-toast";
@@ -18,6 +19,7 @@ export function LoginForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
   const { login } = useAuth();
+  const hydrated = useHydrated();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = sanitizeReturnTo(searchParams.get("returnTo"));
@@ -48,7 +50,14 @@ export function LoginForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
+    <form
+      onSubmit={onSubmit}
+      method="post"
+      className="grid gap-4"
+      noValidate
+      inert={!hydrated}
+      aria-busy={!hydrated}
+    >
       <FormField
         label={t("email")}
         type="email"
@@ -69,7 +78,13 @@ export function LoginForm() {
           {t("forgotPassword")}
         </Link>
       </div>
-      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
+      <Button
+        type="submit"
+        variant="cta"
+        size="lg"
+        loading={isSubmitting}
+        disabled={!hydrated || isSubmitting}
+      >
         {t("signIn")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

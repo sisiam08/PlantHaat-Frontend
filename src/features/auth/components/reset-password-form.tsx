@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { authApi } from "../api";
 import { toastApiError } from "./error-toast";
 import { FormField } from "./form-field";
@@ -17,6 +18,7 @@ import { FormField } from "./form-field";
 export function ResetPasswordForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
+  const hydrated = useHydrated();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -63,7 +65,14 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
+    <form
+      onSubmit={onSubmit}
+      method="post"
+      className="grid gap-4"
+      noValidate
+      inert={!hydrated}
+      aria-busy={!hydrated}
+    >
       <FormField
         label={t("password")}
         type="password"
@@ -78,7 +87,13 @@ export function ResetPasswordForm() {
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
-      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
+      <Button
+        type="submit"
+        variant="cta"
+        size="lg"
+        loading={isSubmitting}
+        disabled={!hydrated || isSubmitting}
+      >
         {t("resetPassword")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

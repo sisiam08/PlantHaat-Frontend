@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { authApi } from "../api";
 import { toastApiError } from "./error-toast";
 import { FormField } from "./form-field";
@@ -18,6 +19,7 @@ export function ForgotPasswordForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
   const [sent, setSent] = useState(false);
+  const hydrated = useHydrated();
 
   const schema = z.object({
     email: z.string().min(1, t("validation.required")).email(t("validation.email")),
@@ -41,7 +43,14 @@ export function ForgotPasswordForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
+    <form
+      onSubmit={onSubmit}
+      method="post"
+      className="grid gap-4"
+      noValidate
+      inert={!hydrated}
+      aria-busy={!hydrated}
+    >
       {sent ? (
         <Alert>
           <AlertDescription>{t("resetSent")}</AlertDescription>
@@ -55,7 +64,13 @@ export function ForgotPasswordForm() {
         error={errors.email?.message}
         {...register("email")}
       />
-      <Button type="submit" variant="cta" size="lg" loading={isSubmitting}>
+      <Button
+        type="submit"
+        variant="cta"
+        size="lg"
+        loading={isSubmitting}
+        disabled={!hydrated || isSubmitting}
+      >
         {t("sendResetLink")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
