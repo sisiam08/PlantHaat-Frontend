@@ -64,7 +64,7 @@ export function RegisterForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
       <FormField label={t("name")} autoComplete="name" error={errors.name?.message} {...register("name")} />
       <FormField
         label={t("email")}

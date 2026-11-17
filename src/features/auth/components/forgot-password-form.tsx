@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
       {sent ? (
         <Alert>
           <AlertDescription>{t("resetSent")}</AlertDescription>

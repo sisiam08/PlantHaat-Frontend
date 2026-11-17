@@ -63,7 +63,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4" noValidate>
+    <form onSubmit={onSubmit} method="post" className="grid gap-4" noValidate>
       <FormField
         label={t("password")}
         type="password"
