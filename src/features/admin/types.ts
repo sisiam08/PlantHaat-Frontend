@@ -652,7 +652,7 @@ export interface AdminSettingDefinition {
   key: string;
   type: "boolean" | "number" | "string" | "json";
   default: unknown;
-  group: "payments" | "orders" | "wallet" | "payouts" | "support" | "platform";
+  group: "payments" | "orders" | "wallet" | "payouts" | "support" | "platform" | "security";
   labelEn: string;
   labelBn: string;
   helpEn?: string;

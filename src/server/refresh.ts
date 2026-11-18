@@ -2,10 +2,29 @@ import "server-only";
 
 import { serverEnv } from "@/env/server";
 
+export type RefreshFailureKind = "auth" | "transient";
+
+export class RefreshError extends Error {
+  constructor(
+    readonly kind: RefreshFailureKind,
+    message: string,
+  ) {
+    super(message);
+    this.name = "RefreshError";
+  }
+}
+
 export interface RefreshedTokens {
   accessToken: string;
-  refreshToken: string;
+  /** Only present when the backend rotated the refresh token. A grace-window
+   * reply deliberately returns access only; callers must keep the current
+   * refresh cookie in that case. */
+  refreshToken?: string;
   accessTokenExpiresAt?: number;
+  accessMaxAgeSeconds?: number;
+  refreshMaxAgeSeconds?: number;
+  /** Shared by every request that awaited the same in-flight refresh. */
+  generation?: number;
 }
 
 /**
@@ -13,13 +32,14 @@ export interface RefreshedTokens {
  * share the same ph_rt trigger exactly one backend refresh call per process.
  */
 const inflight = new Map<string, Promise<RefreshedTokens>>();
+let refreshGeneration = 0;
 
 export function refreshSession(refreshToken: string): Promise<RefreshedTokens> {
   const existing = inflight.get(refreshToken);
   if (existing) {
     return existing;
   }
-  const promise = doRefresh(refreshToken).finally(() => {
+  const promise = doRefreshWithRetry(refreshToken).finally(() => {
     inflight.delete(refreshToken);
   });
   inflight.set(refreshToken, promise);
@@ -34,6 +54,40 @@ function readCookieValue(setCookieHeaders: string[], name: string): string | und
     }
   }
   return undefined;
+}
+
+function readMaxAge(setCookieHeaders: string[], name: string): number | undefined {
+  for (const header of setCookieHeaders) {
+    if (!header.startsWith(`${name}=`)) {
+      continue;
+    }
+    const match = /(?:^|;\s*)Max-Age=(\d+)/i.exec(header);
+    if (match) {
+      return Number(match[1]);
+    }
+    const expires = /(?:^|;\s*)Expires=([^;]+)/i.exec(header);
+    if (expires) {
+      const at = Date.parse(expires[1]);
+      if (!Number.isNaN(at)) {
+        return Math.max(0, Math.floor((at - Date.now()) / 1000));
+      }
+    }
+  }
+  return undefined;
+}
+
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function doRefreshWithRetry(refreshToken: string): Promise<RefreshedTokens> {
+  try {
+    return await doRefresh(refreshToken);
+  } catch (error) {
+    if (error instanceof RefreshError && error.kind === "transient") {
+      await delay(250);
+      return doRefresh(refreshToken);
+    }
+    throw error;
+  }
 }
 
 async function doRefresh(refreshToken: string): Promise<RefreshedTokens> {
@@ -51,19 +105,22 @@ async function doRefresh(refreshToken: string): Promise<RefreshedTokens> {
       signal: controller.signal,
       cache: "no-store",
     });
+  } catch {
+    throw new RefreshError("transient", "Refresh request failed");
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
-    throw new Error(`Refresh failed with status ${response.status}`);
+    const kind: RefreshFailureKind =
+      response.status === 401 || response.status === 403 ? "auth" : "transient";
+    throw new RefreshError(kind, `Refresh failed with status ${response.status}`);
   }
 
   const setCookies = response.headers.getSetCookie();
   const accessToken = readCookieValue(setCookies, "ph_at");
-  const newRefreshToken = readCookieValue(setCookies, "ph_rt");
-  if (!accessToken || !newRefreshToken) {
-    throw new Error("Refresh response did not set auth cookies");
+  if (!accessToken) {
+    throw new RefreshError("transient", "Refresh response did not set an access cookie");
   }
 
   let accessTokenExpiresAt: number | undefined;
@@ -74,5 +131,12 @@ async function doRefresh(refreshToken: string): Promise<RefreshedTokens> {
     accessTokenExpiresAt = undefined;
   }
 
-  return { accessToken, refreshToken: newRefreshToken, accessTokenExpiresAt };
+  return {
+    accessToken,
+    refreshToken: readCookieValue(setCookies, "ph_rt"),
+    accessTokenExpiresAt,
+    accessMaxAgeSeconds: readMaxAge(setCookies, "ph_at"),
+    refreshMaxAgeSeconds: readMaxAge(setCookies, "ph_rt"),
+    generation: (refreshGeneration += 1),
+  };
 }

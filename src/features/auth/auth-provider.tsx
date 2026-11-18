@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   createContext,
   useCallback,
@@ -12,15 +13,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 
 import { queryKeys } from "@/lib/api/query-keys";
 import type { PublicUser, Role } from "@/lib/api/types";
 import { mergeGuestCart } from "@/features/cart/merge";
 import { broadcastAuth, subscribeAuth } from "@/lib/auth/broadcast";
-import { refreshOnce } from "@/lib/auth/refresh";
+import { refreshOnceDetailed } from "@/lib/auth/refresh";
 import { authApi, type LoginInput, type RegisterInput, type RegisterSellerInput } from "./api";
 
 const REFRESH_SKEW_MS = 60_000;
+const REFRESH_REARM_MS = 10 * 60_000;
+const LONG_IDLE_MS = 5 * 60_000;
 
 export function roleHome(role: Role | undefined): string {
   if (role === "ADMIN") {
@@ -48,8 +52,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("auth");
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hiddenAtRef = useRef<number | null>(null);
 
   const meQuery = useQuery({
     queryKey: queryKeys.auth.me,
@@ -73,14 +79,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
-  // Proactive refresh ~60s before the access token expires.
+  // Proactive refresh ~60s before the access token expires, then re-arm.
   useEffect(() => {
     if (!expiresAt) {
       return;
     }
-    const delay = Math.max(0, expiresAt - Date.now() - REFRESH_SKEW_MS);
-    timerRef.current = setTimeout(() => {
-      void refreshOnce();
+    const delay = expiresAt - Date.now() - REFRESH_SKEW_MS;
+    // Very short-lived test tokens should refresh on demand instead of
+    // scheduling an immediate, duplicate rotation right after login.
+    if (delay <= 0) {
+      return;
+    }
+    timerRef.current = setTimeout(async () => {
+      const outcome = await refreshOnceDetailed();
+      if (outcome === "refreshed") {
+        setExpiresAt(Date.now() + REFRESH_REARM_MS);
+      }
     }, delay);
     return () => {
       if (timerRef.current) {
@@ -89,30 +103,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [expiresAt]);
 
-  // Refresh on focus when the token is known to be near expiry.
+  // Refresh on focus near expiry, or after a long idle in a hidden tab.
   useEffect(() => {
-    const onVisible = () => {
-      if (document.visibilityState !== "visible") {
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAtRef.current = Date.now();
         return;
       }
-      if (expiresAt && expiresAt - Date.now() <= REFRESH_SKEW_MS) {
-        void refreshOnce();
+      const hiddenFor = hiddenAtRef.current ? Date.now() - hiddenAtRef.current : 0;
+      hiddenAtRef.current = null;
+      if (!queryClient.getQueryData(queryKeys.auth.me)) {
+        return;
+      }
+      if (
+        hiddenFor >= LONG_IDLE_MS ||
+        (expiresAt !== null && expiresAt - Date.now() <= REFRESH_SKEW_MS)
+      ) {
+        void refreshOnceDetailed();
       }
     };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [expiresAt]);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [expiresAt, queryClient]);
 
-  // Cross-tab sync (logout / session revoked / refresh).
+  // Cross-tab sync (logout / session revoked / refresh / expiry).
   useEffect(() => {
     return subscribeAuth((message) => {
       if (message.type === "logout" || message.type === "session:revoked") {
         clearSession();
       } else if (message.type === "refresh") {
+        if (typeof message.expiresAt === "number") {
+          setExpiresAt(message.expiresAt);
+        }
         void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
+      } else if (message.type === "session:expired") {
+        if (queryClient.getQueryData(queryKeys.auth.me)) {
+          toast.error(t("sessionExpiredToast"));
+        }
       }
     });
-  }, [clearSession, queryClient]);
+  }, [clearSession, queryClient, t]);
 
   const onAuthenticated = useCallback(
     async (user: PublicUser, accessTokenExpiresAt: number) => {

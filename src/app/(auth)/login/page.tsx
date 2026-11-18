@@ -15,7 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; returnTo?: string; callbackUrl?: string }>;
+  searchParams: Promise<{
+    next?: string;
+    returnTo?: string;
+    callbackUrl?: string;
+    reason?: string;
+  }>;
 }) {
   const params = await searchParams;
   const next = params.next ?? params.returnTo ?? params.callbackUrl ?? null;
@@ -23,6 +28,14 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
   return (
     <AuthCard title={t("loginTitle")} subtitle={t("loginSubtitle")}>
+      {params.reason === "session-expired" ? (
+        <p
+          role="status"
+          className="mb-4 rounded-lg border border-border/70 bg-secondary/40 px-3 py-2 text-sm text-muted-foreground"
+        >
+          {t("sessionExpired")}
+        </p>
+      ) : null}
       <AuthEntryGuard next={next} />
       <Suspense>
         <LoginForm />

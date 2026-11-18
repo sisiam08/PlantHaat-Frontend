@@ -79,7 +79,12 @@ export function useRealtime(): void {
       broadcastAuth("session:revoked");
       queryClient.clear();
       teardown();
-      router.replace("/login");
+      const current = `${window.location.pathname}${window.location.search}`;
+      const returnTo =
+        current.startsWith("/login") || current.startsWith("/register")
+          ? ""
+          : `?returnTo=${encodeURIComponent(current)}&reason=session-expired`;
+      router.replace(`/login${returnTo}`);
       router.refresh();
     };
 

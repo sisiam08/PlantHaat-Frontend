@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { serverEnv, siteOrigins } from "@/env/server";
 import { tagsForMutation } from "../cache-tags";
 import { accessTokenExpiresAt } from "../jwt";
-import { refreshSession } from "../refresh";
+import { refreshSession, type RefreshedTokens } from "../refresh";
 import { applyBackendSetCookies, authCookieOptions } from "../cookies";
 import { normalizeApiPath } from "./allow-list";
 import { buildUpstreamHeaders, copyResponseHeaders } from "./headers";
@@ -109,7 +109,7 @@ export async function handleGatewayRequest(
     }
   }
 
-  let refreshed = false;
+  let refreshed: RefreshedTokens | null = null;
   // Streamed uploads cannot be replayed, so refresh before forwarding when the
   // access token is missing or about to expire.
   if (streamed && refreshToken && !isAuthPath) {
@@ -118,7 +118,7 @@ export async function handleGatewayRequest(
       try {
         const tokens = await refreshSession(refreshToken);
         accessToken = tokens.accessToken;
-        refreshed = true;
+        refreshed = tokens;
       } catch {
         // Fall through; the upstream 401 is handled below.
       }
@@ -150,7 +150,7 @@ export async function handleGatewayRequest(
     try {
       const tokens = await refreshSession(refreshToken);
       accessToken = tokens.accessToken;
-      refreshed = true;
+      refreshed = tokens;
       upstream = await doForward(accessToken);
     } catch {
       // Return the original 401 below.
@@ -167,7 +167,20 @@ export async function handleGatewayRequest(
   }
 
   if (refreshed && accessToken) {
-    response.cookies.set("ph_at", accessToken, { ...authCookieOptions(), maxAge: 900 });
+    response.cookies.set("ph_at", accessToken, {
+      ...authCookieOptions(),
+      maxAge: refreshed.accessMaxAgeSeconds ?? 15 * 60,
+    });
+    if (refreshed.refreshToken && refreshed.refreshMaxAgeSeconds !== undefined) {
+      response.cookies.set("ph_rt", refreshed.refreshToken, {
+        ...authCookieOptions(),
+        maxAge: refreshed.refreshMaxAgeSeconds,
+      });
+    }
+    response.headers.set("x-auth-refresh", "1");
+    if (refreshed.generation !== undefined) {
+      response.headers.set("x-auth-refresh-generation", String(refreshed.generation));
+    }
   }
 
   // Auth/mutation responses must never be cached by shared caches.

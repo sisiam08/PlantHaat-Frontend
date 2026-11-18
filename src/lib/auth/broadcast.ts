@@ -18,8 +18,11 @@ function getChannel(): BroadcastChannel | null {
   return channel;
 }
 
-export function broadcastAuth(type: BroadcastMessageType): void {
-  getChannel()?.postMessage({ type } satisfies BroadcastMessage);
+export function broadcastAuth(
+  type: BroadcastMessageType,
+  payload: Omit<BroadcastMessage, "type"> = {},
+): void {
+  getChannel()?.postMessage({ type, ...payload } satisfies BroadcastMessage);
 }
 
 export function subscribeAuth(listener: (message: BroadcastMessage) => void): () => void {

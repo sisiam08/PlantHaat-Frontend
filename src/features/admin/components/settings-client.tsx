@@ -31,7 +31,16 @@ import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
 
-const GROUPS = ["payments", "orders", "wallet", "payouts", "support"] as const;
+const GROUPS = ["payments", "orders", "wallet", "payouts", "support", "security"] as const;
+
+const GROUP_LABELS: Record<(typeof GROUPS)[number], string> = {
+  payments: "payments",
+  orders: "orders",
+  wallet: "wallet",
+  payouts: "payouts",
+  support: "support",
+  security: "Security & Sessions",
+};
 
 export function SettingsClient() {
   const t = useTranslations("admin.settings");
@@ -188,7 +197,7 @@ export function SettingsClient() {
             <TabsList className="mb-5 flex h-auto flex-wrap justify-start gap-1">
               {GROUPS.map((group) => (
                 <TabsTrigger key={group} value={group} className="capitalize">
-                  {group.replace("-", " ")}
+                  {GROUP_LABELS[group]}
                 </TabsTrigger>
               ))}
             </TabsList>
