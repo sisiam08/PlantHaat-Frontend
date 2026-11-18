@@ -344,10 +344,22 @@
       vertical-align: -0.03em;
     }
 
-    /* Delegated card wishlist state (one client layer, no per-card hydration). */
+    /* Delegated card wishlist state (one client layer, no per-card hydration).
+       React never renders data-saved/aria-pressed, so the layer can update
+       them after hydration without a mismatch. The accessible name comes from
+       two server-rendered sr-only labels swapped by this attribute. */
+    [data-card-wishlist] [data-wishlist-label-remove] {
+      display: none;
+    }
     [data-card-wishlist][data-saved="true"] svg {
       fill: var(--offer);
       color: var(--offer);
+    }
+    [data-card-wishlist][data-saved="true"] [data-wishlist-label-add] {
+      display: none;
+    }
+    [data-card-wishlist][data-saved="true"] [data-wishlist-label-remove] {
+      display: inline;
     }
 
     /* Skeleton shimmer (one sweep, stops under reduced motion). */

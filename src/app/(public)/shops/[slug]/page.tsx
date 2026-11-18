@@ -131,6 +131,7 @@ async function ShopContent({
             outOfStockLabel={tp("outOfStock")}
             actionLabels={{
               wishlistAdd: tp("wishlistAdd"),
+                wishlistRemove: tp("wishlistRemove"),
             }}
             ratingLabels={{
               noReviews: tp("noReviews"),
@@ -156,3 +157,4 @@ export default function ShopPage({
     </Suspense>
   );
 }
+

@@ -74,7 +74,7 @@ function LazyRailBlock({
             products={products}
             locale={locale}
             outOfStockLabel={tp("outOfStock")}
-            actionLabels={{ wishlistAdd: tp("wishlistAdd") }}
+            actionLabels={{ wishlistAdd: tp("wishlistAdd"), wishlistRemove: tp("wishlistRemove") }}
             ratingLabels={{
               noReviews: tp("noReviews"),
               aria: tp.raw("ratingAriaLabel") as string,
@@ -164,3 +164,4 @@ export function LazyRails({ excludeIds = [] }: { excludeIds?: readonly string[] 
     </>
   );
 }
+

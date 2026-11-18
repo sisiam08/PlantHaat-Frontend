@@ -1,4 +1,4 @@
-﻿import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { HomeSection } from "@/components/layout/home-section";
 import { SectionHeader } from "@/components/layout/section-header";
@@ -84,6 +84,7 @@ export async function HomeRails() {
                 outOfStockLabel={tp("outOfStock")}
                 actionLabels={{
                   wishlistAdd: tp("wishlistAdd"),
+                wishlistRemove: tp("wishlistRemove"),
                 }}
                 ratingLabels={{
                   noReviews: tp("noReviews"),
@@ -98,3 +99,4 @@ export async function HomeRails() {
     </>
   );
 }
+

@@ -39,7 +39,6 @@ export function CardActionsLayer() {
       const isSaved = savedSlugs.has(button.dataset.slug ?? "");
       button.dataset.saved = isSaved ? "true" : "false";
       button.setAttribute("aria-pressed", String(isSaved));
-      button.setAttribute("aria-label", isSaved ? t("wishlistRemove") : t("wishlistAdd"));
     });
   }, [savedSlugs, t, wishlist.data]);
 

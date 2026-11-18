@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -58,8 +58,9 @@ export function WishlistClient() {
   const seen = new Set<string>();
   const items: WishlistItemView[] = [];
   for (const page of list.data?.pages ?? []) {
+    if (!Array.isArray(page.data)) continue;
     for (const item of page.data) {
-      if (seen.has(item.id)) continue;
+      if (!item?.product?.id || seen.has(item.id)) continue;
       seen.add(item.id);
       items.push(item);
     }

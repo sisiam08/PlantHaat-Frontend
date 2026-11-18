@@ -41,6 +41,7 @@ export async function RelatedProducts({
         outOfStockLabel={t("outOfStock")}
         actionLabels={{
           wishlistAdd: t("wishlistAdd"),
+          wishlistRemove: t("wishlistRemove"),
         }}
         ratingLabels={{
           noReviews: t("noReviews"),
@@ -50,4 +51,5 @@ export async function RelatedProducts({
     </section>
   );
 }
+
 

@@ -107,6 +107,7 @@ export function ProductFeed({
               locale={locale}
               actionLabels={{
                 wishlistAdd: tp("wishlistAdd"),
+                wishlistRemove: tp("wishlistRemove"),
               }}
               ratingLabels={{
                 noReviews: tp("noReviews"),
@@ -152,3 +153,4 @@ export function ProductFeed({
     </div>
   );
 }
+
