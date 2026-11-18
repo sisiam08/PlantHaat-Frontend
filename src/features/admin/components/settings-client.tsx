@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -351,8 +352,7 @@ export function SettingsClient() {
               {t("reauthBody", { key: reauthKeys?.join(", ") ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Input
-            type="password"
+          <PasswordInput
             value={password}
             autoComplete="current-password"
             onChange={(event) => setPassword(event.target.value)}
@@ -481,3 +481,4 @@ function SettingField({
     </div>
   );
 }
+

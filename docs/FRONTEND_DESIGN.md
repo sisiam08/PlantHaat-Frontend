@@ -533,3 +533,8 @@ Replace the generated color variables with these values (keep the generated stru
 Dark-theme contrast (checked): cream text on background 14.7:1, on card 12.7:1; muted text on muted 6.6:1; mist on card 8.2:1; control borders `#7FA687` on card 5.6:1; ink text on marigold 7.7:1, on offer 6.2:1, on success 6.5:1, on info 6.6:1, on destructive 5.5:1; warning text 9.2:1.
 
 Add `cta` (marigold) and `offer` variants to the installed `Button`/`Badge` via their `cva` definitions. Buttons and chips use the pill shape (`rounded-full`); cards `rounded-2xl`; inputs use `--radius`. Hover/pressed states for marigold: darken in small steps and re-verify ink-text contrast ≥ 4.5:1.
+
+### Shared password field and keyboard-only card focus (2026-11-18)
+
+- Every password input renders through `<PasswordInput/>` (`src/components/ui/password-input.tsx`): shadcn Input + one 44 px toggle button (`type="button"`, Eye/EyeOff, aria-pressed, aria-controls, "Show/Hide password" / "পাসওয়ার্ড দেখান/লুকান"). It only flips `type`; it never changes value, autocomplete, focus or caret, and the Edge/IE `::-ms-reveal` eye is hidden in `globals.css`. Do not add raw password inputs; `tests/password-input-guard.test.ts` enforces this.
+- Card focus rings are keyboard-only and single: use `CARD_FOCUS_RING` on a wrapper with `CARD_LINK_FOCUS` on its anchor, or `CARD_SELF_FOCUS_RING` on a single-anchor card (`src/lib/focus-ring.ts`). Never use `focus-within` for card rings (it fires on mouse/touch and after Back), never combine a wrapper ring with a second link ring, and keep the indicator inset when the card lives in an overflow rail.

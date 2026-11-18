@@ -140,3 +140,29 @@ for (const width of [1440, 390] as const) {
     });
   });
 }
+
+/**
+ * Cards show a focus indicator only for keyboard focus. A mouse click followed
+ * by Back must not leave a green ring on the card (regression from the
+ * home-consistency `focus-within` ring).
+ */
+test("product card: no focus ring after mouse click and Back", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded", timeout: 90000 });
+  const card = page.locator('[data-product-card]').first();
+  await card.waitFor({ state: "visible", timeout: 30000 });
+  const borderBefore = await card.evaluate((element) => getComputedStyle(element).borderTopColor);
+  await card.locator('a[href^="/products/"]').first().click();
+  await page.waitForURL(/\/products\//, { timeout: 30000 });
+  await page.goBack({ waitUntil: "domcontentloaded" });
+  await card.waitFor({ state: "visible" });
+  await page.waitForTimeout(300);
+  const after = await card.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { shadow: style.boxShadow, outline: style.outlineStyle, border: style.borderTopColor };
+  });
+  expect(after.shadow.includes("inset")).toBe(false);
+  expect(after.outline).toBe("none");
+  expect(after.border).toBe(borderBefore);
+});
+
