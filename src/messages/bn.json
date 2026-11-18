@@ -843,7 +843,8 @@
    "orderStatus": "শপ অর্ডারের অবস্থা",
    "orderTotal": "অর্ডারের মোট",
    "orderPayment": "পেমেন্ট",
-   "shopName": "দোকান"
+   "shopName": "দোকান",
+   "evidence": "প্রমাণের ছবি"
   },
   "reconciliation": {
    "title": "মিলকরণ",

@@ -843,7 +843,8 @@
    "orderStatus": "Shop order status",
    "orderTotal": "Order total",
    "orderPayment": "Payment",
-   "shopName": "Shop"
+   "shopName": "Shop",
+   "evidence": "Evidence photo"
   },
   "reconciliation": {
    "title": "Reconciliation",

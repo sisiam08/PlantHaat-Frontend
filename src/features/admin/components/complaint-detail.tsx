@@ -9,6 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -52,6 +58,7 @@ export function ComplaintDetail({ id }: { id: string }) {
   const [decisionReason, setDecisionReason] = useState("");
   const [decisionAmount, setDecisionAmount] = useState("");
   const [refundTrxId, setRefundTrxId] = useState("");
+  const [evidenceUrl, setEvidenceUrl] = useState<string | null>(null);
 
   const query = useQuery({
     queryKey: queryKeys.admin.complaints({ id }),
@@ -197,16 +204,16 @@ export function ComplaintDetail({ id }: { id: string }) {
           {complaint.attachments.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {complaint.attachments.map((attachment) => (
-                <a
+                <button
                   key={attachment.id}
-                  href={attachment.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary hover:underline"
+                  type="button"
+                  onClick={() => setEvidenceUrl(attachment.url)}
+                  className="overflow-hidden rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  aria-label={tp4("evidence")}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={attachment.url} alt="" className="h-20 w-20 rounded-lg object-cover" />
-                </a>
+                  <img src={attachment.url} alt="" className="h-20 w-20 object-cover" />
+                </button>
               ))}
             </div>
           ) : null}
@@ -463,6 +470,28 @@ export function ComplaintDetail({ id }: { id: string }) {
           </Button>
         </div>
       </section>
+
+      <Dialog
+        open={evidenceUrl !== null}
+        onOpenChange={(open) => {
+          if (!open) setEvidenceUrl(null);
+        }}
+      >
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{tp4("evidence")}</DialogTitle>
+          </DialogHeader>
+          {evidenceUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={evidenceUrl}
+              alt={tp4("evidence")}
+              className="max-h-[70vh] w-full rounded-xl object-contain"
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
