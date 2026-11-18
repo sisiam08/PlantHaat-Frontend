@@ -139,11 +139,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         // browser drops them before rendering the guest form (and never loop).
         const alreadyMarked =
           request.nextUrl.searchParams.get("reason") === "session-expired";
-        const response = alreadyMarked
-          ? NextResponse.next()
-          : NextResponse.redirect(
-              new URL("/login?reason=session-expired", request.url),
-            );
+        const returnTo = safeAuthReturnTo(request);
+        const target = new URL("/login", request.url);
+        if (returnTo) {
+          target.searchParams.set("returnTo", returnTo);
+        }
+        target.searchParams.set("reason", "session-expired");
+        const response = alreadyMarked ? NextResponse.next() : NextResponse.redirect(target);
         response.cookies.set(ACCESS_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
         response.cookies.set(REFRESH_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
         return response;
