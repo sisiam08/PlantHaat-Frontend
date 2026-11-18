@@ -65,7 +65,9 @@ async function restore(
   const values = Object.fromEntries(keys.map((key) => [key, snapshot[key]]));
   const response = await patchSettings(api, values);
   if (response.ok()) return;
-  const sensitiveKey = keys.find((key) => key.startsWith("commission."));
+  const sensitiveKey = keys.find(
+    (key) => key.startsWith("commission.") || key.endsWith(".number"),
+  );
   if (!sensitiveKey) throw new Error(`restore failed ${response.status()}`);
   const token = await reauth(api, sensitiveKey);
   if (!token.ok()) throw new Error("restore re-auth failed");
@@ -184,9 +186,17 @@ test("settings UI: sensitive change uses re-auth and writes history", async ({
     await page.screenshot({ path: `${SCREENSHOTS}/settings-history-1280.png`, fullPage: true });
 
     expect((await reauth(api, "commission.default", "wrong-password")).status()).toBe(400);
+
+    // On the payment seed Nagad is already enabled with a fake number; only
+    // assert the no-number guard when the fixture has no number.
+    const nagadNumber = String(snapshot["payment.nagad.number"] ?? "").trim();
     const nagad = await patchSettings(api, { "payment.nagad.enabled": true });
-    expect(nagad.status()).toBe(400);
-    expect((await nagad.json()).error.message ?? "").toMatch(/Nagad/i);
+    if (!nagadNumber) {
+      expect(nagad.status()).toBe(400);
+      expect((await nagad.json()).error.message ?? "").toMatch(/Nagad/i);
+    } else {
+      expect(nagad.ok()).toBeTruthy();
+    }
   } finally {
     await restore(api, snapshot, ["commission.default"]);
     await api.dispose();

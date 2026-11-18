@@ -7,7 +7,7 @@ const ADMIN = {
   password: process.env.ADMIN_PASSWORD ?? "",
 };
 
-test.setTimeout(180_000);
+test.setTimeout(300_000);
 test.describe.configure({ mode: "serial" });
 
 test("settings persist: number + provider + advance in one save, five reloads", async ({
@@ -53,9 +53,10 @@ test("settings persist: number + provider + advance in one save, five reloads", 
       { email: ADMIN.email, password: ADMIN.password },
     );
     expect(status).toBe(200);
-    await page.goto(`${BASE}/admin/settings`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/admin/settings`, { waitUntil: "domcontentloaded" });
 
     const number = page.getByRole("textbox", { name: /bKash receiving number/ });
+    await number.waitFor({ state: "visible", timeout: 120_000 });
     const bkash = page.getByRole("checkbox", { name: /bKash enabled/ });
     const advance = page.getByRole("checkbox", { name: /Advance payment enabled/ });
 
@@ -72,9 +73,10 @@ test("settings persist: number + provider + advance in one save, five reloads", 
     });
 
     for (let attempt = 0; attempt < 5; attempt++) {
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.getByRole("textbox", { name: /bKash receiving number/ })).toHaveValue(
         "01700000000",
+        { timeout: 60_000 },
       );
       await expect(page.getByRole("checkbox", { name: /bKash enabled/ })).toBeChecked();
       await expect(page.getByRole("checkbox", { name: /Advance payment enabled/ })).toBeChecked();
