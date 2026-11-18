@@ -54,6 +54,11 @@ export const queryKeys = {
     complaints: (filters?: Record<string, unknown>) =>
       ["seller", "complaints", filters ?? {}] as const,
     earnings: ["seller", "earnings"] as const,
+    wallet: ["seller", "wallet"] as const,
+    walletTransactions: (filters?: Record<string, unknown>) =>
+      ["seller", "wallet", "transactions", filters ?? {}] as const,
+    withdrawals: (filters?: Record<string, unknown>) =>
+      ["seller", "wallet", "withdrawals", filters ?? {}] as const,
     analytics: (range?: Record<string, unknown>) => ["seller", "analytics", range ?? {}] as const,
   },
   admin: {
@@ -76,6 +81,7 @@ export const queryKeys = {
     commissionRules: (filters?: Record<string, unknown>) =>
       ["admin", "commission-rules", filters ?? {}] as const,
     payouts: (filters?: Record<string, unknown>) => ["admin", "payouts", filters ?? {}] as const,
+    withdrawals: (filters?: Record<string, unknown>) => ["admin", "withdrawals", filters ?? {}] as const,
     banners: ["admin", "banners"] as const,
     homepageSections: ["admin", "homepage-sections"] as const,
     announcements: (filters?: Record<string, unknown>) =>

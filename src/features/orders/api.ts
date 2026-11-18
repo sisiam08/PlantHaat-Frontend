@@ -19,3 +19,11 @@ export const ordersApi = {
       { reason },
     ).then(() => undefined),
 };
+
+export const orderSettlementApi = {
+  confirmReceipt: (shopOrderId: string) =>
+    apiPost<{ released: boolean }>(
+      `/orders/shop-orders/${encodeURIComponent(shopOrderId)}/confirm-receipt`,
+      {},
+    ).then((result) => result.data),
+};

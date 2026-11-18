@@ -24,6 +24,7 @@ const STATUS_VARIANT: Record<SellerStatus, "default" | "secondary" | "destructiv
 
 export function DashboardClient() {
   const t = useTranslations("seller.dashboard");
+  const tp4 = useTranslations("part4.wallet");
   const tStatus = useTranslations("seller.status");
   const tc = useTranslations("common");
   const { user } = useAuth();
@@ -191,6 +192,9 @@ export function DashboardClient() {
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/seller/delivery-zones">{t("manageZones")}</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/seller/earnings">{tp4("title")}</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/seller/payout-accounts">{t("managePayouts")}</Link>

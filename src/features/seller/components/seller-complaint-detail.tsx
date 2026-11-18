@@ -18,6 +18,7 @@ import { complaintStatusVariant } from "../status";
 
 export function SellerComplaintDetail({ id }: { id: string }) {
   const t = useTranslations("seller.complaints");
+  const tp4 = useTranslations("part4.sellerComplaint");
   const tStatus = useTranslations("seller.complaintStatus");
   const tType = useTranslations("seller.complaintType");
   const tErrors = useTranslations("errors");
@@ -47,7 +48,11 @@ export function SellerComplaintDetail({ id }: { id: string }) {
     return <p className="text-sm text-muted-foreground">{t("loadError")}</p>;
   }
 
-  const complaint = query.data;
+  const complaint = query.data as typeof query.data & {
+    sellerResponseDueAt?: string | null;
+    sellerRespondedAt?: string | null;
+    decision?: string;
+  };
 
   return (
     <div className="grid gap-5">
@@ -66,6 +71,20 @@ export function SellerComplaintDetail({ id }: { id: string }) {
       <Card className="rounded-2xl">
         <CardContent className="grid gap-2 text-sm">
           <p className="whitespace-pre-wrap">{complaint.description}</p>
+          {complaint.sellerResponseDueAt ? (
+            <p className="text-xs text-muted-foreground">
+              {complaint.sellerRespondedAt
+                ? tp4("respondedAt", {
+                    date: formatLatinDateTime(complaint.sellerRespondedAt),
+                  })
+                : tp4("responseDue", {
+                    date: formatLatinDateTime(complaint.sellerResponseDueAt),
+                  })}
+            </p>
+          ) : null}
+          {complaint.decision && complaint.decision !== "PENDING" ? (
+            <p className="text-xs font-medium">{tp4("decision", { decision: complaint.decision })}</p>
+          ) : null}
           {complaint.attachments.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {complaint.attachments.map((attachment) => (

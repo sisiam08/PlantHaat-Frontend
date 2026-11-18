@@ -387,3 +387,26 @@ export async function fetchAdminSellerDocument(
   const blob = await response.blob();
   return { blob, contentType: response.headers.get("content-type") ?? blob.type };
 }
+
+/* Part 4: disputes, seller withdrawals and settlement. */
+export const adminSettlementApi = {
+  decideDispute: (id: string, input: import("./types").DecideDisputeInput) =>
+    apiPost<import("./types").AdminComplaintView>(
+      `/admin/complaints/${encodeURIComponent(id)}/decision`,
+      input,
+    ).then((result) => result.data),
+  listWithdrawals: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiGet<import("./types").AdminWithdrawalView[]>("/admin/withdrawals", qs(params)).then(
+      (result) => paginated(result),
+    ),
+  payWithdrawal: (id: string, reference: string) =>
+    apiPost<import("./types").AdminWithdrawalView>(
+      `/admin/withdrawals/${encodeURIComponent(id)}/pay`,
+      { reference },
+    ).then((result) => result.data),
+  rejectWithdrawal: (id: string, reason: string) =>
+    apiPost<import("./types").AdminWithdrawalView>(
+      `/admin/withdrawals/${encodeURIComponent(id)}/reject`,
+      { reason },
+    ).then((result) => result.data),
+};

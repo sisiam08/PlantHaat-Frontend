@@ -20,6 +20,7 @@ import { complaintsApi } from "../api";
 export function ComplaintDetail({ id }: { id: string }) {
   const t = useTranslations("complaints");
   const tErrors = useTranslations("errors");
+  const tp4 = useTranslations("part4.complaintTimeline");
   const queryClient = useQueryClient();
   const [body, setBody] = useState("");
 
@@ -53,6 +54,38 @@ export function ComplaintDetail({ id }: { id: string }) {
         description={formatLatinDateTime(complaint.createdAt)}
         actions={<Badge>{t(`status.${complaint.status}`)}</Badge>}
       />
+
+      <Card>
+        <CardContent className="grid gap-2 text-sm">
+          <h2 className="font-semibold">{tp4("timeline")}</h2>
+          <TimelineRow label={tp4("opened")} time={complaint.createdAt} />
+          {complaint.sellerRespondedAt ? (
+            <TimelineRow label={tp4("sellerResponded")} time={complaint.sellerRespondedAt} />
+          ) : complaint.sellerResponseDueAt && complaint.status === "OPEN" ? (
+            <p className="text-xs text-muted-foreground">
+              {tp4("sellerResponseDue", {
+                date: formatLatinDateTime(complaint.sellerResponseDueAt),
+              })}
+            </p>
+          ) : null}
+          {complaint.decision && complaint.decision !== "PENDING" ? (
+            <TimelineRow
+              label={tp4("decided", { decision: complaint.decision })}
+              time={complaint.decidedAt ?? complaint.updatedAt}
+            />
+          ) : null}
+          {(complaint.refunds ?? []).map((refund) => (
+            <TimelineRow
+              key={refund.id}
+              label={tp4("refundPaid", {
+                amount: refund.amount,
+                reference: refund.reference ?? tp4("pendingReference"),
+              })}
+              time={complaint.updatedAt}
+            />
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="grid gap-2 text-sm">
@@ -133,6 +166,15 @@ export function ComplaintDetail({ id }: { id: string }) {
           </Button>
         </div>
       </section>
+    </div>
+  );
+}
+
+function TimelineRow({ label, time }: { label: string; time: string }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <span>{label}</span>
+      <span className="text-xs text-muted-foreground">{formatLatinDateTime(time)}</span>
     </div>
   );
 }

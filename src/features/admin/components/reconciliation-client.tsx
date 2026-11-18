@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Price } from "@/components/product/price";
+import { formatLatinDateTime } from "@/lib/format/date";
 import { adminApi } from "../api";
 
 function toInputDate(date: Date): string {
@@ -17,7 +19,8 @@ function toInputDate(date: Date): string {
 }
 
 export function ReconciliationClient() {
-  const t = useTranslations("admin.reconciliation");
+  const t = useTranslations("part4.reconciliation");
+  const locale = useLocale();
   const today = new Date();
   const monthAgo = new Date(today.getTime() - 30 * 86_400_000);
   const [from, setFrom] = useState(toInputDate(monthAgo));
@@ -64,6 +67,38 @@ export function ReconciliationClient() {
         <p className="text-sm text-muted-foreground">{t("loadError")}</p>
       ) : null}
 
+      {result?.settlement ? (
+        <Card className="rounded-2xl">
+          <CardContent className="grid gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">{t("settlementTitle")}</h2>
+              <Badge variant={result.settlement.balanced ? "secondary" : "destructive"}>
+                {result.settlement.balanced ? t("balanced") : t("breach")}
+              </Badge>
+            </div>
+            <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+              <ReconStat label={t("receipts")} value={result.settlement.receipts} locale={locale} />
+              <ReconStat label={t("buckets")} value={result.settlement.buckets} locale={locale} />
+              <ReconStat
+                label={t("difference")}
+                value={result.settlement.difference}
+                locale={locale}
+                tone={result.settlement.balanced ? undefined : "danger"}
+              />
+              <ReconStat label={t("codDues")} value={result.settlement.codDues} locale={locale} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("checkedAt", { date: formatLatinDateTime(new Date(query.dataUpdatedAt).toISOString()) })}
+            </p>
+            {!result.settlement.balanced ? (
+              <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {t("breachWarning")}
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+
       {result && result.violations.length === 0 ? (
         <Card className="grid place-items-center gap-2 rounded-2xl border-dashed p-10 text-center">
           <Badge variant="secondary" className="rounded-full">
@@ -105,6 +140,27 @@ export function ReconciliationClient() {
           </CardContent>
         </Card>
       ) : null}
+    </div>
+  );
+}
+
+function ReconStat({
+  label,
+  value,
+  locale,
+  tone,
+}: {
+  label: string;
+  value: string;
+  locale: string;
+  tone?: "danger";
+}) {
+  return (
+    <div className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-3">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className={tone === "danger" ? "text-destructive" : undefined}>
+        <Price value={value} locale={locale} size="sm" />
+      </span>
     </div>
   );
 }

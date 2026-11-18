@@ -43,6 +43,8 @@ export interface ShopOrderView {
   cancelledBy: string | null;
   cancelReason: string | null;
   deliveredAt: string | null;
+  releaseAt?: string | null;
+  fundsReleasedAt?: string | null;
   deliveryNote: string | null;
   delayNotifiedAt: string | null;
   stuckReminderCount: number;

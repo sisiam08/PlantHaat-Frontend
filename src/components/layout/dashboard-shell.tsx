@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   AlarmClock,
@@ -31,6 +31,7 @@ import {
   Users,
   UsersRound,
   Wallet,
+  ArrowDownToLine,
   type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +42,7 @@ import { useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { adminApi } from "@/features/admin/api";
+import { adminApi, adminSettlementApi } from "@/features/admin/api";
 import { paymentsApi } from "@/features/payments/api";
 import { sellerApi } from "@/features/seller/api";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -129,6 +130,7 @@ const ADMIN_GROUPS: { key: string; items: NavItem[] }[] = [
     items: [
       { href: "/admin/refunds", key: "refunds", icon: RotateCcw },
       { href: "/admin/payouts", key: "payouts", icon: Wallet },
+      { href: "/admin/withdrawals", key: "withdrawals", icon: ArrowDownToLine },
       { href: "/admin/commission-rules", key: "commissionRules", icon: Percent },
       { href: "/admin/payments", key: "payments", icon: CreditCard },
       { href: "/admin/advance-payments", key: "advancePayments", icon: ClipboardCheck },
@@ -189,6 +191,18 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
     enabled: role === "admin",
     retry: false,
   });
+  const adminWithdrawals = useQuery({
+    queryKey: queryKeys.admin.withdrawals({ status: "PENDING", limit: 1 }),
+    queryFn: () => adminSettlementApi.listWithdrawals({ status: "PENDING", limit: 1 }),
+    enabled: role === "admin",
+    retry: false,
+  });
+  const adminComplaints = useQuery({
+    queryKey: queryKeys.admin.complaints({ status: "OPEN", limit: 1 }),
+    queryFn: () => adminApi.listComplaints({ status: "OPEN", limit: 1 }),
+    enabled: role === "admin",
+    retry: false,
+  });
 
   return (
     <nav className="grid gap-4" aria-label={t("dashboard")}>
@@ -209,7 +223,11 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
                     ? advancePending.data?.length
                     : item.key === "advanceRefunds" && (advanceRefunds.data?.length ?? 0) > 0
                       ? advanceRefunds.data?.length
-                      : null;
+                      : item.key === "withdrawals" && (adminWithdrawals.data?.meta?.total ?? 0) > 0
+                        ? adminWithdrawals.data?.meta?.total
+                        : item.key === "complaints" && (adminComplaints.data?.meta?.total ?? 0) > 0
+                          ? adminComplaints.data?.meta?.total
+                          : null;
             return (
               <Link
                 key={item.href}

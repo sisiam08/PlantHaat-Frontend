@@ -3,13 +3,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { QueryError } from "@/components/feedback/query-error";
 import { PageHeader } from "@/components/layout/page-header";
 import { Price } from "@/components/product/price";
 import { ProductLine } from "@/components/product/quantity-line";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,12 +34,18 @@ import { formatCount } from "@/lib/format/number";
 import { queryKeys } from "@/lib/api/query-keys";
 import { paymentsApi } from "@/features/payments/api";
 import { PaymentBadge } from "@/features/payments/components/payment-badge";
-import { ordersApi } from "../api";
+import { orderSettlementApi, ordersApi } from "../api";
 import type { ShopOrderView } from "../types";
 
 const FLOW = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED"];
 
-export function OrderDetail({ orderId }: { orderId: string }) {
+export function OrderDetail({
+  orderId,
+  earlyRelease = true,
+}: {
+  orderId: string;
+  earlyRelease?: boolean;
+}) {
   const t = useTranslations("orders");
   const tCheckout = useTranslations("checkout");
   const tErrors = useTranslations("errors");
@@ -108,6 +125,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             }
           }}
           onRequest={() => setReasonFor(shopOrder.id)}
+          earlyRelease={earlyRelease}
         />
       ))}
 
@@ -280,6 +298,7 @@ function ShopOrderCard({
   cancelling,
   onCancel,
   onRequest,
+  earlyRelease,
 }: {
   shopOrder: ShopOrderView;
   locale: string;
@@ -287,6 +306,7 @@ function ShopOrderCard({
   cancelling: boolean;
   onCancel: () => void;
   onRequest: () => void;
+  earlyRelease: boolean;
 }) {
   const activeIndex = FLOW.indexOf(shopOrder.status);
   const terminal = shopOrder.status === "CANCELLED" || shopOrder.status === "FAILED_DELIVERY";
@@ -400,12 +420,115 @@ function ShopOrderCard({
             {t("cancellationRequest")}
           </Button>
         ) : null}
-        {shopOrder.status !== "CANCELLED" ? (
+        {shopOrder.status === "DELIVERED" ? (
+          <ReturnWindowPanel
+            shopOrder={shopOrder}
+            earlyRelease={earlyRelease}
+          />
+        ) : null}
+        {shopOrder.status === "SHIPPED" || shopOrder.status === "FAILED_DELIVERY" ? (
           <Button asChild variant="ghost" size="sm">
             <Link href={`/complaints/new?shopOrderId=${shopOrder.id}`}>{t("reportProblem")}</Link>
           </Button>
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function ReturnWindowPanel({
+  shopOrder,
+  earlyRelease,
+}: {
+  shopOrder: ShopOrderView;
+  earlyRelease: boolean;
+}) {
+  const t = useTranslations("part4.returnWindow");
+  const tErrors = useTranslations("errors");
+  const locale = useLocale();
+  const queryClient = useQueryClient();
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    const tick = () => setNow(Date.now());
+    const initial = window.setTimeout(tick, 0);
+    const timer = window.setInterval(tick, 60_000);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const release = useMutation({
+    mutationFn: () => orderSettlementApi.confirmReceipt(shopOrder.id),
+    onSuccess: async () => {
+      toast.success(t("released"));
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.orders() });
+    },
+    onError: (error) => toastApiError(error, tErrors),
+  });
+
+  const releaseAt = shopOrder.releaseAt ? new Date(shopOrder.releaseAt) : null;
+  const released = Boolean(shopOrder.fundsReleasedAt);
+  const closed = released || (releaseAt !== null && now !== null && now >= releaseAt.getTime());
+
+  if (!releaseAt) {
+    return (
+      <div className="grid gap-2 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+        <p className="font-medium">{t("deliveredTitle")}</p>
+        <p className="text-muted-foreground">{t("legacyBody")}</p>
+        <Button asChild variant="outline" size="sm" className="w-fit">
+          <Link href={`/complaints/new?shopOrderId=${shopOrder.id}`}>{t("report")}</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-2 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+      <p className="font-medium">
+        {closed ? t("closedTitle") : t("openTitle")}
+      </p>
+      <p className="text-muted-foreground">
+        {closed
+          ? t("closedBody")
+          : t("openBody", { date: formatDateTime(releaseAt.toISOString(), locale) })}
+      </p>
+      {!closed ? (
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/complaints/new?shopOrderId=${shopOrder.id}`}>{t("report")}</Link>
+          </Button>
+          {earlyRelease ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="cta" size="sm">
+                  {t("everythingFine")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("confirmTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("confirmBody")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={release.isPending}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      release.mutate();
+                    }}
+                  >
+                    {t("confirm")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }

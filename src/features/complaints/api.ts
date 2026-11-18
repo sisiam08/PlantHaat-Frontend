@@ -40,6 +40,12 @@ export interface ComplaintView {
   attachments: { url: string }[];
   shop?: { id: string; name: string; slug: string };
   comments?: ComplaintCommentView[];
+  refunds?: { id: string; amount: string; status: string; reference: string | null }[];
+  sellerResponseDueAt?: string | null;
+  sellerRespondedAt?: string | null;
+  decision?: string;
+  decidedAt?: string | null;
+  refundAmount?: string | null;
 }
 
 export interface CreateComplaintInput {

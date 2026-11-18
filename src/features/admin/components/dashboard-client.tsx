@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { Price } from "@/components/product/price";
@@ -10,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatBdt } from "@/lib/format/money";
-import { adminApi } from "../api";
+import { adminApi, adminSettlementApi } from "../api";
+import { paymentsApi } from "@/features/payments/api";
 
 const RANGES = [7, 30, 90] as const;
 
 export function DashboardClient() {
   const t = useTranslations("admin.dashboard");
+  const tp4 = useTranslations("part4.adminOverview");
   const locale = useLocale();
   const [days, setDays] = useState<number>(30);
 
@@ -25,6 +28,27 @@ export function DashboardClient() {
       const from = new Date(Date.now() - days * 86_400_000).toISOString();
       return adminApi.analytics({ from });
     },
+    retry: false,
+  });
+
+  const disputes = useQuery({
+    queryKey: queryKeys.admin.complaints({ status: "OPEN", limit: 1 }),
+    queryFn: () => adminApi.listComplaints({ status: "OPEN", limit: 1 }),
+    retry: false,
+  });
+  const withdrawals = useQuery({
+    queryKey: queryKeys.admin.withdrawals({ status: "PENDING", limit: 1 }),
+    queryFn: () => adminSettlementApi.listWithdrawals({ status: "PENDING", limit: 1 }),
+    retry: false,
+  });
+  const advanceRefunds = useQuery({
+    queryKey: queryKeys.admin.advanceRefunds,
+    queryFn: paymentsApi.admin.refunds,
+    retry: false,
+  });
+  const advancePending = useQuery({
+    queryKey: queryKeys.admin.advancePayments("pending"),
+    queryFn: () => paymentsApi.admin.list("pending"),
     retry: false,
   });
 
@@ -55,6 +79,39 @@ export function DashboardClient() {
             {t("lastDays", { days: value })}
           </Button>
         ))}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <QueueCard
+          href="/admin/complaints?status=OPEN"
+          label={tp4("disputes")}
+          value={disputes.data?.meta?.total ?? 0}
+          loading={disputes.isLoading}
+        />
+        <QueueCard
+          href="/admin/withdrawals?status=PENDING"
+          label={tp4("withdrawals")}
+          value={withdrawals.data?.meta?.total ?? 0}
+          loading={withdrawals.isLoading}
+        />
+        <QueueCard
+          href="/admin/advance-refunds"
+          label={tp4("advanceRefunds")}
+          value={advanceRefunds.data?.length ?? 0}
+          loading={advanceRefunds.isLoading}
+        />
+        <QueueCard
+          href="/admin/advance-payments"
+          label={tp4("paymentsToVerify")}
+          value={advancePending.data?.length ?? 0}
+          loading={advancePending.isLoading}
+        />
+        <QueueCard
+          href="/admin/reconciliation"
+          label={tp4("reconciliation")}
+          value={undefined}
+          loading={false}
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -181,5 +238,29 @@ function Stat({ label, value }: { label: string; value: ReactNode }) {
         <span className="text-xl font-bold">{value}</span>
       </CardContent>
     </Card>
+  );
+}
+
+function QueueCard({
+  href,
+  label,
+  value,
+  loading,
+}: {
+  href: string;
+  label: string;
+  value: number | undefined;
+  loading: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-2xl border border-border/60 bg-card p-4 transition-colors hover:border-primary/40"
+    >
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="mt-1 block font-heading text-2xl font-semibold tabular-nums">
+        {loading ? <Skeleton className="h-7 w-10" /> : (value ?? "?")}
+      </span>
+    </Link>
   );
 }

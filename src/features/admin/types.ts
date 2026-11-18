@@ -438,9 +438,56 @@ export interface AdminComplaintView {
   createdAt: string;
   updatedAt: string;
   attachments: { id: string; url: string; createdAt: string }[];
-  shop?: { id: string; name: string; slug: string };
+  shop?: {
+    id: string;
+    name: string;
+    slug: string;
+    sellerProfile?: { id: string; businessName: string };
+  };
+  shopOrder?: {
+    id: string;
+    shopOrderNumber: string;
+    status: string;
+    subtotal: string;
+    deliveryCharge: string;
+    total: string;
+    commissionAmount: string;
+    sellerNetAmount: string;
+    releaseAt: string | null;
+    fundsReleasedAt: string | null;
+    order?: { orderNumber: string; paymentMethod: string };
+  };
   comments?: AdminComplaintComment[];
   refunds?: AdminRefundView[];
+  decision?: "PENDING" | "REJECTED" | "REFUND_FULL" | "REFUND_PARTIAL" | "RETURN_TO_SELLER";
+  sellerResponseDueAt?: string | null;
+  sellerRespondedAt?: string | null;
+  fundsHeldAt?: string | null;
+  decidedAt?: string | null;
+  refundAmount?: string | null;
+}
+
+export interface AdminWithdrawalView {
+  id: string;
+  payoutNumber: string;
+  sellerProfileId: string;
+  amount: string;
+  status: "PENDING" | "PROCESSING" | "PAID" | "REJECTED" | "FAILED";
+  method: PayoutMethod | null;
+  accountMasked: string | null;
+  reference: string | null;
+  rejectionReason: string | null;
+  balanceSnapshot: string | null;
+  createdAt: string;
+  processedAt: string | null;
+  seller?: { id: string; businessName: string; name: string };
+}
+
+export interface DecideDisputeInput {
+  decision: "REJECTED" | "REFUND_FULL" | "REFUND_PARTIAL" | "RETURN_TO_SELLER";
+  reason: string;
+  refundAmount?: number;
+  refundTrxId?: string;
 }
 
 /* ───────────────────────── Reviews ───────────────────────── */
@@ -630,6 +677,13 @@ export interface ReconciliationResult {
   to: string;
   checked: number;
   violations: ReconciliationViolation[];
+  settlement?: {
+    receipts: string;
+    buckets: string;
+    difference: string;
+    balanced: boolean;
+    codDues: string;
+  };
 }
 
 /* -- COD risk ------------------------------- */

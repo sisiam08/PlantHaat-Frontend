@@ -36,6 +36,7 @@ const SELLER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 
 export function SellerOrderDetail({ id }: { id: string }) {
   const t = useTranslations("seller.orders");
+  const tp4 = useTranslations("part4.sellerOrder");
   const tStatus = useTranslations("seller.orderStatus");
   const tErrors = useTranslations("errors");
   const tp = useTranslations("payments");
@@ -81,6 +82,10 @@ export function SellerOrderDetail({ id }: { id: string }) {
 
   const data: SellerShopOrderView = order.data;
   const allowed = SELLER_TRANSITIONS[data.status] ?? [];
+  const settlement = data as SellerShopOrderView & {
+    releaseAt?: string | null;
+    fundsReleasedAt?: string | null;
+  };
   const paymentBlocked =
     data.order.paymentMethod === "ADVANCE" && data.order.paymentStatus !== "PAID";
 
@@ -219,6 +224,17 @@ export function SellerOrderDetail({ id }: { id: string }) {
           {data.estimatedDeliveryTo ? (
             <p className="text-muted-foreground">
               {t("eta")}: {formatDateTime(data.estimatedDeliveryTo, locale)}
+            </p>
+          ) : null}
+          {settlement.deliveredAt && settlement.releaseAt ? (
+            <p className="text-muted-foreground">
+              {settlement.fundsReleasedAt
+                ? tp4("fundsReleased", {
+                    date: formatDateTime(settlement.fundsReleasedAt, locale),
+                  })
+                : tp4("releaseAt", {
+                    date: formatDateTime(settlement.releaseAt, locale),
+                  })}
             </p>
           ) : null}
           {data.deliveryNote ? (

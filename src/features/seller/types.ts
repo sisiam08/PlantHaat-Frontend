@@ -92,3 +92,80 @@ export type SellerEarnings = Schemas["SellerEarningsDto"];
 /* ───────────────────────── F6: analytics ───────────────────────── */
 
 export type SellerAnalyticsOverview = Schemas["AnalyticsOverviewDto"];
+
+/* Part 4: settlement wallet (manual contract; see backend/docs/payments/api.md). */
+export type WalletLedgerAccount =
+  | "BUYER_RECEIPTS"
+  | "PLATFORM_HOLDINGS"
+  | "SELLER_PENDING"
+  | "SELLER_AVAILABLE"
+  | "SELLER_ON_HOLD"
+  | "SELLER_WITHDRAWAL_RESERVED"
+  | "SELLER_PAID_OUT"
+  | "REFUND_PAYABLE"
+  | "REFUNDS_PAID"
+  | "PLATFORM_COMMISSION"
+  | "COD_DUES";
+
+export interface SellerWallet {
+  balances: {
+    available: string;
+    pending: string;
+    onHold: string;
+    withdrawalReserved: string;
+    totalWithdrawn: string;
+    codDues: string;
+    net: string;
+  };
+  pendingOrders: { shopOrderId: string; amount: string; releaseAt: string | null }[];
+  payoutProfile: {
+    method: PayoutMethod;
+    accountMasked: string;
+    accountName: string;
+    updatedAt: string;
+    cooldownUntil: string;
+  } | null;
+  settings: {
+    minimumAmount: number;
+    methods: PayoutMethod[];
+    maxPendingRequests: number;
+    codDuesLimit: number;
+    processingText: string;
+  };
+}
+
+export interface SellerWalletTransaction {
+  id: string;
+  type: string;
+  account: WalletLedgerAccount | null;
+  amount: string;
+  description: string | null;
+  createdAt: string;
+  shopOrderId: string | null;
+  payoutId: string | null;
+  refundId: string | null;
+  batchId: string | null;
+  releaseAt: string | null;
+}
+
+export interface SellerWithdrawal {
+  id: string;
+  payoutNumber: string;
+  sellerProfileId: string;
+  amount: string;
+  status: "PENDING" | "PROCESSING" | "PAID" | "REJECTED" | "FAILED";
+  method: PayoutMethod | null;
+  accountMasked: string | null;
+  reference: string | null;
+  rejectionReason: string | null;
+  requestedById: string | null;
+  balanceSnapshot: string | null;
+  createdAt: string;
+  processedAt: string | null;
+}
+
+export interface PayoutProfileInput {
+  method: PayoutMethod;
+  accountNumber: string;
+  accountName: string;
+}

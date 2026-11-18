@@ -32,7 +32,7 @@ export function Logo({
       {showText ? (
         <span
           className={cn(
-            "font-heading text-lg leading-none font-bold tracking-tight",
+            "font-heading text-base leading-none font-bold tracking-tight sm:text-lg",
             tone === "sidebar" ? "text-sidebar-foreground" : "text-foreground",
           )}
         >

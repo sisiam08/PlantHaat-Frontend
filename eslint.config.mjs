@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     // Throwaway production build dir used for perf measurement (NEXT_DIST_DIR).
     ".next-prod/**",
+    ".next-test/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

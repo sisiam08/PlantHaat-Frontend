@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/api/client";
 import type { PaginationMeta } from "@/lib/api/common";
 import type {
   AddDocumentInput,
@@ -198,4 +198,33 @@ export const sellerApi = {
     apiGet<SellerAnalyticsOverview>("/seller/analytics/overview", { params }).then(
       (result) => result.data,
     ),
+};
+
+/* Part 4: wallet, payout profile and withdrawals. */
+export const sellerWalletApi = {
+  get: () => apiGet<import("./types").SellerWallet>("/seller/wallet").then((r) => r.data),
+  transactions: (params?: { page?: number; limit?: number; type?: string }) =>
+    apiGet<import("./types").SellerWalletTransaction[]>("/seller/wallet/transactions", {
+      params,
+    }).then((r) => paginated(r)),
+  getProfile: () =>
+    apiGet<import("./types").SellerWallet["payoutProfile"]>("/seller/wallet/payout-profile").then(
+      (r) => r.data,
+    ),
+  saveProfile: (input: import("./types").PayoutProfileInput) =>
+    apiPut<NonNullable<import("./types").SellerWallet["payoutProfile"]>>(
+      "/seller/wallet/payout-profile",
+      input,
+    ).then((r) => r.data),
+  listWithdrawals: (params?: { page?: number; limit?: number; status?: string }) =>
+    apiGet<import("./types").SellerWithdrawal[]>("/seller/wallet/withdrawals", {
+      params,
+    }).then((r) => paginated(r)),
+  requestWithdrawal: (
+    input: { amount: number; method?: import("./types").PayoutMethod },
+    idempotencyKey: string,
+  ) =>
+    apiPost<import("./types").SellerWithdrawal>("/seller/wallet/withdrawals", input, {
+      headers: { "Idempotency-Key": idempotencyKey },
+    }).then((r) => r.data),
 };
