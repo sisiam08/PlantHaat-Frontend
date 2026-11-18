@@ -132,7 +132,7 @@ for (const locale of ["en", "bn"] as const) {
       }
       if (width === 1280) {
         await page.screenshot({
-          path: `../docs/design-review/cart-checkout/cart-after-owner-scenario-${locale}-1280.png`,
+          path: `../.artifacts/cart-checkout/cart-after-owner-scenario-${locale}-1280.png`,
         });
       }
     });
@@ -152,6 +152,6 @@ for (const width of [360, 390]) {
       expect(line.overlap).toBe(false);
       expect(line.clipped).toBe(false);
     }
-    await page.screenshot({ path: `../docs/design-review/cart-checkout/cart-mobile-${width}.png` });
+    await page.screenshot({ path: `../.artifacts/cart-checkout/cart-mobile-${width}.png` });
   });
 }

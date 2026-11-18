@@ -45,7 +45,7 @@ for (const width of WIDTHS) {
       expect(info!.skeletons % info!.columns).toBe(0);
 
       if (width === 1280 || width === 360) {
-        await page.screenshot({ path: `../docs/design-review/skeletons-products-${width}.png` });
+        await page.screenshot({ path: `../.artifacts/skeletons-products-${width}.png` });
       }
 
       await page.unrouteAll({ behavior: "ignoreErrors" });
@@ -72,7 +72,7 @@ for (const width of WIDTHS) {
       expect(info!.skeletons % info!.columns).toBe(0);
 
       if (width === 1280 || width === 360) {
-        await page.screenshot({ path: `../docs/design-review/skeletons-feed-${width}.png` });
+        await page.screenshot({ path: `../.artifacts/skeletons-feed-${width}.png` });
       }
 
       await page.unrouteAll({ behavior: "ignoreErrors" });

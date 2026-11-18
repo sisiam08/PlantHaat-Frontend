@@ -90,12 +90,12 @@ for (const locale of ["en", "bn"] as const) {
 
       await page.goto("/", { waitUntil: "networkidle" });
       await page.screenshot({
-        path: `../docs/design-review/product-card/home-${locale}-${width}.png`,
+        path: `../.artifacts/product-card/home-${locale}-${width}.png`,
       });
 
       await page.goto("/products?q=aloe", { waitUntil: "networkidle" });
       await page.screenshot({
-        path: `../docs/design-review/product-card/catalog-${locale}-${width}.png`,
+        path: `../.artifacts/product-card/catalog-${locale}-${width}.png`,
       });
     });
   }

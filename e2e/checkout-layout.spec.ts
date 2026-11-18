@@ -214,7 +214,7 @@ for (const locale of ["en", "bn"] as const) {
           await page.evaluate(() => window.scrollTo(0, 0));
           await page.waitForTimeout(150);
           await page.screenshot({
-            path: `../docs/design-review/cart-checkout/checkout-after-fix-${locale}-1280-${shops}shops.png`,
+            path: `../.artifacts/cart-checkout/checkout-after-fix-${locale}-1280-${shops}shops.png`,
           });
         }
       });
@@ -294,7 +294,7 @@ for (const locale of ["en", "bn"] as const) {
           await page.evaluate(() => window.scrollTo(0, 0));
           await page.waitForTimeout(200);
           await page.screenshot({
-            path: `../docs/design-review/cart-checkout/checkout-after-fix-${locale}-360-${shops}shops.png`,
+            path: `../.artifacts/cart-checkout/checkout-after-fix-${locale}-360-${shops}shops.png`,
           });
         }
       });

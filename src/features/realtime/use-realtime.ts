@@ -27,7 +27,7 @@ interface UnreadCountPayload {
 
 /**
  * Ticket-authenticated Socket.IO connection to the backend `/realtime` namespace
- * (see backend/docs/REALTIME.md). Mounted once app-wide; connection is managed
+ * (see backend/docs/api/realtime.md). Mounted once app-wide; connection is managed
  * manually because the ticket is one-time and short-lived (re-fetch on every
  * reconnect). No-ops when `NEXT_PUBLIC_REALTIME_URL` is unset or the user is
  * anonymous. The unread-count polling fallback stays active in parallel.

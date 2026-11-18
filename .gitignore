@@ -65,3 +65,26 @@ skills-lock.json
 .gemini/
 .aider*
 .continue/
+
+# generated artifacts and documentation evidence
+/.next-prod/
+/.next-test/
+/.artifacts/
+/test-results/
+/playwright-report/
+/.playwright-mcp/
+/measurements/
+*.dump
+*.bak
+*.orig
+*.tmp
+logs/
+tmp/
+/docs/**/*.png
+/docs/**/*.jpg
+/docs/**/*.jpeg
+/docs/**/*.webp
+!/docs/reference/**/*.png
+!/docs/reference/**/*.jpg
+!/docs/reference/**/*.jpeg
+!/docs/reference/**/*.webp

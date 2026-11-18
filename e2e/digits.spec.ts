@@ -44,11 +44,11 @@ test("Bangla pages use Latin digits and the taka sign leads amounts", async ({ p
   }
 
   await page.goto("/products", { waitUntil: "domcontentloaded" });
-  await page.screenshot({ path: "../docs/design-review/digits/bn-1280.png" });
+  await page.screenshot({ path: "../.artifacts/digits/bn-1280.png" });
   await page.setViewportSize({ width: 360, height: 900 });
   await page.goto("/products", { waitUntil: "domcontentloaded" });
-  await page.screenshot({ path: "../docs/design-review/digits/bn-360.png" });
+  await page.screenshot({ path: "../.artifacts/digits/bn-360.png" });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/checkout", { waitUntil: "domcontentloaded" });
-  await page.screenshot({ path: "../docs/design-review/digits/bn-checkout-1280.png" });
+  await page.screenshot({ path: "../.artifacts/digits/bn-checkout-1280.png" });
 });

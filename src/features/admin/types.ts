@@ -1,7 +1,7 @@
 /**
  * Admin console types hand-written from the backend DTOs/services, because the
  * OpenAPI spec has no (or only partial) response schemas for most admin
- * endpoints (see FRONTEND_CONTEXT.md §9 backend change request #6).
+ * endpoints (see docs/FRONTEND_CONTEXT.md §9 backend change request #6).
  *
  * Exception: the analytics overview now has a generated schema, so it is
  * re-exported from `components["schemas"]["AdminAnalyticsOverviewDto"]`.

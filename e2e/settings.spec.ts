@@ -6,7 +6,7 @@ const ADMIN = {
   email: process.env.ADMIN_EMAIL ?? "admin@planthaat.test",
   password: process.env.ADMIN_PASSWORD ?? "",
 };
-const SCREENSHOTS = "../docs/design-review/settings";
+const SCREENSHOTS = "../.artifacts/settings";
 
 test.setTimeout(240_000);
 test.describe.configure({ mode: "serial" });

@@ -440,9 +440,9 @@ test("captures checkout selector and seller gating screenshots", async ({ page, 
   await page.goto(`${BASE}/checkout`, { waitUntil: "domcontentloaded" });
   await page.locator('[data-payment-option="ADVANCE"]').waitFor({ state: "visible", timeout: 120_000 });
   await page.waitForTimeout(500);
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/checkout-selector-1280.png" });
+  await page.screenshot({ path: "../.artifacts/payments/checkout-selector-1280.png" });
   await page.setViewportSize({ width: 360, height: 900 });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/checkout-selector-360.png" });
+  await page.screenshot({ path: "../.artifacts/payments/checkout-selector-360.png" });
 
   await page.context().addCookies([
     { name: "NEXT_LOCALE", value: "bn", domain: "localhost", path: "/" },
@@ -450,16 +450,16 @@ test("captures checkout selector and seller gating screenshots", async ({ page, 
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator('[data-payment-option="ADVANCE"]').waitFor({ state: "visible", timeout: 120_000 });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/checkout-selector-bn-1280.png" });
+  await page.screenshot({ path: "../.artifacts/payments/checkout-selector-bn-1280.png" });
   await page.setViewportSize({ width: 360, height: 900 });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/checkout-selector-bn-360.png" });
+  await page.screenshot({ path: "../.artifacts/payments/checkout-selector-bn-360.png" });
 
   await page.goto(`${BASE}/checkout/payment/${order.id}`, { waitUntil: "domcontentloaded" });
   await page.locator("[data-payment-number]").waitFor({ state: "visible", timeout: 120_000 });
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/payment-unpaid-bn-1280.png" });
+  await page.screenshot({ path: "../.artifacts/payments/payment-unpaid-bn-1280.png" });
   await page.setViewportSize({ width: 360, height: 900 });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/payment-unpaid-bn-360.png" });
+  await page.screenshot({ path: "../.artifacts/payments/payment-unpaid-bn-360.png" });
   await page.context().addCookies([
     { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
   ]);
@@ -475,5 +475,5 @@ test("captures checkout selector and seller gating screenshots", async ({ page, 
   await page.setViewportSize({ width: 1280, height: 900 });
   await loginBrowser(page.context(), sellerFor((await (await buyerApi.get(`/api/v1/orders/${order.id}`)).json()).data.shopOrders[0].shop.name));
   await page.goto(`${BASE}/seller/orders/${shopOrder.id}`, { waitUntil: "domcontentloaded" });
-  await page.screenshot({ path: "E:/Development/Projects/PlantHaat/docs/design-review/payments/seller-gating-1280.png" });
+  await page.screenshot({ path: "../.artifacts/payments/seller-gating-1280.png" });
 });

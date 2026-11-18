@@ -3,7 +3,7 @@
 Next.js (App Router) storefront, seller dashboard and admin console for
 PlantHaat, consuming the backend API through a Backend-for-Frontend (BFF).
 
-See `../FRONTEND_DESIGN.md` (spec) and `../FRONTEND_CONTEXT.md` (working rules +
+See `docs/FRONTEND_DESIGN.md` (spec) and `docs/FRONTEND_CONTEXT.md` (working rules +
 progress log).
 
 ## Architecture (BFF)
@@ -18,7 +18,7 @@ The browser never calls the backend directly. Three paths:
    origin allow-list, forwards `Authorization: Bearer` + `ph_rt`, translates the
    backend's `Set-Cookie` into Next-origin httpOnly cookies, refreshes once on a
    401 (single-flight) and invalidates cache tags after successful mutations.
-3. **Realtime socket → backend directly** (ticket-authenticated, `docs/REALTIME.md`).
+3. **Realtime socket → backend directly** (ticket-authenticated, `backend/docs/api/realtime.md`).
 
 `src/proxy.ts` (Next 16 middleware) refreshes the session before private routes
 render. Tokens live only in httpOnly cookies owned by the Next.js origin
