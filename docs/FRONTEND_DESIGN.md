@@ -1,7 +1,7 @@
 # PlantHaat — Frontend Design Document
 
 Audience: the AI coding agent building the Next.js frontend, and the developer reviewing it.
-Companions: `FRONTEND_CONTEXT.md` (working rules + progress log), `backend/openapi.json` (exact request/response shapes — **source of truth for DTOs**), `backend/docs/BACKEND_DESIGN.md` (domain rules), `AI_CONTEXT.md` (backend decisions log — read §0, §9 "Decisions & deviations", §10, §11 only), `BACKEND_CHANGE_REQUESTS.md` (backend work the developer gives to the backend agent; check `AI_CONTEXT.md` to see which items are already delivered).
+Companions: `FRONTEND_CONTEXT.md` (working rules + progress log), `backend/openapi.json` (exact request/response shapes — **source of truth for DTOs**), `backend/docs/BACKEND_DESIGN.md` (domain rules), `backend/docs/BACKEND_CONTEXT.md` (backend decisions log — read §0, §9 "Decisions & deviations", §10, §11 only), `backend/docs/BACKEND_CHANGE_REQUESTS.md` (backend work the developer gives to the backend agent; check `backend/docs/BACKEND_CONTEXT.md` to see which items are already delivered).
 
 This document describes **behavior, UX and architecture**. Where it conflicts with `openapi.json` on field names/shapes, `openapi.json` wins; log the difference.
 
@@ -119,7 +119,7 @@ Server Actions are **not** used for backend mutations in v1: one mutation path (
 Success: `{ success: true, data, meta? }` → clients unwrap to `{ data, meta }`. Error: `{ success: false, statusCode, error: { code, message, details? } }` → throw `ApiError(code, status, details)`.
 - Map `error.code` → i18n key (`errors.<CODE>`); unknown codes fall back to a generic localized message (never show backend English text to users, except validation details).
 - `422` with `details[]` (validation / `CHECKOUT_VALIDATION_FAILED`) → field errors in forms or per-line issues in checkout. `429` → friendly retry message (respect `Retry-After`). Network failure → inline retry UI; never a blank page.
-- Localize at minimum: auth (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`, `ACCOUNT_LOCKED`, `ACCOUNT_SUSPENDED`, `EMAIL_NOT_VERIFIED`, `EMAIL_ALREADY_REGISTERED`, `SESSION_EXPIRED`, `ORIGIN_NOT_ALLOWED`), cart/checkout (`CART_EMPTY`, `INSUFFICIENT_STOCK`, `CHECKOUT_VALIDATION_FAILED`, `SHOP_UNAVAILABLE`, `SHOP_ON_VACATION`, `SHOP_NOT_DELIVERING_TO_DISTRICT`, `PAYMENT_METHOD_NOT_AVAILABLE`), gateway codes, plus every code in `openapi.json` / `AI_CONTEXT.md` §9. Keep one registry file so missing translations are easy to find.
+- Localize at minimum: auth (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`, `ACCOUNT_LOCKED`, `ACCOUNT_SUSPENDED`, `EMAIL_NOT_VERIFIED`, `EMAIL_ALREADY_REGISTERED`, `SESSION_EXPIRED`, `ORIGIN_NOT_ALLOWED`), cart/checkout (`CART_EMPTY`, `INSUFFICIENT_STOCK`, `CHECKOUT_VALIDATION_FAILED`, `SHOP_UNAVAILABLE`, `SHOP_ON_VACATION`, `SHOP_NOT_DELIVERING_TO_DISTRICT`, `PAYMENT_METHOD_NOT_AVAILABLE`), gateway codes, plus every code in `openapi.json` / `backend/docs/BACKEND_CONTEXT.md` §9. Keep one registry file so missing translations are easy to find.
 
 ### 3.5 Axios clients and types
 `npm run api:types` reads `openapi/openapi.json` and generates `src/lib/api/schema.d.ts` (commit both, so installs don't need the backend). Typed helpers wrap Axios using those `paths` types so each call's params, body and response are typed; where the spec lacks response schemas, write a zod schema/type by hand next to the feature, note it in `FRONTEND_CONTEXT.md`, and report big gaps as backend change requests.
@@ -428,7 +428,7 @@ The backend's `CORS_ORIGINS`/`APP_URL` must include the frontend origin (`http:/
 ---
 
 ## 14. Backend change requests (log status in `FRONTEND_CONTEXT.md`; never edit `backend/` yourself)
-Full specs are in `BACKEND_CHANGE_REQUESTS.md` (the developer gives it to the backend agent). Until an item is delivered (check `AI_CONTEXT.md` §9/§10 and `openapi.json`), use the stated workaround:
+Full specs are in `backend/docs/BACKEND_CHANGE_REQUESTS.md` (the developer gives it to the backend agent). Until an item is delivered (check `backend/docs/BACKEND_CONTEXT.md` §9/§10 and `openapi.json`), use the stated workaround:
 1. **Realtime gateway + `POST /realtime/ticket`** — workaround: polling fallback (§3.6).
 2. **Trusted client IP behind the BFF** (`BFF_SHARED_SECRET`, `X-Forwarded-For`) — without it all users share the Next.js server's IP for throttling/sessions/audit; works locally, **must be delivered before production**.
 3. **S3/R2 storage driver** (currently a stub) — production blocker; local driver works in dev.
