@@ -121,3 +121,24 @@ Authoritative route list: `FRONTEND_DESIGN.md` Â§7. Built areas: public home/cat
 - Shared `<PasswordInput/>` (`components/ui/password-input.tsx`) is the only password field: FormField routes `type="password"` through it, the admin settings re-auth dialog uses it directly, and `tests/password-input-guard.test.ts` blocks raw password inputs.
 - Clickable cards use the shared `lib/focus-ring.ts` utilities: keyboard-only rings (`:focus-visible` / `:has(a:focus-visible)`, inset so rails cannot clip them); `:focus-within` is not used on cards.
 - Settings specs run on a production isolated stack (`:5001` API, `:3002` production frontend) via `backend/scripts/test-stack.ps1 start|stop|status|seed`; see `testing/live-log.md`.
+
+## 14. Part 4 settlement UI (2026-11-19)
+
+- Seller wallet replaces the old earnings screen at `/seller/earnings`: Available/Pending/On hold/
+  Total withdrawn/COD dues, per-order release dates, transactions with type filter, payout profile,
+  withdrawal dialog. Nav label is “Wallet”.
+- Buyer order detail shows the snapshot return window, “Report a problem” and (when enabled)
+  “Everything is fine” early release with a consequence dialog. Older delivered orders without a
+  snapshot show a legacy-settled note.
+- Admin: new `/admin/withdrawals` pay/reject queue, money-decision panel on complaint detail with
+  order summary/evidence lightbox, settlement block + breach banner on reconciliation, dashboard
+  queue counters, nav badges for disputes/withdrawals.
+- Money is always rendered with `<Price>` (taka before amount, Latin digits); the test-stack stack
+  language uses the existing tokens. No new dependencies.
+- Shared header mobile padding/gaps were reduced so authenticated 360 px pages no longer overflow.
+- Verification: `e2e/part4-settlement.spec.ts` (1/1, includes axe + 360 overflow) on the isolated
+  production stack; `payments-advance.spec.ts` 12/12; Vitest 68 passed/1 skipped; typecheck, lint,
+  production build green. Full report: `docs/testing/part4-live-report.md`.
+- Known gaps: admin destination reveal is impossible with the masked API contract; dispute list
+  seller/age/amount filters need API fields; forced reconciliation breach not created live;
+  test-stack realtime still targets `:5000` (existing env issue).

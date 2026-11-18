@@ -61,3 +61,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File backend/scripts/test-stack.p
 
 | 2026-11-18 19:05 | Production build (:3000), bundled Chromium + real Chrome channel | 1280/390 en+bn | Card focus after click/Back, hover/active, touch, keyboard | PASS - focus-ring 8/8 bundled + 8/8 real Chrome; design-conformance 43/43, product-card/home-consistency/scroll-restore 58/58; axe home/products clean. Cause: Chrome can match :focus-visible after pointer (focus restoration/settings) and the inset wrapper shadow was painted under the image, so only the text area showed it. Now a ::after overlay above the image, gated on keyboard modality. |
 | 2026-11-18 20:10 | Production build (:3000) | 1280/390 en+bn | Wishlist hydration + card focus | PASS - wishlist-hydration 1/1 (no console hydration error, saved heart aria-pressed + "Remove from wishlist"), focus-ring 8/8 bundled + 8/8 Chrome, product-card/design-conformance/home-consistency 54/54, axe home+/products clean, Vitest 66/66. |
+
+## 2026-11-19 Part 4 settlement UI (isolated :5001/:3002)
+
+Full report: `docs/testing/part4-live-report.md`.
+
+Run (serial, production test stack):
+
+```powershell
+$env:PAYMENTS_TEST_BASE_URL="http://localhost:3002"
+$env:PAYMENTS_TEST_API_URL="http://127.0.0.1:5001"
+npx playwright test e2e/part4-settlement.spec.ts --project=desktop-chromium --workers=1
+```
+
+The spec seeds nothing itself; it uses the fake test-stack accounts and creates its own
+advance/COD/dispute records. It sets only non-sensitive public return-window test settings and, for
+the COD dues case, disables auto-deduction through a real admin re-auth token. Axe + 360 px overflow
+checks run inside the same spec. `payments-advance.spec.ts` remains the regression suite for Part 3.
