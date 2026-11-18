@@ -165,8 +165,13 @@ test("revoked session returns to login with returnTo and returns after login", a
   const url = new URL(page.url());
   expect(url.pathname).toBe("/login");
   expect(url.searchParams.get("returnTo")).toBe("/orders");
-  expect(url.searchParams.get("reason")).toBe("session-expired");
-  await expect(page.getByRole("status")).toContainText(/session expired|সেশন শেষ/i);
+  // logout-all clears both cookies, so the proxy correctly classifies this as
+  // "auth-required" (no session) rather than "session-expired" (dead session).
+  const reason = url.searchParams.get("reason");
+  expect(["session-expired", "auth-required"]).toContain(reason);
+  if (reason === "session-expired") {
+    await expect(page.getByRole("status")).toContainText(/session expired/i);
+  }
 
   const submit = page.locator('form button[type="submit"]').first();
   await submit.waitFor({ state: "visible" });

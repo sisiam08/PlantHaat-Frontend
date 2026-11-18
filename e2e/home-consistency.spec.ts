@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+﻿import { expect, test, type Page } from "@playwright/test";
 
 const RHYTHM = { 390: 32, 1280: 64 } as const;
 
@@ -8,7 +8,7 @@ async function openHome(page: Page, locale: "bn" | "en", width: number) {
   ]);
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.locator("#home-categories")).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("#home-categories:visible").first()).toBeVisible({ timeout: 30_000 });
   await page.evaluate(() => window.scrollTo(0, 0));
 }
 
@@ -251,3 +251,4 @@ test("server-rendered home rails are present and never repeat adjacent products"
     expect(duplicates, `${rails[index].id} repeats ${rails[index - 1].id}`).toEqual([]);
   }
 });
+

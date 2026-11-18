@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test";
 const BASE = process.env.SETTINGS_PERSIST_BASE_URL;
 const ORIGIN = BASE ?? "http://localhost:3000";
 const ADMIN = {
-  email: process.env.ADMIN_EMAIL ?? "admin@planthaat.test",
-  password: process.env.ADMIN_PASSWORD ?? "",
+  email: process.env.ADMIN_EMAIL ?? "admin@teststack.local",
+  password: process.env.ADMIN_PASSWORD ?? "TestAdmin123!",
 };
 
 test.setTimeout(300_000);
@@ -36,10 +36,19 @@ test("settings persist: number + provider + advance in one save, five reloads", 
       headers: token ? { "x-settings-reauth": token } : {},
     });
 
+  await page.context().addCookies([
+    { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
+  ]);
+  const snapshotResponse = await api.get("/api/v1/admin/settings");
+  expect(snapshotResponse.ok()).toBeTruthy();
+  const snapshot = (await snapshotResponse.json()).data as Record<string, unknown>;
+  const restoreKeys = [
+    "payment.bkash.number",
+    "payment.bkash.enabled",
+    "payment.advance.enabled",
+  ];
+
   try {
-    await page.context().addCookies([
-      { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
-    ]);
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
     const status = await page.evaluate(
       async ({ email, password }) => {
@@ -56,11 +65,14 @@ test("settings persist: number + provider + advance in one save, five reloads", 
     await page.goto(`${BASE}/admin/settings`, { waitUntil: "domcontentloaded" });
 
     const number = page.getByRole("textbox", { name: /bKash receiving number/ });
-    await number.waitFor({ state: "visible", timeout: 120_000 });
+    await number.waitFor({ state: "visible", timeout: 30_000 });
     const bkash = page.getByRole("checkbox", { name: /bKash enabled/ });
     const advance = page.getByRole("checkbox", { name: /Advance payment enabled/ });
 
-    await number.fill("01700000000");
+    const nextNumber = String(snapshot["payment.bkash.number"] ?? "") === "01700000009"
+      ? "01700000008"
+      : "01700000009";
+    await number.fill(nextNumber);
     await bkash.check();
     await advance.check();
     await page.getByRole("button", { name: /^Save$/ }).click();
@@ -75,7 +87,7 @@ test("settings persist: number + provider + advance in one save, five reloads", 
     for (let attempt = 0; attempt < 5; attempt++) {
       await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.getByRole("textbox", { name: /bKash receiving number/ })).toHaveValue(
-        "01700000000",
+        nextNumber,
         { timeout: 60_000 },
       );
       await expect(page.getByRole("checkbox", { name: /bKash enabled/ })).toBeChecked();
@@ -88,14 +100,8 @@ test("settings persist: number + provider + advance in one save, five reloads", 
   } finally {
     const token = await reauth();
     if (token.ok()) {
-      await patch(
-        {
-          "payment.bkash.number": "",
-          "payment.bkash.enabled": false,
-          "payment.advance.enabled": false,
-        },
-        (await token.json()).data.token,
-      );
+      const values = Object.fromEntries(restoreKeys.map((key) => [key, snapshot[key]]));
+      await patch(values, (await token.json()).data.token);
     }
     await api.dispose();
   }

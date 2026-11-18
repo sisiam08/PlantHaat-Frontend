@@ -1,6 +1,10 @@
 /**
- * Starts the isolated Part 3 frontend on :3002 against the test API (:5001).
+ * Builds/serves the isolated Part 3 frontend on :3002 against the test API
+ * (:5001). Production build only: no compile-on-demand latency, so the
+ * settings Playwright specs wait on real responses instead of bundling.
  * Reads the BFF secret from backend/.env.test without printing it.
+ *
+ * Usage: node scripts/run-test-frontend.mjs build|start
  */
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -23,6 +27,11 @@ function readEnv(path) {
   return result;
 }
 
+const mode = process.argv[2] ?? "start";
+if (mode !== "build" && mode !== "start") {
+  throw new Error("mode must be build or start");
+}
+
 const backendEnv = readEnv(resolve("../backend/.env.test"));
 const env = {
   ...process.env,
@@ -35,9 +44,6 @@ const env = {
 };
 
 const nextBin = resolve("node_modules/next/dist/bin/next");
-const child = spawn(process.execPath, [nextBin, "dev", "-p", "3002"], {
-  cwd: process.cwd(),
-  env,
-  stdio: "inherit",
-});
+const args = mode === "build" ? [nextBin, "build"] : [nextBin, "start", "-p", "3002"];
+const child = spawn(process.execPath, args, { cwd: process.cwd(), env, stdio: "inherit" });
 child.on("exit", (code) => process.exit(code ?? 0));

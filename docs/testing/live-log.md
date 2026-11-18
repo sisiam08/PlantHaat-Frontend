@@ -39,3 +39,22 @@
 | 2026-11-16 23:30 | :5001/:3002 isolated stack | 360/1280 en+bn | Advance payment journey (buyer/admin/seller) | PASS - checkout selector, payment page states (unpaid/pending/paid/rejected/underpaid/expired), admin verify/reject and refund queues, seller gating, settings preview; screenshots .artifacts/payments/ |
 | 2026-11-17 22:05 | :5001/:3002 isolated stack (access TTL 10 s) | desktop + Pixel 7, en+bn | Silent session refresh | PASS - measured cookies: ph_at/ph_rt Path=/, HttpOnly, SameSite=Lax; access cookie Max-Age 300 s while JWT exp 10 s (before fix the access Max-Age equalled the 10 s TTL and vanished). Reproduced /account/sessions -> /login?returnTo=... before the fix with no refresh call; after: customer/seller/admin stay logged in, 10 parallel requests share one refresh generation, two tabs survive, revocation returns to /login with returnTo + localized message and returns to the page after login, no tokens in storage. Playwright session-refresh 8/8 desktop + 8/8 mobile. |
 | 2026-11-17 23:55 | :5000 dev API | n/a | API restart does not log out | PASS - login saved, :5000 restarted, /auth/me 200 with the same cookie (sessions are Postgres-backed); headed /account/sessions loaded through :3000. |
+
+| 2026-11-18 17:10 | Production build (:3000) + isolated :5001/:3002 | 390/1280 en+bn | Cart/checkout CLS + checkout LCP | PASS - 5-run medians: cart CLS 0.0042-0.0108, checkout CLS 0.0073-0.0093, checkout LCP 1.83-1.99 s; guest cart 0; 6-shop cart 0.0083. |
+| 2026-11-18 17:20 | Isolated production stack | desktop, en+bn, 360/1280 | Settings admin specs | PASS - settings 4/4 and payments-advance 12/12 serially. Found and fixed a real staleness bug: public settings cached for 60 s, so the admin promise "customers will see this on new page loads" was false; now 1 s + tag invalidation. |
+| 2026-11-18 17:30 | Isolated production stack (access TTL 10 s) | desktop | Session refresh | 8/8 passed after updating the revoked-session expectation: logout-all clears both cookies, so the proxy correctly returns `auth-required`, not `session-expired`. |
+| 2026-11-18 17:40 | :3000 development server | 390/1280 en+bn | Password toggle + card focus + CLS guard | PASS - password 5/5, focus-ring 5/5, CLS 2/2, design-conformance 24/24, home-consistency 7/7. |
+
+### Isolated settings stack
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File backend/scripts/test-stack.ps1 start
+# API :5001 (planthaat_test), production frontend :3002 (no compile-on-demand)
+# test admin: admin@teststack.local / TestAdmin123! (seed fixture)
+$env:NEXT_PUBLIC_SITE_URL="http://localhost:3002"
+$env:SETTINGS_PERSIST_BASE_URL="http://localhost:3002"
+$env:ADMIN_EMAIL="admin@teststack.local"
+$env:ADMIN_PASSWORD="TestAdmin123!"
+npx playwright test e2e/settings.spec.ts e2e/settings-persist.spec.ts --workers=1 --project=desktop-chromium
+powershell -NoProfile -ExecutionPolicy Bypass -File backend/scripts/test-stack.ps1 stop
+```

@@ -176,7 +176,7 @@ test("ADVANCE: checkout → payment page → submit → admin verify → seller 
   await page.waitForURL(/\/checkout\/payment\//, { timeout: 60_000 });
   const orderId = page.url().split("/").pop()!;
   await expect(page.locator("[data-payment-number]")).toHaveText("01700000000");
-  await expect(page.getByText("Amount due")).toBeVisible();
+  await expect(page.getByText("Amount due").first()).toBeVisible();
 
   await page.getByRole("button", { name: /copy number/i }).click();
   await expect(page.getByRole("button", { name: /copied/i })).toBeVisible();
