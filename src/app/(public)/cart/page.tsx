@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { PageLoading } from "@/components/layout/page-skeleton";
-import { CartClient } from "@/features/cart/components/cart-client";
+import { CartClient, CartLoading } from "@/features/cart/components/cart-client";
+import { getCartServerData } from "@/features/cart/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("cart");
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function CartPage() {
   return (
-    <Suspense fallback={<PageLoading />}>
+    <Suspense fallback={<CartLoading />}>
       <CartContent />
     </Suspense>
   );
@@ -22,10 +22,11 @@ export default function CartPage() {
 
 async function CartContent() {
   const t = await getTranslations("cart");
+  const server = await getCartServerData();
   return (
     <PageContainer>
       <PageHeader title={t("title")} />
-      <CartClient />
+      <CartClient initialCart={server.cart} signedIn={server.signedIn} />
     </PageContainer>
   );
 }

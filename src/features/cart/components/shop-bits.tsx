@@ -111,7 +111,7 @@ export function ShopDeliveryLine({
 
   if (shop.deliveryCharge === null || shop.deliveryCharge === undefined) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex min-h-5 items-center gap-2 text-sm text-muted-foreground">
         <Truck aria-hidden className="size-4" />
         <span>{unavailable ? t("notDelivering") : updating ? t("updatingDelivery") : hint}</span>
       </div>
@@ -123,7 +123,7 @@ export function ShopDeliveryLine({
     typeof shop.estimatedDaysMax === "number" &&
     shop.estimatedDaysMax > 0;
   return (
-    <div className="flex justify-between text-sm">
+    <div className="flex min-h-5 justify-between text-sm">
       <span className="flex items-center gap-1.5">
         <Truck aria-hidden className="size-4" />
         {hasDays

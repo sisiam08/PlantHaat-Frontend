@@ -11,7 +11,10 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 400 700;
-  font-display: swap;
+  /* `optional` keeps a slow first visit on the metric-matched fallback instead
+     of repainting the largest text at ~2.6 s (late LCP). Cached later loads
+     use Inter immediately. */
+  font-display: optional;
   src: url("/fonts/inter-latin-var.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
@@ -37,6 +40,19 @@
     U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA,
     U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
 }
+/* Metric-matched Inter fallback (Next.js-computed Arial adjustments) so text
+   painted before/without Inter keeps the same line boxes and CLS stays 0. */
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local("Arial"), local("Helvetica Neue"), local("Segoe UI");
+  size-adjust: 107.64%;
+  ascent-override: 90.49%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+}
 @font-face {
   font-family: "Hind Siliguri Fallback";
   font-style: normal;
@@ -59,12 +75,12 @@
   --font-bangla:
     "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", system-ui, sans-serif;
   --font-sans:
-    "Inter", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", ui-sans-serif,
-    system-ui, sans-serif;
+    "Inter", "Inter Fallback", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
+    ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading:
-    "Inter", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", ui-sans-serif,
-    system-ui, sans-serif;
+    "Inter", "Inter Fallback", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
+    ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -419,4 +435,19 @@
   .catalog-progress-bar {
     animation: none;
   }
+}
+
+/* One reveal icon only: hide the Edge/IE native password eye. The browser
+   password-manager autofill UI stays untouched. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Clickable cards: no grey flash on touch; keyboard focus is drawn by the
+   shared focus-ring utility (`:focus-visible`, never `:focus-within`). */
+a,
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
 }

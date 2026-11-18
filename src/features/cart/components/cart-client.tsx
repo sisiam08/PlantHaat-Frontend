@@ -21,6 +21,7 @@ import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { District } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { Price } from "@/components/product/price";
 import { QuantityLine } from "@/components/product/quantity-line";
 import { formatCount } from "@/lib/format/number";
@@ -32,14 +33,72 @@ import { useGuestCart } from "../use-guest-cart";
 import { CartSummaryBox } from "./cart-summary";
 import { QuantityStepper, ShopCardHeader, ShopDeliveryLine } from "./shop-bits";
 
-export function CartClient() {
-  const { user } = useAuth();
+export function CartClient({
+  initialCart,
+  signedIn = false,
+}: {
+  initialCart?: CartView;
+  signedIn?: boolean;
+}) {
+  const { user, isLoading } = useAuth();
+  const hydrated = useHydrated();
   const guestLines = useGuestCart();
 
-  if (!user) {
-    return <GuestCart lines={guestLines} />;
+  // A server-rendered session/cart is already correct: never replace it with
+  // the guest/loading branch while the client auth probe resolves.
+  if (user || signedIn) {
+    return <ServerCart initialCart={initialCart} />;
   }
-  return <ServerCart />;
+  if (isLoading || !hydrated) {
+    return <CartLoading />;
+  }
+  return <GuestCart lines={guestLines} />;
+}
+
+/**
+ * Stable first-paint shell. Mirrors the final two-column structure and is at
+ * least one viewport tall, so the footer never jumps in from above the fold
+ * when the cart query resolves.
+ */
+export function CartLoading() {
+  return (
+    <div
+      aria-busy="true"
+      className="grid min-h-[calc(100dvh-var(--header-h)-5rem)] gap-4 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] lg:pb-0"
+    >
+      <div className="grid gap-1.5 sm:max-w-xs">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-10 w-full rounded-full" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:gap-6">
+        <div className="grid gap-4 lg:gap-5">
+          {[0, 1, 2].map((index) => (
+            <Card key={index} className="rounded-2xl">
+              <CardContent className="grid gap-3">
+                <Skeleton className="h-5 w-32" />
+                <div className="grid gap-2">
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                </div>
+                <Skeleton className="h-28 w-full rounded-xl" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card className="h-fit self-start rounded-xl border border-border/60 py-0 shadow-[var(--shadow-soft)]">
+          <CardContent className="grid gap-4 p-5">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-px w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-11 w-full rounded-full" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }
 
 /* ── Guest cart (grouped by shop, delivery-neutral) ─────────────── */
@@ -119,7 +178,7 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
 
 /* ── Server cart (per-shop cards + shared summary) ──────────────── */
 
-function ServerCart() {
+function ServerCart({ initialCart }: { initialCart?: CartView }) {
   const t = useTranslations("cart");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -133,13 +192,23 @@ function ServerCart() {
     queryKey: queryKeys.addresses,
     queryFn: addressesApi.list,
   });
-  const [chosenDistrict, setChosenDistrict] = useState<number | "">(
-    () => getRememberedDistrictId() ?? "",
-  );
+  // Read the remembered district after mount only: localStorage is unavailable
+  // during SSR, and touching it in the initial state would mismatch hydration.
+  const [chosenDistrict, setChosenDistrict] = useState<number | "">("");
   const defaultAddress = addresses.data
     ? (addresses.data.find((address) => address.isDefault) ?? addresses.data[0])
     : undefined;
   const districtId = chosenDistrict !== "" ? chosenDistrict : (defaultAddress?.districtId ?? "");
+
+  useEffect(() => {
+    const remembered = getRememberedDistrictId();
+    if (!remembered) {
+      return;
+    }
+    // Deferred one frame so the effect does not cascade a synchronous render.
+    const frame = requestAnimationFrame(() => setChosenDistrict(remembered));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
@@ -154,6 +223,8 @@ function ServerCart() {
     queryKey: cartKey,
     queryFn: () => cartApi.get(districtId === "" ? undefined : districtId),
     placeholderData: keepPreviousData,
+    initialData: districtId === "" ? initialCart : undefined,
+    staleTime: 30_000,
   });
 
   const tErrors = useTranslations("errors");
@@ -449,19 +520,24 @@ function ShopCard({
 
 function FreeDeliveryProgress({ shop, locale }: { shop: CartShopView; locale: string }) {
   const t = useTranslations("cart");
-  if (shop.freeDeliveryAbove === null || shop.freeDeliveryAbove === undefined) {
-    return null;
-  }
   const threshold = Number(shop.freeDeliveryAbove);
   const subtotal = Number(shop.subtotal);
-  if (!Number.isFinite(threshold) || threshold <= 0 || !Number.isFinite(subtotal)) {
-    return null;
+  // Reserve the bar's height before the delivery quote arrives: appearing in
+  // place must never push the shop total and the summary down.
+  if (
+    shop.freeDeliveryAbove === null ||
+    shop.freeDeliveryAbove === undefined ||
+    !Number.isFinite(threshold) ||
+    threshold <= 0 ||
+    !Number.isFinite(subtotal)
+  ) {
+    return <div aria-hidden className="min-h-[26px]" />;
   }
   const remaining = Math.max(0, threshold - subtotal);
   const percent = Math.min(100, Math.round((subtotal / threshold) * 100));
 
   return (
-    <div className="grid gap-1">
+    <div className="grid min-h-[26px] gap-1">
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-primary transition-[width]"

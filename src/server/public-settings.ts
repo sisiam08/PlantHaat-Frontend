@@ -23,7 +23,10 @@ export interface PublicSettings {
 export async function getPublicSettings(): Promise<PublicSettings> {
   "use cache";
   cacheTag(CACHE_TAGS.settings);
-  cacheLife({ stale: 0, revalidate: 60, expire: 300 });
+  // Settings are cheap to read and the admin UI promises "customers will see
+  // this on new page loads"; the tag invalidation handles the same process and
+  // the 1s revalidate covers prerendered shells / other instances.
+  cacheLife({ stale: 0, revalidate: 1, expire: 300 });
   const { data } = await serverRequest<PublicSettings>({
     method: "GET",
     url: "/settings/public",

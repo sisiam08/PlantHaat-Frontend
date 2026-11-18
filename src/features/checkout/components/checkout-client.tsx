@@ -25,11 +25,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { addressesApi, type CreateAddressInput } from "@/features/addresses/api";
+import { addressesApi, type AddressView, type CreateAddressInput } from "@/features/addresses/api";
 import { FormField } from "@/features/auth/components/form-field";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
 import { clearGuestCart, markGuestCartHandled } from "@/features/cart/guest-cart";
+import type { CartView } from "@/features/cart/types";
 import { queryKeys } from "@/lib/api/query-keys";
 import { apiGet, toApiError } from "@/lib/api/client";
 import type { District } from "@/lib/api/types";
@@ -55,7 +56,15 @@ interface PriceChangeDetails {
   changedLines: PriceChangeLine[];
 }
 
-export function CheckoutClient() {
+export interface CheckoutInitialData {
+  signedIn?: boolean;
+  addresses?: AddressView[];
+  settings?: Record<string, unknown>;
+  previewCart?: CartView;
+  districtId?: number;
+}
+
+export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
   const t = useTranslations("checkout");
   const tCart = useTranslations("cart");
   const tCommon = useTranslations("common");
@@ -69,7 +78,12 @@ export function CheckoutClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [priceChange, setPriceChange] = useState<PriceChangeDetails | null>(null);
 
-  const addresses = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
+  const addresses = useQuery({
+    queryKey: queryKeys.addresses,
+    queryFn: addressesApi.list,
+    initialData: initial?.addresses,
+    staleTime: 30_000,
+  });
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
     queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
@@ -114,13 +128,18 @@ export function CheckoutClient() {
     queryKey: ["settings", "public"],
     queryFn: () =>
       apiGet<Record<string, unknown>>("/settings/public").then((result) => result.data),
+    initialData: initial?.settings,
     staleTime: 60_000,
   });
 
+  // The delivery-neutral preview (or the previous quote) keeps the summary
+  // painted while the district-scoped quote refreshes; heights never collapse.
   const cart = useQuery({
     queryKey: [...queryKeys.cart, selectedAddress?.districtId ?? 0],
     queryFn: () => cartApi.get(selectedAddress?.districtId),
     enabled: Boolean(selectedAddress),
+    placeholderData: (previous: CartView | undefined) => previous ?? initial?.previewCart,
+    staleTime: 30_000,
   });
 
   const createAddress = useMutation({
@@ -233,13 +252,15 @@ export function CheckoutClient() {
           </div>
 
           <div data-section-cards className="grid gap-3">
-            {list.length === 0 && !showForm ? (
+            {addresses.isLoading ? <AddressCardsSkeleton /> : null}
+
+            {!addresses.isLoading && list.length === 0 && !showForm ? (
               <Button variant="outline" onClick={() => setShowForm(true)}>
                 {t("addNewAddress")}
               </Button>
             ) : null}
 
-            {list.map((address) => (
+            {!addresses.isLoading && list.map((address) => (
               <div
                 key={address.id}
                 data-section-card
@@ -281,7 +302,7 @@ export function CheckoutClient() {
               </div>
             ))}
 
-          {showForm || list.length === 0 ? (
+          {!addresses.isLoading && (showForm || list.length === 0) ? (
             <Card data-section-card className="rounded-2xl [--card-spacing:0px]">
               <CardContent className="p-4">
                 <form onSubmit={onSubmitAddress} className="grid gap-3" noValidate>
@@ -409,6 +430,13 @@ export function CheckoutClient() {
               </span>
             </label>
 
+            {publicSettings.isLoading ? (
+              <div
+                aria-hidden
+                className="h-[122px] rounded-2xl border border-border bg-card"
+              />
+            ) : null}
+
             {advanceEnabled ? (
               <label
                 data-section-card
@@ -451,9 +479,9 @@ export function CheckoutClient() {
         </section>
       </div>
 
-      <div className="min-w-0 self-start lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-2rem)] lg:flex-col">
+      <div className="min-h-[430px] min-w-0 self-start lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-2rem)] lg:flex-col">
         {cart.isLoading ? (
-          <Skeleton className="h-24 w-full rounded-2xl" />
+          <CheckoutSummarySkeleton />
         ) : cart.isError ? (
           <QueryError message={tCommon("sectionLoadFailed")} onRetry={() => void cart.refetch()} />
         ) : cart.data ? (
@@ -464,8 +492,10 @@ export function CheckoutClient() {
               cart.data.shops.length === 0 ||
               hasNotDelivering(cart.data) ||
               (effectiveMethod === "COD" ? codBlocked : !advanceEnabled) ||
-              publicSettings.isLoading
+              publicSettings.isLoading ||
+              cart.isPlaceholderData
             }
+            quotePending={cart.isPlaceholderData}
             pending={placeOrder.isPending}
             onPlaceOrder={() => placeOrder.mutate()}
             warning={hasNotDelivering(cart.data) ? t("notDeliveringBlocked") : undefined}
@@ -530,4 +560,40 @@ export function CheckoutClient() {
 
 function hasNotDelivering(view: { shops: { deliverable?: boolean | null }[] }): boolean {
   return view.shops.some((shop) => shop.deliverable === false);
+}
+
+/** Reserves one real address card so the payment block never jumps. */
+function AddressCardsSkeleton() {
+  return (
+    <div aria-hidden data-address-skeleton className="grid gap-3">
+      <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4">
+        <Skeleton className="mt-1 size-4 rounded-full" />
+        <div className="grid min-w-0 flex-1 gap-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Fixed height that matches a three-shop summary, including the footer. */
+function CheckoutSummarySkeleton() {
+  return (
+    <Card
+      aria-busy="true"
+      data-checkout-summary
+      className="flex h-[430px] w-full flex-col gap-3 overflow-hidden rounded-2xl p-4 [--card-spacing:0px]"
+    >
+      <Skeleton className="h-5 w-24" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-2/3" />
+      <Skeleton className="h-4 w-4/5" />
+      <Skeleton className="h-4 w-3/5" />
+      <Skeleton className="mt-auto h-4 w-full" />
+      <Skeleton className="h-6 w-1/2" />
+      <Skeleton className="h-11 w-full rounded-full" />
+    </Card>
+  );
 }

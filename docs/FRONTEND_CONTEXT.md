@@ -114,3 +114,10 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 - UI docs: `design/audit.md`, `design/performance.md`, `design/typography.md`, `design/cart-checkout.md`, `design/DIRECTION.md`, `design/MASTER.md`, `testing/live-log.md`.
 - Backend contracts: `backend/docs/payments/`, `backend/docs/settings/`, `backend/docs/auth/`, `backend/docs/api/`, `backend/docs/testing/`.
 - Single logs: `backend/docs/progress.md`, `backend/docs/decisions-log.md`. Append; do not create new progress files.
+
+## 13. Money-path session (2026-11-18)
+
+- Cart and checkout first paint is now server-rendered from the session cookie (`features/cart/server.ts`); client queries are seeded with that data and the district quote refreshes in place. Cart/checkout CLS measured 0.004-0.011 (target <= 0.1) and checkout LCP 1.83-1.99 s on the production/Slow-4G method. Details and the remaining render-path cost are in `design/performance.md`.
+- Shared `<PasswordInput/>` (`components/ui/password-input.tsx`) is the only password field: FormField routes `type="password"` through it, the admin settings re-auth dialog uses it directly, and `tests/password-input-guard.test.ts` blocks raw password inputs.
+- Clickable cards use the shared `lib/focus-ring.ts` utilities: keyboard-only rings (`:focus-visible` / `:has(a:focus-visible)`, inset so rails cannot clip them); `:focus-within` is not used on cards.
+- Settings specs run on a production isolated stack (`:5001` API, `:3002` production frontend) via `backend/scripts/test-stack.ps1 start|stop|status|seed`; see `testing/live-log.md`.

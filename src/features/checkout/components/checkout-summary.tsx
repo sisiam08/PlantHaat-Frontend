@@ -23,6 +23,7 @@ export function CheckoutSummary({
   onPlaceOrder,
   warning,
   note,
+  quotePending = false,
 }: {
   view: CartView;
   disabled: boolean;
@@ -30,6 +31,7 @@ export function CheckoutSummary({
   onPlaceOrder: () => void;
   warning?: string;
   note?: string;
+  quotePending?: boolean;
 }) {
   const t = useTranslations("checkout");
   const locale = useLocale();
@@ -107,6 +109,8 @@ export function CheckoutSummary({
                       <Price value={shop.deliveryCharge} locale={locale} size="sm" />
                     ) : shop.deliverable === false ? (
                       t("notDelivering")
+                    ) : quotePending ? (
+                      t("quotePending")
                     ) : (
                       t("selectToSee")
                     )}
@@ -142,7 +146,7 @@ export function CheckoutSummary({
               <div className="flex justify-between gap-3 text-muted-foreground">
                 <span>{t("delivery")}</span>
                 <span className="shrink-0">
-                  <Price value={view.deliveryTotal} locale={locale} size="sm" />
+                  {quotePending ? t("quotePending") : <Price value={view.deliveryTotal} locale={locale} size="sm" />}
                 </span>
               </div>
             </div>

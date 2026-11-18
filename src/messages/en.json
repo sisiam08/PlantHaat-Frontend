@@ -105,6 +105,8 @@
   "email": "Email",
   "password": "Password",
   "confirmPassword": "Confirm password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "name": "Full name",
   "phone": "Mobile number",
   "loginTitle": "Log in",
@@ -445,7 +447,8 @@
   "summaryNoteAdvance": "Pay the full amount now by bKash or Nagad. Your order is reserved while we verify it.",
   "codUnavailable": "Cash on delivery is currently unavailable.",
   "codLimit": "Cash on delivery is available for orders up to",
-  "advanceAmount": "Amount due"
+  "advanceAmount": "Amount due",
+  "quotePending": "Updating delivery…"
  },
  "orders": {
   "title": "My orders",
