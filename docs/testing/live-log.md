@@ -58,3 +58,5 @@ $env:ADMIN_PASSWORD="TestAdmin123!"
 npx playwright test e2e/settings.spec.ts e2e/settings-persist.spec.ts --workers=1 --project=desktop-chromium
 powershell -NoProfile -ExecutionPolicy Bypass -File backend/scripts/test-stack.ps1 stop
 ```
+
+| 2026-11-18 19:05 | Production build (:3000), bundled Chromium + real Chrome channel | 1280/390 en+bn | Card focus after click/Back, hover/active, touch, keyboard | PASS - focus-ring 8/8 bundled + 8/8 real Chrome; design-conformance 43/43, product-card/home-consistency/scroll-restore 58/58; axe home/products clean. Cause: Chrome can match :focus-visible after pointer (focus restoration/settings) and the inset wrapper shadow was painted under the image, so only the text area showed it. Now a ::after overlay above the image, gated on keyboard modality. |

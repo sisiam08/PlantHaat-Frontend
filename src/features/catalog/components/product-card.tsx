@@ -1,9 +1,8 @@
-import { Heart, Star } from "lucide-react";
+﻿import { Heart, Star } from "lucide-react";
 import Link from "next/link";
 
 import { LinkPending } from "@/components/layout/link-pending";
 import { PlantImage } from "@/components/plant-image";
-import { CARD_FOCUS_RING, CARD_LINK_FOCUS } from "@/lib/focus-ring";
 import { cn } from "@/lib/utils";
 import { Price } from "@/components/product/price";
 import { formatPriceRange } from "@/lib/format/money";
@@ -128,15 +127,15 @@ export function ProductCard({
   return (
     <div
       data-product-card
+      data-card-focus
       className={cn(
         "group/card relative h-full overflow-hidden border border-border bg-card text-card-foreground shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-        CARD_FOCUS_RING,
         featured ? "rounded-2xl" : "rounded-xl",
       )}
     >
       <Link
         href={`/products/${product.slug}`}
-        className={cn("flex h-full flex-col", CARD_LINK_FOCUS)}
+        className="flex h-full flex-col focus-visible:outline-none"
       >
         <div className="relative aspect-4/5 overflow-hidden bg-[color-mix(in_oklab,var(--secondary)_28%,white)]">
           <LinkPending className="absolute top-2 right-2 z-10 text-primary" />
@@ -286,3 +285,4 @@ export function ProductRail({
     </RailScroller>
   );
 }
+

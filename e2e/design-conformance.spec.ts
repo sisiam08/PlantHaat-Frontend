@@ -159,10 +159,19 @@ test("product card: no focus ring after mouse click and Back", async ({ page }) 
   await page.waitForTimeout(300);
   const after = await card.evaluate((element) => {
     const style = getComputedStyle(element);
-    return { shadow: style.boxShadow, outline: style.outlineStyle, border: style.borderTopColor };
+    const frame = getComputedStyle(element, "::after");
+    return {
+      shadow: style.boxShadow,
+      outline: style.outlineStyle,
+      border: style.borderTopColor,
+      modality: document.documentElement.dataset.inputModality ?? null,
+      frame: frame.borderTopColor,
+    };
   });
   expect(after.shadow.includes("inset")).toBe(false);
   expect(after.outline).toBe("none");
   expect(after.border).toBe(borderBefore);
+  expect(after.modality).toBe("pointer");
+  expect(["rgba(0, 0, 0, 0)", "transparent"]).toContain(after.frame);
 });
 

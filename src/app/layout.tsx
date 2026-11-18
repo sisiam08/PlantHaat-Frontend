@@ -3,6 +3,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Suspense, type ReactNode } from "react";
 import { preload } from "react-dom";
 
+import { InputModality } from "@/components/layout/input-modality";
 import { AppProviders } from "@/components/providers/app-providers";
 import { clientEnv } from "@/env/client";
 import "./globals.css";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="google" content="notranslate" />
       </head>
       <body suppressHydrationWarning className="flex min-h-full flex-col">
+        <InputModality />
         <Suspense fallback={<ShellSkeleton />}>
           <LocalizedApp>{children}</LocalizedApp>
         </Suspense>

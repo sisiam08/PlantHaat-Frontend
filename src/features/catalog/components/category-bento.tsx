@@ -13,7 +13,6 @@ import {
   MAX_CATEGORY_TILES,
   shouldShowAllCategoryTile,
 } from "@/features/catalog/category-tiles";
-import { CARD_SELF_FOCUS_RING } from "@/lib/focus-ring";
 import { cn } from "@/lib/utils";
 import type { CategoryNode } from "@/lib/api/types";
 
@@ -55,10 +54,10 @@ export async function CategoryBento({
             key={category.id}
             href={`/products?category=${encodeURIComponent(category.slug)}`}
             data-category-tile
+            data-card-focus
             className={cn(
-              "group/tile relative flex w-[8.5rem] shrink-0 snap-start flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-3 text-center",
-              "shadow-[var(--shadow-soft)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[var(--shadow-lift)]",
-              CARD_SELF_FOCUS_RING,
+              "group/tile relative flex w-[8.5rem] shrink-0 snap-start flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-3 text-center focus-visible:outline-none",
+              "shadow-[var(--shadow-soft)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]",
               "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
               "lg:w-[calc((100%-3.75rem)/6)]",
             )}
@@ -98,10 +97,10 @@ export async function CategoryBento({
         <Link
           href="/products"
           data-category-all
+          data-card-focus
           className={cn(
             "group/tile relative flex w-[8.5rem] shrink-0 snap-start flex-col items-center gap-2.5 rounded-2xl border border-dashed border-primary/30 bg-secondary/25 p-3 text-center",
-            "transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-secondary/40",
-            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+            "transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:bg-secondary/40 focus-visible:outline-none",
             "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
             "lg:w-[calc((100%-3.75rem)/6)]",
           )}

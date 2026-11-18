@@ -9,6 +9,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
+    // Set PW_CHANNEL=chrome to run against the installed Chrome (owner parity).
+    channel: (process.env.PW_CHANNEL as "chrome" | undefined) || undefined,
   },
   projects: [
     { name: "desktop-chromium", use: { ...devices["Desktop Chrome"] } },

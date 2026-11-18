@@ -444,10 +444,36 @@ input[type="password"]::-ms-clear {
   display: none;
 }
 
-/* Clickable cards: no grey flash on touch; keyboard focus is drawn by the
-   shared focus-ring utility (`:focus-visible`, never `:focus-within`). */
+/* Clickable cards: no grey flash on touch. */
 a,
 button,
 [role="button"] {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* One keyboard-only card focus frame, painted above the artwork.
+   The overlay is a pseudo-element border (not an inset shadow) so the image
+   can never cover part of it. It only appears when the last input was the
+   keyboard AND the card's anchor is :focus-visible; a pointer interaction
+   clears the modality even if Chrome marks the link :focus-visible (focus
+   restoration / Windows focus-ring settings). */
+[data-card-focus] {
+  position: relative;
+}
+[data-card-focus]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+}
+html[data-input-modality="keyboard"] [data-card-focus]:has(a:focus-visible)::after,
+html[data-input-modality="keyboard"] a[data-card-focus]:focus-visible::after {
+  border-color: var(--ring);
+}
+a[data-card-focus]:focus-visible,
+[data-card-focus] a:focus-visible {
+  outline: none;
 }

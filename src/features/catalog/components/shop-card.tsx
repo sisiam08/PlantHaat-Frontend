@@ -1,9 +1,8 @@
-import { Star } from "lucide-react";
+﻿import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { CARD_FOCUS_RING, CARD_LINK_FOCUS } from "@/lib/focus-ring";
-import { cn } from "@/lib/utils";
+
 
 export interface ShopCardData {
   id: string;
@@ -19,14 +18,12 @@ export interface ShopCardData {
 export function ShopCard({ shop }: { shop: ShopCardData }) {
   return (
     <div
-      className={cn(
-        "group/card overflow-hidden rounded-xl border border-border/60 bg-card text-card-foreground shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-        CARD_FOCUS_RING,
-      )}
+      data-card-focus
+      className="group/card overflow-hidden rounded-xl border border-border/60 bg-card text-card-foreground shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
       <Link
         href={`/shops/${shop.slug}`}
-        className={cn("flex items-center gap-4 p-4", CARD_LINK_FOCUS)}
+        className="flex items-center gap-4 p-4 focus-visible:outline-none"
       >
         <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border/40">
           {shop.logoUrl ? (
@@ -56,3 +53,4 @@ export function ShopCard({ shop }: { shop: ShopCardData }) {
     </div>
   );
 }
+
