@@ -20,6 +20,7 @@ function toInputDate(date: Date): string {
 
 export function ReconciliationClient() {
   const t = useTranslations("part4.reconciliation");
+  const th = useTranslations("part4");
   const locale = useLocale();
   const today = new Date();
   const monthAgo = new Date(today.getTime() - 30 * 86_400_000);
@@ -61,6 +62,10 @@ export function ReconciliationClient() {
           ) : null}
         </CardContent>
       </Card>
+
+      <p className="rounded-2xl border border-border/60 bg-secondary/30 px-4 py-3 text-sm text-muted-foreground">
+        {th("reconciliationHelp")}
+      </p>
 
       {query.isLoading ? <Skeleton className="h-24 w-full rounded-2xl" /> : null}
       {query.isError ? (

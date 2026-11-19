@@ -105,10 +105,12 @@
   "PAYOUT_BELOW_MINIMUM": "The amount is below the minimum withdrawal.",
   "PAYOUT_METHOD_NOT_ALLOWED": "This payout method is not available.",
   "PAYOUT_TOO_MANY_PENDING": "You already have the maximum number of pending withdrawal requests.",
-  "PAYOUT_COD_DUES_BLOCKED": "Withdrawals are blocked because COD commission dues are above the limit.",
+  "PAYOUT_COD_DUES_BLOCKED": "Withdrawals are blocked because COD commission dues are above the limit. Pay the COD dues (or ask an admin to record the payment), then try again.",
   "PAYOUT_EXCEEDS_AVAILABLE": "The amount is more than your available balance.",
   "WITHDRAWAL_INVALID_STATUS": "This withdrawal can no longer be changed.",
-  "COMPLAINT_NOT_ALLOWED": "This action is not allowed for this order or dispute."
+  "COMPLAINT_NOT_ALLOWED": "This action is not allowed for this order or dispute.",
+  "WITHDRAWAL_DESTINATION_UNAVAILABLE": "No payout account is available for this withdrawal.",
+  "DISPUTE_INVALID_STATE": "This dispute was already decided in another tab. Refresh to see the latest state."
  },
  "auth": {
   "email": "Email",
@@ -719,7 +721,8 @@
    "accountNumber": "Account number",
    "profileHint": "bKash/Nagad use a Bangladesh mobile number. The full number is never shown again.",
    "saveProfile": "Save profile",
-   "profileSaved": "Payout profile saved"
+   "profileSaved": "Payout profile saved",
+   "invalidNumber": "Enter a valid Bangladeshi mobile number (for example 01XXXXXXXXX)."
   },
   "ledgerType": {
    "ORDER_EARNING": "Order earning",
@@ -783,7 +786,20 @@
    "rejectWarning": "The reserved amount returns to the seller's Available balance and the seller is notified.",
    "confirmReject": "Reject request",
    "paid": "Withdrawal marked paid",
-   "rejected": "Withdrawal rejected"
+   "rejected": "Withdrawal rejected",
+   "showDetails": "Show payout details",
+   "reauthTitle": "Confirm your password",
+   "reauthBody": "The full payout destination is sensitive. Re-enter your admin password to reveal it once.",
+   "password": "Password",
+   "showDestination": "Show details",
+   "destinationTitle": "Payout destination",
+   "destinationBody": "Pay the seller to this exact account, then mark the withdrawal paid with the transaction reference.",
+   "accountHolder": "Account holder",
+   "accountNumber": "Account number",
+   "copy": "Copy",
+   "copied": "Copied",
+   "hide": "Hide now",
+   "hideAfter": "Visible for up to 60 seconds; it is never cached."
   },
   "returnWindow": {
    "openTitle": "Problem window is open",
@@ -878,7 +894,24 @@
    "advanceRefunds": "Refunds required",
    "paymentsToVerify": "Payments to verify",
    "reconciliation": "Reconciliation"
-  }
+  },
+  "disputeFilters": {
+   "sellerFilter": "Seller or shop",
+   "sellerPlaceholder": "Shop/seller name",
+   "minAge": "Min age (hours)",
+   "maxAge": "Max age (hours)",
+   "minAmount": "Min order total",
+   "maxAmount": "Max order total",
+   "applyFilters": "Apply filters",
+   "resetFilters": "Reset"
+  },
+  "legacy": {
+   "walletLabel": "Settled before the new wallet system",
+   "walletHelp": "This older ledger entry has no return-window release date; it is kept for history.",
+   "orderLabel": "Settled before the new wallet system",
+   "orderHelp": "This order was delivered before the return-window ledger existed, so it has no release countdown."
+  },
+  "reconciliationHelp": "Receipts from buyers must equal the seller buckets plus refunds, commission and paid-out money. A breach means money is missing or double-counted; do not pay out until it is fixed."
  },
  "seller": {
   "nav": {

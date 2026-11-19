@@ -249,7 +249,16 @@ export const adminApi = {
     apiDelete<unknown>(`/admin/commission-rules/${encodeURIComponent(id)}`).then(() => undefined),
 
   /* ───────────────────────── complaints ───────────────────────── */
-  listComplaints: (params?: { status?: string; page?: number; limit?: number }) =>
+  listComplaints: (params?: {
+    status?: string;
+    seller?: string;
+    minAgeHours?: number;
+    maxAgeHours?: number;
+    minAmount?: number;
+    maxAmount?: number;
+    page?: number;
+    limit?: number;
+  }) =>
     apiGet<AdminComplaintView[]>("/admin/complaints", qs(params)).then((result) =>
       paginated(result),
     ),
@@ -408,5 +417,14 @@ export const adminSettlementApi = {
     apiPost<import("./types").AdminWithdrawalView>(
       `/admin/withdrawals/${encodeURIComponent(id)}/reject`,
       { reason },
+    ).then((result) => result.data),
+};
+
+export const adminWithdrawalDestinationApi = {
+  reveal: (id: string, reauthToken: string) =>
+    apiPost<import("./types").AdminWithdrawalDestination>(
+      `/admin/withdrawals/${encodeURIComponent(id)}/destination`,
+      {},
+      { headers: { "x-settings-reauth": reauthToken } },
     ).then((result) => result.data),
 };

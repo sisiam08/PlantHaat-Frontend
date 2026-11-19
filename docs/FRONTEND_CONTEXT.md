@@ -142,3 +142,13 @@ Authoritative route list: `FRONTEND_DESIGN.md` Â§7. Built areas: public home/cat
 - Known gaps: admin destination reveal is impossible with the masked API contract; dispute list
   seller/age/amount filters need API fields; forced reconciliation breach not created live;
   test-stack realtime still targets `:5000` (existing env issue).
+
+## 15. Part 4 closing pass (2026-11-19)
+
+- Admin withdrawal destination: masked until “Show payout details”; password re-auth, copy, 60 s
+  auto-hide/close, no cache. Endpoint contract in `backend/docs/payments/api.md`.
+- Dispute filters (seller/age/amount/status) wired to the server; stale decision tabs show a conflict.
+- Legacy ledger/order explanation and reconciliation help text added bn/en.
+- Part 4 specs are independent (`e2e/part4-*.spec.ts`), including destination, filters, rejects,
+  validation, multi-shop refund, window and permissions. Full report:
+  `docs/testing/part4-live-report.md`.

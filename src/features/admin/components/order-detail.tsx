@@ -37,6 +37,7 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
   const tStatus = useTranslations("admin.orderStatus");
   const tPayment = useTranslations("admin.paymentStatus");
   const tErrors = useTranslations("errors");
+  const tp4 = useTranslations("part4.legacy");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [nextStatus, setNextStatus] = useState<OrderStatus | "">("");
@@ -84,6 +85,8 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
   }
 
   const data = order.data;
+  const settlement = data as typeof data & { releaseAt?: string | null; fundsReleasedAt?: string | null };
+  const legacySettled = data.status === "DELIVERED" && !settlement.releaseAt;
 
   return (
     <div className="grid gap-5">
@@ -132,6 +135,12 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
       {data.stuckFlaggedAt ? (
         <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
           {t("stuckWarning")}
+        </p>
+      ) : null}
+
+      {legacySettled ? (
+        <p className="rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm">
+          <span className="font-medium">{tp4("orderLabel")}</span> — {tp4("orderHelp")}
         </p>
       ) : null}
 

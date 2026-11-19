@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -12,14 +12,25 @@ import { Price } from "@/components/product/price";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
+import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
-import { adminSettlementApi } from "../api";
-import type { AdminWithdrawalView } from "../types";
+import { adminSettlementApi, adminWithdrawalDestinationApi } from "../api";
+import { adminApi } from "../api";
+import type { AdminWithdrawalDestination, AdminWithdrawalView } from "../types";
 import { Pager } from "./pager";
 
 const PAGE_SIZE = 20;
@@ -42,6 +53,20 @@ export function WithdrawalsClient({
   const [rejectFor, setRejectFor] = useState<AdminWithdrawalView | null>(null);
   const [reference, setReference] = useState("");
   const [reason, setReason] = useState("");
+  const [destinationFor, setDestinationFor] = useState<AdminWithdrawalView | null>(null);
+  const [destinationPassword, setDestinationPassword] = useState("");
+  const [destination, setDestination] = useState<AdminWithdrawalDestination | null>(null);
+  const [destinationError, setDestinationError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!destination) return;
+    const timer = window.setTimeout(() => {
+      setDestination(null);
+      setDestinationFor(null);
+    }, 60_000);
+    return () => window.clearTimeout(timer);
+  }, [destination]);
 
   const status = (FILTERS as readonly string[]).includes(initialStatus)
     ? initialStatus
@@ -63,6 +88,26 @@ export function WithdrawalsClient({
     await queryClient.invalidateQueries({ queryKey: ["admin", "withdrawals"] });
     await queryClient.invalidateQueries({ queryKey: queryKeys.admin.payouts() });
   };
+
+  const reveal = useMutation({
+    mutationFn: async () => {
+      if (!destinationFor) throw new Error("No withdrawal selected");
+      const scope = `withdrawal.destination:${destinationFor.id}`;
+      const reauth = await adminApi.reauthenticateSettings([scope], destinationPassword);
+      return adminWithdrawalDestinationApi.reveal(destinationFor.id, reauth.token);
+    },
+    onSuccess: (data) => {
+      setDestination(data);
+      setDestinationPassword("");
+      setDestinationError(null);
+      setCopied(false);
+    },
+    onError: (error) => {
+      setDestinationError(
+        error instanceof ApiError && tErrors.has(error.code) ? tErrors(error.code) : tErrors("generic"),
+      );
+    },
+  });
 
   const pay = useMutation({
     mutationFn: () => adminSettlementApi.payWithdrawal(payFor!.id, reference.trim()),
@@ -192,6 +237,19 @@ export function WithdrawalsClient({
                   >
                     {t("reject")}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setDestinationFor(item);
+                      setDestination(null);
+                      setDestinationPassword("");
+                      setDestinationError(null);
+                    }}
+                  >
+                    {t("showDetails")}
+                  </Button>
                 </div>
               ) : null}
 
@@ -260,6 +318,94 @@ export function WithdrawalsClient({
       {meta ? (
         <Pager page={meta.page} totalPages={meta.totalPages} onPage={(next) => go(status, next)} />
       ) : null}
+
+      <Dialog
+        open={destinationFor !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDestinationFor(null);
+            setDestination(null);
+            setDestinationPassword("");
+            setDestinationError(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          {destination ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>{t("destinationTitle")}</DialogTitle>
+                <DialogDescription>{t("destinationBody")}</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-2 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+                <span className="text-xs text-muted-foreground">{t("accountHolder")}</span>
+                <span className="font-medium">{destination.accountName}</span>
+                <span className="text-xs text-muted-foreground">{t("accountNumber")}</span>
+                <span className="flex flex-wrap items-center gap-2 font-mono text-base break-all">
+                  {destination.accountNumber}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(destination.accountNumber);
+                      setCopied(true);
+                      window.setTimeout(() => setCopied(false), 2000);
+                    }}
+                  >
+                    {copied ? t("copied") : t("copy")}
+                  </Button>
+                </span>
+                <span className="text-xs text-muted-foreground">{t("hideAfter")}</span>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setDestination(null);
+                    setDestinationFor(null);
+                  }}
+                >
+                  {t("hide")}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>{t("reauthTitle")}</DialogTitle>
+                <DialogDescription>{t("reauthBody")}</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-1.5">
+                <Label htmlFor="destination-password">{t("password")}</Label>
+                <PasswordInput
+                  id="destination-password"
+                  value={destinationPassword}
+                  onChange={(event) => setDestinationPassword(event.target.value)}
+                  autoComplete="current-password"
+                />
+                {destinationError ? (
+                  <p className="text-sm text-destructive">{destinationError}</p>
+                ) : null}
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={() => setDestinationFor(null)}>
+                  {t("cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="cta"
+                  disabled={destinationPassword.length < 1 || reveal.isPending}
+                  onClick={() => reveal.mutate()}
+                >
+                  {t("showDestination")}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

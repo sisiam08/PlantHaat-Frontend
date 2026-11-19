@@ -30,10 +30,8 @@ import { ApiError } from "@/lib/api/common";
 import { formatLatinDateTime } from "@/lib/format/date";
 import { sellerWalletApi } from "../api";
 import type { PayoutMethod, SellerWallet, SellerWalletTransaction } from "../types";
-
 const PAGE_SIZE = 12;
 const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "BANK"];
-
 export function WalletClient({ windowHours }: { windowHours?: number }) {
   const t = useTranslations("part4.wallet");
   const tErrors = useTranslations("errors");
@@ -41,35 +39,34 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState("overview");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-
+  const [withdrawKey, setWithdrawKey] = useState("");
   const wallet = useQuery({
     queryKey: queryKeys.seller.wallet,
     queryFn: sellerWalletApi.get,
     retry: false,
   });
-
   const invalidate = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.seller.wallet });
     await queryClient.invalidateQueries({ queryKey: ["seller", "wallet", "withdrawals"] });
     await queryClient.invalidateQueries({ queryKey: queryKeys.seller.earnings });
   };
-
   if (wallet.isLoading) {
     return (
       <div className="grid gap-4" aria-busy>
+        {" "}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {" "}
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-28 w-full rounded-2xl" />
-          ))}
-        </div>
-        <Skeleton className="h-48 w-full rounded-2xl" />
+          ))}{" "}
+        </div>{" "}
+        <Skeleton className="h-48 w-full rounded-2xl" />{" "}
       </div>
     );
   }
   if (wallet.isError || !wallet.data) {
     return <QueryError message={t("loadError")} onRetry={() => void wallet.refetch()} />;
   }
-
   const data = wallet.data;
   const windowLabel =
     windowHours && windowHours % 24 === 0
@@ -77,10 +74,11 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
       : windowHours
         ? t("windowHours", { count: windowHours })
         : t("windowFallback");
-
   return (
     <div className="grid gap-5">
+      {" "}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {" "}
         <Stat
           label={t("available")}
           hint={t("availableHint")}
@@ -93,118 +91,131 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
               variant="cta"
               size="sm"
               disabled={Number(data.balances.available) <= 0}
-              onClick={() => setWithdrawOpen(true)}
+              onClick={() => {
+                setWithdrawKey(globalThis.crypto.randomUUID());
+                setWithdrawOpen(true);
+              }}
             >
-              <ArrowDownToLine aria-hidden />
-              {t("withdraw")}
+              {" "}
+              <ArrowDownToLine aria-hidden /> {t("withdraw")}{" "}
             </Button>
           }
-        />
+        />{" "}
         <Stat
           label={t("pending")}
           hint={t("pendingHint")}
           icon={<Clock3 aria-hidden className="size-4" />}
           value={<Price value={data.balances.pending} locale={locale} size="xl" />}
-        />
+        />{" "}
         <Stat
           label={t("onHold")}
           hint={t("onHoldHint")}
           icon={<AlertTriangle aria-hidden className="size-4" />}
           value={<Price value={data.balances.onHold} locale={locale} size="xl" />}
-        />
+        />{" "}
         <Stat
           label={t("totalWithdrawn")}
           hint={t("totalWithdrawnHint")}
           icon={<BadgeCheck aria-hidden className="size-4" />}
           value={<Price value={data.balances.totalWithdrawn} locale={locale} size="xl" />}
-        />
-      </div>
-
+        />{" "}
+      </div>{" "}
       {Number(data.balances.codDues) > 0 ? (
         <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          {" "}
           <div className="grid gap-1">
-            <span className="font-medium">{t("codDuesTitle")}</span>
-            <span>
-              {t("codDuesBody", {
-                limit: String(data.settings.codDuesLimit),
-              })}
-            </span>
-          </div>
+            {" "}
+            <span className="font-medium">{t("codDuesTitle")}</span>{" "}
+            <span> {t("codDuesBody", { limit: String(data.settings.codDuesLimit) })} </span>{" "}
+          </div>{" "}
           <span className="font-semibold">
-            <Price value={data.balances.codDues} locale={locale} size="sm" />
-          </span>
+            {" "}
+            <Price value={data.balances.codDues} locale={locale} size="sm" />{" "}
+          </span>{" "}
         </div>
-      ) : null}
-
-      <p className="text-sm text-muted-foreground">{t("rule", { window: windowLabel })}</p>
-
+      ) : null}{" "}
+      <p className="text-sm text-muted-foreground">{t("rule", { window: windowLabel })}</p>{" "}
       <Tabs value={tab} onValueChange={setTab}>
+        {" "}
         <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="overview" className="text-foreground">{t("tabOverview")}</TabsTrigger>
-          <TabsTrigger value="transactions" className="text-foreground">{t("tabTransactions")}</TabsTrigger>
-          <TabsTrigger value="profile" className="text-foreground">{t("tabProfile")}</TabsTrigger>
-        </TabsList>
-
+          {" "}
+          <TabsTrigger value="overview" className="text-foreground">
+            {t("tabOverview")}
+          </TabsTrigger>{" "}
+          <TabsTrigger value="transactions" className="text-foreground">
+            {t("tabTransactions")}
+          </TabsTrigger>{" "}
+          <TabsTrigger value="profile" className="text-foreground">
+            {t("tabProfile")}
+          </TabsTrigger>{" "}
+        </TabsList>{" "}
         <TabsContent value="overview" className="grid gap-4">
+          {" "}
           <Card className="rounded-2xl">
+            {" "}
             <CardHeader>
-              <CardTitle>{t("pendingOrdersTitle")}</CardTitle>
-            </CardHeader>
+              {" "}
+              <CardTitle>{t("pendingOrdersTitle")}</CardTitle>{" "}
+            </CardHeader>{" "}
             <CardContent>
+              {" "}
               {data.pendingOrders.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t("noPendingOrders")}</p>
               ) : (
                 <div className="grid gap-2 text-sm">
+                  {" "}
                   {data.pendingOrders.map((order) => (
                     <div
                       key={order.shopOrderId}
                       className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2 last:border-b-0 last:pb-0"
                     >
+                      {" "}
                       <Link
                         href={`/seller/orders/${order.shopOrderId}`}
                         className="font-medium underline-offset-4 hover:underline"
                       >
-                        {t("orderRef", { id: order.shopOrderId.slice(0, 8) })}
-                      </Link>
+                        {" "}
+                        {t("orderRef", { id: order.shopOrderId.slice(0, 8) })}{" "}
+                      </Link>{" "}
                       <span className="text-xs text-muted-foreground">
+                        {" "}
                         {order.releaseAt
                           ? t("releasesAt", { date: formatLatinDateTime(order.releaseAt) })
-                          : t("waitingDelivery")}
-                      </span>
-                      <Price value={order.amount} locale={locale} size="sm" />
+                          : t("waitingDelivery")}{" "}
+                      </span>{" "}
+                      <Price value={order.amount} locale={locale} size="sm" />{" "}
                     </div>
-                  ))}
+                  ))}{" "}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-          <WithdrawalsList onChanged={invalidate} />
-        </TabsContent>
-
+              )}{" "}
+            </CardContent>{" "}
+          </Card>{" "}
+          <WithdrawalsList onChanged={invalidate} />{" "}
+        </TabsContent>{" "}
         <TabsContent value="transactions">
-          <TransactionsList />
-        </TabsContent>
-
+          {" "}
+          <TransactionsList />{" "}
+        </TabsContent>{" "}
         <TabsContent value="profile">
+          {" "}
           <PayoutProfile
             wallet={data}
             onSaved={invalidate}
             errorFallback={tErrors("generic")}
-          />
-        </TabsContent>
-      </Tabs>
-
+          />{" "}
+        </TabsContent>{" "}
+      </Tabs>{" "}
       <WithdrawDialog
         open={withdrawOpen}
         onOpenChange={setWithdrawOpen}
         wallet={data}
         windowLabel={windowLabel}
         onDone={invalidate}
+        idempotencyKey={withdrawKey}
       />
     </div>
   );
 }
-
 function Stat({
   label,
   hint,
@@ -222,47 +233,51 @@ function Stat({
 }) {
   return (
     <Card className="rounded-2xl">
+      {" "}
       <CardContent className="grid gap-1.5">
+        {" "}
         <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          {icon}
-          {label}
-        </span>
-        <span className={tone === "primary" ? "text-primary" : undefined}>{value}</span>
-        <span className="text-[11px] text-muted-foreground">{hint}</span>
-        {action ? <div className="pt-1">{action}</div> : null}
-      </CardContent>
+          {" "}
+          {icon} {label}{" "}
+        </span>{" "}
+        <span className={tone === "primary" ? "text-primary" : undefined}>{value}</span>{" "}
+        <span className="text-[11px] text-muted-foreground">{hint}</span>{" "}
+        {action ? <div className="pt-1">{action}</div> : null}{" "}
+      </CardContent>{" "}
     </Card>
   );
 }
-
 function TransactionsList() {
   const t = useTranslations("part4.wallet");
+  const tl = useTranslations("part4.legacy");
   const tLedger = useTranslations("part4.ledgerType");
   const locale = useLocale();
   const [page, setPage] = useState(1);
   const [type, setType] = useState("");
-
   const query = useQuery({
     queryKey: queryKeys.seller.walletTransactions({ page, type }),
-    queryFn: () => sellerWalletApi.transactions({ page, limit: PAGE_SIZE, type: type || undefined }),
+    queryFn: () =>
+      sellerWalletApi.transactions({ page, limit: PAGE_SIZE, type: type || undefined }),
     retry: false,
   });
-
   if (query.isLoading) return <Skeleton className="h-40 w-full rounded-2xl" />;
   if (query.isError) {
     return <QueryError message={t("transactionsError")} onRetry={() => void query.refetch()} />;
   }
   const items = query.data?.data ?? [];
   const meta = query.data?.meta;
-
   return (
     <Card className="rounded-2xl">
+      {" "}
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <CardTitle>{t("transactionsTitle")}</CardTitle>
+        {" "}
+        <CardTitle>{t("transactionsTitle")}</CardTitle>{" "}
         <div className="flex items-center gap-2">
+          {" "}
           <Label htmlFor="tx-type" className="sr-only">
-            {t("filterType")}
-          </Label>
+            {" "}
+            {t("filterType")}{" "}
+          </Label>{" "}
           <select
             id="tx-type"
             className="min-h-9 rounded-full border border-input bg-background px-3 text-sm"
@@ -272,7 +287,8 @@ function TransactionsList() {
               setType(event.target.value);
             }}
           >
-            <option value="">{t("allTypes")}</option>
+            {" "}
+            <option value="">{t("allTypes")}</option>{" "}
             {[
               "PAYMENT_RECEIVED",
               "SELLER_RELEASE",
@@ -286,74 +302,107 @@ function TransactionsList() {
               "ADJUSTMENT_DEBIT",
             ].map((value) => (
               <option key={value} value={value}>
-                {tLedger.has(value) ? tLedger(value) : value}
+                {" "}
+                {tLedger.has(value) ? tLedger(value) : value}{" "}
               </option>
-            ))}
-          </select>
-        </div>
-      </CardHeader>
+            ))}{" "}
+          </select>{" "}
+        </div>{" "}
+      </CardHeader>{" "}
       <CardContent>
+        {" "}
         {items.length === 0 ? (
           <EmptyState title={t("noTransactions")} description={t("noTransactionsHint")} />
         ) : (
           <>
+            {" "}
             <div className="hidden overflow-x-auto md:block">
+              {" "}
               <table className="w-full text-sm">
+                {" "}
                 <thead className="text-left text-xs text-muted-foreground">
+                  {" "}
                   <tr>
-                    <th className="py-2 pe-3">{t("colType")}</th>
-                    <th className="py-2 pe-3">{t("colOrder")}</th>
-                    <th className="py-2 pe-3">{t("colAmount")}</th>
-                    <th className="py-2 pe-3">{t("colDate")}</th>
-                  </tr>
-                </thead>
+                    {" "}
+                    <th className="py-2 pe-3">{t("colType")}</th>{" "}
+                    <th className="py-2 pe-3">{t("colOrder")}</th>{" "}
+                    <th className="py-2 pe-3">{t("colAmount")}</th>{" "}
+                    <th className="py-2 pe-3">{t("colDate")}</th>{" "}
+                  </tr>{" "}
+                </thead>{" "}
                 <tbody>
+                  {" "}
                   {items.map((entry) => (
                     <tr key={entry.id} className="border-t border-border/60">
-                      <td className="py-2 pe-3">{labelFor(entry, tLedger)}</td>
+                      {" "}
+                      <td className="py-2 pe-3">
+                        {" "}
+                        <span className="block">{labelFor(entry, tLedger)}</span>{" "}
+                        {entry.account === null ? (
+                          <span
+                            className="block text-[11px] text-muted-foreground"
+                            title={tl("walletHelp")}
+                          >
+                            {" "}
+                            {tl("walletLabel")}{" "}
+                          </span>
+                        ) : null}{" "}
+                      </td>{" "}
                       <td className="py-2 pe-3 text-muted-foreground">
+                        {" "}
                         {entry.shopOrderId ? (
                           <Link
                             href={`/seller/orders/${entry.shopOrderId}`}
                             className="underline-offset-4 hover:underline"
                           >
-                            {entry.shopOrderId.slice(0, 8)}
+                            {" "}
+                            {entry.shopOrderId.slice(0, 8)}{" "}
                           </Link>
                         ) : (
                           "—"
-                        )}
-                      </td>
+                        )}{" "}
+                      </td>{" "}
                       <td className="py-2 pe-3">
-                        <Price value={entry.amount} locale={locale} size="sm" />
-                      </td>
+                        {" "}
+                        <Price value={entry.amount} locale={locale} size="sm" />{" "}
+                      </td>{" "}
                       <td className="py-2 pe-3 text-xs text-muted-foreground">
-                        {formatLatinDateTime(entry.createdAt)}
-                      </td>
+                        {" "}
+                        {formatLatinDateTime(entry.createdAt)}{" "}
+                      </td>{" "}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  ))}{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>{" "}
             <div className="grid gap-2 md:hidden">
+              {" "}
               {items.map((entry) => (
                 <div
                   key={entry.id}
                   className="flex items-start justify-between gap-2 rounded-xl border border-border/60 p-3 text-sm"
                 >
+                  {" "}
                   <div className="grid gap-0.5">
-                    <span className="font-medium">{labelFor(entry, tLedger)}</span>
+                    {" "}
+                    <span className="font-medium">{labelFor(entry, tLedger)}</span>{" "}
+                    {entry.account === null ? (
+                      <span className="text-[11px] text-muted-foreground">{tl("walletLabel")}</span>
+                    ) : null}{" "}
                     <span className="text-xs text-muted-foreground">
-                      {formatLatinDateTime(entry.createdAt)}
-                    </span>
-                  </div>
-                  <Price value={entry.amount} locale={locale} size="sm" />
+                      {" "}
+                      {formatLatinDateTime(entry.createdAt)}{" "}
+                    </span>{" "}
+                  </div>{" "}
+                  <Price value={entry.amount} locale={locale} size="sm" />{" "}
                 </div>
-              ))}
-            </div>
+              ))}{" "}
+            </div>{" "}
           </>
-        )}
+        )}{" "}
         {meta && meta.totalPages > 1 ? (
           <div className="mt-4 flex items-center justify-between">
+            {" "}
             <Button
               type="button"
               variant="outline"
@@ -361,11 +410,13 @@ function TransactionsList() {
               disabled={page <= 1}
               onClick={() => setPage((value) => Math.max(1, value - 1))}
             >
-              {t("previous")}
-            </Button>
+              {" "}
+              {t("previous")}{" "}
+            </Button>{" "}
             <span className="text-xs text-muted-foreground">
-              {t("pageOf", { page: meta.page, total: meta.totalPages })}
-            </span>
+              {" "}
+              {t("pageOf", { page: meta.page, total: meta.totalPages })}{" "}
+            </span>{" "}
             <Button
               type="button"
               variant="outline"
@@ -373,15 +424,15 @@ function TransactionsList() {
               disabled={page >= meta.totalPages}
               onClick={() => setPage((value) => value + 1)}
             >
-              {t("next")}
-            </Button>
+              {" "}
+              {t("next")}{" "}
+            </Button>{" "}
           </div>
-        ) : null}
-      </CardContent>
+        ) : null}{" "}
+      </CardContent>{" "}
     </Card>
   );
 }
-
 function labelFor(
   entry: SellerWalletTransaction,
   tLedger: { (key: string): string; has: (key: string) => boolean },
@@ -389,7 +440,6 @@ function labelFor(
   if (tLedger.has(entry.type)) return tLedger(entry.type);
   return entry.account ?? entry.type;
 }
-
 function WithdrawalsList({ onChanged }: { onChanged: () => Promise<void> }) {
   const t = useTranslations("part4.wallet");
   const tStatus = useTranslations("part4.withdrawalStatus");
@@ -399,42 +449,58 @@ function WithdrawalsList({ onChanged }: { onChanged: () => Promise<void> }) {
     queryFn: () => sellerWalletApi.listWithdrawals({ limit: 10 }),
     retry: false,
   });
-
   if (query.isLoading) return <Skeleton className="h-28 w-full rounded-2xl" />;
   if (query.isError) {
     return <QueryError message={t("withdrawalsError")} onRetry={() => void query.refetch()} />;
   }
   const items = query.data?.data ?? [];
-
   return (
     <Card className="rounded-2xl">
+      {" "}
       <CardHeader>
-        <CardTitle>{t("withdrawalsTitle")}</CardTitle>
-      </CardHeader>
+        {" "}
+        <CardTitle>{t("withdrawalsTitle")}</CardTitle>{" "}
+      </CardHeader>{" "}
       <CardContent>
+        {" "}
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noWithdrawals")}</p>
         ) : (
           <div className="grid gap-2 text-sm">
+            {" "}
             {items.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2 last:border-b-0 last:pb-0"
               >
+                {" "}
                 <div className="grid gap-0.5">
+                  {" "}
                   <span className="flex flex-wrap items-center gap-2 font-medium">
-                    {item.payoutNumber}
-                    <Badge variant={item.status === "PAID" ? "default" : item.status === "REJECTED" ? "destructive" : "secondary"}>
-                      {tStatus(item.status)}
-                    </Badge>
-                  </span>
+                    {" "}
+                    {item.payoutNumber}{" "}
+                    <Badge
+                      variant={
+                        item.status === "PAID"
+                          ? "default"
+                          : item.status === "REJECTED"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {" "}
+                      {tStatus(item.status)}{" "}
+                    </Badge>{" "}
+                  </span>{" "}
                   <span className="text-xs text-muted-foreground">
-                    {formatLatinDateTime(item.createdAt)}
-                    {item.rejectionReason ? ` — ${item.rejectionReason}` : ""}
-                  </span>
-                </div>
+                    {" "}
+                    {formatLatinDateTime(item.createdAt)}{" "}
+                    {item.rejectionReason ? ` — ${item.rejectionReason}` : ""}{" "}
+                  </span>{" "}
+                </div>{" "}
                 <div className="flex items-center gap-2">
-                  <Price value={item.amount} locale={locale} size="sm" />
+                  {" "}
+                  <Price value={item.amount} locale={locale} size="sm" />{" "}
                   {item.status === "PENDING" ? (
                     <Button
                       type="button"
@@ -443,36 +509,40 @@ function WithdrawalsList({ onChanged }: { onChanged: () => Promise<void> }) {
                       disabled
                       title={t("cancelUnavailable")}
                     >
-                      {t("cancel")}
+                      {" "}
+                      {t("cancel")}{" "}
                     </Button>
-                  ) : null}
-                </div>
+                  ) : null}{" "}
+                </div>{" "}
               </div>
-            ))}
+            ))}{" "}
           </div>
-        )}
+        )}{" "}
         <div className="pt-2">
+          {" "}
           <Button type="button" variant="ghost" size="sm" onClick={() => void onChanged()}>
-            {t("refresh")}
-          </Button>
-        </div>
-      </CardContent>
+            {" "}
+            {t("refresh")}{" "}
+          </Button>{" "}
+        </div>{" "}
+      </CardContent>{" "}
     </Card>
   );
 }
-
 function WithdrawDialog({
   open,
   onOpenChange,
   wallet,
   windowLabel,
   onDone,
+  idempotencyKey,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   wallet: SellerWallet;
   windowLabel: string;
   onDone: () => Promise<void>;
+  idempotencyKey: string;
 }) {
   const t = useTranslations("part4.wallet");
   const tErrors = useTranslations("errors");
@@ -481,12 +551,11 @@ function WithdrawDialog({
     (wallet.payoutProfile?.method ?? wallet.settings.methods[0] ?? "BKASH") as PayoutMethod,
   );
   const [error, setError] = useState<string | null>(null);
-
   const mutation = useMutation({
     mutationFn: () =>
       sellerWalletApi.requestWithdrawal(
         { amount: Number(amount), method },
-        globalThis.crypto.randomUUID(),
+        idempotencyKey || globalThis.crypto.randomUUID(),
       ),
     onSuccess: async () => {
       toast.success(t("withdrawalRequested"));
@@ -498,13 +567,19 @@ function WithdrawDialog({
       setError(tErrors.has(code) ? tErrors(code) : tErrors("generic"));
     },
   });
-
   const available = Number(wallet.balances.available);
   const minimum = wallet.settings.minimumAmount;
   const numeric = Number(amount);
+  const amountError =
+    amount.trim() === "" || !Number.isFinite(numeric)
+      ? null
+      : numeric < minimum
+        ? tErrors("PAYOUT_BELOW_MINIMUM")
+        : numeric > available
+          ? tErrors("PAYOUT_EXCEEDS_AVAILABLE")
+          : null;
   const invalid = !Number.isFinite(numeric) || numeric < minimum || numeric > available;
   const noProfile = !wallet.payoutProfile;
-
   return (
     <Dialog
       open={open}
@@ -516,41 +591,48 @@ function WithdrawDialog({
         onOpenChange(next);
       }}
     >
+      {" "}
       <DialogContent className="sm:max-w-md">
+        {" "}
         <DialogHeader>
-          <DialogTitle>{t("withdrawTitle")}</DialogTitle>
-          <DialogDescription>
-            {t("withdrawBody", { window: windowLabel })}
-          </DialogDescription>
-        </DialogHeader>
+          {" "}
+          <DialogTitle>{t("withdrawTitle")}</DialogTitle>{" "}
+          <DialogDescription> {t("withdrawBody", { window: windowLabel })} </DialogDescription>{" "}
+        </DialogHeader>{" "}
         <div className="grid gap-3">
+          {" "}
           <div className="grid gap-1.5">
-            <Label htmlFor="withdraw-amount">{t("amount")}</Label>
+            {" "}
+            <Label htmlFor="withdraw-amount">{t("amount")}</Label>{" "}
             <div className="flex gap-2">
+              {" "}
               <Input
                 id="withdraw-amount"
                 inputMode="decimal"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
                 aria-describedby="withdraw-hint"
-              />
+              />{" "}
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setAmount(String(available))}
               >
-                {t("all")}
-              </Button>
-            </div>
+                {" "}
+                {t("all")}{" "}
+              </Button>{" "}
+            </div>{" "}
             <p id="withdraw-hint" className="text-xs text-muted-foreground">
+              {" "}
               {t("limits", {
                 min: minimum,
                 available: wallet.balances.available,
                 max: wallet.settings.maxPendingRequests,
-              })}
-            </p>
-          </div>
+              })}{" "}
+            </p>{" "}
+            {amountError ? <p className="text-sm text-destructive">{amountError}</p> : null}
+          </div>{" "}
           <div className="grid gap-1.5">
             <Label htmlFor="withdraw-method">{t("method")}</Label>
             <select
@@ -559,41 +641,43 @@ function WithdrawDialog({
               value={method}
               onChange={(event) => setMethod(event.target.value as PayoutMethod)}
             >
+              {" "}
               {wallet.settings.methods
                 .filter((value) => METHODS.includes(value))
                 .map((value) => (
                   <option key={value} value={value}>
-                    {value}
+                    {" "}
+                    {value}{" "}
                   </option>
-                ))}
-            </select>
-          </div>
+                ))}{" "}
+            </select>{" "}
+          </div>{" "}
           {noProfile ? (
-            <p className="rounded-xl bg-secondary/60 px-3 py-2 text-sm">
-              {t("profileRequired")}
-            </p>
-          ) : null}
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        </div>
+            <p className="rounded-xl bg-secondary/60 px-3 py-2 text-sm"> {t("profileRequired")} </p>
+          ) : null}{" "}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}{" "}
+        </div>{" "}
         <DialogFooter>
+          {" "}
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            {t("cancel")}
-          </Button>
+            {" "}
+            {t("cancel")}{" "}
+          </Button>{" "}
           <Button
             type="button"
             variant="cta"
             disabled={invalid || noProfile || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-            {t("requestWithdrawal")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+            {" "}
+            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}{" "}
+            {t("requestWithdrawal")}{" "}
+          </Button>{" "}
+        </DialogFooter>{" "}
+      </DialogContent>{" "}
     </Dialog>
   );
 }
-
 function PayoutProfile({
   wallet,
   onSaved,
@@ -612,7 +696,6 @@ function PayoutProfile({
   const [accountName, setAccountName] = useState(wallet.payoutProfile?.accountName ?? "");
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState<number | null>(null);
-
   useEffect(() => {
     const tick = () => setNow(Date.now());
     const initial = window.setTimeout(tick, 0);
@@ -622,10 +705,13 @@ function PayoutProfile({
       window.clearInterval(timer);
     };
   }, []);
-
   const mutation = useMutation({
     mutationFn: () =>
-      sellerWalletApi.saveProfile({ method, accountNumber: accountNumber.trim(), accountName: accountName.trim() }),
+      sellerWalletApi.saveProfile({
+        method,
+        accountNumber: accountNumber.trim(),
+        accountName: accountName.trim(),
+      }),
     onSuccess: async () => {
       toast.success(t("profileSaved"));
       setAccountNumber("");
@@ -637,63 +723,77 @@ function PayoutProfile({
       setError(tErrors.has(code) ? tErrors(code) : errorFallback);
     },
   });
-
+  const invalidNumber =
+    (method === "BKASH" || method === "NAGAD") &&
+    accountNumber.trim().length > 0 &&
+    !/^01[3-9]\d{8}$/.test(accountNumber.trim());
   const cooldownActive =
     wallet.payoutProfile !== null &&
     now !== null &&
     new Date(wallet.payoutProfile.cooldownUntil).getTime() > now;
-
   return (
     <Card className="rounded-2xl">
+      {" "}
       <CardHeader>
-        <CardTitle>{t("profileTitle")}</CardTitle>
-      </CardHeader>
+        {" "}
+        <CardTitle>{t("profileTitle")}</CardTitle>{" "}
+      </CardHeader>{" "}
       <CardContent className="grid gap-4">
+        {" "}
         {wallet.payoutProfile ? (
           <div className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
-            <span className="text-xs text-muted-foreground">{t("currentAccount")}</span>
+            {" "}
+            <span className="text-xs text-muted-foreground">{t("currentAccount")}</span>{" "}
             <span className="font-medium">
-              {wallet.payoutProfile.method} · {wallet.payoutProfile.accountMasked}
-            </span>
-            <span className="text-muted-foreground">{wallet.payoutProfile.accountName}</span>
+              {" "}
+              {wallet.payoutProfile.method} · {wallet.payoutProfile.accountMasked}{" "}
+            </span>{" "}
+            <span className="text-muted-foreground">{wallet.payoutProfile.accountName}</span>{" "}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">{t("noProfile")}</p>
-        )}
+        )}{" "}
         {cooldownActive ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
-            {t("cooldown", { date: formatLatinDateTime(wallet.payoutProfile!.cooldownUntil) })}
+            {" "}
+            {t("cooldown", { date: formatLatinDateTime(wallet.payoutProfile!.cooldownUntil) })}{" "}
           </p>
-        ) : null}
+        ) : null}{" "}
         <div className="grid gap-3 sm:grid-cols-2">
+          {" "}
           <div className="grid gap-1.5">
-            <Label htmlFor="profile-method">{t("method")}</Label>
+            {" "}
+            <Label htmlFor="profile-method">{t("method")}</Label>{" "}
             <select
               id="profile-method"
               className="min-h-11 rounded-full border border-input bg-background px-4 text-sm"
               value={method}
               onChange={(event) => setMethod(event.target.value as PayoutMethod)}
             >
+              {" "}
               {wallet.settings.methods
                 .filter((value) => METHODS.includes(value))
                 .map((value) => (
                   <option key={value} value={value}>
-                    {value}
+                    {" "}
+                    {value}{" "}
                   </option>
-                ))}
-            </select>
-          </div>
+                ))}{" "}
+            </select>{" "}
+          </div>{" "}
           <div className="grid gap-1.5">
-            <Label htmlFor="profile-name">{t("accountName")}</Label>
+            {" "}
+            <Label htmlFor="profile-name">{t("accountName")}</Label>{" "}
             <Input
               id="profile-name"
               value={accountName}
               onChange={(event) => setAccountName(event.target.value)}
               maxLength={80}
-            />
-          </div>
+            />{" "}
+          </div>{" "}
           <div className="grid gap-1.5 sm:col-span-2">
-            <Label htmlFor="profile-number">{t("accountNumber")}</Label>
+            {" "}
+            <Label htmlFor="profile-number">{t("accountNumber")}</Label>{" "}
             <Input
               id="profile-number"
               inputMode="numeric"
@@ -701,27 +801,31 @@ function PayoutProfile({
               onChange={(event) => setAccountNumber(event.target.value)}
               placeholder={wallet.payoutProfile?.accountMasked ?? "01XXXXXXXXX"}
               maxLength={34}
-            />
-            <p className="text-xs text-muted-foreground">{t("profileHint")}</p>
-          </div>
-        </div>
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            />{" "}
+            <p className="text-xs text-muted-foreground">{t("profileHint")}</p>{" "}
+          </div>{" "}
+        </div>{" "}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}{" "}
         <div>
+          {" "}
           <Button
             type="button"
             variant="cta"
-            disabled={
-              mutation.isPending ||
-              accountName.trim().length < 2 ||
-              accountNumber.trim().length < 6
-            }
-            onClick={() => mutation.mutate()}
+            disabled={accountNumber.trim().length < 6}
+            onClick={() => {
+              if (invalidNumber) {
+                setError(t("invalidNumber"));
+                return;
+              }
+              mutation.mutate();
+            }}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-            {t("saveProfile")}
-          </Button>
-        </div>
-      </CardContent>
+            {" "}
+            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}{" "}
+            {t("saveProfile")}{" "}
+          </Button>{" "}
+        </div>{" "}
+      </CardContent>{" "}
     </Card>
   );
 }

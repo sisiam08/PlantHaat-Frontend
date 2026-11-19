@@ -726,3 +726,10 @@ export interface AdminSettingHistory {
   reason: string | null;
   createdAt: string;
 }
+
+export interface AdminWithdrawalDestination {
+  method: PayoutMethod;
+  accountName: string;
+  accountNumber: string;
+  accountMasked: string;
+}

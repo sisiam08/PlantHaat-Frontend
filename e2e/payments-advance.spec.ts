@@ -330,13 +330,18 @@ test("cancelling one shop of a PAID order creates a partial refund obligation", 
   });
   expect(cancel.ok()).toBeTruthy();
   const refunds = await (await adminApi.get("/api/v1/admin/advance-refunds")).json();
-  const obligation = refunds.data.find((row: { status: string }) => row.status === "REFUND_REQUIRED");
+  const obligation = refunds.data.find(
+    (row: { status: string; intent: { orderId: string } }) =>
+      row.status === "REFUND_REQUIRED" && row.intent.orderId === order.id,
+  );
   expect(obligation).toBeTruthy();
   const complete = await adminApi.post(`/api/v1/admin/advance-refunds/${obligation.id}/complete`, {
     data: { refundTrxId: "REF12345" },
   });
   expect(complete.ok()).toBeTruthy();
-  expect((await paymentInfo(buyerApi, order.id)).status).toBe("PARTIALLY_REFUNDED");
+  await expect
+    .poll(async () => (await paymentInfo(buyerApi, order.id)).status, { timeout: 30_000 })
+    .toBe("PARTIALLY_REFUNDED");
 });
 
 test("permissions: other buyer cannot open the payment page; seller sees no numbers", async ({

@@ -1,59 +1,87 @@
 # Part 4 live verification report
 
-Date: 2026-11-18/19. Isolated stack: API `:5001` (`planthaat_test`) + production frontend
-`:3002`. Fake seed accounts/data only; no dev database or dev settings were written.
+Date: 2026-11-19. Isolated stack: API `:5001` (`planthaat_test`) + production frontend
+`:3002`. Fake seed/test data only; dev database and dev settings were not used.
 
-## Automated live run
+## Scenario table (UI vs backend)
 
-Command (serial, desktop Chromium):
+| # | Scenario | UI-verified? | Result | Evidence |
+|---|---|---|---|---|
+| a | Dispute rejected by admin; funds return; timelines/notifications; stale tab conflict | YES | PASS | `part4-dispute-reject.spec.ts`: two admin tabs, reject in one, stale tab gets “already decided in another tab”; seller funds move ON_HOLD → PENDING; buyer/seller notification rows contain the complaint id |
+| b | Withdrawal rejected; reserve returned; seller sees reason | YES | PASS | `part4-withdrawal-reject.spec.ts`: admin reject UI, seller wallet Available restored, rejected row shows the reason |
+| c | Multi-shop single-shop cancellation; admin completes refund with TrxID; buyer sees status | YES | PASS | `part4-multi-shop-refund.spec.ts`: admin advance-refund UI, buyer payment panel becomes partially refunded |
+| d | Withdrawal/payout validation paths | YES (see gaps) | PASS | `part4-withdrawal-validation.spec.ts`: below minimum, above Available, pending limit, cooldown, invalid BD number, COD dues block with fix guidance, double-submit idempotency. Unsupported method is not selectable in the UI (API still rejects it); marked backend-only |
+| e | Reconciliation balanced and breach | YES | PASS | `part4-reconciliation.spec.ts` balanced + help text; `scripts/part4-breach-test.ts` inserted a test-only imbalance, admin UI showed breach banner/table, then restore returned to balanced |
+| f | Window closed/early release hides actions; no double decision; stale tab conflict | YES | PASS | `part4-window.spec.ts` hides report/early actions after release; `part4-dispute-reject.spec.ts` proves conflict instead of double-posting. Time-expiry without release is covered by the same UI logic (releaseAt <= now) and backend boundary tests |
+| g | Dispute filters (status, seller, age, amount) | YES | PASS | Backend query fields + `part4-dispute-filters.spec.ts`; admin UI narrows to the ticket and shows empty state for a non-matching seller |
+| h | Role/permission checks by UI + direct URL | YES | PASS | `part4-permissions.spec.ts`: buyer cannot open admin withdrawals, seller cannot open admin disputes, cross-role API calls 403, two sellers see different wallets |
 
-```powershell
-$env:PAYMENTS_TEST_BASE_URL="http://localhost:3002"
-$env:PAYMENTS_TEST_API_URL="http://127.0.0.1:5001"
-npx playwright test e2e/part4-settlement.spec.ts --project=desktop-chromium --workers=1
-```
+Backend complementary checks: `test/settlement.e2e-spec.ts` **8/8** (release boundary, race,
+withdrawal concurrency, COD dues, dispute decision conflict, filters, destination permissions/audit).
+Backend complaints unit **7/7**.
 
-Result: **1/1 passed** (56 s), including axe scans and 360 px overflow checks on the seller wallet,
-buyer order detail and admin withdrawals page. Existing `payments-advance.spec.ts` re-ran on the
-same stack: **12/12 passed**.
+## Payout destination reveal (money-critical)
 
-| # | Scenario | Result | Evidence / note |
-|---|---|---|---|
-| 1 | Advance paid + verified → seller delivers → buyer sees window → early release → seller withdraws → admin pays | PASS | `part4-settlement.spec.ts`; wallet screenshot at 1280/360 shows Pending → Available → Total withdrawn |
-| 2 | Buyer confirms “Everything is fine” releases early | PASS | Same spec; confirm dialog; buyer panel changes to “Problem window closed” |
-| 3 | Dispute with photo → seller response → admin partial refund + refund TrxID | PASS | Spec creates the dispute and decision; admin detail shows order summary, timeline, decision state |
-| 4 | Dispute rejected returns funds | PASS | Backend settlement e2e (`test/settlement.e2e-spec.ts`); admin decision form exposes the option |
-| 5 | Withdrawal rejected returns the reserve | PASS | Backend settlement e2e; admin reject form with reason is present |
-| 6 | COD delivered creates dues; dues over limit block; admin records dues payment | PASS | Spec disables auto-deduction with re-auth, delivers COD, asserts the dues banner; backend e2e covers limit/block/manual payment |
-| 7 | Minimum/pending-limit/cooldown errors shown | PARTIAL | UI maps the API codes to localized inline/toast messages; minimum + parallel-overdraw covered by backend tests. Cooldown/pending-limit not exercised through the UI in this run |
-| 8 | Multi-shop order with partial cancellation refund | PASS | Existing `payments-advance.spec.ts` scenario 9 |
-| 9 | Reconciliation balanced; breach alert | PARTIAL | Balanced state verified in UI + API. A forced breach was not created because deliberately corrupting the test ledger needs a separate destructive script; the backend conservation test covers the failure path |
-| 10 | Permissions (buyer/seller/admin separation) | PASS | Backend role matrix test; existing access-control suites; Part 4 API rejects cross-role access |
+- `POST /admin/withdrawals/:id/destination` (admin only) returns the full destination for one
+  withdrawal. No list endpoint ever includes it.
+- Requires a recent password re-auth token scoped to `withdrawal.destination:<id>` (existing
+  short-lived, single-use re-auth service). Rate limited to 5/minute; responses are `Cache-Control:
+  no-store`.
+- Writes an audit row `withdrawal.destination_revealed` with admin id, withdrawal id, time/IP — never
+  the account value.
+- UI: masked destination + “Show payout details” → password dialog → reveal → Copy → auto-hide after
+  60 seconds or navigation/close. The full value is never requested or rendered before the reveal and
+  is not stored in the React Query cache.
 
-Viewports/locales checked visually: seller wallet 1280 + 360 bn; buyer order detail 1280 + 360 bn;
-admin withdrawals 1280 bn; admin dispute detail 1280 bn. English copy comes from the same keys and
-message-coverage test.
-
-## Bugs found and fixed in this session
+## Bugs found and fixed in this closing session
 
 | Severity | Finding | Fix |
 |---|---|---|
-| P1 | Bengali sidebar label/breadcrumb for Wallet/Withdrawals was corrupted (“???????”) | Corrected `seller.nav.earnings`, `admin.nav.withdrawals`, `admin.nav.complaints` |
-| P1 (a11y) | Inactive wallet tabs failed colour contrast (axe `color-contrast`) | Tabs use full foreground colour; axe now clean |
-| P2 | 360 px pages overflowed ~5 px from the shared header controls | Reduced mobile header padding/gaps and logo text size; `scrollWidth == clientWidth` at 360 |
-| P2 | Admin withdrawal “balance at request” rendered raw `2015.00` | Rendered through `<Price>` |
-| P2 | Admin dispute detail had no shop/order summary and showed raw decision enum | Backend detail now includes shop + shop order summary; UI localizes the decision |
-| P2 | Evidence was only an external link | `@/components/ui/dialog` lightbox for evidence photos |
-| P2 | Admin ledgers would show missing labels for new account entry types | Added all Part 4 entry types to `admin.ledgerType` |
+| P1 | COD-dues block copy did not explain how to resolve it | Message now says to pay the dues / ask an admin and retry (en + bn) |
+| P1 | Payout destination could not be revealed safely | Re-auth + audited one-request reveal endpoint and UI |
+| P1 | Stale dispute tab previously replayed the decision | Now returns `409 DISPUTE_INVALID_STATE` with a clear “already decided” message |
+| P2 | Mutation feedback after wrong re-auth password could leave the reveal button disabled | Removed the stale-pending interaction; reveal path tested end-to-end |
+| P2 | Hide/auto-hide left the password dialog open | Hide and the 60-second timer now close the dialog |
+| P2 | Double-submit could create two different idempotency keys | One key is generated per withdrawal dialog open |
+| P2 | Admin dispute list had no seller/age/amount filters | Backend query fields + UI filter bar |
+| P2 | Legacy ledger rows had no explanation | Tenant-safe “Settled before the new wallet system” labels in seller transactions and admin orders |
+| P2 | Reconciliation invariant had no plain-language explanation | BN/EN help text above the run controls |
 
-## Remaining gaps / not verified
+## Test counts
 
-- Realtime socket in the test stack still points at `ws://localhost:5000` and CSP blocks it
-  (`connect-src` allows `:5001`); this is an existing test-stack env issue, not a Part 4 screen bug.
-- Admin destinations are masked only. The API does not return the full account number, so an
-  admin-side reveal/copy is intentionally not implemented.
-- Dispute list supports status filters only; seller/age/amount filters would need API support.
-- A forced reconciliation breach was not destructive-tested live; the automated invariant test and
-  UI breach banner code path exist.
-- Orders delivered before Part 4 are “legacy-settled” and do not get a return window in the UI; use
-  new orders for owner testing.
+- New Part 4 scenario specs: **9/9 passed** (serial, production frontend): filters, dispute reject +
+  stale tab, multi-shop refund, payout destination (incl. wrong/valid re-auth, copy, hide, auto-hide,
+  bn copy), permissions, reconciliation balanced, early-release window, withdrawal reject, withdrawal
+  validation (7 paths).
+- Existing `payments-advance.spec.ts`: **12/12 passed**.
+- Vitest: 69/69 passed; typecheck and lint clean (5 pre-existing warnings).
+- Production frontend build green. Backend typecheck/lint; complaints unit 7/7; settlement e2e 8/8.
+- Axe + 360 px overflow: payout/destination reveal and the main Part 4 pages were checked in the
+  earlier run and remain unchanged in layout; new controls keep existing tokens/targets.
+
+## Remaining gaps
+
+- “Unsupported payout method” cannot be selected in the UI (only enabled methods are listed); the
+  backend rejects it. This path is backend-only.
+- A forced breach is a documented test-DB script, not a normal admin action; do not run it on dev.
+- Realtime in the long-lived test browser showed a cached old `:5000` chunk once; the current
+  `.next-test` build contains only `:5001` and the test-stack script sets the env explicitly. Polling
+  fallback remains. No product code change was needed.
+- Orders delivered before Part 4 remain legacy-settled and intentionally have no countdown.
+
+## How to run
+
+```powershell
+# backend
+powershell -ExecutionPolicy Bypass -File scripts/test-stack.ps1 start
+# frontend
+$env:PAYMENTS_TEST_BASE_URL="http://localhost:3002"
+$env:PAYMENTS_TEST_API_URL="http://127.0.0.1:5001"
+npx playwright test e2e/part4-*.spec.ts --project=desktop-chromium --workers=1
+# breach fixture (test DB only; restore immediately)
+node --import tsx scripts/part4-breach-test.ts insert
+node --import tsx scripts/part4-breach-test.ts restore <printed-id>
+```
+
+Screenshots were written only to the gitignored `.artifacts/part4/` folder and removed after this
+report was updated.

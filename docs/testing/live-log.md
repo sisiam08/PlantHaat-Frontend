@@ -78,3 +78,14 @@ The spec seeds nothing itself; it uses the fake test-stack accounts and creates 
 advance/COD/dispute records. It sets only non-sensitive public return-window test settings and, for
 the COD dues case, disables auto-deduction through a real admin re-auth token. Axe + 360 px overflow
 checks run inside the same spec. `payments-advance.spec.ts` remains the regression suite for Part 3.
+
+## 2026-11-19 Part 4 closing scenarios (isolated production stack)
+
+Split specs (serial, `--project=desktop-chromium --workers=1`): `part4-dispute-reject`,
+`part4-withdrawal-reject`, `part4-payout-destination`, `part4-dispute-filters`,
+`part4-withdrawal-validation`, `part4-window`, `part4-reconciliation`, `part4-permissions`,
+`part4-multi-shop-refund`: **9/9 passed**. `payments-advance.spec.ts`: **12/12 passed**.
+
+`part4-payout-destination` covers wrong/valid re-auth, copy, manual hide, 60 s auto-hide and bn copy.
+The breach path was exercised manually with `backend/scripts/part4-breach-test.ts` (test DB guard,
+immediate restore). Full table: `docs/testing/part4-live-report.md`.
