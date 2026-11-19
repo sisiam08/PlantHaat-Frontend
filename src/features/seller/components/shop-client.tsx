@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -20,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
+import { uploadsApi } from "@/features/uploads/api";
 import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
@@ -64,6 +66,9 @@ function ShopForm({ shop }: { shop: SellerShop }) {
   const t = useTranslations("seller.shop");
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
+  const logoRef = useRef<HTMLInputElement>(null);
+  const bannerRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
 
   const schema = z.object({
     name: z.string().min(2, t("validation.name")),
@@ -88,6 +93,26 @@ function ShopForm({ shop }: { shop: SellerShop }) {
       address: shop.address ?? "",
     },
   });
+
+  const upload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    purpose: "shop-logo" | "shop-banner",
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(purpose === "shop-logo" ? "logo" : "banner");
+    try {
+      const stored = await uploadsApi.image(file, purpose);
+      form.setValue(purpose === "shop-logo" ? "logoUrl" : "bannerUrl", stored.url, {
+        shouldValidate: true,
+      });
+    } catch (error) {
+      toastApiError(error, tErrors);
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.seller.shop });
@@ -137,8 +162,54 @@ function ShopForm({ shop }: { shop: SellerShop }) {
             </div>
             <FormField label={t("address")} {...form.register("address")} />
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label={t("logoUrl")} {...form.register("logoUrl")} />
-              <FormField label={t("bannerUrl")} {...form.register("bannerUrl")} />
+              <div className="grid gap-1.5">
+                <FormField label={t("logoUrl")} {...form.register("logoUrl")} />
+                <input
+                  ref={logoRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => upload(event, "shop-logo")}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading !== null}
+                  onClick={() => logoRef.current?.click()}
+                >
+                  {uploading === "logo" ? (
+                    <Loader2 aria-hidden className="size-4 animate-spin" />
+                  ) : (
+                    <ImagePlus aria-hidden className="size-4" />
+                  )}
+                  {uploading === "logo" ? t("uploading") : t("uploadLogo")}
+                </Button>
+              </div>
+              <div className="grid gap-1.5">
+                <FormField label={t("bannerUrl")} {...form.register("bannerUrl")} />
+                <input
+                  ref={bannerRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => upload(event, "shop-banner")}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading !== null}
+                  onClick={() => bannerRef.current?.click()}
+                >
+                  {uploading === "banner" ? (
+                    <Loader2 aria-hidden className="size-4 animate-spin" />
+                  ) : (
+                    <ImagePlus aria-hidden className="size-4" />
+                  )}
+                  {uploading === "banner" ? t("uploading") : t("uploadBanner")}
+                </Button>
+              </div>
             </div>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element

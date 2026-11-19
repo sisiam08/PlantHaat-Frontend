@@ -347,6 +347,10 @@ export const adminApi = {
   }) =>
     apiGet<AdminAuditLog[]>("/admin/audit-logs", qs(params)).then((result) => paginated(result)),
   getSettings: () => apiGet<AdminSettings>("/admin/settings").then((result) => result.data),
+  storageHealthCheck: () =>
+    apiPost<{ ok: boolean; latencyMs: number }>("/admin/uploads/storage-check", {}).then(
+      (result) => result.data,
+    ),
   getSettingsRegistry: () =>
     apiGet<AdminSettingDefinition[]>("/admin/settings/registry").then((result) => result.data),
   getSettingsHistory: (key?: string) =>

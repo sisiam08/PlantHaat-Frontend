@@ -140,6 +140,14 @@ export function SettingsClient() {
     },
   });
 
+  const storageCheck = useMutation({
+    mutationFn: () => adminApi.storageHealthCheck(),
+    onSuccess: (result) => {
+      toast.success(t("storageOk", { ms: result.latencyMs }));
+    },
+    onError: (error) => toastApiError(error, tErrors),
+  });
+
   if (settings.isLoading || registry.isLoading)
     return <Skeleton className="h-64 w-full rounded-2xl" />;
   if (settings.isError || registry.isError || !registry.data) {
@@ -192,6 +200,22 @@ export function SettingsClient() {
 
   return (
     <div className="grid gap-5">
+      <Card className="rounded-2xl">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid gap-1">
+            <h2 className="text-lg font-semibold">{t("storageHealth")}</h2>
+            <p className="text-sm text-muted-foreground">{t("storageHealthHint")}</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={storageCheck.isPending}
+            onClick={() => storageCheck.mutate()}
+          >
+            {storageCheck.isPending ? t("storageChecking") : t("storageCheck")}
+          </Button>
+        </CardContent>
+      </Card>
       <Card className="rounded-2xl py-0">
         <CardContent className="p-5">
           <Tabs defaultValue="payments">

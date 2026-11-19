@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
+import { uploadsApi } from "@/features/uploads/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { adminApi } from "../api";
 import type { AdminBanner } from "../types";
@@ -46,6 +48,23 @@ export function BannersClient() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const stored = await uploadsApi.image(file, "banner");
+      setForm((current) => ({ ...current, imageUrl: stored.url }));
+    } catch (error) {
+      toastApiError(error, tErrors);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const query = useQuery({
     queryKey: queryKeys.admin.banners,
@@ -170,11 +189,33 @@ export function BannersClient() {
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="bannerImage">{t("imageUrl")}</Label>
-              <Input
-                id="bannerImage"
-                value={form.imageUrl}
-                onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="bannerImage"
+                  value={form.imageUrl}
+                  onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
+                />
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={uploadImage}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {uploading ? (
+                    <Loader2 aria-hidden className="size-4 animate-spin" />
+                  ) : (
+                    <ImagePlus aria-hidden className="size-4" />
+                  )}
+                  {uploading ? t("uploading") : t("uploadImage")}
+                </Button>
+              </div>
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="bannerLink">{t("linkUrl")}</Label>

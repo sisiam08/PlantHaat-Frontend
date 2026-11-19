@@ -38,6 +38,7 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 ## 4. Non-negotiable rules
 
 - **Architecture (developer decision): client → Next.js server → backend.** Browser code never calls the backend. Client Components call the same-origin Route Handler gateway (`/api/v1/*`); Server Components call the backend through `src/server/backend.ts`. The only direct browser → backend connection is the realtime socket (ticket-authenticated).
+- **Images:** every upload goes through `uploadsApi` (`POST /uploads/images`, then persist the returned Cloudinary URL). Never construct local `/uploads/...` URLs. `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` must be set in `.env.local` so `next.config.ts` allows the Cloudinary host; restart the dev server after changing it. Product, category, shop logo/banner, review, complaint, payment-proof and admin-banner forms use this path.
 - **Auth:** httpOnly cookies owned by the Next.js origin (`ph_at`, `ph_rt`, issued only by the gateway/`proxy.ts`); tokens never touch client JS. Three-layer silent refresh: proxy → gateway refresh + replay → browser single-flight fallback; no loops. Contract: `backend/docs/auth/sessions.md`.
 - **Payments:** COD and manual Advance (bKash/Nagad TrxID verification) are available; there is no gateway SDK. Advance is feature-flagged by Settings and must follow the real server state. Contract: `backend/docs/payments/api.md`.
 - **shadcn/ui through its CLI only.** Search first, then `add`; customize only as allowed in `FRONTEND_DESIGN.md` §6.2. Review `git diff` after `add`.
@@ -152,3 +153,10 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 - Part 4 specs are independent (`e2e/part4-*.spec.ts`), including destination, filters, rejects,
   validation, multi-shop refund, window and permissions. Full report:
   `docs/testing/part4-live-report.md`.
+
+## 16. Upload/banner follow-up (2026-11-19)
+
+- Home banners now reference the owner-provided WebP files (anner-1..3 and mobile variants); a Vitest guard fails if a banner path is missing from public/.
+- Admin Settings has an Image storage health card that calls POST /admin/uploads/storage-check (tiny upload, HEAD, delete).
+- Production builds require NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; the build fails early if it is missing.
+- Storefront product/category images already use the custom Cloudinary loader; no loader change was made in this pass.
