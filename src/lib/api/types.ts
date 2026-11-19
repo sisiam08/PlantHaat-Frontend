@@ -16,3 +16,41 @@ export type SellerEarnings = components["schemas"]["SellerEarningsDto"];
 export type PaymentDto = components["schemas"]["PaymentDto"];
 
 export type Role = "CUSTOMER" | "SELLER" | "ADMIN";
+
+export interface HomeHighlightSlide {
+  id: string;
+  sortOrder: number;
+  image: { url: string; width: number | null; height: number | null };
+  mobileImage: { url: string; width: number | null; height: number | null } | null;
+  alt: { bn: string; en: string };
+  focal: { x: number; y: number };
+  mobileFocal: { x: number; y: number };
+  overlay: {
+    enabled: boolean;
+    headline: { bn: string; en: string };
+    subtext: { bn: string; en: string };
+    textColor: string | null;
+    scrimColor: string;
+    scrimOpacity: number;
+    position: { desktop: string; mobile: string };
+    align: { desktop: string; mobile: string };
+  };
+  button: {
+    enabled: boolean;
+    label: { bn: string; en: string };
+    href: string | null;
+    style: string;
+    backgroundColor: string | null;
+    textColor: string | null;
+  } | null;
+  link: string | null;
+  openInNewTab: boolean;
+}
+
+export interface HomeHighlights {
+  enabled: boolean;
+  title: { bn: string; en: string };
+  autoplay: boolean;
+  intervalSeconds: number;
+  slides: HomeHighlightSlide[];
+}

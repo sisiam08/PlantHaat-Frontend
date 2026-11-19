@@ -6,6 +6,8 @@ import type {
   AdminAuditLog,
   AdminBanner,
   AdminCategory,
+  AdminHighlight,
+  AdminHighlightInput,
   AdminCommissionRule,
   AdminHomepageSection,
   AdminPaymentListItem,
@@ -311,6 +313,25 @@ export const adminApi = {
     ),
   removeBanner: (id: string) =>
     apiDelete<unknown>(`/admin/banners/${encodeURIComponent(id)}`).then(() => undefined),
+
+  listHighlights: () =>
+    apiGet<AdminHighlight[]>("/admin/banners", { params: { placement: "HOME_HIGHLIGHTS" } }).then(
+      (result) => result.data,
+    ),
+  createHighlight: (input: AdminHighlightInput) =>
+    apiPost<AdminHighlight>("/admin/banners", input).then((result) => result.data),
+  updateHighlight: (id: string, input: Partial<AdminHighlightInput>) =>
+    apiPatch<AdminHighlight>(`/admin/banners/${encodeURIComponent(id)}`, input).then(
+      (result) => result.data,
+    ),
+  removeHighlight: (id: string) =>
+    apiDelete<unknown>(`/admin/banners/${encodeURIComponent(id)}`).then(() => undefined),
+  duplicateHighlight: (id: string) =>
+    apiPost<AdminHighlight>(`/admin/banners/${encodeURIComponent(id)}/duplicate`).then(
+      (result) => result.data,
+    ),
+  reorderHighlights: (ids: string[]) =>
+    apiPatch<AdminHighlight[]>("/admin/banners/reorder", { ids }).then((result) => result.data),
 
   listHomepageSections: () =>
     apiGet<AdminHomepageSection[]>("/admin/homepage-sections").then((result) => result.data),

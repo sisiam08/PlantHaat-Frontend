@@ -14,6 +14,8 @@ export type UploadPurpose =
 export interface StoredObject {
   key: string;
   url: string;
+  width?: number;
+  height?: number;
 }
 
 const UPLOAD_TIMEOUT_MS = 60_000;

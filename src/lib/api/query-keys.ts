@@ -83,6 +83,7 @@ export const queryKeys = {
     payouts: (filters?: Record<string, unknown>) => ["admin", "payouts", filters ?? {}] as const,
     withdrawals: (filters?: Record<string, unknown>) => ["admin", "withdrawals", filters ?? {}] as const,
     banners: ["admin", "banners"] as const,
+    highlights: ["admin", "highlights"] as const,
     homepageSections: ["admin", "homepage-sections"] as const,
     announcements: (filters?: Record<string, unknown>) =>
       ["admin", "announcements", filters ?? {}] as const,

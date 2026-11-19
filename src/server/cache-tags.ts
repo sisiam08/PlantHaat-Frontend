@@ -1,6 +1,7 @@
 export const CACHE_TAGS = {
   home: "home",
   banners: "banners",
+  homeHighlights: "home-highlights",
   categories: "categories",
   products: "products",
   shops: "shops",
@@ -49,16 +50,16 @@ const MUTATION_TAG_RULES: MutationTagRule[] = [
     method: "DELETE",
     tags: [CACHE_TAGS.categories, CACHE_TAGS.products],
   },
-  { test: /^\/admin\/banners/, method: "POST", tags: [CACHE_TAGS.home, CACHE_TAGS.banners] },
+  { test: /^\/admin\/banners/, method: "POST", tags: [CACHE_TAGS.home, CACHE_TAGS.banners, CACHE_TAGS.homeHighlights] },
   {
     test: /^\/admin\/banners\//,
     method: "PATCH",
-    tags: [CACHE_TAGS.home, CACHE_TAGS.banners],
+    tags: [CACHE_TAGS.home, CACHE_TAGS.banners, CACHE_TAGS.homeHighlights],
   },
   {
     test: /^\/admin\/banners\//,
     method: "DELETE",
-    tags: [CACHE_TAGS.home, CACHE_TAGS.banners],
+    tags: [CACHE_TAGS.home, CACHE_TAGS.banners, CACHE_TAGS.homeHighlights],
   },
   {
     test: /^\/admin\/homepage-sections/,
