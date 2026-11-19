@@ -26,7 +26,7 @@ async function openHero(page: Page, locale: "bn" | "en", width: number) {
     }).observe({ type: "layout-shift", buffered: true });
   });
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 90000 });
-  await expect(page.locator("[data-home-hero] h1")).toBeVisible({ timeout: 30000 });
+  await expect(page.locator("[data-home-hero] h1").first()).toBeVisible({ timeout: 30000 });
 }
 
 for (const locale of ["bn", "en"] as const) {
@@ -160,7 +160,7 @@ test("admin hero settings change appears on the home page", async ({ page }) => 
       { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
     ]);
     await page.goto("/", { waitUntil: "domcontentloaded", timeout: 90000 });
-    await expect(page.locator("[data-home-hero] h1")).toHaveText(next.en, { timeout: 30000 });
+    await expect(page.locator("[data-home-hero] h1").first()).toHaveText(next.en, { timeout: 30000 });
   } finally {
     await page.evaluate(async (value) => {
       await fetch("/api/v1/admin/settings", {

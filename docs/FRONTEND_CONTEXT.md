@@ -77,6 +77,9 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 - Auth forms are `inert` with disabled Submit until hydration and use `method="post"` as a native fallback (no credentials in the URL).
 - One date formatter: `formatLatinDateTime(value, locale)`; `formatDateTime` is a deprecated alias. Latin digits everywhere; à§³ before amounts.
 - Home: all 11 categories + All categories, curated plants-only/in-stock rails, adjacent-rail dedupe, sparse rails hidden below 4 unique cards (`HOME_RAIL_MIN = 4`), All products feed includes accessories honestly.
+- Home hero (2026-11-19): compact marketplace-first hero with search, category scope, settings-driven chips, one slim trust row and real popular products (or the admin image). The decorative composition and standalone trust band were removed; `src/config/home-banners.ts` is no longer used by the page (owner file kept untouched).
+- Home Highlights (2026-11-19): admin-managed `HOME_HIGHLIGHTS` banners rendered by `HomeHighlightsSlot`; 3:2 mobile / 3:1 desktop aspect boxes, `<picture>` art direction, autoplay off by default, single slide = no carousel JS, multi-slide loads Embla on visibility and only selected-slide images. Off/empty/failure removes the section entirely.
+- Admin: **Home â†’ Highlights** (`/admin/highlights`) edits images, overlay/text/position/colors, button/link, schedule, active state and master autoplay/interval controls; Settings â†’ Home holds the hero copy/chips/image and the highlights on/off/title/max keys.
 - Shared card surface: `rounded-xl` (feature `rounded-2xl`), `border-border/60`, `shadow-[var(--shadow-soft)]`.
 - Checkout with an empty cart shows the shared empty state, not a zero-total form.
 - Order detail maps the raw payment enum to the localized label; no raw enums in customer copy.
@@ -127,9 +130,9 @@ Authoritative route list: `FRONTEND_DESIGN.md` Â§7. Built areas: public home/cat
 
 - Seller wallet replaces the old earnings screen at `/seller/earnings`: Available/Pending/On hold/
   Total withdrawn/COD dues, per-order release dates, transactions with type filter, payout profile,
-  withdrawal dialog. Nav label is “Wallet”.
-- Buyer order detail shows the snapshot return window, “Report a problem” and (when enabled)
-  “Everything is fine” early release with a consequence dialog. Older delivered orders without a
+  withdrawal dialog. Nav label is ï¿½Walletï¿½.
+- Buyer order detail shows the snapshot return window, ï¿½Report a problemï¿½ and (when enabled)
+  ï¿½Everything is fineï¿½ early release with a consequence dialog. Older delivered orders without a
   snapshot show a legacy-settled note.
 - Admin: new `/admin/withdrawals` pay/reject queue, money-decision panel on complaint detail with
   order summary/evidence lightbox, settlement block + breach banner on reconciliation, dashboard
@@ -146,7 +149,7 @@ Authoritative route list: `FRONTEND_DESIGN.md` Â§7. Built areas: public home/cat
 
 ## 15. Part 4 closing pass (2026-11-19)
 
-- Admin withdrawal destination: masked until “Show payout details”; password re-auth, copy, 60 s
+- Admin withdrawal destination: masked until ï¿½Show payout detailsï¿½; password re-auth, copy, 60 s
   auto-hide/close, no cache. Endpoint contract in `backend/docs/payments/api.md`.
 - Dispute filters (seller/age/amount/status) wired to the server; stale decision tabs show a conflict.
 - Legacy ledger/order explanation and reconciliation help text added bn/en.

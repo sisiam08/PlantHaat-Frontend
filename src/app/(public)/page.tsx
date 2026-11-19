@@ -5,9 +5,9 @@ import { HomeSection } from "@/components/layout/home-section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { SectionFallback } from "@/components/section-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BannerCarousel } from "@/features/catalog/components/banner-carousel";
 import { CategoryBento } from "@/features/catalog/components/category-bento";
 import { Hero } from "@/features/catalog/components/hero";
+import { HomeHighlightsSlot } from "@/features/catalog/components/home-highlights";
 import { HomeRails } from "@/features/catalog/components/home-rails";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
 import {
@@ -16,8 +16,9 @@ import {
 } from "@/features/catalog/components/product-card";
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { getPlaceholderCategoryImageUrls } from "@/features/catalog/category-image.server";
+import { getHomeHighlights } from "@/features/catalog/highlights.server";
 import { getHomeFeed, getCategories, getProducts } from "@/features/catalog/server";
-import type { ProductListItem } from "@/lib/api/types";
+import type { HomeHighlights, ProductListItem } from "@/lib/api/types";
 
 const FEED_LIMIT = 12;
 
@@ -87,31 +88,25 @@ function HomeSkeleton() {
 }
 
 export default async function HomePage() {
-  let heroCategories: Awaited<ReturnType<typeof getCategories>> | null = null;
-  try {
-    heroCategories = await getCategories();
-  } catch {
-    heroCategories = null;
-  }
-  let heroProducts: ProductListItem[] = [];
-  try {
-    const popular = await getProducts({ sort: "popular", inStock: true, limit: 3 });
-    heroProducts = popular.data;
-  } catch {
-    heroProducts = [];
-  }
+  const [categoriesResult, productsResult, highlights] = await Promise.all([
+    getCategories().catch(() => null),
+    getProducts({ sort: "popular", inStock: true, limit: 3 }).catch(() => null),
+    getHomeHighlights(),
+  ]);
+  const heroProducts: ProductListItem[] = productsResult?.data ?? [];
+  const homeHighlights: HomeHighlights | null = highlights;
 
   return (
     <>
-      <Hero categories={heroCategories ?? []} products={heroProducts} />
+      <Hero categories={categoriesResult ?? []} products={heroProducts} />
       <Suspense fallback={<HomeSkeleton />}>
-        <HomeContent />
+        <HomeContent highlights={homeHighlights} />
       </Suspense>
     </>
   );
 }
 
-async function HomeContent() {
+async function HomeContent({ highlights }: { highlights: HomeHighlights | null }) {
   const th = await getTranslations("home");
   let categories: Awaited<ReturnType<typeof getCategories>> | null = null;
   try {
@@ -154,12 +149,7 @@ async function HomeContent() {
         <HomeRails />
       </Suspense>
 
-      <HomeSection labelledBy="home-highlights">
-        <div className="grid gap-4">
-          <SectionHeader id="home-highlights" title={th("bannerLabel")} />
-          <BannerCarousel />
-        </div>
-      </HomeSection>
+      <HomeHighlightsSlot data={highlights} />
 
       <HomeSection labelledBy="home-all-plants" className="pb-8 md:pb-12">
         <div className="grid gap-4">

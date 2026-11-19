@@ -106,3 +106,27 @@ Method unchanged: production build (`NEXT_DIST_DIR=.next-prod`), `next start -p 
 | LCP element | paragraph / H1 text | H1 / subheadline text |
 
 The hero no longer includes the motion/parallax composition, and real product cards replace the decorative plates. LCP improved by ~51% (en) and ~36% (bn) on this method and did not regress; JS bytes are unchanged. The static Highlights banner image (218 KB) was still on the page during this measurement; Part B replaces it with the admin-managed section and image variants.
+
+## 2026-11-19 Home Highlights slider
+
+Method unchanged (production `next start` on `:3200`, API `:5000`, 390x844 and 1440x900, Slow 4G + 4x CPU, 5 runs, medians). Three imported slides were active; the section is below the fold.
+
+| Viewport | LCP en | LCP bn | CLS | TBT proxy | JS gzip | Images |
+|---|---:|---:|---:|---:|---:|---:|
+| 390 | **2832 ms** | **3044 ms** | 0 | 1872 / 1821 ms | 356 KB | 217 / 191 KB |
+| 1440 | **2968 ms** | **3140 ms** | 0 / 0.0001 | 2085 / 1704 ms | 356 KB | 295 / 269 KB |
+
+Compared with the Part A hero measurement (390 en 3288 ms, bn 3584 ms; images 430/404 KB), the
+admin-managed slider improved LCP by ~14-15% and image bytes by ~50%; JS bytes stayed flat (356 vs
+363 KB). CLS is 0 on mobile and ~0 on desktop.
+
+Section image evidence (Cloudinary `f_auto,q_auto,c_limit`):
+- 390: only the mobile variant is requested (`w_640`, ~22 KB for the imported first slide); the
+  desktop variant is not requested.
+- 1440: only the desktop variant is requested (`w_1920`, ~77 KB for the same slide).
+- Off-screen slides 2 and 3 are not requested until selected; the next slide's image is loaded when
+  the carousel navigates.
+
+Element/JS checks: the first slide is visible without carousel JavaScript; with 3 slides, the Embla
+chunk loads only when the section is within 300 px of the viewport. A single-slide/e2e state produced
+zero `embla`/carousel requests.

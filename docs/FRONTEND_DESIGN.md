@@ -288,6 +288,11 @@ Evidence: Baymard homepage/carousel research (most users never see slides after 
 - **Validation.** Server-side only: safe links (same-site `/...` or `https://`; `javascript:`, `data:` and protocol-relative links blocked), `#RRGGBB` colors, text limits (headline 60, subtext 140, button label 24), schedule end after start, at most `maxSlides` active slides, and WCAG contrast warnings (button text blocks below 3:1; overlay text blocks at maximum scrim below 4.5:1). Uploads must be tracked Cloudinary assets; replace/delete cleans the old asset unless another slide still references it.
 - **Performance.** Public endpoint is cached and tag-invalidated (`home-highlights` + `settings`); Cloudinary delivery uses `f_auto,q_auto,c_limit` with width-matched `srcset` and DPR capped at 2. If the endpoint fails, the section is omitted silently and the rest of the home page is unaffected.
 
+**Measured result (2026-11-19):** home LCP 2832/3044 ms at 390 and 2968/3140 ms at 1440 (en/bn),
+CLS 0 (desktop bn 0.0001), JS 356 KB gzip. The mobile/desktop first-slide variants are ~22 KB and
+~77 KB for the imported artwork; off-screen slides are not requested until selected. Full numbers:
+`design/performance.md`.
+
 **Not carried forward:** `src/config/home-banners.ts` is no longer used by the home page (kept untouched because it is the owner's file). The old decorative `HeroComposition` and the standalone `TrustStrip` component were removed.
 
 ## 7. Information architecture and routes
