@@ -15,9 +15,9 @@ import {
   ProductRailSkeleton,
 } from "@/features/catalog/components/product-card";
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
-import { TrustStrip } from "@/features/catalog/components/trust-strip";
 import { getPlaceholderCategoryImageUrls } from "@/features/catalog/category-image.server";
-import { getHomeFeed, getCategories } from "@/features/catalog/server";
+import { getHomeFeed, getCategories, getProducts } from "@/features/catalog/server";
+import type { ProductListItem } from "@/lib/api/types";
 
 const FEED_LIMIT = 12;
 
@@ -55,12 +55,6 @@ async function HomeFeedSection() {
 function HomeSkeleton() {
   return (
     <div aria-hidden>
-      <div className="mx-auto w-full max-w-7xl px-4">
-        <Skeleton className="aspect-4/3 w-full rounded-[2rem] md:aspect-[16/7]" />
-      </div>
-      <HomeSection>
-        <Skeleton className="h-20 w-full rounded-2xl" />
-      </HomeSection>
       <HomeSection>
         <div className="grid gap-4">
           <Skeleton className="h-9 w-48 md:h-10" />
@@ -92,11 +86,28 @@ function HomeSkeleton() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  let heroCategories: Awaited<ReturnType<typeof getCategories>> | null = null;
+  try {
+    heroCategories = await getCategories();
+  } catch {
+    heroCategories = null;
+  }
+  let heroProducts: ProductListItem[] = [];
+  try {
+    const popular = await getProducts({ sort: "popular", inStock: true, limit: 3 });
+    heroProducts = popular.data;
+  } catch {
+    heroProducts = [];
+  }
+
   return (
-    <Suspense fallback={<HomeSkeleton />}>
-      <HomeContent />
-    </Suspense>
+    <>
+      <Hero categories={heroCategories ?? []} products={heroProducts} />
+      <Suspense fallback={<HomeSkeleton />}>
+        <HomeContent />
+      </Suspense>
+    </>
   );
 }
 
@@ -113,12 +124,6 @@ async function HomeContent() {
 
   return (
     <>
-      <Hero categories={safeCategories} placeholderImageUrls={placeholderImageUrls} />
-
-      <HomeSection ariaLabel={th("trustLabel")}>
-        <TrustStrip />
-      </HomeSection>
-
       <HomeSection labelledBy="home-categories">
         <div className="grid gap-4">
           <SectionHeader

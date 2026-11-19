@@ -23,6 +23,7 @@ export interface ProductQuery {
   light?: string;
   /** Comma-separated `CareDifficulty` values. */
   difficulty?: string;
+  isIndoor?: boolean;
   isPetSafe?: boolean;
   inStock?: boolean;
   /** 1–5; only products rated at least this with reviews. */
@@ -107,6 +108,7 @@ export function parseProductQuery(searchParams: SearchParams): ProductQuery {
     ),
   );
   if (difficulty) query.difficulty = difficulty;
+  if (first(searchParams.isIndoor) === "true") query.isIndoor = true;
   if (first(searchParams.isPetSafe) === "true") query.isPetSafe = true;
   if (first(searchParams.inStock) === "true") query.inStock = true;
   const minRating = Number(first(searchParams.minRating));

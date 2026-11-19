@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowDown, ArrowUp, ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -24,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PaymentPreview } from "@/features/payments/components/payment-preview";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadsApi } from "@/features/uploads/api";
 import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -32,9 +34,10 @@ import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
 
-const GROUPS = ["payments", "orders", "wallet", "payouts", "support", "security"] as const;
+const GROUPS = ["home", "payments", "orders", "wallet", "payouts", "support", "security"] as const;
 
 const GROUP_LABELS: Record<(typeof GROUPS)[number], string> = {
+  home: "Home",
   payments: "payments",
   orders: "orders",
   wallet: "wallet",
@@ -287,6 +290,16 @@ export function SettingsClient() {
                       </div>
                     ))}
                   </div>
+                ) : group === "home" ? (
+                  <HomeSettingsFields
+                    definitions={definitions.filter((entry) => entry.group === "home")}
+                    values={values}
+                    errors={serverErrors}
+                    locale={locale}
+                    lastChange={lastChange}
+                    onChange={setValue}
+                    onReset={(key, value) => setValue(key, value)}
+                  />
                 ) : (
                   <div className="grid gap-4 md:grid-cols-2">
                     {definitions
@@ -502,6 +515,470 @@ function SettingField({
         {definition.isSensitive ? <span>{t("sensitiveNote")}</span> : null}
         {last ? <span>Last changed {formatDateTime(last.createdAt, locale)}</span> : null}
       </div>
+    </div>
+  );
+}
+
+interface LocalizedValue {
+  bn: string;
+  en: string;
+}
+
+interface HeroChipValue {
+  labelBn: string;
+  labelEn: string;
+  href: string;
+}
+
+interface HeroImageValue {
+  url: string;
+  mobileUrl: string;
+  altBn: string;
+  altEn: string;
+  focalX: number;
+  focalY: number;
+}
+
+const EMPTY_HERO_IMAGE: HeroImageValue = {
+  url: "",
+  mobileUrl: "",
+  altBn: "",
+  altEn: "",
+  focalX: 50,
+  focalY: 50,
+};
+
+function asLocalized(value: unknown, fallback: LocalizedValue): LocalizedValue {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return fallback;
+  const record = value as Record<string, unknown>;
+  return {
+    bn: typeof record.bn === "string" ? record.bn : fallback.bn,
+    en: typeof record.en === "string" ? record.en : fallback.en,
+  };
+}
+
+function asChips(value: unknown): HeroChipValue[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+    .map((entry) => ({
+      labelBn: typeof entry.labelBn === "string" ? entry.labelBn : "",
+      labelEn: typeof entry.labelEn === "string" ? entry.labelEn : "",
+      href: typeof entry.href === "string" ? entry.href : "/products",
+    }));
+}
+
+function asHeroImage(value: unknown): HeroImageValue {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return EMPTY_HERO_IMAGE;
+  const record = value as Record<string, unknown>;
+  return {
+    url: typeof record.url === "string" ? record.url : "",
+    mobileUrl: typeof record.mobileUrl === "string" ? record.mobileUrl : "",
+    altBn: typeof record.altBn === "string" ? record.altBn : "",
+    altEn: typeof record.altEn === "string" ? record.altEn : "",
+    focalX: typeof record.focalX === "number" ? record.focalX : 50,
+    focalY: typeof record.focalY === "number" ? record.focalY : 50,
+  };
+}
+
+function LocalizedEditor({
+  id,
+  label,
+  hint,
+  value,
+  maxLength,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  hint?: string;
+  value: LocalizedValue;
+  maxLength: number;
+  onChange: (value: LocalizedValue) => void;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <Label htmlFor={`${id}-bn`}>{label}</Label>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Input
+          id={`${id}-bn`}
+          lang="bn"
+          maxLength={maxLength}
+          value={value.bn}
+          placeholder="বাংলা"
+          onChange={(event) => onChange({ ...value, bn: event.target.value })}
+        />
+        <Input
+          id={`${id}-en`}
+          lang="en"
+          maxLength={maxLength}
+          value={value.en}
+          placeholder="English"
+          onChange={(event) => onChange({ ...value, en: event.target.value })}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {hint ? `${hint} ` : ""}Bangla and English, max {maxLength} characters each.
+      </p>
+    </div>
+  );
+}
+
+function ChipsEditor({
+  value,
+  onChange,
+}: {
+  value: HeroChipValue[];
+  onChange: (value: HeroChipValue[]) => void;
+}) {
+  const update = (index: number, patch: Partial<HeroChipValue>) =>
+    onChange(value.map((chip, position) => (position === index ? { ...chip, ...patch } : chip)));
+  const move = (index: number, direction: -1 | 1) => {
+    const next = [...value];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  };
+
+  return (
+    <div className="grid gap-2 rounded-xl border border-border/50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-sm font-medium">Popular search chips</p>
+          <p className="text-xs text-muted-foreground">
+            Up to 8 chips. Each chip must link to a real filtered listing.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={value.length >= 8}
+          onClick={() => onChange([...value, { labelBn: "", labelEn: "", href: "/products" }])}
+        >
+          <Plus aria-hidden className="size-4" />
+          Add chip
+        </Button>
+      </div>
+      {value.length === 0 ? (
+        <p className="text-xs text-muted-foreground">No chips. The hero will show none.</p>
+      ) : null}
+      {value.map((chip, index) => (
+        <div key={index} className="grid gap-2 rounded-lg border border-border/60 p-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Input
+            aria-label={`Chip ${index + 1} Bangla label`}
+            lang="bn"
+            maxLength={40}
+            value={chip.labelBn}
+            placeholder="বাংলা লেবেল"
+            onChange={(event) => update(index, { labelBn: event.target.value })}
+          />
+          <Input
+            aria-label={`Chip ${index + 1} English label`}
+            lang="en"
+            maxLength={40}
+            value={chip.labelEn}
+            placeholder="English label"
+            onChange={(event) => update(index, { labelEn: event.target.value })}
+          />
+          <Input
+            aria-label={`Chip ${index + 1} link`}
+            value={chip.href}
+            placeholder="/products?isIndoor=true"
+            onChange={(event) => update(index, { href: event.target.value })}
+          />
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={`Move chip ${index + 1} up`}
+              disabled={index === 0}
+              onClick={() => move(index, -1)}
+            >
+              <ArrowUp aria-hidden className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={`Move chip ${index + 1} down`}
+              disabled={index === value.length - 1}
+              onClick={() => move(index, 1)}
+            >
+              <ArrowDown aria-hidden className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={`Remove chip ${index + 1}`}
+              onClick={() => onChange(value.filter((_, position) => position !== index))}
+            >
+              <Trash2 aria-hidden className="size-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HeroImageEditor({
+  value,
+  onChange,
+}: {
+  value: HeroImageValue;
+  onChange: (value: HeroImageValue) => void;
+}) {
+  const tErrors = useTranslations("errors");
+  const [uploading, setUploading] = useState<"desktop" | "mobile" | null>(null);
+  const desktopRef = useRef<HTMLInputElement>(null);
+  const mobileRef = useRef<HTMLInputElement>(null);
+
+  const upload = async (file: File | undefined, slot: "desktop" | "mobile") => {
+    if (!file) return;
+    setUploading(slot);
+    try {
+      const stored = await uploadsApi.image(file, "banner");
+      onChange(
+        slot === "desktop"
+          ? { ...value, url: stored.url }
+          : { ...value, mobileUrl: stored.url },
+      );
+    } catch (error) {
+      toastApiError(error, tErrors);
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  return (
+    <div className="grid gap-3 rounded-xl border border-border/50 p-4">
+      <div>
+        <p className="text-sm font-medium">Optional hero image</p>
+        <p className="text-xs text-muted-foreground">
+          Recommended 1200×900 (4:3). Leave empty to show real product cards instead. Uploaded
+          through the normal image pipeline and attached when you save.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[
+          {
+            slot: "desktop" as const,
+            label: "Desktop image",
+            url: value.url,
+            ref: desktopRef,
+          },
+          {
+            slot: "mobile" as const,
+            label: "Mobile image (optional)",
+            url: value.mobileUrl,
+            ref: mobileRef,
+          },
+        ].map((item) => (
+          <div key={item.slot} className="grid gap-2 rounded-lg border border-border/60 p-3">
+            <p className="text-xs font-medium">{item.label}</p>
+            {item.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.url}
+                alt=""
+                className="aspect-4/3 w-full rounded-md object-cover"
+                style={{ objectPosition: `${value.focalX}% ${value.focalY}%` }}
+              />
+            ) : (
+              <div className="grid aspect-4/3 place-items-center rounded-md bg-muted/40 text-xs text-muted-foreground">
+                No image
+              </div>
+            )}
+            <input
+              ref={item.ref}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => upload(event.target.files?.[0], item.slot)}
+            />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading !== null}
+                onClick={() => item.ref.current?.click()}
+              >
+                {uploading === item.slot ? (
+                  <Loader2 aria-hidden className="size-4 animate-spin" />
+                ) : (
+                  <ImagePlus aria-hidden className="size-4" />
+                )}
+                Upload
+              </Button>
+              {item.url ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    onChange(item.slot === "desktop" ? { ...value, url: "" } : { ...value, mobileUrl: "" })
+                  }
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Input
+          aria-label="Hero image alt text Bangla"
+          lang="bn"
+          maxLength={120}
+          value={value.altBn}
+          placeholder="ছবির বর্ণনা (বাংলা)"
+          onChange={(event) => onChange({ ...value, altBn: event.target.value })}
+        />
+        <Input
+          aria-label="Hero image alt text English"
+          lang="en"
+          maxLength={120}
+          value={value.altEn}
+          placeholder="Image description (English)"
+          onChange={(event) => onChange({ ...value, altEn: event.target.value })}
+        />
+        <label className="grid gap-1 text-xs">
+          Focal point X (%)
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            value={value.focalX}
+            onChange={(event) => onChange({ ...value, focalX: Number(event.target.value) })}
+          />
+        </label>
+        <label className="grid gap-1 text-xs">
+          Focal point Y (%)
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            value={value.focalY}
+            onChange={(event) => onChange({ ...value, focalY: Number(event.target.value) })}
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function HomeSettingsFields({
+  definitions,
+  values,
+  errors,
+  locale,
+  lastChange,
+  onChange,
+  onReset,
+}: {
+  definitions: AdminSettingDefinition[];
+  values: AdminSettings;
+  errors: Record<string, string>;
+  locale: string;
+  lastChange: (key: string) => { createdAt: string; updatedById: string | null } | undefined;
+  onChange: (key: string, value: unknown) => void;
+  onReset: (key: string, value: unknown) => void;
+}) {
+  const byKey = new Map(definitions.map((definition) => [definition.key, definition]));
+  const headline = byKey.get("home.hero.headline");
+  const subheadline = byKey.get("home.hero.subheadline");
+  const chips = byKey.get("home.hero.chips");
+  const image = byKey.get("home.hero.image");
+  const title = byKey.get("home.highlights.title");
+  const highlightKeys = definitions.filter(
+    (definition) =>
+      definition.key.startsWith("home.highlights.") && definition.key !== "home.highlights.title",
+  );
+
+  return (
+    <div className="grid gap-5">
+      <section className="grid gap-4 rounded-xl border border-border/60 bg-secondary/20 p-4">
+        <h3 className="font-heading text-base font-semibold">Home hero</h3>
+        {headline ? (
+          <LocalizedEditor
+            id="home-hero-headline"
+            label="Headline"
+            hint={headline.helpEn}
+            maxLength={60}
+            value={asLocalized(values[headline.key], headline.default as LocalizedValue)}
+            onChange={(value) => onChange(headline.key, value)}
+          />
+        ) : null}
+        {subheadline ? (
+          <LocalizedEditor
+            id="home-hero-subheadline"
+            label="Subheadline"
+            hint={subheadline.helpEn}
+            maxLength={140}
+            value={asLocalized(values[subheadline.key], subheadline.default as LocalizedValue)}
+            onChange={(value) => onChange(subheadline.key, value)}
+          />
+        ) : null}
+        {chips ? (
+          <ChipsEditor
+            value={
+              Array.isArray(values[chips.key])
+                ? asChips(values[chips.key])
+                : asChips(chips.default)
+            }
+            onChange={(value) => onChange(chips.key, value)}
+          />
+        ) : null}
+        {image ? (
+          <HeroImageEditor
+            value={asHeroImage(values[image.key] ?? image.default)}
+            onChange={(value) => onChange(image.key, value)}
+          />
+        ) : null}
+        {errors["home.hero.headline"] || errors["home.hero.subheadline"] || errors["home.hero.chips"] ? (
+          <p className="text-xs text-destructive">
+            {errors["home.hero.headline"] ?? errors["home.hero.subheadline"] ?? errors["home.hero.chips"]}
+          </p>
+        ) : null}
+      </section>
+
+      <section className="grid gap-4 rounded-xl border border-border/60 bg-secondary/20 p-4">
+        <h3 className="font-heading text-base font-semibold">Home highlights</h3>
+        <p className="text-xs text-muted-foreground">
+          Manage slides in <strong>Home → Highlights</strong>. These settings control the whole
+          section. Turning it off removes the section, heading and gap from the home page.
+        </p>
+        {title ? (
+          <LocalizedEditor
+            id="home-highlights-title"
+            label="Section title"
+            hint="Leave both empty to hide the heading."
+            maxLength={40}
+            value={asLocalized(values[title.key], title.default as LocalizedValue)}
+            onChange={(value) => onChange(title.key, value)}
+          />
+        ) : null}
+        <div className="grid gap-4 md:grid-cols-2">
+          {highlightKeys.map((definition) => (
+            <SettingField
+              key={definition.key}
+              definition={definition}
+              value={values[definition.key]}
+              locale={locale}
+              last={lastChange(definition.key)}
+              error={errors[definition.key]}
+              onChange={(value) => onChange(definition.key, value)}
+              onReset={() => onReset(definition.key, definition.default)}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

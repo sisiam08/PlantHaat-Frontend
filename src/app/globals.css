@@ -489,3 +489,7 @@ a[data-card-focus]:focus-visible,
 [data-card-focus] a:focus-visible {
   outline: none;
 }
+
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+

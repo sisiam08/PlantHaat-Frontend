@@ -91,3 +91,18 @@ Additional checks: guest cart at 390 CLS 0; checkout with 6 shops (client cart r
 ### Remaining LCP cost (evidence)
 
 Server streaming measured directly: the checkout HTML body/H1 starts at 0.7-1.4 s (addresses/settings/cart preview are parallel server calls; the old sequential district cart call took up to 2.8 s and was removed from the critical path). The rest of the LCP is render-path cost on Slow 4G: 149 KB uncompressed route CSS, 26 script chunks, and the Bangla logo face (Hind 600, ~75 KB) that is not preloaded in the English locale. That is the next program (CSS/chunk reduction, font preload policy); no product code change was made for it in this pass.
+
+## 2026-11-19 home hero (marketplace hero)
+
+Method unchanged: production build (`NEXT_DIST_DIR=.next-prod`), `next start -p 3200`, API `:5000`, `:3100` off, Chromium headless, 390x844, DPR 1, mobile UA, Slow 4G + 4x CPU via CDP, cache disabled, 5 runs, medians.
+
+| Home 390 | Before | After |
+|---|---:|---:|
+| LCP en | 6740 ms | **3288 ms** (2236-3784) |
+| LCP bn | 5584 ms | **3584 ms** (2784-4788) |
+| CLS | 0 | 0 |
+| TBT proxy | 6004 / 6583 ms | **2282 / 1906 ms** |
+| JS gzip | 363 KB | 363 KB |
+| LCP element | paragraph / H1 text | H1 / subheadline text |
+
+The hero no longer includes the motion/parallax composition, and real product cards replace the decorative plates. LCP improved by ~51% (en) and ~36% (bn) on this method and did not regress; JS bytes are unchanged. The static Highlights banner image (218 KB) was still on the page during this measurement; Part B replaces it with the admin-managed section and image variants.

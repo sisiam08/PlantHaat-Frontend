@@ -706,7 +706,15 @@ export interface AdminSettingDefinition {
   key: string;
   type: "boolean" | "number" | "string" | "json";
   default: unknown;
-  group: "payments" | "orders" | "wallet" | "payouts" | "support" | "platform" | "security";
+  group:
+    | "payments"
+    | "orders"
+    | "wallet"
+    | "payouts"
+    | "support"
+    | "platform"
+    | "security"
+    | "home";
   labelEn: string;
   labelBn: string;
   helpEn?: string;
