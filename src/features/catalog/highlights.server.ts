@@ -11,10 +11,13 @@ import { serverRequest } from "@/server/backend";
  */
 export async function getHomeHighlights(): Promise<HomeHighlights | null> {
   try {
-    const { data } = await serverRequest<HomeHighlights>({
-      method: "GET",
-      url: "/home/highlights",
-    });
+    const { data } = await serverRequest<HomeHighlights>(
+      {
+        method: "GET",
+        url: "/home/highlights",
+      },
+      { signal: AbortSignal.timeout(1500) },
+    );
     return data;
   } catch {
     return null;
