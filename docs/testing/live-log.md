@@ -97,3 +97,13 @@ Real Chrome (channel chrome), dev app :3000, en 1440x900 and bn 390x844: the res
 "হাতে পেয়ে টাকা দিন / যাচাই করা নার্সারি / সমস্যা হলে 48 ঘণ্টার মধ্যে জানান", with Latin `48` in
 both locales. The 48 comes from the live `return.windowHours` public setting. e2e
 (`home-hero.spec.ts --grep "trust row"`, real Chrome): 2/2 passed.
+
+## 2026-11-20 Task B highlights autoplay
+
+Reproduced on the dev app in real Chrome (channel chrome): admin autoplay ON, `intervalSeconds=6`, 3 slides, 1440x900. The public payload and the pause control were present but the index stayed 0 for 20 s. Instrumentation showed `scrollSnapList().length === 1` and `plugin.isPlaying() === false`: `EmblaCarousel(track)` was passed the flex track, so Embla treated the first slide wrapper as its container and the autoplay plugin disabled itself (`init` returns for <=1 snap). The `(min-width: 768px)` check also skipped phones, and `prefers-reduced-motion` skipped the whole engine (not just autoplay).
+
+Fix: pass the `overflow-hidden` root, drop the viewport gate, keep the engine under reduced motion (autoplay only), own pause/resume in the component (hover/focus/interaction/visibility, manual pause wins), and treat only keyboard `:focus-visible` as focus pause so a manual swipe restarts the timer. Admin: updated `autoplayHelp`, added the full inline notice under the switch and in the preview, plus a `data-autoplay-status` line that names the reason it is not playing.
+
+Production build (`.next-test` on :3002, test API :5001, real Chrome, serial)
+`highlights-autoplay.spec.ts`: **8/8 passed** (desktop 1440 advance, mobile 390 advance + visible pause control, hover pause + resume, focus pause + resume, swipe restart, hidden-tab pause + resume, reduced motion off with manual next, admin toggle off/on within 1.5 s).
+`admin-highlights-ui.spec.ts`: 1/1, `admin-highlights.spec.ts`: 1/1. Screenshots viewed at 1280 and 360: the notice wraps without overflow and the status line reads "Autoplay is off." when the switch is off.

@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { HighlightSlideView } from "@/features/catalog/components/highlight-slide-view";
 import { uploadsApi } from "@/features/uploads/api";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import type { HomeHighlightSlide } from "@/lib/api/types";
 import { queryKeys } from "@/lib/api/query-keys";
 import { buttonContrast, isHexColor, overlayContrast } from "@/lib/color-contrast";
@@ -335,6 +336,7 @@ export function HighlightsClient() {
   const [previewLocale, setPreviewLocale] = useState<"bn" | "en">(locale === "en" ? "en" : "bn");
   const [previewVariant, setPreviewVariant] = useState<"desktop" | "mobile">("desktop");
   const [uploading, setUploading] = useState<"desktop" | "mobile" | null>(null);
+  const reducedMotion = useReducedMotion();
   const desktopFile = useRef<HTMLInputElement>(null);
   const mobileFile = useRef<HTMLInputElement>(null);
 
@@ -482,6 +484,17 @@ export function HighlightsClient() {
 
   const enabled = settings.data?.["home.highlights.enabled"] === true;
   const autoplay = settings.data?.["home.highlights.autoplay"] === true;
+  const intervalSeconds = Number(settings.data?.["home.highlights.intervalSeconds"] ?? 6);
+  const activeSlides = items.filter((row) => row.isActive).length;
+  const autoplayStatus = !enabled
+    ? t("autoplayStatusOff")
+    : !autoplay
+      ? t("autoplayStatusDisabled")
+      : activeSlides < 2
+        ? t("autoplayStatusNoSlides")
+        : reducedMotion
+          ? t("autoplayStatusReduced")
+          : t("autoplayStatusPlaying", { seconds: intervalSeconds });
   const overlayRatio = overlayContrast(draft.textColor, draft.scrimColor, draft.scrimOpacity);
   const buttonTextRatio =
     draft.buttonStyle === "custom"
@@ -576,6 +589,9 @@ export function HighlightsClient() {
               <span className="text-xs text-muted-foreground">{t("intervalHelp")}</span>
             </label>
           </div>
+          <p className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
+            {t("autoplayNotice")}
+          </p>
         </CardContent>
       </Card>
 
@@ -1328,6 +1344,13 @@ export function HighlightsClient() {
                   forceVariant={previewVariant}
                 />
               </div>
+              <p
+                role="status"
+                data-autoplay-status
+                className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground"
+              >
+                {autoplayStatus}
+              </p>
             </section>
 
             <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-4">

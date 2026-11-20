@@ -35,12 +35,18 @@ test("admin edits a slide in the visible UI and toggles the section", async ({ p
   await expect(page.getByRole("heading", { name: "Home highlights" }).first()).toBeVisible({
     timeout: 30000,
   });
+  await expect(
+    page.getByText(/Autoplay runs on all screen sizes, pauses on hover\/focus\/touch/),
+  ).toBeVisible();
 
   const files = page.locator("input[type=file]");
   await files.nth(0).setInputFiles(resolve("public/placeholders/plant-placeholder.webp"));
   await expect(page.locator('img[src*="/uploads/"]').first()).toBeVisible({ timeout: 30000 });
   await files.nth(1).setInputFiles(resolve("public/placeholders/plant-placeholder.webp"));
   await expect(page.locator('img[src*="/uploads/"]')).toHaveCount(3, { timeout: 30000 });
+  await expect(page.locator("[data-autoplay-status]")).toContainText(
+    /Autoplay is on|Autoplay is off|Highlights are off|Add at least 2 active slides|reduced motion/,
+  );
 
   await page.getByLabel(/Headline \(Bangla\)/).fill("ইউআই পরীক্ষা");
   await page.getByLabel(/Headline \(English\)/).fill("UI test offer");
