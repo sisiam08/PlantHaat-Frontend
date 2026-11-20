@@ -5,12 +5,6 @@ export interface LocalizedText {
   en: string;
 }
 
-export interface HeroChip {
-  labelBn: string;
-  labelEn: string;
-  href: string;
-}
-
 export interface HeroImage {
   url: string;
   mobileUrl: string;
@@ -23,7 +17,6 @@ export interface HeroImage {
 export interface HeroContent {
   headline: LocalizedText;
   subheadline: LocalizedText;
-  chips: HeroChip[];
   image: HeroImage;
 }
 
@@ -33,19 +26,6 @@ export const HERO_DEFAULTS: HeroContent = {
     bn: "সারা বাংলাদেশে যাচাইকৃত নার্সারির গাছ - ক্যাশ অন ডেলিভারি, নিরাপদ প্যাকেজিং।",
     en: "Plants from verified nurseries across Bangladesh - cash on delivery, plant-safe packaging.",
   },
-  chips: [
-    { labelBn: "ইন্ডোর", labelEn: "Indoor", href: "/products?isIndoor=true" },
-    { labelBn: "কম আলো", labelEn: "Low light", href: "/products?light=LOW_LIGHT" },
-    { labelBn: "পোষা প্রাণীর জন্য নিরাপদ", labelEn: "Pet-safe", href: "/products?isPetSafe=true" },
-    { labelBn: "৳500-এর নিচে", labelEn: "Under ৳500", href: "/products?maxPrice=500" },
-    { labelBn: "বীজ", labelEn: "Seeds", href: "/products?category=seeds" },
-    { labelBn: "টব ও প্ল্যান্টার", labelEn: "Pots", href: "/products?category=pots-planters" },
-    {
-      labelBn: "গার্ডেনিং টুলস",
-      labelEn: "Tools",
-      href: "/products?category=gardening-tools",
-    },
-  ],
   image: { url: "", mobileUrl: "", altBn: "", altEn: "", focalX: 50, focalY: 50 },
 };
 
@@ -74,22 +54,6 @@ export function isSafeHeroHref(href: unknown): href is string {
   return /^https:\/\/[^\s]+$/i.test(value);
 }
 
-function chips(value: unknown): HeroChip[] {
-  if (!Array.isArray(value)) return HERO_DEFAULTS.chips;
-  const safe = value
-    .slice(0, 8)
-    .map((entry) => record(entry))
-    .filter((entry): entry is Record<string, unknown> => Boolean(entry))
-    .filter((entry) => isSafeHeroHref(entry.href))
-    .map((entry) => ({
-      labelBn: text(entry.labelBn, ""),
-      labelEn: text(entry.labelEn, ""),
-      href: String(entry.href),
-    }))
-    .filter((entry) => entry.labelBn.trim() !== "" && entry.labelEn.trim() !== "");
-  return safe.length > 0 ? safe : HERO_DEFAULTS.chips;
-}
-
 function heroImage(value: unknown): HeroImage {
   const item = record(value);
   if (!item) return HERO_DEFAULTS.image;
@@ -111,7 +75,6 @@ export function readHeroContent(settings: PublicSettings): HeroContent {
   return {
     headline: localized(settings["home.hero.headline"], HERO_DEFAULTS.headline),
     subheadline: localized(settings["home.hero.subheadline"], HERO_DEFAULTS.subheadline),
-    chips: chips(settings["home.hero.chips"]),
     image: heroImage(settings["home.hero.image"]),
   };
 }

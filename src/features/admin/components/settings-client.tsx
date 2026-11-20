@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -524,12 +524,6 @@ interface LocalizedValue {
   en: string;
 }
 
-interface HeroChipValue {
-  labelBn: string;
-  labelEn: string;
-  href: string;
-}
-
 interface HeroImageValue {
   url: string;
   mobileUrl: string;
@@ -555,17 +549,6 @@ function asLocalized(value: unknown, fallback: LocalizedValue): LocalizedValue {
     bn: typeof record.bn === "string" ? record.bn : fallback.bn,
     en: typeof record.en === "string" ? record.en : fallback.en,
   };
-}
-
-function asChips(value: unknown): HeroChipValue[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
-    .map((entry) => ({
-      labelBn: typeof entry.labelBn === "string" ? entry.labelBn : "",
-      labelEn: typeof entry.labelEn === "string" ? entry.labelEn : "",
-      href: typeof entry.href === "string" ? entry.href : "/products",
-    }));
 }
 
 function asHeroImage(value: unknown): HeroImageValue {
@@ -620,107 +603,6 @@ function LocalizedEditor({
       <p className="text-xs text-muted-foreground">
         {hint ? `${hint} ` : ""}Bangla and English, max {maxLength} characters each.
       </p>
-    </div>
-  );
-}
-
-function ChipsEditor({
-  value,
-  onChange,
-}: {
-  value: HeroChipValue[];
-  onChange: (value: HeroChipValue[]) => void;
-}) {
-  const update = (index: number, patch: Partial<HeroChipValue>) =>
-    onChange(value.map((chip, position) => (position === index ? { ...chip, ...patch } : chip)));
-  const move = (index: number, direction: -1 | 1) => {
-    const next = [...value];
-    const target = index + direction;
-    if (target < 0 || target >= next.length) return;
-    [next[index], next[target]] = [next[target], next[index]];
-    onChange(next);
-  };
-
-  return (
-    <div className="grid gap-2 rounded-xl border border-border/50 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-sm font-medium">Popular search chips</p>
-          <p className="text-xs text-muted-foreground">
-            Up to 8 chips. Each chip must link to a real filtered listing.
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={value.length >= 8}
-          onClick={() => onChange([...value, { labelBn: "", labelEn: "", href: "/products" }])}
-        >
-          <Plus aria-hidden className="size-4" />
-          Add chip
-        </Button>
-      </div>
-      {value.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No chips. The hero will show none.</p>
-      ) : null}
-      {value.map((chip, index) => (
-        <div key={index} className="grid gap-2 rounded-lg border border-border/60 p-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Input
-            aria-label={`Chip ${index + 1} Bangla label`}
-            lang="bn"
-            maxLength={40}
-            value={chip.labelBn}
-            placeholder="বাংলা লেবেল"
-            onChange={(event) => update(index, { labelBn: event.target.value })}
-          />
-          <Input
-            aria-label={`Chip ${index + 1} English label`}
-            lang="en"
-            maxLength={40}
-            value={chip.labelEn}
-            placeholder="English label"
-            onChange={(event) => update(index, { labelEn: event.target.value })}
-          />
-          <Input
-            aria-label={`Chip ${index + 1} link`}
-            value={chip.href}
-            placeholder="/products?isIndoor=true"
-            onChange={(event) => update(index, { href: event.target.value })}
-          />
-          <div className="flex gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Move chip ${index + 1} up`}
-              disabled={index === 0}
-              onClick={() => move(index, -1)}
-            >
-              <ArrowUp aria-hidden className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Move chip ${index + 1} down`}
-              disabled={index === value.length - 1}
-              onClick={() => move(index, 1)}
-            >
-              <ArrowDown aria-hidden className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Remove chip ${index + 1}`}
-              onClick={() => onChange(value.filter((_, position) => position !== index))}
-            >
-              <Trash2 aria-hidden className="size-4" />
-            </Button>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -893,7 +775,6 @@ function HomeSettingsFields({
   const byKey = new Map(definitions.map((definition) => [definition.key, definition]));
   const headline = byKey.get("home.hero.headline");
   const subheadline = byKey.get("home.hero.subheadline");
-  const chips = byKey.get("home.hero.chips");
   const image = byKey.get("home.hero.image");
   const title = byKey.get("home.highlights.title");
   const highlightKeys = definitions.filter(
@@ -925,25 +806,15 @@ function HomeSettingsFields({
             onChange={(value) => onChange(subheadline.key, value)}
           />
         ) : null}
-        {chips ? (
-          <ChipsEditor
-            value={
-              Array.isArray(values[chips.key])
-                ? asChips(values[chips.key])
-                : asChips(chips.default)
-            }
-            onChange={(value) => onChange(chips.key, value)}
-          />
-        ) : null}
         {image ? (
           <HeroImageEditor
             value={asHeroImage(values[image.key] ?? image.default)}
             onChange={(value) => onChange(image.key, value)}
           />
         ) : null}
-        {errors["home.hero.headline"] || errors["home.hero.subheadline"] || errors["home.hero.chips"] ? (
+        {errors["home.hero.headline"] || errors["home.hero.subheadline"] ? (
           <p className="text-xs text-destructive">
-            {errors["home.hero.headline"] ?? errors["home.hero.subheadline"] ?? errors["home.hero.chips"]}
+            {errors["home.hero.headline"] ?? errors["home.hero.subheadline"]}
           </p>
         ) : null}
       </section>

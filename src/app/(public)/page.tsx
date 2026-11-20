@@ -17,8 +17,8 @@ import {
 import { PRODUCT_GRID_CLASS, PRODUCT_PAGE_SIZE } from "@/features/catalog/components/product-grid";
 import { getPlaceholderCategoryImageUrls } from "@/features/catalog/category-image.server";
 import { getHomeHighlights } from "@/features/catalog/highlights.server";
-import { getHomeFeed, getCategories, getProducts } from "@/features/catalog/server";
-import type { HomeHighlights, ProductListItem } from "@/lib/api/types";
+import { getHomeFeed, getCategories } from "@/features/catalog/server";
+import type { HomeHighlights } from "@/lib/api/types";
 
 const FEED_LIMIT = 12;
 
@@ -88,17 +88,12 @@ function HomeSkeleton() {
 }
 
 export default async function HomePage() {
-  const [categoriesResult, productsResult, highlights] = await Promise.all([
-    getCategories().catch(() => null),
-    getProducts({ sort: "popular", inStock: true, limit: 3 }).catch(() => null),
-    getHomeHighlights(),
-  ]);
-  const heroProducts: ProductListItem[] = productsResult?.data ?? [];
+  const highlights = await getHomeHighlights();
   const homeHighlights: HomeHighlights | null = highlights;
 
   return (
     <>
-      <Hero categories={categoriesResult ?? []} products={heroProducts} />
+      <Hero />
       <Suspense fallback={<HomeSkeleton />}>
         <HomeContent highlights={homeHighlights} />
       </Suspense>
