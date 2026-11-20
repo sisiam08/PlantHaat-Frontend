@@ -23,6 +23,7 @@ const SOURCE_DIR = resolve(process.cwd(), "..", "hero-source");
 const OUT_DIR = resolve(process.cwd(), "public", "hero");
 const STAGE_ASPECT = 11 / 10;
 const QUALITY = 55;
+const AVIF_QUALITY = 50;
 const PAD_FRACTION = 0.06;
 
 const PLANTS = [
@@ -41,8 +42,8 @@ const PLANTS = [
   },
   {
     key: "palm",
-    source: "arica palm.webp",
-    targetHeight: 760,
+    source: "areca palm.webp",
+    targetHeight: 600,
     mirror: false,
     visibleHeight: 94,
     visibleLeft: 30,
@@ -120,6 +121,55 @@ function equalize(buffer) {
   return { gain, mean: Math.round(mean) };
 }
 
+function edgeCounts(buffer, width, height) {
+  const bandX = Math.max(1, Math.round(width * 0.01));
+  const bandY = Math.max(1, Math.round(height * 0.01));
+  const counts = { left: 0, right: 0, top: 0, bottom: 0 };
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (buffer[(y * width + x) * 4 + 3] <= 20) continue;
+      if (x < bandX) counts.left += 1;
+      if (x >= width - bandX) counts.right += 1;
+      if (y < bandY) counts.top += 1;
+      if (y >= height - bandY) counts.bottom += 1;
+    }
+  }
+  const threshold = {
+    left: Math.max(2, Math.floor(bandX * height * 0.001)),
+    right: Math.max(2, Math.floor(bandX * height * 0.001)),
+    top: Math.max(2, Math.floor(bandY * width * 0.001)),
+    bottom: Math.max(2, Math.floor(bandY * width * 0.001)),
+  };
+  return { counts, threshold, bandX, bandY };
+}
+
+function smoothstep(value) {
+  const t = Math.min(1, Math.max(0, value));
+  return t * t * (3 - 2 * t);
+}
+
+function featherEdges(buffer, width, height, sides) {
+  const bandX = Math.max(1, Math.round(width * 0.04));
+  const bandY = Math.max(1, Math.round(height * 0.04));
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let factor = 1;
+      if (sides.includes("left") && x < bandX) factor *= smoothstep(x / bandX);
+      if (sides.includes("right") && x >= width - bandX) {
+        factor *= smoothstep((width - 1 - x) / bandX);
+      }
+      if (sides.includes("top") && y < bandY) factor *= smoothstep(y / bandY);
+      if (sides.includes("bottom") && y >= height - bandY) {
+        factor *= smoothstep((height - 1 - y) / bandY);
+      }
+      if (factor < 1) {
+        const index = (y * width + x) * 4 + 3;
+        buffer[index] = Math.round(buffer[index] * factor);
+      }
+    }
+  }
+}
+
 async function buildPlant(plant) {
   const input = await sharp(resolve(SOURCE_DIR, plant.source))
     .ensureAlpha()
@@ -146,6 +196,16 @@ async function buildPlant(plant) {
     .raw()
     .toBuffer({ resolveWithObject: true });
   const visibleWidth = resizedVisible.info.width;
+  const edges = edgeCounts(resizedVisible.data, visibleWidth, resizedVisible.info.height);
+  const clipped = ["left", "right", "top"].filter(
+    (side) => edges.counts[side] > edges.threshold[side],
+  );
+  if (clipped.length > 0) {
+    featherEdges(resizedVisible.data, visibleWidth, resizedVisible.info.height, clipped);
+  }
+  process.stdout.write(
+    `  edge ${plant.key}: ${JSON.stringify(edges.counts)} -> feathered ${clipped.join(",") || "none"}; bottom ${edges.counts.bottom > edges.threshold.bottom ? "pot-base" : "clean"}\n`,
+  );
   const pad = Math.round(visibleHeight * PAD_FRACTION);
   const paddedHeight = visibleHeight + pad * 2;
   const paddedWidth = visibleWidth + pad * 2;
@@ -162,47 +222,60 @@ async function buildPlant(plant) {
     }
   }
 
-  const resized = await sharp(padded, {
-    raw: { width: paddedWidth, height: paddedHeight, channels: 4 },
-  })
-    .webp({ quality: QUALITY, alphaQuality: 70, effort: 6 })
-    .toBuffer();
-
   const finalWidth = paddedWidth;
   const finalHeight = paddedHeight;
   const padFinal = pad;
   const visibleWidthFinal = visibleWidth;
   const visibleHeightFinal = visibleHeight;
   const smallHeight = Math.round(finalHeight * 0.6);
-  const small = await sharp(resized).resize({ height: smallHeight }).webp({
-    quality: QUALITY,
-    alphaQuality: 70,
-    effort: 6,
-  }).toBuffer();
 
-  await writeFile(resolve(OUT_DIR, `${plant.key}.webp`), resized);
-  await writeFile(resolve(OUT_DIR, `${plant.key}-small.webp`), small);
+  const encode = async (height, format) => {
+    let pipeline = sharp(padded, {
+      raw: { width: paddedWidth, height: paddedHeight, channels: 4 },
+    });
+    if (height !== paddedHeight) pipeline = pipeline.resize({ height });
+    if (format === "avif") {
+      return pipeline
+        .avif({ quality: AVIF_QUALITY, effort: 6, chromaSubsampling: "4:2:0" })
+        .toBuffer();
+    }
+    return pipeline.webp({ quality: QUALITY, alphaQuality: 70, effort: 6 }).toBuffer();
+  };
+
+  const resizedWebp = await encode(paddedHeight, "webp");
+  const resizedAvif = await encode(paddedHeight, "avif");
+  const smallWebp = await encode(smallHeight, "webp");
+  const smallAvif = await encode(smallHeight, "avif");
+
+  await writeFile(resolve(OUT_DIR, `${plant.key}.webp`), resizedWebp);
+  await writeFile(resolve(OUT_DIR, `${plant.key}.avif`), resizedAvif);
+  await writeFile(resolve(OUT_DIR, `${plant.key}-small.webp`), smallWebp);
+  await writeFile(resolve(OUT_DIR, `${plant.key}-small.avif`), smallAvif);
   let mobileWidth = null;
   let mobileHeight = null;
   let mediumWidth = null;
   let mediumHeight = null;
   if (plant.key === "palm") {
     mobileHeight = Math.round(finalHeight * 0.45);
-    const mobile = await sharp(resized).resize({ height: mobileHeight }).webp({
-      quality: QUALITY,
-      alphaQuality: 70,
-      effort: 6,
-    }).toBuffer();
     mobileWidth = Math.round((finalWidth * mobileHeight) / finalHeight);
-    await writeFile(resolve(OUT_DIR, `${plant.key}-mobile.webp`), mobile);
+    await writeFile(
+      resolve(OUT_DIR, `${plant.key}-mobile.webp`),
+      await encode(mobileHeight, "webp"),
+    );
+    await writeFile(
+      resolve(OUT_DIR, `${plant.key}-mobile.avif`),
+      await encode(mobileHeight, "avif"),
+    );
     mediumHeight = Math.round(finalHeight * 0.75);
-    const medium = await sharp(resized).resize({ height: mediumHeight }).webp({
-      quality: QUALITY,
-      alphaQuality: 70,
-      effort: 6,
-    }).toBuffer();
     mediumWidth = Math.round((finalWidth * mediumHeight) / finalHeight);
-    await writeFile(resolve(OUT_DIR, `${plant.key}-medium.webp`), medium);
+    await writeFile(
+      resolve(OUT_DIR, `${plant.key}-medium.webp`),
+      await encode(mediumHeight, "webp"),
+    );
+    await writeFile(
+      resolve(OUT_DIR, `${plant.key}-medium.avif`),
+      await encode(mediumHeight, "avif"),
+    );
   }
 
   const visibleWidthPct =
@@ -250,7 +323,9 @@ async function buildPlant(plant) {
     mirror: plant.mirror,
     gain: Number(gain.toFixed(3)),
     meanLuminance: mean,
-    bytes: resized.length,
+    bytes: resizedWebp.length,
+    avifBytes: resizedAvif.length,
+    clipped: clipped.length > 0 ? clipped : [],
   };
 }
 
@@ -260,7 +335,7 @@ for (const plant of PLANTS) {
   const built = await buildPlant(plant);
   plants.push(built);
   process.stdout.write(
-    `${plant.key}: ${built.width}x${built.height} ${(built.bytes / 1024).toFixed(1)} KB gain=${built.gain} pivot=${built.pivot.x},${built.pivot.y} pot=${built.potCenterPct}%\n`,
+    `${plant.key}: ${built.width}x${built.height} webp=${(built.bytes / 1024).toFixed(1)} KB avif=${(built.avifBytes / 1024).toFixed(1)} KB gain=${built.gain} pivot=${built.pivot.x},${built.pivot.y} pot=${built.potCenterPct}%\n`,
   );
 }
 const scene = {
@@ -268,6 +343,7 @@ const scene = {
   generatedAt: new Date().toISOString(),
   order: PLANTS.map((plant) => plant.key),
   desktopBytes: plants.reduce((sum, plant) => sum + plant.bytes, 0),
+  desktopAvifBytes: plants.reduce((sum, plant) => sum + plant.avifBytes, 0),
   plants,
 };
 await writeFile(resolve(OUT_DIR, "scene.json"), `${JSON.stringify(scene, null, 2)}\n`);
@@ -276,5 +352,5 @@ await writeFile(
   `/* Generated by scripts/build-hero-assets.mjs; do not hand-edit. */\nexport const HERO_SCENE = ${JSON.stringify(scene, null, 2)} as const;\nexport type HeroSceneData = typeof HERO_SCENE;\n`,
 );
 process.stdout.write(
-  `total desktop ${(scene.desktopBytes / 1024).toFixed(1)} KB -> ${OUT_DIR}\n`,
+  `total desktop webp ${(scene.desktopBytes / 1024).toFixed(1)} KB / avif ${(scene.desktopAvifBytes / 1024).toFixed(1)} KB -> ${OUT_DIR}\n`,
 );

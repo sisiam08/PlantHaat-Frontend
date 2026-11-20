@@ -1,13 +1,14 @@
 {
   "stageAspect": 1.1,
-  "generatedAt": "2026-11-20T08:56:25.622Z",
+  "generatedAt": "2026-11-20T11:40:17.510Z",
   "order": [
     "monstera",
     "palm",
     "snake",
     "calathea"
   ],
-  "desktopBytes": 208852,
+  "desktopBytes": 173866,
+  "desktopAvifBytes": 139957,
   "plants": [
     {
       "key": "monstera",
@@ -46,38 +47,44 @@
       "mirror": false,
       "gain": 0.957,
       "meanLuminance": 104,
-      "bytes": 44674
+      "bytes": 44262,
+      "avifBytes": 36998,
+      "clipped": [
+        "left",
+        "right",
+        "top"
+      ]
     },
     {
       "key": "palm",
-      "source": "arica palm.webp",
+      "source": "areca palm.webp",
       "drawOrder": 1,
-      "width": 639,
-      "height": 852,
-      "smallWidth": 383,
-      "smallHeight": 511,
-      "mobileWidth": 287,
-      "mobileHeight": 383,
-      "mediumWidth": 479,
-      "mediumHeight": 639,
+      "width": 504,
+      "height": 672,
+      "smallWidth": 302,
+      "smallHeight": 403,
+      "mobileWidth": 227,
+      "mobileHeight": 302,
+      "mediumWidth": 378,
+      "mediumHeight": 504,
       "aspect": 0.75,
       "textureAspect": 0.75,
-      "visibleWidth": 547,
-      "visibleHeight": 760,
-      "pad": 46,
+      "visibleWidth": 432,
+      "visibleHeight": 600,
+      "pad": 36,
       "pivot": {
-        "x": 0.49144,
-        "y": 0.77385
+        "x": 0.49143,
+        "y": 0.77411
       },
       "leftPct": 24.873,
       "bottomPct": -4.64,
-      "heightPct": 105.379,
-      "visibleWidthPct": 61.505,
-      "potCenterPct": 60.137,
+      "heightPct": 105.28,
+      "visibleWidthPct": 61.527,
+      "potCenterPct": 60.148,
       "shadow": {
-        "widthPct": 33.828,
+        "widthPct": 33.84,
         "heightPct": 5,
-        "leftPct": 43.224,
+        "leftPct": 43.228,
         "bottomPct": 0
       },
       "amp": 1,
@@ -85,7 +92,13 @@
       "mirror": false,
       "gain": 1.192,
       "meanLuminance": 67,
-      "bytes": 106784
+      "bytes": 72662,
+      "avifBytes": 59646,
+      "clipped": [
+        "left",
+        "right",
+        "top"
+      ]
     },
     {
       "key": "snake",
@@ -124,7 +137,13 @@
       "mirror": false,
       "gain": 0.82,
       "meanLuminance": 149,
-      "bytes": 21586
+      "bytes": 21374,
+      "avifBytes": 15826,
+      "clipped": [
+        "left",
+        "right",
+        "top"
+      ]
     },
     {
       "key": "calathea",
@@ -163,7 +182,13 @@
       "mirror": true,
       "gain": 1.053,
       "meanLuminance": 86,
-      "bytes": 35808
+      "bytes": 35568,
+      "avifBytes": 27487,
+      "clipped": [
+        "left",
+        "right",
+        "top"
+      ]
     }
   ]
 }
