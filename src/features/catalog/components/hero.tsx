@@ -12,7 +12,7 @@ import { getPublicSettings } from "@/server/public-settings";
 
 function AdminHeroImage({ image, locale }: { image: HeroImage; locale: string }) {
   const alt = locale === "en" ? image.altEn || image.altBn : image.altBn || image.altEn;
-  const common = { alt, sizes: "(min-width: 1024px) 44vw, 92vw", loader: cloudinaryLoader };
+  const common = { alt, sizes: "(min-width: 1024px) 44vw, (min-width: 640px) 462px, 330px", loader: cloudinaryLoader };
   const desktop = getImageProps({
     ...common,
     src: image.url,
@@ -26,17 +26,19 @@ function AdminHeroImage({ image, locale }: { image: HeroImage; locale: string })
     height: 720,
   }).props;
   return (
-    <div className="relative mx-auto aspect-3/2 w-full max-w-[560px] overflow-hidden lg:aspect-11/10 lg:max-w-none">
-      <picture>
-        <source media="(min-width: 1024px)" srcSet={desktop.srcSet} sizes={common.sizes} />
-        <img
-          {...mobile}
-          alt={alt}
-          fetchPriority="high"
-          style={{ objectPosition: `${image.focalX}% ${image.focalY}%` }}
-          className="size-full object-cover"
-        />
-      </picture>
+    <div className="relative mx-auto flex h-[300px] w-full items-end justify-center overflow-hidden sm:h-[420px] lg:h-auto lg:aspect-11/10 lg:max-w-none">
+      <div className="relative h-full aspect-11/10 max-h-full shrink-0 overflow-hidden">
+        <picture>
+          <source media="(min-width: 1024px)" srcSet={desktop.srcSet} sizes={common.sizes} />
+          <img
+            {...mobile}
+            alt={alt}
+            fetchPriority="high"
+            style={{ objectPosition: `${image.focalX}% ${image.focalY}%` }}
+            className="size-full object-cover"
+          />
+        </picture>
+      </div>
     </div>
   );
 }
@@ -121,7 +123,7 @@ export async function Hero() {
           </div>
         </div>
 
-        <div className="relative mb-14 w-full lg:mb-0 lg:self-end">
+        <div className="relative -mt-12 w-full lg:mt-0 lg:self-end">
           {hero.image.url ? (
             <AdminHeroImage image={hero.image} locale={locale} />
           ) : (
