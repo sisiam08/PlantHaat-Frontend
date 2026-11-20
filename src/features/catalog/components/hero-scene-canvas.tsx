@@ -2,11 +2,21 @@
 
 import { useEffect, useRef } from "react";
 
+import {
+  createQualityState,
+  sampleQuality,
+  type QualityState,
+} from "@/features/catalog/hero-scene-quality";
+
 interface SwayState {
   frames: number;
   paused: boolean;
   ready: boolean;
   active: boolean;
+  mode: "webgl" | "static";
+  dpr: number;
+  ema: number;
+  fps: number;
 }
 
 declare global {
@@ -106,6 +116,7 @@ export function HeroSceneCanvas() {
     let textures: WebGLTexture[] = [];
     let raf = 0;
     let startedAt = 0;
+    let lastTick = 0;
     let lastDraw = 0;
     let running = false;
     let ready = false;
@@ -125,21 +136,41 @@ export function HeroSceneCanvas() {
     const lowPower =
       (window.navigator.hardwareConcurrency ?? 8) <= 4 ||
       ((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8) <= 2;
-    let frameAvg = 16;
-    let dprDropped = false;
-    let slowSince = 0;
-    let fallbackSince = 0;
-    const state: SwayState = { frames: 0, paused: true, ready: false, active: false };
+    const quality: QualityState = createQualityState(performance.now());
+    const state: SwayState = {
+      frames: 0,
+      paused: true,
+      ready: false,
+      active: false,
+      mode: "static",
+      dpr,
+      ema: quality.ema,
+      fps: 60,
+    };
     window.__heroSway = state;
     const pointer = { target: 0, value: 0 };
     const finePointer = window.matchMedia("(pointer: fine)").matches;
-
     const unis: Record<string, WebGLUniformLocation | null> = {};
+    let clips: Array<[number, number, number, number]> = [];
+
+    const measure = () => {
+      const stageRect = stage.getBoundingClientRect();
+      clips = images.map((img) => {
+        const rect = img.getBoundingClientRect();
+        return [
+          ((rect.left - stageRect.left) / stageRect.width) * 2 - 1,
+          1 - ((rect.bottom - stageRect.top) / stageRect.height) * 2,
+          ((rect.right - stageRect.left) / stageRect.width) * 2 - 1,
+          1 - ((rect.top - stageRect.top) / stageRect.height) * 2,
+        ];
+      });
+    };
 
     const showStatic = () => {
       state.active = false;
       state.ready = false;
       state.paused = true;
+      state.mode = "static";
       stage.removeAttribute("data-hero-ready");
       canvas.style.opacity = "0";
       if (raf) cancelAnimationFrame(raf);
@@ -175,6 +206,8 @@ export function HeroSceneCanvas() {
         canvas.height = height;
       }
       gl.viewport(0, 0, width, height);
+      state.dpr = dpr;
+      measure();
     };
 
     const draw = (now: number) => {
@@ -182,7 +215,6 @@ export function HeroSceneCanvas() {
       if (!startedAt) startedAt = now;
       const time = (now - startedAt) / 1000;
       pointer.value += (pointer.target - pointer.value) * 0.05;
-      resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
@@ -193,16 +225,12 @@ export function HeroSceneCanvas() {
       gl.uniform1f(unis.uTime, time);
       gl.uniform1f(unis.uGlobalAmp, 0.9);
       gl.uniform1f(unis.uGust, pointer.value);
-      const stageRect = stage.getBoundingClientRect();
       for (let index = 0; index < images.length; index += 1) {
         const img = images[index];
-        const rect = img.getBoundingClientRect();
-        const x0 = ((rect.left - stageRect.left) / stageRect.width) * 2 - 1;
-        const y0 = 1 - ((rect.bottom - stageRect.top) / stageRect.height) * 2;
-        const x1 = ((rect.right - stageRect.left) / stageRect.width) * 2 - 1;
-        const y1 = 1 - ((rect.top - stageRect.top) / stageRect.height) * 2;
+        const clip = clips[index];
+        if (!clip) continue;
         gl.bindTexture(gl.TEXTURE_2D, textures[index]);
-        gl.uniform4f(unis.uRect, x0, y0, x1, y1);
+        gl.uniform4f(unis.uRect, clip[0], clip[1], clip[2], clip[3]);
         gl.uniform2f(
           unis.uPivot,
           Number(img.dataset.pivotX ?? 0.5),
@@ -222,32 +250,27 @@ export function HeroSceneCanvas() {
       const pageHidden = document.visibilityState === "hidden";
       if (!ready || !visible || pageHidden) {
         state.paused = true;
+        lastTick = now;
         return;
       }
-      const interval = lowPower ? 1000 / 30 : 1000 / 45;
-      if (now - lastDraw < interval) return;
-      const delta = lastDraw ? now - lastDraw : interval;
-      lastDraw = now;
-      frameAvg = frameAvg * 0.9 + Math.min(delta, 100) * 0.1;
-      if (frameAvg > 24) {
-        if (!slowSince) slowSince = now;
-        if (!dprDropped && now - slowSince > 2000) {
-          dpr = 1;
-          dprDropped = true;
-          slowSince = 0;
-          resize();
-        } else if (dprDropped && !fallbackSince) {
-          fallbackSince = now;
-        }
-      } else {
-        slowSince = 0;
-        fallbackSince = 0;
-      }
-      if (dprDropped && fallbackSince && now - fallbackSince > 2000) {
+      const dt = lastTick ? now - lastTick : 16.67;
+      lastTick = now;
+      const action = sampleQuality(quality, dt, now);
+      state.ema = quality.ema;
+      state.fps = Math.round(1000 / Math.max(1, quality.ema));
+      state.dpr = dpr;
+      if (action === "dpr" && dpr !== 1) {
+        dpr = 1;
+        state.dpr = 1;
+        resize();
+      } else if (action === "static") {
         fallback = true;
         showStatic();
         return;
       }
+      const interval = lowPower ? 1000 / 30 : 1000 / 45;
+      if (now - lastDraw < interval) return;
+      lastDraw = now;
       state.paused = false;
       draw(now);
     };
@@ -343,6 +366,8 @@ export function HeroSceneCanvas() {
         ready = true;
         state.ready = true;
         state.active = true;
+        state.mode = "webgl";
+        state.dpr = dpr;
         resize();
         canvas.style.opacity = "1";
         stage.setAttribute("data-hero-ready", "true");
@@ -367,6 +392,13 @@ export function HeroSceneCanvas() {
     stage.addEventListener("pointermove", onPointerMove, { passive: true });
     stage.addEventListener("pointerleave", onPointerLeave, { passive: true });
 
+    const inView = () => {
+      const rect = stage.getBoundingClientRect();
+      return rect.bottom > 0 && rect.top < window.innerHeight;
+    };
+    visible = inView();
+    if (visible) idle(() => void init());
+
     const observer = new IntersectionObserver(
       (entries) => {
         visible = entries.some((entry) => entry.isIntersecting);
@@ -381,24 +413,23 @@ export function HeroSceneCanvas() {
     );
     observer.observe(stage);
 
+    const resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(stage);
+
     const onVisibility = () => {
       state.paused = document.hidden || !visible;
+      if (!document.hidden && visible && ready) startLoop();
     };
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       disposed = true;
       observer.disconnect();
+      resizeObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       stage.removeEventListener("pointermove", onPointerMove);
       stage.removeEventListener("pointerleave", onPointerLeave);
-      canvas.removeEventListener("webglcontextlost", onLost, true);
-      if (raf) cancelAnimationFrame(raf);
-      if (gl) {
-        for (const texture of textures) gl.deleteTexture(texture);
-        if (buffer) gl.deleteBuffer(buffer);
-        if (program) gl.deleteProgram(program);
-      }
+      teardown();
       delete window.__heroSway;
     };
   }, []);
