@@ -2,7 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { sanitizeReturnTo } from "@/lib/navigation";
 import { roleHomePath } from "@/server/auth-entry";
-import { authCookieOptions, REFRESH_COOKIE, ACCESS_COOKIE } from "@/server/cookies";
+import {
+  authCookieOptions,
+  clearAuthCookies,
+  clearLegacyCookies,
+  REFRESH_COOKIE,
+  ACCESS_COOKIE,
+} from "@/server/cookies";
+import { LEGACY_REFRESH_COOKIE } from "@/server/cookie-names";
 import { decodeAccessToken } from "@/server/jwt";
 import { RefreshError, refreshSession } from "@/server/refresh";
 
@@ -34,7 +41,9 @@ function loginUrl(request: NextRequest, next: string | undefined): URL {
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
+  const refreshToken =
+    request.cookies.get(REFRESH_COOKIE)?.value ??
+    request.cookies.get(LEGACY_REFRESH_COOKIE)?.value;
   const next = destinationFor(request.nextUrl.searchParams.get("next"));
   if (!refreshToken) {
     return NextResponse.redirect(loginUrl(request, next));
@@ -55,6 +64,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         maxAge: tokens.refreshMaxAgeSeconds ?? DEFAULT_REFRESH_MAX_AGE,
       });
     }
+    clearLegacyCookies(response);
     return response;
   } catch (error) {
     if (error instanceof RefreshError && error.kind === "transient") {
@@ -73,8 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
     const response = NextResponse.redirect(loginUrl(request, next));
     response.headers.set("Cache-Control", "private, no-store");
-    response.cookies.set(ACCESS_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
-    response.cookies.set(REFRESH_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
+    clearAuthCookies(response);
     return response;
   }
 }

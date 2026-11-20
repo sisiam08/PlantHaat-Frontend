@@ -100,7 +100,7 @@ test("guest merge happens once, order clears everything, no replay", async ({ pa
   expect(await serverCartCount(second)).toBe(0);
   await second.close();
 
-  await context.clearCookies({ name: "ph_at" });
+  await context.clearCookies({ name: "ph_web_at" });
   await page.goto("/cart", { waitUntil: "networkidle" });
   expect(await serverCartCount(page)).toBe(0);
 });

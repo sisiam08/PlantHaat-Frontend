@@ -33,12 +33,13 @@ export function markAuthSuccess(url?: string): void {
   }
 }
 
-export function refreshOnce(): Promise<boolean> {
-  return refreshOnceDetailed().then((outcome) => outcome === "refreshed");
+export function refreshOnce(options: { notify?: boolean } = {}): Promise<boolean> {
+  return refreshOnceDetailed(options).then((outcome) => outcome === "refreshed");
 }
 
-export function refreshOnceDetailed(): Promise<RefreshOutcome> {
+export function refreshOnceDetailed(options: { notify?: boolean } = {}): Promise<RefreshOutcome> {
   if (Date.now() < noSessionUntil) {
+    if (options.notify) broadcastAuth("session:expired");
     return Promise.resolve("no-session");
   }
   if (!inflight) {
@@ -46,7 +47,12 @@ export function refreshOnceDetailed(): Promise<RefreshOutcome> {
       inflight = null;
     });
   }
-  return inflight;
+  return inflight.then((outcome) => {
+    if (outcome === "no-session" && options.notify) {
+      broadcastAuth("session:expired");
+    }
+    return outcome;
+  });
 }
 
 const TAB_ID = (() => {
@@ -172,7 +178,6 @@ async function run(): Promise<RefreshOutcome> {
         const status = error.response?.status;
         if (status === 401 || status === 403) {
           noSessionUntil = Date.now() + NO_SESSION_MS;
-          broadcastAuth("session:expired");
           return "no-session";
         }
       }

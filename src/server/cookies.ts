@@ -4,11 +4,14 @@ import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "./cookie-names";
+import { ACCESS_COOKIE, LEGACY_ACCESS_COOKIE, LEGACY_REFRESH_COOKIE, LEGACY_REFRESH_PATH, REFRESH_COOKIE } from "./cookie-names";
 
 export { ACCESS_COOKIE, REFRESH_COOKIE };
 
-const MANAGED_COOKIES = new Set([ACCESS_COOKIE, REFRESH_COOKIE]);
+const BACKEND_TO_WEB: Record<string, string> = {
+  ph_at: ACCESS_COOKIE,
+  ph_rt: REFRESH_COOKIE,
+};
 
 export interface AuthTokens {
   accessToken?: string;
@@ -27,8 +30,10 @@ export function authCookieOptions(): Partial<ResponseCookie> {
 export async function readAuthCookies(): Promise<AuthTokens> {
   const store = await cookies();
   return {
-    accessToken: store.get(ACCESS_COOKIE)?.value,
-    refreshToken: store.get(REFRESH_COOKIE)?.value,
+    accessToken:
+      store.get(ACCESS_COOKIE)?.value ?? store.get(LEGACY_ACCESS_COOKIE)?.value,
+    refreshToken:
+      store.get(REFRESH_COOKIE)?.value ?? store.get(LEGACY_REFRESH_COOKIE)?.value,
   };
 }
 
@@ -67,26 +72,56 @@ function parseSetCookie(raw: string): ParsedSetCookie | null {
 }
 
 /**
- * Re-issues the backend's ph_at/ph_rt Set-Cookie headers as Next-origin cookies
- * (ignoring the backend's Domain/Path), and drops any other backend cookie.
+ * Re-issues the backend's ph_at/ph_rt Set-Cookie headers as the Next-origin
+ * `ph_web_*` cookies (ignoring the backend's Domain/Path), and drops any other
+ * backend cookie. Legacy `ph_at`/`ph_rt` duplicates are cleared on both paths.
  */
 export function applyBackendSetCookies(upstream: Response, response: NextResponse): void {
   const setCookies = upstream.headers.getSetCookie();
   for (const raw of setCookies) {
     const parsed = parseSetCookie(raw);
-    if (!parsed || !MANAGED_COOKIES.has(parsed.name)) {
+    if (!parsed) {
       continue;
     }
-    response.cookies.set(parsed.name, parsed.value, {
+    const name = BACKEND_TO_WEB[parsed.name];
+    if (!name) {
+      continue;
+    }
+    const expired =
+      parsed.value === "" ||
+      parsed.maxAge === 0 ||
+      (parsed.expires !== undefined && parsed.expires.getTime() <= Date.now());
+    if (expired) {
+      response.cookies.set(name, "", { ...authCookieOptions(), maxAge: 0 });
+      continue;
+    }
+    response.cookies.set(name, parsed.value, {
       ...authCookieOptions(),
       ...(parsed.maxAge !== undefined ? { maxAge: parsed.maxAge } : {}),
       ...(parsed.expires !== undefined ? { expires: parsed.expires } : {}),
     });
   }
+  clearLegacyCookies(response);
+}
+
+/**
+ * Removes cookies left by the pre-rename app or by direct API/Swagger use.
+ * On localhost both origins share a jar; the API's refresh cookie lives on
+ * `/api/v1/auth`, the web one on `/`. Clearing both paths guarantees the
+ * browser keeps a single auth session.
+ */
+export function clearLegacyCookies(response: NextResponse): void {
+  response.cookies.set(LEGACY_ACCESS_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
+  response.cookies.set(LEGACY_REFRESH_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
+  response.cookies.set(LEGACY_REFRESH_COOKIE, "", {
+    ...authCookieOptions(),
+    path: LEGACY_REFRESH_PATH,
+    maxAge: 0,
+  });
 }
 
 export function clearAuthCookies(response: NextResponse): void {
-  for (const name of MANAGED_COOKIES) {
-    response.cookies.set(name, "", { ...authCookieOptions(), maxAge: 0 });
-  }
+  response.cookies.set(ACCESS_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
+  response.cookies.set(REFRESH_COOKIE, "", { ...authCookieOptions(), maxAge: 0 });
+  clearLegacyCookies(response);
 }

@@ -2,12 +2,39 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 import { sanitizeReturnTo } from "@/lib/navigation";
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/server/cookie-names";
+import {
+  ACCESS_COOKIE,
+  AUTH_COOKIE_NAMES,
+  LEGACY_ACCESS_COOKIE,
+  LEGACY_REFRESH_COOKIE,
+  LEGACY_REFRESH_PATH,
+  REFRESH_COOKIE,
+} from "@/server/cookie-names";
 import { accessTokenExpiresAt, decodeAccessToken } from "@/server/jwt";
 import { RefreshError, refreshSession } from "@/server/refresh";
 
 const REFRESH_SKEW_MS = 30_000;
 const DEFAULT_ACCESS_MAX_AGE = 15 * 60;
+
+function readCookie(request: NextRequest, name: string, legacy: string): string | undefined {
+  return request.cookies.get(name)?.value ?? request.cookies.get(legacy)?.value;
+}
+
+function clearLegacyCookies(response: NextResponse): void {
+  response.cookies.set(LEGACY_ACCESS_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+  response.cookies.set(LEGACY_REFRESH_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+  response.cookies.set(LEGACY_REFRESH_COOKIE, "", {
+    ...cookieOptions(),
+    path: LEGACY_REFRESH_PATH,
+    maxAge: 0,
+  });
+}
+
+function clearSessionCookies(response: NextResponse): void {
+  response.cookies.set(ACCESS_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+  response.cookies.set(REFRESH_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+  clearLegacyCookies(response);
+}
 
 function cookieOptions(): Partial<ResponseCookie> {
   return {
@@ -31,7 +58,7 @@ function cookieHeaderWith(
 ): string {
   const parts = request.cookies
     .getAll()
-    .filter((cookie) => cookie.name !== ACCESS_COOKIE && cookie.name !== REFRESH_COOKIE)
+    .filter((cookie) => !AUTH_COOKIE_NAMES.includes(cookie.name as (typeof AUTH_COOKIE_NAMES)[number]))
     .map((cookie) => `${cookie.name}=${cookie.value}`);
   if (values.access) {
     parts.push(`${ACCESS_COOKIE}=${values.access}`);
@@ -50,8 +77,7 @@ function loginRedirect(
   url.searchParams.set("returnTo", request.nextUrl.pathname + request.nextUrl.search);
   url.searchParams.set("reason", reason);
   const response = NextResponse.redirect(url);
-  response.cookies.set(ACCESS_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
-  response.cookies.set(REFRESH_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+  clearSessionCookies(response);
   return response;
 }
 
@@ -63,6 +89,18 @@ function roleHome(role: string | undefined): string {
     return "/seller/dashboard";
   }
   return "/";
+}
+
+/**
+ * A dead refresh session on a protected page must not bounce to /login. Keep
+ * the URL and render the minimal dialog page; after an inline login the same
+ * URL renders the real page. Cookies are cleared so the dialog's login writes a
+ * clean session.
+ */
+function sessionExpiredResponse(request: NextRequest): NextResponse {
+  const response = NextResponse.rewrite(new URL("/session-expired", request.url));
+  clearSessionCookies(response);
+  return response;
 }
 
 function isAuthEntry(pathname: string): boolean {
@@ -103,8 +141,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   const { pathname } = request.nextUrl;
   const authEntry = isAuthEntry(pathname);
-  let accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
-  let refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
+  let accessToken = readCookie(request, ACCESS_COOKIE, LEGACY_ACCESS_COOKIE);
+  let refreshToken = readCookie(request, REFRESH_COOKIE, LEGACY_REFRESH_COOKIE);
 
   const expiresAt = accessTokenExpiresAt(accessToken);
   const needsRefresh =
@@ -146,11 +184,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         }
         target.searchParams.set("reason", "session-expired");
         const response = alreadyMarked ? NextResponse.next() : NextResponse.redirect(target);
-        response.cookies.set(ACCESS_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
-        response.cookies.set(REFRESH_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
+        clearSessionCookies(response);
         return response;
       } else {
-        return loginRedirect(request, "session-expired");
+        return sessionExpiredResponse(request);
       }
     }
   }
@@ -171,6 +208,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
             maxAge: refreshMaxAge,
           });
         }
+        clearLegacyCookies(response);
       }
       return response;
     }
@@ -186,7 +224,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return pending;
   }
   if (!accessToken && !rotated) {
-    return loginRedirect(request, "session-expired");
+    return sessionExpiredResponse(request);
   }
 
   const role = accessToken ? decodeAccessToken(accessToken)?.role : undefined;
@@ -222,6 +260,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         maxAge: refreshMaxAge,
       });
     }
+    clearLegacyCookies(response);
   }
   return response;
 }

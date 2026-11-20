@@ -50,7 +50,7 @@ test.describe("auth", () => {
     await expect(page).toHaveURL("/");
 
     // Simulate an expired access token while the refresh cookie is still valid.
-    await context.clearCookies({ name: "ph_at" });
+    await context.clearCookies({ name: "ph_web_at" });
 
     await page.goto("/account/sessions");
     await expect(page).toHaveURL(/\/account\/sessions$/);

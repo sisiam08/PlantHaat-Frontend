@@ -7,6 +7,7 @@ import { RouteProgress } from "@/components/layout/route-progress";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/features/auth/auth-provider";
+import { SessionExpiredProvider } from "@/features/auth/session-expired-provider";
 import { RealtimeBridge } from "@/features/realtime/realtime-bridge";
 import { LocaleLang } from "./locale-lang";
 import { MotionProvider } from "./motion-provider";
@@ -33,14 +34,16 @@ export function AppProviders({
         <MotionProvider>
           <QueryProvider>
             <AuthProvider>
-              <RealtimeBridge />
-              <TooltipProvider delayDuration={200}>
-                <Suspense fallback={null}>
-                  <RouteProgress />
-                </Suspense>
-                {children}
-                <Toaster position="top-center" richColors />
-              </TooltipProvider>
+              <SessionExpiredProvider>
+                <RealtimeBridge />
+                <TooltipProvider delayDuration={200}>
+                  <Suspense fallback={null}>
+                    <RouteProgress />
+                  </Suspense>
+                  {children}
+                  <Toaster position="top-center" richColors />
+                </TooltipProvider>
+              </SessionExpiredProvider>
             </AuthProvider>
           </QueryProvider>
         </MotionProvider>

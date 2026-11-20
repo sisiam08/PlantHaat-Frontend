@@ -7,7 +7,13 @@ import { serverEnv, siteOrigins } from "@/env/server";
 import { tagsForMutation } from "../cache-tags";
 import { accessTokenExpiresAt } from "../jwt";
 import { refreshSession, type RefreshedTokens } from "../refresh";
-import { applyBackendSetCookies, authCookieOptions } from "../cookies";
+import { applyBackendSetCookies, authCookieOptions, clearLegacyCookies } from "../cookies";
+import {
+  ACCESS_COOKIE,
+  LEGACY_ACCESS_COOKIE,
+  LEGACY_REFRESH_COOKIE,
+  REFRESH_COOKIE,
+} from "../cookie-names";
 import { normalizeApiPath } from "./allow-list";
 import { buildUpstreamHeaders, copyResponseHeaders } from "./headers";
 import { gatewayError } from "./errors";
@@ -27,8 +33,8 @@ function refererOrigin(referer: string | null): string | null {
   }
 }
 
-function readCookie(request: NextRequest, name: string): string | undefined {
-  return request.cookies.get(name)?.value;
+function readCookie(request: NextRequest, name: string, legacy: string): string | undefined {
+  return request.cookies.get(name)?.value ?? request.cookies.get(legacy)?.value;
 }
 
 async function fetchUpstream(
@@ -74,8 +80,8 @@ export async function handleGatewayRequest(
   }
 
   const isAuthPath = path.startsWith("/auth/refresh") || path.startsWith("/auth/logout");
-  let accessToken = readCookie(request, "ph_at");
-  const refreshToken = readCookie(request, "ph_rt");
+  let accessToken = readCookie(request, ACCESS_COOKIE, LEGACY_ACCESS_COOKIE);
+  const refreshToken = readCookie(request, REFRESH_COOKIE, LEGACY_REFRESH_COOKIE);
 
   // Session probe: with no auth cookies the caller is definitively signed out,
   // so answer locally instead of proxying a 401 (avoids a noisy failed request
@@ -167,16 +173,17 @@ export async function handleGatewayRequest(
   }
 
   if (refreshed && accessToken) {
-    response.cookies.set("ph_at", accessToken, {
+    response.cookies.set(ACCESS_COOKIE, accessToken, {
       ...authCookieOptions(),
       maxAge: refreshed.accessMaxAgeSeconds ?? 15 * 60,
     });
     if (refreshed.refreshToken && refreshed.refreshMaxAgeSeconds !== undefined) {
-      response.cookies.set("ph_rt", refreshed.refreshToken, {
+      response.cookies.set(REFRESH_COOKIE, refreshed.refreshToken, {
         ...authCookieOptions(),
         maxAge: refreshed.refreshMaxAgeSeconds,
       });
     }
+    clearLegacyCookies(response);
     response.headers.set("x-auth-refresh", "1");
     if (refreshed.generation !== undefined) {
       response.headers.set("x-auth-refresh-generation", String(refreshed.generation));

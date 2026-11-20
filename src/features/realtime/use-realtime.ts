@@ -1,7 +1,6 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import type { Socket } from "socket.io-client";
 
@@ -35,7 +34,6 @@ interface UnreadCountPayload {
 export function useRealtime(): void {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const socketRef = useRef<Socket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,16 +74,11 @@ export function useRealtime(): void {
     };
 
     const onSessionRevoked = () => {
-      broadcastAuth("session:revoked");
-      queryClient.clear();
+      // The refresh session is gone (password change, logout everywhere,
+      // suspension or an admin revoke). Keep the page and its data; the
+      // session-expired dialog offers an inline login instead of a redirect.
+      broadcastAuth("session:expired");
       teardown();
-      const current = `${window.location.pathname}${window.location.search}`;
-      const returnTo =
-        current.startsWith("/login") || current.startsWith("/register")
-          ? ""
-          : `?returnTo=${encodeURIComponent(current)}&reason=session-expired`;
-      router.replace(`/login${returnTo}`);
-      router.refresh();
     };
 
     const scheduleReconnect = () => {
@@ -186,5 +179,5 @@ export function useRealtime(): void {
       document.removeEventListener("visibilitychange", onVisibility);
       teardown();
     };
-  }, [userId, queryClient, router]);
+  }, [userId, queryClient]);
 }

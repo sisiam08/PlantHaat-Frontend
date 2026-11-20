@@ -55,14 +55,16 @@ test("seller and admin are redirected to their dashboards", async ({ page }) => 
 
 test("stale cookies render login and are cleared", async ({ page, context }) => {
   await context.addCookies([
-    { name: "ph_at", value: "stale-invalid-token", domain: "localhost", path: "/" },
-    { name: "ph_rt", value: "stale-invalid-refresh", domain: "localhost", path: "/" },
+    { name: "ph_web_at", value: "stale-invalid-token", domain: "localhost", path: "/" },
+    { name: "ph_web_rt", value: "stale-invalid-refresh", domain: "localhost", path: "/" },
+    { name: "ph_rt", value: "stale-api-duplicate", domain: "localhost", path: "/api/v1/auth" },
   ]);
   await page.goto("/login", { waitUntil: "domcontentloaded" });
   await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 30_000 });
   const cookies = await context.cookies();
-  expect(cookies.find((cookie) => cookie.name === "ph_at")).toBeUndefined();
-  expect(cookies.find((cookie) => cookie.name === "ph_rt")).toBeUndefined();
+  for (const name of ["ph_web_at", "ph_web_rt", "ph_at", "ph_rt"]) {
+    expect(cookies.find((cookie) => cookie.name === name), name).toBeUndefined();
+  }
 });
 
 test("Back after login does not show the form", async ({ page }) => {

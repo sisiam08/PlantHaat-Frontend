@@ -1,8 +1,7 @@
 import "server-only";
 
-import { cookies } from "next/headers";
-
 import { serverGet } from "@/server/backend";
+import { readAuthCookies } from "@/server/cookies";
 import { ApiError } from "@/lib/api/common";
 import type { AddressView } from "@/features/addresses/api";
 import type { CartView } from "./types";
@@ -13,7 +12,7 @@ export interface CartServerData {
 }
 
 async function readAccessToken(): Promise<string | undefined> {
-  return (await cookies()).get("ph_at")?.value;
+  return (await readAuthCookies()).accessToken;
 }
 
 /**

@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 
 import { refreshOnce, markAuthSuccess } from "@/lib/auth/refresh";
+import { isProtectedPath } from "@/lib/auth/paths";
 import {
   ApiError,
   isErrorEnvelope,
@@ -67,16 +68,28 @@ api.interceptors.response.use(
     const axiosError = error as AxiosError;
     const config = axiosError.config as AxiosRequestConfig | undefined;
 
-    const shouldRefresh =
+    const method = (config?.method ?? "GET").toUpperCase();
+    const authExpired =
       apiError.status === 401 &&
-      (apiError.code === "TOKEN_EXPIRED" || apiError.code === "UNAUTHENTICATED") &&
+      (apiError.code === "TOKEN_EXPIRED" || apiError.code === "UNAUTHENTICATED");
+    // A local BFF without the shared key can hit the backend's origin guard
+    // first when the access cookie is gone; retrying after a refresh turns it
+    // into a real auth result and lets the session-expired dialog open.
+    const originBlocked = apiError.status === 403 && apiError.code === "ORIGIN_NOT_ALLOWED";
+    const shouldRefresh =
+      (authExpired || (originBlocked && method !== "GET")) &&
       config !== undefined &&
       !config._retried &&
       !isAuthUrl(config.url);
 
     if (shouldRefresh && config) {
       config._retried = true;
-      const refreshed = await refreshOnce();
+      // Public pages stay quiet for background GETs; a user action (mutation)
+      // or any protected page opens the session-expired dialog if refresh dies.
+      const notify =
+        (config.method ?? "GET").toUpperCase() !== "GET" ||
+        (typeof window !== "undefined" && isProtectedPath(window.location.pathname));
+      const refreshed = await refreshOnce({ notify });
       if (refreshed) {
         return api.request(config);
       }

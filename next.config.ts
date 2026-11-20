@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  experimental: {
+    authInterrupts: true,
+  },
   images: {
     // Placeholder home banners are local SVGs (swapped for raster artwork by the
     // developer). Allow SVGs through the optimizer; content is first-party only.

@@ -1,5 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
+import { REFRESH_COOKIE } from "../src/server/cookie-names";
+
 /**
  * Runs against the isolated test stack:
  *   API :5001 (JWT access TTL ~10s), frontend :3002.
@@ -100,13 +102,13 @@ test("ten parallel requests after expiry share exactly one refresh", async ({
 
   // Use raw Node fetch with only the refresh cookie, so neither background page
   // polling nor a request-context cookie jar can rotate the token first.
-  const refresh = (await context.cookies()).find((cookie) => cookie.name === "ph_rt");
+  const refresh = (await context.cookies()).find((cookie) => cookie.name === REFRESH_COOKIE);
   expect(refresh).toBeTruthy();
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
   const responses = await Promise.all(
     Array.from({ length: 10 }, () =>
       fetch(`${base}/api/v1/notifications/unread-count`, {
-        headers: { cookie: `ph_rt=${refresh!.value}` },
+        headers: { cookie: `${REFRESH_COOKIE}=${refresh!.value}` },
       }),
     ),
   );
@@ -149,7 +151,7 @@ test("two tabs both survive the access token expiring", async ({ context }) => {
   await expect(second.locator("main h1").first()).toBeVisible();
 });
 
-test("revoked session returns to login with returnTo and returns after login", async ({
+test("revoked session shows the dialog at the same URL and resumes after login", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -161,25 +163,19 @@ test("revoked session returns to login with returnTo and returns after login", a
   await page.waitForTimeout(ACCESS_EXPIRED_WAIT);
 
   await page.goto("/orders", { waitUntil: "domcontentloaded" });
-  await page.waitForURL(/\/login\?/, { timeout: 30_000 });
-  const url = new URL(page.url());
-  expect(url.pathname).toBe("/login");
-  expect(url.searchParams.get("returnTo")).toBe("/orders");
-  // logout-all clears both cookies, so the proxy correctly classifies this as
-  // "auth-required" (no session) rather than "session-expired" (dead session).
-  const reason = url.searchParams.get("reason");
-  expect(["session-expired", "auth-required"]).toContain(reason);
-  if (reason === "session-expired") {
-    await expect(page.getByRole("status")).toContainText(/session expired/i);
-  }
+  // The dead session must not bounce to /login; the dialog renders at /orders.
+  expect(new URL(page.url()).pathname).toBe("/orders");
+  const dialog = page.locator("[data-session-expired-dialog]");
+  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  const fallback = dialog.locator("[data-session-login-page]");
+  await expect(fallback).toHaveAttribute("href", /returnTo=%2Forders/);
 
-  const submit = page.locator('form button[type="submit"]').first();
-  await submit.waitFor({ state: "visible" });
-  await expect(submit).toBeEnabled();
-  await page.locator('input[name="email"]').fill(USERS.customer.email);
-  await page.locator('input[name="password"]').fill(USERS.customer.password);
-  await submit.click();
+  await dialog.locator('input[name="email"]').fill(USERS.customer.email);
+  await dialog.locator('input[name="password"]').fill(USERS.customer.password);
+  await dialog.locator('button[type="submit"]').click();
+  await expect(dialog).toBeHidden({ timeout: 30_000 });
   await page.waitForURL(/\/orders$/, { timeout: 30_000 });
+  await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 });
 });
 
 test("no tokens are stored in localStorage or sessionStorage", async ({ page }) => {
@@ -190,6 +186,6 @@ test("no tokens are stored in localStorage or sessionStorage", async ({ page }) 
     session: Object.entries(window.sessionStorage).map(([key, value]) => `${key}=${value}`),
   }));
   for (const entry of [...stored.local, ...stored.session]) {
-    expect(entry).not.toMatch(/ph_at|ph_rt|eyJ[A-Za-z0-9_-]{10,}/);
+    expect(entry).not.toMatch(/ph_web_at|ph_web_rt|ph_at|ph_rt|eyJ[A-Za-z0-9_-]{10,}/);
   }
 });

@@ -2,7 +2,6 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import {
   createContext,
   useCallback,
@@ -13,7 +12,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { toast } from "sonner";
 
 import { queryKeys } from "@/lib/api/query-keys";
 import type { PublicUser, Role } from "@/lib/api/types";
@@ -52,7 +50,6 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const t = useTranslations("auth");
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hiddenAtRef = useRef<number | null>(null);
@@ -91,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     timerRef.current = setTimeout(async () => {
-      const outcome = await refreshOnceDetailed();
+      const outcome = await refreshOnceDetailed({ notify: false });
       if (outcome === "refreshed") {
         setExpiresAt(Date.now() + REFRESH_REARM_MS);
       }
@@ -119,14 +116,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hiddenFor >= LONG_IDLE_MS ||
         (expiresAt !== null && expiresAt - Date.now() <= REFRESH_SKEW_MS)
       ) {
-        void refreshOnceDetailed();
+        void refreshOnceDetailed({ notify: false });
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [expiresAt, queryClient]);
 
-  // Cross-tab sync (logout / session revoked / refresh / expiry).
+  // Cross-tab sync (logout / session revoked / refresh / account switch).
   useEffect(() => {
     return subscribeAuth((message) => {
       if (message.type === "logout" || message.type === "session:revoked") {
@@ -135,14 +132,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (typeof message.expiresAt === "number") {
           setExpiresAt(message.expiresAt);
         }
-        void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
-      } else if (message.type === "session:expired") {
-        if (queryClient.getQueryData(queryKeys.auth.me)) {
-          toast.error(t("sessionExpiredToast"));
+        const current = queryClient.getQueryData<PublicUser>(queryKeys.auth.me);
+        if (message.userId && current?.id !== message.userId) {
+          // A different account (or a first login) happened in another tab.
+          // Never keep the previous account's cached data.
+          queryClient.clear();
+          window.location.reload();
+          return;
         }
+        void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
       }
     });
-  }, [clearSession, queryClient, t]);
+  }, [clearSession, queryClient]);
 
   const onAuthenticated = useCallback(
     async (user: PublicUser, accessTokenExpiresAt: number) => {
@@ -152,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // Guest-cart merge is best-effort; a failure must not block login.
       }
-      broadcastAuth("refresh");
+      broadcastAuth("refresh", { expiresAt: accessTokenExpiresAt, userId: user.id });
       router.refresh();
       return user;
     },
