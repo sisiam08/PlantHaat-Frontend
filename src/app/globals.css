@@ -493,3 +493,9 @@ a[data-card-focus]:focus-visible,
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Once the WebGL hero scene paints its first frame, hide the static plants but
+   keep their layout so the page does not shift. */
+[data-hero-stage][data-hero-ready="true"] img[data-hero-plant] {
+  visibility: hidden;
+}
+
