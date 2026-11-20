@@ -152,3 +152,48 @@ Method unchanged: production build served on `:3000`, API `:5000`, `:3100` off, 
 - Static scene bytes: monstera 43.6 KB, palm 104.3 KB, snake 21.1 KB, calathea 35.0 KB = **204 KB desktop** (under the 260 KB budget); mobile/medium variants are 25-57 KB. The source photos are not committed.
 - WebGL: no library JS; the island is ~2 KB gzip. Textures upload sequentially with a rAF yield, DPR <=1.5, frame cap 45/30 fps, paused off-screen/hidden, adaptive DPR and static fallback. TBT is higher than the old text hero (texture upload/decode), but no single init task is allowed to become a long task; the scene remains static for reduced motion/save-data/no-WebGL.
 - CLS is 0: the stage aspect box and both text/scene columns are reserved before images paint.
+
+## 2026-11-20 Hero fixes: sway longevity, 11:10 stage, AVIF
+
+**Sway (A).** Real Chrome (`channel: chrome`) 60 s logs on dev and production: mode stayed `webgl`,
+frames increased every second (prod 14 -> 1806, dev 0 -> 1768), DPR 1, raw rAF EMA ~16.7 ms after
+the first second. The old bug was the adaptive monitor reading the interval between *drawn* frames
+(33 ms at a 45 fps cap). The monitor now samples raw rAF ticks before the throttle, ignores >250 ms
+gaps and the first 3 s, drops DPR after sustained >28 ms for 3 s, and goes static only after
+sustained >150 ms for 5 s. The 150/5 s static threshold is a deliberate deviation from the suggested
+40 ms/3 s: on this 4x-CPU environment the raw tick is 70-100 ms but 10-17 fps still animates, and the
+acceptance test requires webgl after 15 s. Unit tests cover the 60 Hz/45 fps cap (no degrade), 80 ms
+(DPR only), 160 ms (static) and warmup/ignore gaps.
+
+**Stage (B).** The plants/shadows now live in a fixed 11:10 inner box; the outer stage is 300 px tall
+on phones, 420 px on tablets and the desktop aspect box otherwise, centered. Pot-center/stage-height
+ratios at 360/390/412/768/899/1280/1440 differ from 1440 by at most **0.14%** (target 3%). At 360/390
+the stage bottom is 772 px against a 774 px bottom-nav top; the visible pot bases sit above the nav
+and the search is at ~424 px (above the fold).
+
+**Edge feather (C).** The builder checks the outer 1% alpha bands for every plant. Palm counts:
+left 22, right 27, top 57, bottom 348; left/right/top are feathered over 4% (bottom is the pot base
+and is intentionally not feathered). 2x cream crops of the palm right side before/after show no hard
+vertical cut; the feather is acceptable for the supplied source. If the owner wants the tips that
+were beyond the original 1333 px canvas, supply an uncropped palm with >=3% transparent margin on
+every side and rerun `node scripts/build-hero-assets.mjs`.
+
+**AVIF (D).** All four plants use `<picture>` with AVIF primary and WebP fallback; palm visible height
+600 px (padded 672 px), AVIF q50 (visually checked against the recommended 55-60 because q55/58 were
+not smaller than WebP on this alpha-heavy source). Scene bytes: desktop AVIF 136.7 KB (WebP 169.8
+KB), mobile palm 19 KB, desktop palm medium 40 KB. The palm preload uses AVIF `imagesrcset`/
+`imagesizes`; Chrome downloads only the AVIF variant.
+
+| Home, prod, 5 runs | Before task | After fixes |
+|---|---:|---:|
+| LCP en/bn 390 | 2832 / 3044 ms | **2632 / 3040 ms** |
+| LCP en/bn 1440 | 2968 / 3140 ms | **3116-3208 / 3384-3904 ms** |
+| CLS | 0 | **0** |
+| JS gzip | 356 KB | **332-358 KB** |
+| Images 390 | 217 / 191 KB | **114 KB** |
+| Images 1440 | 295 / 269 KB | **193 KB** |
+
+Mobile is flat or better; desktop en is ~5% over the old LCP and bn is ~8-24% over in this noisy
+low-end environment. The remaining desktop cost is render delay (the palm paints after the hero
+text/fonts), not transfer. Goal within 5% is met for en at the low end of the range but not
+consistently; documented rather than cutting the owner-requested palm.

@@ -96,6 +96,7 @@ test.describe("hero plant scene", () => {
       timeout: 30000,
     });
     await page.waitForFunction(() => Boolean(window.__heroSway?.ready));
+    await page.waitForTimeout(700);
     const state = await page.evaluate(() => window.__heroSway);
     expect(state?.active).toBe(true);
     const hidden = await page
@@ -269,5 +270,83 @@ test.describe("hero plant scene", () => {
         });
       }, original);
     }
+  });
+});
+
+test.describe("hero scene regression", () => {
+  test("pot spacing and stage scale stay consistent", async ({ page }) => {
+    const widths = [360, 390, 412, 768, 899, 1280, 1440] as const;
+    const rows: Array<{
+      width: number;
+      height: number;
+      centers: Record<string, number>;
+    }> = [];
+    for (const width of widths) {
+      await openHome(page, "en", width);
+      await expect(page.locator("[data-hero-stage]")).toBeVisible();
+      await page.waitForTimeout(600);
+      const measured = await page.evaluate(() => {
+        const stage = document.querySelector("[data-hero-stage]")!;
+        const stageRect = stage.getBoundingClientRect();
+        const centers: Record<string, number> = {};
+        for (const img of document.querySelectorAll<HTMLImageElement>("img[data-hero-plant]")) {
+          const rect = img.getBoundingClientRect();
+          centers[img.dataset.heroPlant ?? ""] =
+            (rect.left - stageRect.left + Number(img.dataset.pivotX ?? 0.5) * rect.width) /
+            stageRect.height;
+        }
+        return { height: stageRect.height, centers };
+      });
+      rows.push({ width, height: measured.height, centers: measured.centers });
+    }
+    const base = rows.find((row) => row.width === 1440)!;
+    for (const row of rows) {
+      for (const [key, value] of Object.entries(row.centers)) {
+        const reference = base.centers[key];
+        expect(Math.abs((value - reference) / reference) * 100).toBeLessThanOrEqual(3);
+      }
+      if (row.width <= 430) {
+        expect(row.height).toBeGreaterThanOrEqual(290);
+        expect(row.height).toBeLessThanOrEqual(320);
+      } else if (row.width < 1024) {
+        expect(row.height).toBeGreaterThanOrEqual(400);
+        expect(row.height).toBeLessThanOrEqual(440);
+      } else {
+        expect(row.height).toBeGreaterThanOrEqual(480);
+        expect(row.height).toBeLessThanOrEqual(560);
+      }
+    }
+  });
+
+  test("scene serves AVIF with the WebP img fallback", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("response", (response) => {
+      if (response.url().includes("/hero/")) requests.push(response.url());
+    });
+    await openHome(page, "en", 1440);
+    await expect(page.locator("[data-hero-stage]")).toBeVisible();
+    await page.waitForTimeout(1500);
+    expect(await page.locator('[data-hero-stage] source[type="image/avif"]').count()).toBe(4);
+    const current = await page
+      .locator('[data-hero-stage] img[data-hero-plant="palm"]')
+      .evaluate((img) => (img as HTMLImageElement).currentSrc);
+    expect(current).toContain(".avif");
+    expect(requests.some((url) => url.includes(".avif"))).toBe(true);
+  });
+
+  test("webgl keeps animating after 15 s under 4x CPU", async ({ page, context }) => {
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    await openHome(page, "en", 1280);
+    await expect(page.locator("[data-hero-stage][data-hero-ready='true']")).toBeVisible({
+      timeout: 30000,
+    });
+    await page.waitForTimeout(15000);
+    const before = await page.evaluate(() => window.__heroSway);
+    await page.waitForTimeout(1000);
+    const after = await page.evaluate(() => window.__heroSway);
+    expect(after?.mode).toBe("webgl");
+    expect((after?.frames ?? 0) > (before?.frames ?? 0)).toBe(true);
+    expect(after?.paused).toBe(false);
   });
 });

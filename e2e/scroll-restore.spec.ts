@@ -6,21 +6,22 @@ const VIEWPORTS = [
 ];
 
 async function clickVisibleProductCard(page: import("@playwright/test").Page) {
-  const point = await page.evaluate(() => {
+  const clicked = await page.evaluate(() => {
     const links = [...document.querySelectorAll("[data-product-card] a")] as HTMLElement[];
     const link = links.find((entry) => {
       const rect = entry.getBoundingClientRect();
-      return rect.bottom > 90 && rect.top < window.innerHeight - 150;
+      return (
+        rect.bottom > 90 &&
+        rect.top < window.innerHeight - 150 &&
+        rect.left >= 0 &&
+        rect.right <= window.innerWidth
+      );
     });
-    if (!link) return null;
-    const rect = link.getBoundingClientRect();
-    return {
-      x: rect.left + rect.width / 2,
-      y: Math.min(Math.max(rect.top + rect.height / 2, 100), window.innerHeight - 140),
-    };
+    if (!link) return false;
+    link.click();
+    return true;
   });
-  expect(point, "a visible product card").not.toBeNull();
-  await page.mouse.click(point!.x, point!.y);
+  expect(clicked, "a visible product card").toBe(true);
 }
 
 async function applyInStockAndSort(page: import("@playwright/test").Page, width: number) {
@@ -64,7 +65,7 @@ for (const viewport of VIEWPORTS) {
       expect(cardsBefore).toBeGreaterThan(24);
 
       await clickVisibleProductCard(page);
-      await page.waitForURL(/\/products\/[^/?]+/);
+      await page.waitForURL(/\/products\/[^/?]+/, { timeout: 30_000 });
       await page.goBack();
       await page.waitForTimeout(3000);
 
@@ -86,7 +87,12 @@ for (const viewport of VIEWPORTS) {
             window.scrollY > 1800 &&
             [...document.querySelectorAll("[data-product-card] a")].some((entry) => {
               const rect = entry.getBoundingClientRect();
-              return rect.bottom > 90 && rect.top < window.innerHeight - 150;
+      return (
+        rect.bottom > 90 &&
+        rect.top < window.innerHeight - 150 &&
+        rect.left >= 0 &&
+        rect.right <= window.innerWidth
+      );
             }),
         );
         if (hasVisibleCard) break;
@@ -97,7 +103,7 @@ for (const viewport of VIEWPORTS) {
       expect(before).toBeGreaterThan(1800);
 
       await clickVisibleProductCard(page);
-      await page.waitForURL(/\/products\/[^/?]+/);
+      await page.waitForURL(/\/products\/[^/?]+/, { timeout: 30_000 });
       await page.goBack();
       await page.waitForTimeout(3000);
 

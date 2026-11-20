@@ -278,7 +278,7 @@ The owner preferred the pre-marketplace hero. The left side was restored from `f
 - Desktop two columns, stage bottom-aligned on the hero floor, hero ~620 px (min-height 600). Text column stays clear; below `lg` the stage goes under the text at full width. Mobile search stays above the fold and the first product card is within ~1.5 screens (390: ~1221 px; 360: ~1249 px).
 
 **Hero scene (implemented):**
-- Four owner-supplied transparent cutouts, draw order back→front: **monstera, palm, snake, calathea**. Stage aspect 11/10 desktop, 3/2 below `lg`. No boxes, borders, cards or stage background: the cream radial hero gradient is the scene.
+- Four owner-supplied transparent cutouts, draw order back→front: **monstera, palm, snake, calathea**. The plants and shadows always live in a fixed **11:10 inner box**; the outer stage fits that box by height on phones (300 px, 420 px on tablets) and centers it horizontally, so the composition is identical at every width, only scaled. No boxes, borders, cards or stage background: the cream radial hero gradient is the scene.
 - Final composition (percent of stage; visible bounds):
 
 | Plant | Height | Left | Bottom | Pot top | Pivot x | Amp | Phase | Pot center |
@@ -288,9 +288,10 @@ The owner preferred the pre-marketplace hero. The left side was restored from `f
 | snake | 48% | 24% | 0% | .66 | .52 | .35 | 3.1 | 37.7% |
 | calathea | 50% | 62% | 0% | .74 | .50 | .7 | 6.4 | 80.2% |
 
-  Calathea is mirrored; the group is packed so adjacent pot centers are ≤24% apart and the pots overlap naturally. A soft elliptical contact shadow sits under each pot. The asset builder crops to alpha, mirrors/equalizes brightness, pads 6% and emits WebP + `scene.json` + the typed scene module.
-- **Static first.** Server HTML renders the stage with four positioned `<img>` (width/height, alt="", palm eager/fetchpriority high, small/medium srcsets), reserved aspect box and shadows. This is the no-JS, reduced-motion, save-data and no-WebGL result.
+  Calathea is mirrored; the group is packed so adjacent pot centers are ≤24% apart and the pots overlap naturally. A soft elliptical contact shadow sits under each pot. The asset builder crops to alpha, mirrors/equalizes brightness, pads 6%, checks the outer 1% edge bands, feathers left/right/top clipped edges by 4% (the bottom pot base is deliberately not feathered), and emits AVIF + WebP + `scene.json` + the typed scene module. Palm visible height is 600 px (padded asset 672 px, under the 680 px cap). Measured pot-center/height ratios vary by <0.15% from 360 to 1440.
+- **Static first.** Server HTML renders the stage with four positioned `<picture>` elements (AVIF primary, WebP `<img>` fallback, width/height, alt="", palm eager/high priority, small/medium variants), reserved aspect box and shadows. This is the no-JS, reduced-motion, save-data and no-WebGL result.
 - **Enhancement.** A small client island (no libraries) loads WebGL only after first paint when the stage is visible, uses one shared canvas and one draw call per plant, premultiplied alpha, the reference pivot/gust shader, DPR ≤1.5 (1 on low-power), ~45 fps (30 low-power), pauses off-screen/hidden, adapts quality and falls back to the static scene on context loss. Pointer position on fine pointers biases the gust. Images are hidden only after the first canvas frame.
+- **Sway longevity.** The quality monitor samples **raw rAF tick deltas before the draw throttle**, ignores gaps >250 ms and the first 3 s, drops DPR after sustained >28 ms for 3 s, and only goes static after sustained >150 ms for 5 s (the suggestion was 40 ms/3 s; on this low-end 4× CPU test the raw tick was 70-100 ms and 10 fps still animates, so freezing was the wrong outcome — logged in decisions). Cached clip rects, ResizeObserver, StrictMode-safe cleanup and a 60 s dev/prod log keep mode `webgl` with increasing frames.
 - **Admin override.** If `home.hero.image` is set, the right side renders that image statically in place of the scene (no WebGL); otherwise the real plant scene is used.
 - **Settings hygiene.** `home.hero.chips` was the marketplace-hero chip row; it is now marked `wired:false`, `isPublic:false` and removed from the Settings UI (kept in the registry only for history). No dead admin control remains.
 
@@ -302,12 +303,14 @@ The owner preferred the pre-marketplace hero. The left side was restored from `f
 - **Validation.** Server-side only: safe links (same-site `/...` or `https://`; `javascript:`, `data:` and protocol-relative links blocked), `#RRGGBB` colors, text limits (headline 60, subtext 140, button label 24), schedule end after start, at most `maxSlides` active slides, and WCAG contrast warnings (button text blocks below 3:1; overlay text blocks at maximum scrim below 4.5:1). Uploads must be tracked Cloudinary assets; replace/delete cleans the old asset unless another slide still references it.
 - **Performance.** Public endpoint is cached and tag-invalidated (`home-highlights` + `settings`); Cloudinary delivery uses `f_auto,q_auto,c_limit` with width-matched `srcset` and DPR capped at 2. If the endpoint fails or takes more than 1.5 s, the section is omitted silently and the rest of the home page is unaffected (the highlights fetch is aborted, not allowed to delay the hero).
 
-**Measured result (2026-11-20):** mobile home LCP 2904/3124 ms (390, en/bn), desktop 3452/3716 ms
-(1440), CLS 0, 332 KB JS gzip. The four source WebPs total ~204 KB (desktop) / ~111 KB (mobile
-network) and the palm is the LCP candidate with a preload + small/medium variants. The old text LCP
-was 2832/3044 ms mobile and 2968/3140 ms desktop; the palm makes the desktop LCP ~15% later, so the
-trade-off is recorded in `design/performance.md` and `backend/docs/decisions-log.md`. Full numbers:
-`design/performance.md`.
+**Measured result (2026-11-20, AVIF):** mobile home LCP **2632/3040 ms** (390, en/bn, improved from
+2832/3044), desktop **3116-3208 / 3384-3904 ms** (1440; noisy; en ~5% over the old 2968, bn ~8-24%
+over 3140), CLS 0, 332-358 KB JS gzip. AVIF desktop scene total ~137 KB (WebP fallback ~170 KB);
+mobile first palm variant 19 KB, desktop palm medium 40 KB. The palm is the LCP candidate with an
+AVIF preload plus small/medium variants. The desktop image still paints after the hero text, so the
+5% goal is not consistently met; the byte cut helps transfer but not render delay. Full numbers and
+the AVIF quality rationale (q50, slightly below the recommended 55-60, visually checked) are in
+`design/performance.md` and `backend/docs/decisions-log.md`.
 
 **Not carried forward:** the marketplace hero (category select, chips, hero product cards, hero trust row), `src/config/home-banners.ts` usage, the old `HeroComposition` and `TrustStrip`. The owner's config file is kept untouched; the root `hero-source/` photos are not committed.
 
