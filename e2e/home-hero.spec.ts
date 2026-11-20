@@ -94,3 +94,41 @@ test("hero is axe clean at 1440 and 390", async ({ page }) => {
     ).toEqual([]);
   }
 });
+
+test("hero trust row follows the COD flag and return window setting", async ({ page }) => {
+  await openHero(page, "en", 1440);
+  const settings = (await page.evaluate(async () => {
+    const response = await fetch("/api/v1/settings/public");
+    return (await response.json()).data as Record<string, unknown>;
+  })) as Record<string, unknown>;
+  const hours = String(settings["return.windowHours"]);
+  const cod = settings["payment.cod.enabled"] === true;
+
+  const items = page.locator("[data-hero-trust] li");
+  await expect(items).toHaveCount(cod ? 3 : 2);
+  if (cod) await expect(items.first()).toHaveText("Pay when it arrives");
+  await expect(items.filter({ hasText: "Verified nurseries" })).toHaveCount(1);
+  const problem = items.filter({ hasText: /Problem\? Tell us within/ });
+  await expect(problem).toHaveCount(1);
+  await expect(problem).toContainText(`Problem? Tell us within ${hours} hours`);
+  await expect(problem).not.toContainText(/4[0-9]-hour/);
+});
+
+test("hero trust row is localized in Bangla with Latin digits", async ({ page }) => {
+  await openHero(page, "bn", 390);
+  const settings = (await page.evaluate(async () => {
+    const response = await fetch("/api/v1/settings/public");
+    return (await response.json()).data as Record<string, unknown>;
+  })) as Record<string, unknown>;
+  const hours = String(settings["return.windowHours"]);
+  const cod = settings["payment.cod.enabled"] === true;
+
+  const items = page.locator("[data-hero-trust] li");
+  await expect(items).toHaveCount(cod ? 3 : 2);
+  if (cod) await expect(items.first()).toHaveText("হাতে পেয়ে টাকা দিন");
+  await expect(items.filter({ hasText: "যাচাই করা নার্সারি" })).toHaveCount(1);
+  await expect(items.filter({ hasText: "সমস্যা হলে" })).toContainText(
+    `সমস্যা হলে ${hours} ঘণ্টার মধ্যে জানান`,
+  );
+  await expect(page.locator("[data-hero-trust]")).not.toContainText(/[০-৯]/);
+});

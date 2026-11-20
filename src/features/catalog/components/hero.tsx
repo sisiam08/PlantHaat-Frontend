@@ -1,4 +1,4 @@
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, BadgeCheck, Banknote, Search, ShieldCheck } from "lucide-react";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HeroScene } from "@/features/catalog/components/hero-scene";
 import { pickText, readHeroContent, type HeroImage } from "@/features/catalog/hero-content";
+import { readHeroTrust, type HeroTrustKey } from "@/features/catalog/hero-trust";
+import { formatCount } from "@/lib/format/number";
 import cloudinaryLoader from "@/lib/images/cloudinary-loader";
 import { getPublicSettings } from "@/server/public-settings";
 
@@ -54,6 +56,12 @@ export async function Hero() {
   const locale = await getLocale();
   const settings = await getPublicSettings();
   const hero = readHeroContent(settings);
+  const trust = readHeroTrust(settings);
+  const trustIcons: Record<HeroTrustKey, typeof Banknote> = {
+    trustPay: Banknote,
+    trustVerified: BadgeCheck,
+    trustProblem: ShieldCheck,
+  };
 
   return (
     <section
@@ -121,6 +129,25 @@ export async function Hero() {
               {t("heroCta")}
             </Link>
           </div>
+
+          <ul
+            data-hero-trust
+            className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-secondary-foreground sm:text-sm"
+          >
+            {trust.map((item) => {
+              const Icon = trustIcons[item.key];
+              const label =
+                item.hours === undefined
+                  ? t(item.key)
+                  : t(item.key, { hours: formatCount(item.hours, locale) });
+              return (
+                <li key={item.key} className="inline-flex min-w-0 items-center gap-1.5">
+                  <Icon aria-hidden className="size-4 shrink-0 text-primary" strokeWidth={1.75} />
+                  <span className="leading-snug">{label}</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         <div className="relative -mt-12 w-full lg:mt-0 lg:self-end">

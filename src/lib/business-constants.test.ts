@@ -31,4 +31,11 @@ describe("settings business constants", () => {
     }
     expect(bad).toEqual([]);
   });
+
+  it("the hero trust row reads the COD flag and the return window from settings", () => {
+    const source = readFileSync(join("src", "features", "catalog", "hero-trust.ts"), "utf8");
+    expect(source).toContain('"payment.cod.enabled"');
+    expect(source).toContain('"return.windowHours"');
+    expect(source).not.toMatch(/\b48\b/);
+  });
 });

@@ -89,3 +89,11 @@ Split specs (serial, `--project=desktop-chromium --workers=1`): `part4-dispute-r
 `part4-payout-destination` covers wrong/valid re-auth, copy, manual hide, 60 s auto-hide and bn copy.
 The breach path was exercised manually with `backend/scripts/part4-breach-test.ts` (test DB guard,
 immediate restore). Full table: `docs/testing/part4-live-report.md`.
+
+## 2026-11-20 Task A hero trust row
+
+Real Chrome (channel chrome), dev app :3000, en 1440x900 and bn 390x844: the restored row reads
+"Pay when it arrives / Verified nurseries / Problem? Tell us within 48 hours" and
+"হাতে পেয়ে টাকা দিন / যাচাই করা নার্সারি / সমস্যা হলে 48 ঘণ্টার মধ্যে জানান", with Latin `48` in
+both locales. The 48 comes from the live `return.windowHours` public setting. e2e
+(`home-hero.spec.ts --grep "trust row"`, real Chrome): 2/2 passed.
