@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
+import { formatCount } from "@/lib/format/number";
 import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
@@ -64,6 +66,11 @@ export function SettingsClient() {
   const history = useQuery({
     queryKey: queryKeys.admin.settingsHistory(),
     queryFn: () => adminApi.getSettingsHistory(),
+  });
+  const effectiveCommission = useQuery({
+    queryKey: ["admin", "commission-rules", "effective"],
+    queryFn: adminApi.getEffectiveCommission,
+    staleTime: 0,
   });
 
   const [draft, setDraft] = useState<AdminSettings | null>(null);
@@ -127,6 +134,7 @@ export function SettingsClient() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settings });
       await queryClient.invalidateQueries({ queryKey: queryKeys.admin.settingsHistory() });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "commission-rules", "effective"] });
       setDraft(null);
       setReauthKeys(null);
       setPassword("");
@@ -231,6 +239,28 @@ export function SettingsClient() {
             </TabsList>
             {GROUPS.map((group) => (
               <TabsContent key={group} value={group} className="grid gap-5">
+                {group === "security" ? (
+                  <div
+                    role="note"
+                    className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm"
+                  >
+                    <h3 className="font-heading font-semibold">{t("sessionNoticeTitle")}</h3>
+                    <p className="text-muted-foreground">{t("sessionNoticeBody")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("sessionNoticeAccess", {
+                        minutes: formatCount(
+                          Number(
+                            values["security.access.ttlMinutes"] ??
+                              definitions.find((entry) => entry.key === "security.access.ttlMinutes")
+                                ?.default ??
+                              15,
+                          ),
+                          locale,
+                        ),
+                      })}
+                    </p>
+                  </div>
+                ) : null}
                 {group === "payments" ? (
                   <div className="grid gap-4 xl:grid-cols-2">
                     {[
@@ -301,21 +331,52 @@ export function SettingsClient() {
                     onReset={(key, value) => setValue(key, value)}
                   />
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {definitions
-                      .filter((definition) => definition.group === group)
-                      .map((definition) => (
-                        <SettingField
-                          key={definition.key}
-                          definition={definition}
-                          value={values[definition.key]}
-                          locale={locale}
-                          last={lastChange(definition.key)}
-                          error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
-                          onChange={(value) => setValue(definition.key, value)}
-                          onReset={() => setValue(definition.key, definition.default)}
-                        />
-                      ))}
+                  <div className="grid gap-4">
+                    {group === "wallet" ? (
+                      <ReadOnlySetting
+                        settingKey="commission.default"
+                        label={t("commissionManagedTitle")}
+                        value={`${formatCount(
+                          effectiveCommission.data?.effectivePercent ??
+                            Number(values["commission.default"] ?? 10),
+                          locale,
+                        )}%`}
+                        help={`${t("commissionManagedBody")} ${t("commissionManagedFallback", {
+                          value: formatCount(
+                            Number(values["commission.default"] ?? 10),
+                            locale,
+                          ),
+                        })}`}
+                        href="/admin/commission-rules"
+                        linkLabel={t("commissionRulesLink")}
+                      />
+                    ) : null}
+                    {group === "payouts" ? (
+                      <p className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
+                        {t("payoutHoldNote")}
+                      </p>
+                    ) : null}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {definitions
+                        .filter(
+                          (definition) =>
+                            definition.group === group &&
+                            definition.wired !== false &&
+                            definition.key !== "commission.default",
+                        )
+                        .map((definition) => (
+                          <SettingField
+                            key={definition.key}
+                            definition={definition}
+                            value={values[definition.key]}
+                            locale={locale}
+                            last={lastChange(definition.key)}
+                            error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
+                            onChange={(value) => setValue(definition.key, value)}
+                            onReset={() => setValue(definition.key, definition.default)}
+                          />
+                        ))}
+                    </div>
                   </div>
                 )}
                 {group === "payments" ? (
@@ -417,6 +478,44 @@ export function SettingsClient() {
   );
 }
 
+function ReadOnlySetting({
+  settingKey,
+  label,
+  value,
+  help,
+  href,
+  linkLabel,
+}: {
+  settingKey: string;
+  label: string;
+  value: string;
+  help: string;
+  href: string;
+  linkLabel: string;
+}) {
+  return (
+    <div
+      data-setting-key={settingKey}
+      data-readonly-setting
+      className="grid gap-1.5 rounded-xl border border-border/50 bg-secondary/20 p-4"
+    >
+      <span className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm font-medium">{label}</span>
+        <span className="text-sm font-semibold" data-readonly-value>
+          {value}
+        </span>
+      </span>
+      <p className="text-xs text-muted-foreground">{help}</p>
+      <Link
+        href={href}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+      >
+        {linkLabel}
+      </Link>
+    </div>
+  );
+}
+
 function SettingField({
   definition,
   value,
@@ -450,7 +549,7 @@ function SettingField({
           <span
             className={cn(
               "rounded-full px-2 py-0.5 text-[10px] font-medium",
-              definition.wired ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
+              definition.wired ? "bg-success/15 text-foreground" : "bg-muted text-muted-foreground",
             )}
           >
             {definition.wired ? "Active" : "Not active yet"}
@@ -772,6 +871,7 @@ function HomeSettingsFields({
   onChange: (key: string, value: unknown) => void;
   onReset: (key: string, value: unknown) => void;
 }) {
+  const t = useTranslations("admin.settings");
   const byKey = new Map(definitions.map((definition) => [definition.key, definition]));
   const headline = byKey.get("home.hero.headline");
   const subheadline = byKey.get("home.hero.subheadline");
@@ -779,7 +879,14 @@ function HomeSettingsFields({
   const title = byKey.get("home.highlights.title");
   const highlightKeys = definitions.filter(
     (definition) =>
-      definition.key.startsWith("home.highlights.") && definition.key !== "home.highlights.title",
+      definition.key.startsWith("home.highlights.") &&
+      ![
+        "home.highlights.title",
+        "home.highlights.enabled",
+        "home.highlights.autoplay",
+        "home.highlights.intervalSeconds",
+      ].includes(definition.key) &&
+      definition.wired !== false,
   );
 
   return (
@@ -822,9 +929,32 @@ function HomeSettingsFields({
       <section className="grid gap-4 rounded-xl border border-border/60 bg-secondary/20 p-4">
         <h3 className="font-heading text-base font-semibold">Home highlights</h3>
         <p className="text-xs text-muted-foreground">
-          Manage slides in <strong>Home → Highlights</strong>. These settings control the whole
-          section. Turning it off removes the section, heading and gap from the home page.
+          Manage slides, the on/off switch, autoplay and the interval in{" "}
+          <Link href="/admin/highlights" className="font-medium text-primary hover:underline">
+            Home → Highlights
+          </Link>
+          . The values below are shown read-only here so there is one editor.
         </p>
+        <div
+          data-readonly-setting
+          data-setting-key="home.highlights"
+          className="grid gap-1 rounded-xl border border-border/50 bg-card/60 p-3 text-sm sm:grid-cols-3"
+        >
+          <span>
+            {t("highlightsEnabled")}:{" "}
+            <strong>{values["home.highlights.enabled"] === true ? t("on") : t("off")}</strong>
+          </span>
+          <span>
+            {t("highlightsAutoplay")}:{" "}
+            <strong>{values["home.highlights.autoplay"] === true ? t("on") : t("off")}</strong>
+          </span>
+          <span>
+            {t("highlightsInterval")}:{" "}
+            <strong>
+              {formatCount(Number(values["home.highlights.intervalSeconds"] ?? 6), locale)}s
+            </strong>
+          </span>
+        </div>
         {title ? (
           <LocalizedEditor
             id="home-highlights-title"

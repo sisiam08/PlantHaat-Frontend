@@ -395,6 +395,14 @@ export interface AdminCommissionRule {
   sellerProfile: { id: string; businessName: string } | null;
 }
 
+export interface AdminEffectiveCommission {
+  settingPercent: number;
+  globalRuleId: string | null;
+  globalRatePercent: number | null;
+  effectivePercent: number;
+  source: "GLOBAL_RULE" | "SETTINGS";
+}
+
 export interface CreateCommissionRuleInput {
   scope: CommissionScope;
   categoryId?: string;

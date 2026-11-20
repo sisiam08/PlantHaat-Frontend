@@ -13,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { uploadsApi } from "@/features/uploads/api";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -30,11 +32,13 @@ interface FormState {
   endsAt: string;
 }
 
+const MANAGED_PLACEMENTS = new Set(["HOME_HERO", "HOME_HIGHLIGHTS"]);
+
 const empty: FormState = {
   title: "",
   imageUrl: "",
   linkUrl: "",
-  placement: "HOME_HERO",
+  placement: "HOME_CAMPAIGN",
   sortOrder: "0",
   isActive: true,
   startsAt: "",
@@ -86,6 +90,9 @@ export function BannersClient() {
     endsAt: form.endsAt || undefined,
   });
 
+  const saveDisabled =
+    form.imageUrl.trim() === "" || MANAGED_PLACEMENTS.has(form.placement.trim().toUpperCase());
+
   const save = useMutation({
     mutationFn: () =>
       editingId ? adminApi.updateBanner(editingId, toInput()) : adminApi.createBanner(toInput()),
@@ -121,10 +128,24 @@ export function BannersClient() {
     });
   };
 
-  const items = query.data ?? [];
+  const allItems = query.data ?? [];
+  const items = allItems.filter((banner) => !MANAGED_PLACEMENTS.has(banner.placement));
+  const managedCount = allItems.length - items.length;
+  const managedPlacement = MANAGED_PLACEMENTS.has(form.placement.trim().toUpperCase());
 
   return (
     <div className="grid gap-6">
+      {managedCount > 0 ? (
+        <p role="note" className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
+          {managedCount} managed banner(s) (home hero / highlights) are hidden here so there is one editor.{" "}
+          <Link href="/admin/highlights" className="font-medium text-primary underline">
+            Home ? Highlights
+          </Link>{" "}
+          <Link href="/admin/settings" className="font-medium text-primary underline">
+            Settings ? Home
+          </Link>
+        </p>
+      ) : null}
       <div className="grid gap-3">
         {query.isLoading ? <Skeleton className="h-20 w-full" /> : null}
         {query.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
@@ -232,6 +253,14 @@ export function BannersClient() {
                 value={form.placement}
                 onChange={(event) => setForm({ ...form, placement: event.target.value })}
               />
+              {managedPlacement ? (
+                <p className="text-xs text-destructive" data-managed-placement>
+                  Home hero is managed in Settings ? Home and Home Highlights in Home ? Highlights.{" "}
+                  <Link href="/admin/highlights" className="font-medium underline">
+                    Open Highlights
+                  </Link>
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="bannerSort">{t("sortOrder")}</Label>
@@ -272,7 +301,7 @@ export function BannersClient() {
               <Button
                 type="button"
                 variant="cta"
-                disabled={save.isPending || form.imageUrl.trim() === ""}
+                disabled={save.isPending || saveDisabled}
                 onClick={() => save.mutate()}
               >
                 {tCommon("save")}

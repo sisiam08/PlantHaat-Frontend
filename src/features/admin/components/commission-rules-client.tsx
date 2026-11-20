@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
+import { formatCount } from "@/lib/format/number";
 import { adminApi } from "../api";
 import type { CommissionScope } from "../types";
 import { Pager } from "./pager";
@@ -33,6 +35,7 @@ export function CommissionRulesClient({
   const tScope = useTranslations("admin.commissionScope");
   const tCommon = useTranslations("admin.common");
   const tErrors = useTranslations("errors");
+  const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -60,6 +63,11 @@ export function CommissionRulesClient({
       }),
     retry: false,
   });
+  const effective = useQuery({
+    queryKey: ["admin", "commission-rules", "effective"],
+    queryFn: adminApi.getEffectiveCommission,
+    retry: false,
+  });
 
   const go = (nextScope: string, nextPage: number) => {
     const params = new URLSearchParams();
@@ -70,7 +78,10 @@ export function CommissionRulesClient({
   };
 
   const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.admin.commissionRules() });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.commissionRules() }),
+      queryClient.invalidateQueries({ queryKey: ["admin", "commission-rules", "effective"] }),
+    ]);
 
   const create = useMutation({
     mutationFn: () =>
@@ -132,6 +143,30 @@ export function CommissionRulesClient({
           </Button>
         ))}
       </div>
+
+      <Card data-effective-commission className="rounded-2xl">
+        <CardContent className="grid gap-1 text-sm">
+          <p className="flex flex-wrap items-baseline gap-2">
+            <span className="font-medium">{t("effectiveDefault")}</span>
+            <strong className="text-lg" data-effective-value>
+              {formatCount(effective.data?.effectivePercent ?? 0, locale)}%
+            </strong>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {effective.data?.source === "GLOBAL_RULE"
+              ? t("effectiveFromRule")
+              : t("effectiveFromSetting", {
+                  value: formatCount(effective.data?.settingPercent ?? 0, locale),
+                })}
+          </p>
+          <Link
+            href="/admin/settings"
+            className="inline-flex min-h-11 w-fit items-center text-sm font-medium text-primary hover:underline"
+          >
+            {t("settingsFallback")}
+          </Link>
+        </CardContent>
+      </Card>
 
       {query.isLoading ? <Skeleton className="h-20 w-full" /> : null}
       {query.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}

@@ -886,6 +886,7 @@ export function HighlightsClient() {
                 <p className="text-xs text-muted-foreground">{t("focalHelp")}</p>
                 <button
                   type="button"
+                  aria-label={t("focal")}
                   className="relative aspect-3/1 overflow-hidden rounded-md bg-muted"
                   onClick={(event) => {
                     const box = event.currentTarget.getBoundingClientRect();
@@ -1072,6 +1073,7 @@ export function HighlightsClient() {
                       className="h-8 w-10 rounded border border-border"
                     />
                     <Input
+                      aria-label={t("customColor")}
                       className="h-8 w-24"
                       value={draft.textColor}
                       onChange={(event) => setDraft({ ...draft, textColor: event.target.value })}
@@ -1235,6 +1237,7 @@ export function HighlightsClient() {
               <div className="grid gap-2 rounded-xl border border-border/60 p-3">
                 <p className="text-xs font-medium">{t("linkHelper")}</p>
                 <select
+                  aria-label={t("linkHelper")}
                   className="h-9 rounded-md border border-input bg-card px-2 text-sm"
                   value=""
                   onChange={(event) => {

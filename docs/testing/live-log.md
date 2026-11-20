@@ -107,3 +107,26 @@ Fix: pass the `overflow-hidden` root, drop the viewport gate, keep the engine un
 Production build (`.next-test` on :3002, test API :5001, real Chrome, serial)
 `highlights-autoplay.spec.ts`: **8/8 passed** (desktop 1440 advance, mobile 390 advance + visible pause control, hover pause + resume, focus pause + resume, swipe restart, hidden-tab pause + resume, reduced motion off with manual next, admin toggle off/on within 1.5 s).
 `admin-highlights-ui.spec.ts`: 1/1, `admin-highlights.spec.ts`: 1/1. Screenshots viewed at 1280 and 360: the notice wraps without overflow and the status line reads "Autoplay is off." when the switch is off.
+
+## 2026-11-20 Task C sessions
+
+40-minute real-Chrome dev soak (`scripts/session-soak.mjs`, :3000, demo customer, 2 tabs, 30 s
+interval, navigation every third cycle): **22 navigations, 110 API calls, 0 refreshes with an auth
+error, 0 401s, 0 `/login` redirects, 0 session dialogs**. One navigation timed out at 200 s during a
+dev-server HMR compile (an error in the soak summary, not a session end). The web cookies stayed
+valid for the whole run.
+
+Root cause evidence from the accelerated stack: with a 10 s access TTL the `ph_web_rt` hash stopped
+changing after 17 s and the API logged `REFRESH_TOKEN_REUSED` at 85 s. The Server Component was
+silently rotating and discarding the successor; a failed refresh also cleared cookies on 429. After
+the fixes the 2-minute accelerated soak was clean. Test stack (production build): `session-expired`
+8/8, `session-cookie-collision` 2/2, `session-refresh` 8/8 (the revoked-session contract now expects
+the dialog at the same URL).
+
+## 2026-11-20 Task D admin consolidation
+
+Production test stack, real Chrome, serial: `admin-consolidation` **4/4** (commission edit →
+read-only Settings value, highlights autoplay → Settings summary, managed banner placements blocked,
+axe at 1280/360), `settings` **3/3**, `admin-highlights` **2/2**, admin route manifest **5/5**
+(Vitest). Axe fixes were limited to shared tabs contrast and three missing names in the Highlights
+editor; the commission/highlights/banners pages now pass at both widths with no horizontal overflow.

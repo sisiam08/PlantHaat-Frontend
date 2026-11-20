@@ -16,25 +16,6 @@ const SCREENSHOTS = "../.artifacts/settings";
 test.setTimeout(120_000);
 test.describe.configure({ mode: "serial" });
 
-let adminCookies: Awaited<ReturnType<APIRequestContext["storageState"]>>["cookies"] = [];
-
-test.beforeAll(async ({ playwright }) => {
-  // Log in once for the whole serial file and reuse the session cookies.
-  const api = await playwright.request.newContext({
-    baseURL: BASE,
-    extraHTTPHeaders: { Origin: ORIGIN },
-  });
-  try {
-    const login = await api.post("/api/v1/auth/login", {
-      data: { email: ADMIN.email, password: ADMIN.password },
-    });
-    expect(login.ok(), `admin login ${login.status()}`).toBeTruthy();
-    adminCookies = (await api.storageState()).cookies;
-  } finally {
-    await api.dispose();
-  }
-});
-
 type RequestFactory = {
   request: {
     newContext: (options?: {
@@ -86,7 +67,7 @@ async function restore(
   const response = await patchSettings(api, values);
   if (response.ok()) return;
   const sensitiveKeys = keys
-    .filter((key) => key.startsWith("commission.") || key.endsWith(".number"))
+    .filter((key) => key === "wallet.codDuesLimit" || key.endsWith(".number"))
     .sort();
   if (sensitiveKeys.length === 0) throw new Error(`restore failed ${response.status()}`);
   const token = await api.post("/api/v1/admin/settings/reauth", {
@@ -100,13 +81,25 @@ async function restore(
 }
 
 async function openSettings(page: import("@playwright/test").Page) {
-  await page.context().addCookies(adminCookies);
+  // Log in from this page so the browser holds the CURRENT rotated cookies.
+  // Reusing a snapshot taken in beforeAll can present a token that another
+  // request already rotated (reuse detection) and correctly ends the session.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const status = await page.evaluate(async ({ email, password }) => {
+    const response = await fetch("/api/v1/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    return response.status;
+  }, ADMIN);
+  expect(status).toBe(200);
   await page.context().addCookies([
     { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
   ]);
   await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
   await expect(
-    page.locator("#main").getByRole("heading", { name: /settings|সেটিংস/i }).first(),
+    page.locator("#main").getByRole("heading", { name: /settings/i }).first(),
   ).toBeVisible({ timeout: 30_000 });
 }
 
@@ -184,10 +177,10 @@ test("settings UI: sensitive change uses re-auth and writes history", async ({
     await openSettings(page);
     await page.getByRole("tab", { name: /wallet/i }).click();
 
-    const commission = page.getByRole("spinbutton", { name: /Default commission/ });
-    const currentCommission = Number(snapshot["commission.default"] ?? 10);
-    const nextCommission = currentCommission === 11 ? 12 : 11;
-    await commission.fill(String(nextCommission));
+    const dues = page.getByRole("spinbutton", { name: /COD dues limit/i });
+    const currentDues = Number(snapshot["wallet.codDuesLimit"] ?? 1000);
+    const nextDues = currentDues === 1600 ? 1700 : 1600;
+    await dues.fill(String(nextDues));
     await page.getByRole("button", { name: /^Save$/ }).click();
     await expect(page.getByRole("alertdialog")).toBeVisible();
     await page.screenshot({ path: `${SCREENSHOTS}/settings-reauth-1280.png` });
@@ -212,10 +205,10 @@ test("settings UI: sensitive change uses re-auth and writes history", async ({
     await expect(page.getByText(/Saved\. Customers will see this on new page loads/)).toBeVisible({
       timeout: 20_000,
     });
-    await expect(page.getByText("commission.default").first()).toBeVisible();
+    await expect(page.getByText("wallet.codDuesLimit").first()).toBeVisible();
     await page.screenshot({ path: `${SCREENSHOTS}/settings-history-1280.png`, fullPage: true });
 
-    expect((await reauth(api, "commission.default", "wrong-password")).status()).toBe(400);
+    expect((await reauth(api, "wallet.codDuesLimit", "wrong-password")).status()).toBe(400);
 
     // Nagad cannot be enabled without a receiving number. Disable first: a
     // provider that is currently on cannot lose its number.
@@ -235,7 +228,7 @@ test("settings UI: sensitive change uses re-auth and writes history", async ({
       nagadError.details?.["payment.nagad.enabled"] ?? nagadError.message ?? "";
     expect(nagadMessage).toMatch(/Nagad/i);
   } finally {
-    await restore(api, snapshot, ["commission.default", "payment.nagad.number", "payment.nagad.enabled"]);
+    await restore(api, snapshot, ["wallet.codDuesLimit", "payment.nagad.number", "payment.nagad.enabled"]);
     await api.dispose();
   }
 });

@@ -9,6 +9,7 @@ import type {
   AdminHighlight,
   AdminHighlightInput,
   AdminCommissionRule,
+  AdminEffectiveCommission,
   AdminHomepageSection,
   AdminPaymentListItem,
   AdminPayoutView,
@@ -240,6 +241,10 @@ export const adminApi = {
   }) =>
     apiGet<AdminCommissionRule[]>("/admin/commission-rules", qs(params)).then((result) =>
       paginated(result),
+    ),
+  getEffectiveCommission: () =>
+    apiGet<AdminEffectiveCommission>("/admin/commission-rules/effective").then(
+      (result) => result.data,
     ),
   createCommissionRule: (input: CreateCommissionRuleInput) =>
     apiPost<AdminCommissionRule>("/admin/commission-rules", input).then((result) => result.data),
