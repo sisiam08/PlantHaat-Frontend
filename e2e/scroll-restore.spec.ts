@@ -1,4 +1,4 @@
-﻿import { expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const VIEWPORTS = [
   { width: 360, height: 800 },
@@ -7,7 +7,7 @@ const VIEWPORTS = [
 
 async function clickVisibleProductCard(page: import("@playwright/test").Page) {
   const point = await page.evaluate(() => {
-    const links = [...document.querySelectorAll(".group\\/card a")] as HTMLElement[];
+    const links = [...document.querySelectorAll("[data-product-card] a")] as HTMLElement[];
     const link = links.find((entry) => {
       const rect = entry.getBoundingClientRect();
       return rect.bottom > 90 && rect.top < window.innerHeight - 150;
@@ -59,7 +59,7 @@ for (const viewport of VIEWPORTS) {
       await page.waitForTimeout(600);
 
       const before = await page.evaluate(() => window.scrollY);
-      const cardsBefore = await page.locator(".group\\/card a").count();
+      const cardsBefore = await page.locator("[data-product-card] a").count();
       expect(before).toBeGreaterThan(1800);
       expect(cardsBefore).toBeGreaterThan(24);
 
@@ -70,7 +70,7 @@ for (const viewport of VIEWPORTS) {
 
       expect(page.url()).toContain("inStock=true");
       expect(page.url()).toContain("sort=price_asc");
-      expect(await page.locator(".group\\/card a").count()).toBeGreaterThanOrEqual(cardsBefore);
+      expect(await page.locator("[data-product-card] a").count()).toBeGreaterThanOrEqual(cardsBefore);
       const after = await page.evaluate(() => window.scrollY);
       expect(Math.abs(after - before)).toBeLessThanOrEqual(50);
     });
@@ -78,9 +78,18 @@ for (const viewport of VIEWPORTS) {
     test("home feed and rail scroll survive Back", async ({ page }) => {
       await page.goto("/", { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(1500);
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 8; i += 1) {
         await page.mouse.wheel(0, 700);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(400);
+        const hasVisibleCard = await page.evaluate(
+          () =>
+            window.scrollY > 1800 &&
+            [...document.querySelectorAll("[data-product-card] a")].some((entry) => {
+              const rect = entry.getBoundingClientRect();
+              return rect.bottom > 90 && rect.top < window.innerHeight - 150;
+            }),
+        );
+        if (hasVisibleCard) break;
       }
       await page.waitForTimeout(500);
 

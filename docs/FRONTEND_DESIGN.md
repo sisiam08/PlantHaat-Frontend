@@ -271,14 +271,28 @@ Target feel: fresh, airy, premium, organic — like a modern direct-to-consumer 
 
 ### 6.7 Home hero and Highlights (2026-11-19)
 
-Evidence: Baymard homepage/carousel research (most users never see slides after the first; controls often fail), WCAG 2.2.2 and the WAI-ARIA carousel pattern, web.dev LCP/CLS guidance, and the live 5-second scan at 1440/390 in bn/en. The old hero filled the first viewport with a brand headline and decorative plates; the first real product was around 1056 px on mobile and the promise was repeated in the hero, trust band and static banner.
+The owner preferred the pre-marketplace hero. The left side was restored from `f100858` (the commit before the `08443b8` marketplace rewrite); the right side is a borderless scene of real plant cutouts with a progressive-enhancement wind sway. Evidence: owner direction, the live 1440/1280/768/390/360 bn/en renders, WCAG 2.2.2/reduced-motion, and the scene performance measurements in `design/performance.md`.
 
-**Hero rules (implemented):**
-- **Utility first, compact.** Search is the primary action; a native category scope selector and popular-search chips link to real filtered listings (`isIndoor`, `light=LOW_LIGHT`, `isPetSafe`, `maxPrice`, `category`). The form is a server-rendered GET form and works without JS. One slim trust row only (verified sellers, COD, return window from Settings); the separate trust band is removed.
-- **Real data, not decoration.** The visual is the admin's optional `home.hero.image` (1200×900, 4:3, mobile optional) or two real popular in-stock products. No parallax islands, no placeholder plates.
-- **Height and LCP.** Desktop hero content is ~380 px (cap ~420 px); mobile keeps the first product strip visible within the first screen. The LCP element is text or one optimized image; decorative motion/canvas is not used. First product images are lazy/low priority; an admin hero image is eager (it is the above-the-fold visual).
-- **Admin control.** Settings → Home: bilingual headline (≤60), subheadline (≤140), up to 8 reorderable chips (label bn/en + safe link), optional hero image with mobile variant, focal point and alt text. Public values are read on the server through the `settings` cache tag; admin saves invalidate it, so the page changes on the next load without JS.
-- **Tokens/components.** Forest/marigold tokens, Inter + Hind Siliguri, Latin digits and the taka sign before amounts, 44 px targets, keyboard-only focus rings, no horizontal overflow. Shared `HomeSection`, `SectionHeader`, `ProductCard`/`Price`, `EmptyState`/`QueryError` remain the vocabulary.
+**Hero left (restored, implemented):**
+- Badge "Verified nurseries", large headline and subheadline, a native server-rendered GET search form with the marigold "Search products" button, and the two links "Explore shops →" / "Browse plants". Headline/subheadline are wired to `home.hero.headline` / `home.hero.subheadline` (Settings → Home). No category scope selector, no chip row, no product cards and no trust row inside the hero; the separate trust band was already removed.
+- Desktop two columns, stage bottom-aligned on the hero floor, hero ~620 px (min-height 600). Text column stays clear; below `lg` the stage goes under the text at full width. Mobile search stays above the fold and the first product card is within ~1.5 screens (390: ~1221 px; 360: ~1249 px).
+
+**Hero scene (implemented):**
+- Four owner-supplied transparent cutouts, draw order back→front: **monstera, palm, snake, calathea**. Stage aspect 11/10 desktop, 3/2 below `lg`. No boxes, borders, cards or stage background: the cream radial hero gradient is the scene.
+- Final composition (percent of stage; visible bounds):
+
+| Plant | Height | Left | Bottom | Pot top | Pivot x | Amp | Phase | Pot center |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| monstera | 66% | 3% | 4% | .74 | .45 | .5 | 1.8 | 27.5% |
+| palm | 94% | 30% | 1% | .807 | .49 | 1.0 | 0 | 60.1% |
+| snake | 48% | 24% | 0% | .66 | .52 | .35 | 3.1 | 37.7% |
+| calathea | 50% | 62% | 0% | .74 | .50 | .7 | 6.4 | 80.2% |
+
+  Calathea is mirrored; the group is packed so adjacent pot centers are ≤24% apart and the pots overlap naturally. A soft elliptical contact shadow sits under each pot. The asset builder crops to alpha, mirrors/equalizes brightness, pads 6% and emits WebP + `scene.json` + the typed scene module.
+- **Static first.** Server HTML renders the stage with four positioned `<img>` (width/height, alt="", palm eager/fetchpriority high, small/medium srcsets), reserved aspect box and shadows. This is the no-JS, reduced-motion, save-data and no-WebGL result.
+- **Enhancement.** A small client island (no libraries) loads WebGL only after first paint when the stage is visible, uses one shared canvas and one draw call per plant, premultiplied alpha, the reference pivot/gust shader, DPR ≤1.5 (1 on low-power), ~45 fps (30 low-power), pauses off-screen/hidden, adapts quality and falls back to the static scene on context loss. Pointer position on fine pointers biases the gust. Images are hidden only after the first canvas frame.
+- **Admin override.** If `home.hero.image` is set, the right side renders that image statically in place of the scene (no WebGL); otherwise the real plant scene is used.
+- **Settings hygiene.** `home.hero.chips` was the marketplace-hero chip row; it is now marked `wired:false`, `isPublic:false` and removed from the Settings UI (kept in the registry only for history). No dead admin control remains.
 
 **Highlights rules (implemented):**
 - **Admin-managed, one section.** Extends the existing `Banner` table under placement `HOME_HIGHLIGHTS`. Settings: `home.highlights.enabled` (true), `autoplay` (false), `intervalSeconds` (6, range 4–12), `maxSlides` (6, hard cap 10), bilingual title. Feature off or zero active slides removes the section, heading, spacing and skeleton from the DOM.
@@ -288,12 +302,14 @@ Evidence: Baymard homepage/carousel research (most users never see slides after 
 - **Validation.** Server-side only: safe links (same-site `/...` or `https://`; `javascript:`, `data:` and protocol-relative links blocked), `#RRGGBB` colors, text limits (headline 60, subtext 140, button label 24), schedule end after start, at most `maxSlides` active slides, and WCAG contrast warnings (button text blocks below 3:1; overlay text blocks at maximum scrim below 4.5:1). Uploads must be tracked Cloudinary assets; replace/delete cleans the old asset unless another slide still references it.
 - **Performance.** Public endpoint is cached and tag-invalidated (`home-highlights` + `settings`); Cloudinary delivery uses `f_auto,q_auto,c_limit` with width-matched `srcset` and DPR capped at 2. If the endpoint fails or takes more than 1.5 s, the section is omitted silently and the rest of the home page is unaffected (the highlights fetch is aborted, not allowed to delay the hero).
 
-**Measured result (2026-11-19):** home LCP 2832/3044 ms at 390 and 2968/3140 ms at 1440 (en/bn),
-CLS 0 (desktop bn 0.0001), JS 356 KB gzip. The mobile/desktop first-slide variants are ~22 KB and
-~77 KB for the imported artwork; off-screen slides are not requested until selected. Full numbers:
+**Measured result (2026-11-20):** mobile home LCP 2904/3124 ms (390, en/bn), desktop 3452/3716 ms
+(1440), CLS 0, 332 KB JS gzip. The four source WebPs total ~204 KB (desktop) / ~111 KB (mobile
+network) and the palm is the LCP candidate with a preload + small/medium variants. The old text LCP
+was 2832/3044 ms mobile and 2968/3140 ms desktop; the palm makes the desktop LCP ~15% later, so the
+trade-off is recorded in `design/performance.md` and `backend/docs/decisions-log.md`. Full numbers:
 `design/performance.md`.
 
-**Not carried forward:** `src/config/home-banners.ts` is no longer used by the home page (kept untouched because it is the owner's file). The old decorative `HeroComposition` and the standalone `TrustStrip` component were removed.
+**Not carried forward:** the marketplace hero (category select, chips, hero product cards, hero trust row), `src/config/home-banners.ts` usage, the old `HeroComposition` and `TrustStrip`. The owner's config file is kept untouched; the root `hero-source/` photos are not committed.
 
 ## 7. Information architecture and routes
 

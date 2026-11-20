@@ -130,3 +130,25 @@ Section image evidence (Cloudinary `f_auto,q_auto,c_limit`):
 Element/JS checks: the first slide is visible without carousel JavaScript; with 3 slides, the Embla
 chunk loads only when the section is within 300 px of the viewport. A single-slide/e2e state produced
 zero `embla`/carousel requests.
+
+## 2026-11-20 Real plant hero scene
+
+Method unchanged: production build served on `:3000`, API `:5000`, `:3100` off, Chromium headless, 390x844 and 1440x900, Slow 4G (1.6/0.75 Mbps, 150 ms RTT) + 4x CPU via CDP, cache disabled, 5 runs, medians.
+
+| Home | Before this task (marketplace hero) | Real-plant hero |
+|---|---:|---:|
+| LCP en 390 | 2832 ms | **2904 ms** (2476-3688) |
+| LCP bn 390 | 3044 ms | **3124 ms** (2232-3600) |
+| LCP en 1440 | 2968 ms | **3452 ms** (2632-4048) |
+| LCP bn 1440 | 3140 ms | **3716 ms** (3480-4272) |
+| CLS | 0 / 0.0001 | **0 / 0** |
+| TBT proxy 390 | 1872 / 1821 ms | 2240 / 2919 ms |
+| TBT proxy 1440 | 2085 / 1704 ms | 2476 / 2813 ms |
+| JS gzip | 356 KB | **332 KB** |
+| Images 390 | 217 / 191 KB | **111 KB** |
+| Images 1440 | 295 / 269 KB | **190 KB** |
+
+- The palm is now the LCP candidate (`/hero/palm*.webp`) and is preloaded with `imageSrcSet`/`imageSizes` plus 287w/383w/480w/639w variants; the 390 network uses the ~25 KB mobile variant, 1440 uses the ~57 KB medium variant. The 1440 LCP is ~15% later than the old text LCP because a large image paints after the hero text; this is the documented trade-off for the requested real-plant scene.
+- Static scene bytes: monstera 43.6 KB, palm 104.3 KB, snake 21.1 KB, calathea 35.0 KB = **204 KB desktop** (under the 260 KB budget); mobile/medium variants are 25-57 KB. The source photos are not committed.
+- WebGL: no library JS; the island is ~2 KB gzip. Textures upload sequentially with a rAF yield, DPR <=1.5, frame cap 45/30 fps, paused off-screen/hidden, adaptive DPR and static fallback. TBT is higher than the old text hero (texture upload/decode), but no single init task is allowed to become a long task; the scene remains static for reduced motion/save-data/no-WebGL.
+- CLS is 0: the stage aspect box and both text/scene columns are reserved before images paint.

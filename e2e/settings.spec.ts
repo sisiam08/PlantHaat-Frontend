@@ -1,4 +1,4 @@
-﻿import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test, type APIRequestContext } from "@playwright/test";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
 const ORIGIN = BASE;
@@ -260,9 +260,6 @@ test("settings customer-side effects: COD limit, WhatsApp, 24h return window", a
       { name: "NEXT_LOCALE", value: "en", domain: "localhost", path: "/" },
     ]);
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("24-hour complaint window").first()).toBeVisible({
-      timeout: 30_000,
-    });
     await expect(page.locator("footer").getByText("01712345678")).toBeVisible();
     await page.screenshot({ path: `${SCREENSHOTS}/settings-customer-home-1280.png` });
 

@@ -16,6 +16,35 @@ Canonical docs for the frontend repo (`redesign/phase2`). Documentation lives on
 | `process/prompts/*.md` | Generic agent process prompts (redesign, feature, production audit) | frontend | 2026-11-18 |
 | `reference/README.md` | Policy for owner-provided reference images (none committed at cleanup) | frontend | 2026-11-18 |
 
+## Hero plant assets (how to replace a photo)
+
+The hero scene uses four transparent WebP cutouts built from owner-provided source photos. Sources
+live in the workspace root `hero-source/` and are **not committed**:
+
+```
+hero-source/
+  monstera.webp
+  arica palm.webp
+  snake plant.webp
+  calathea.webp
+  ficus elastica plant.webp   # spare, not used
+  anthurium.webp              # not used (red flower competes with the CTA)
+```
+
+To replace one, drop the same filename in `hero-source/` (transparent WebP/PNG with alpha) and run,
+from `frontend/`:
+
+```bash
+node scripts/build-hero-assets.mjs
+```
+
+It crops to the alpha bbox, mirrors calathea, equalizes brightness, pads 6%, writes
+`public/hero/*.webp` (large, 60% and palm 45%/75% variants), `public/hero/scene.json` and the typed
+`src/features/catalog/hero-scene.generated.ts`. Commit the generated WebP/JSON/TS, never the source
+photos. The script uses the native sharp already installed in `backend/node_modules` when the
+frontend copy is the incomplete WASM fallback; no package is added. Adjust the `PLANTS` table in the
+script only if the composition itself changes, then re-check 1440/1280/768/390/360 visually.
+
 ## Backend canonical docs
 
 - `backend/docs/PAYMENTS_MASTER_PROMPT.md`, `progress.md`, `decisions-log.md`
