@@ -347,13 +347,13 @@ Legend: 🌐 public, 🔑 any logged-in, C customer, S seller, A admin.
 |---|---|---|
 | `/seller/apply` | Onboarding wizard (see §8.4) | `/seller/application…`, `/seller/shop`, `/seller/delivery-zones`, `/seller/payout-accounts`, `/uploads/documents` |
 | `/seller/dashboard` | KPIs, pending orders, low stock, unread notifications, rating | `GET /seller/dashboard`, `/seller/analytics/overview` |
-| `/seller/products`, `/new`, `/[id]/edit` | Product list (status filters), editor with variants, images, care info, stock | `/seller/products…`, `/seller/variants/:id/stock` |
+| `/seller/products`, `/new`, `/[id]` | Product list (status filters), editor with variants, images, care info, stock | `/seller/products…`, `/seller/variants/:id/stock` |
 | `/seller/orders`, `/[id]` | Incoming orders, status actions, tracking info, cancellation requests inbox | `/seller/orders…`, `/seller/cancellation-requests…` |
 | `/seller/shop` | Shop profile, logo/banner, vacation mode | `/seller/shop…` |
 | `/seller/delivery-zones` | Zones (districts or nationwide, charge, free-above, ETA) with overlap errors | `/seller/delivery-zones…` |
 | `/seller/reviews`, `/seller/complaints(/[id])` | Reply/report reviews; respond to complaints | `/seller/reviews…`, `/seller/complaints…` |
 | `/seller/earnings` | Balance, ledger, payouts (see §8.6) | `GET /seller/earnings` |
-| `/seller/analytics`, `/seller/notifications`, `/seller/payout-accounts` | Charts; notifications; payout accounts (masked) | respective |
+| `/seller/analytics`, `/seller/payout-accounts` | Charts; payout accounts (masked, canonical editor) | respective |
 
 ### 7.4 Admin (A) — `/admin/*`
 Dashboard (`/admin/analytics/overview`); Sellers queue + detail with documents viewer and approve/reject/suspend/reactivate; Shops; Products moderation; Categories CRUD; Orders (+ status override, cancellation requests); Complaints (+ resolve, internal notes); Refunds; Review reports; Commission rules; Payouts, ledger, dues, adjustments; Users (suspend/reactivate, create admin); Content (banners, homepage sections); Announcements; Settings; Audit logs; Analytics. All lists are server-paginated with filters in the URL; sensitive actions use confirm dialogs and show the resulting audit entry or toast.
@@ -385,6 +385,13 @@ Tabs/sections: basics (name, Bangla name, category, scientific name, description
 ### 8.6 Seller orders and earnings
 Orders list by status tabs with counts; detail shows items, customer contact and address (only for the seller's own shop order), commission and net amounts. Status actions follow the state machine (PENDING→CONFIRMED/CANCELLED; CONFIRMED→PACKED/CANCELLED; PACKED→SHIPPED(+courier, tracking, ETA)/CANCELLED; SHIPPED→DELIVERED/FAILED_DELIVERY; FAILED_DELIVERY→SHIPPED/CANCELLED(+restock choice)); show only valid next actions; reasons required for cancel/failed.
 Earnings: the ledger balance is **signed — positive means PlantHaat owes the seller, negative means the seller owes PlantHaat** (COD commission due). Present plainly in words ("PlantHaat will pay you ৳X" / "You owe PlantHaat ৳X commission from cash-on-delivery orders"), then ledger rows (type, order link, amount, date) and payout history. Read-only.
+
+### 8.6a Seller panel consistency and canonical editors
+- Every seller page uses `PageContainer` (reading/form/narrow) + `PageHeader` (one page `h1`, description and actions); the shell breadcrumb is not a heading. Detail pages use the same `PageHeader` with a back link.
+- The one payout destination editor is `/seller/payout-accounts`. `/seller/earnings` keeps withdrawal, ledger and balance, and links to the canonical payout page; it must not grow a second payout-profile editor. `/seller/shop` is the post-approval shop editor; the onboarding wizard only edits the application (and shows a read-only approved state).
+- Approved sellers do not see Apply in the seller nav; `/seller/apply` still works for DRAFT/REJECTED/history and has a back link.
+- Destructive seller actions (remove product, delete delivery zone, delete payout account) use `AlertDialog` with a consequence sentence; never `window.confirm` and never an immediate delete.
+- Lists use `QueryError` for failures and `EmptyState` for empty results; skeletons reserve content size (CLS <= 0.1). Status badges, `Price`, `FormField`, `SectionHeader`, 44px primary actions and Latin digits use the shared components. No seller notifications page exists; the shared bell is the surface.
 
 ### 8.7 Admin seller review
 Queue filtered by status; detail page shows profile, shop, zones and documents. Documents come from an authenticated endpoint: fetch with credentials, render via blob URL (images inline, PDFs in viewer/new tab); never expose raw storage paths. Approve (one click + confirm) or reject (required reason) or suspend/reactivate; show audit trail entries for the seller.
