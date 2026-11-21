@@ -130,3 +130,7 @@ read-only Settings value, highlights autoplay → Settings summary, managed bann
 axe at 1280/360), `settings` **3/3**, `admin-highlights` **2/2**, admin route manifest **5/5**
 (Vitest). Axe fixes were limited to shared tabs contrast and three missing names in the Highlights
 editor; the commission/highlights/banners pages now pass at both widths with no horizontal overflow.
+
+## 2026-11-21 evidence proof (Task 1)
+
+Real Chrome (`channel: chrome`) against the isolated production frontend `:3002` and test API `:5001` (Cloudinary `planthaat/teststack` for this run): seller marked a COD order DELIVERED through the real dialog with one uploaded photo, then replied to a dispute with one photo. `evidence-proof-ui.spec.ts` **1/1** verified ATTACHED rows, buyer order proof, buyer timeline photo, seller order/complaint rendering, admin dispute proof + conversation photo, 1280/360 axe clean and no horizontal overflow; screenshots viewed (`seller-order-1280`, `seller-complaint-1280/360`, `admin-complaint-1280/360`, `buyer-order-1280`). Test-prefix assets were deleted and `.env.test` restored to local.

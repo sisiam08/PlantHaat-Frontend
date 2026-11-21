@@ -272,6 +272,8 @@ export interface AdminShopOrderView {
   estimatedDeliveryTo: string | null;
   sellerNote: string | null;
   deliveryNote: string | null;
+  deliveryProofs?: { id: string; url: string; createdAt: string }[];
+  deliveryProofUrl?: string | null;
   delayNotifiedAt: string | null;
   stuckReminderCount: number;
   stuckFlaggedAt: string | null;
@@ -428,6 +430,7 @@ export interface AdminComplaintComment {
   body: string;
   isInternal: boolean;
   createdAt: string;
+  attachments?: { id: string; url: string }[];
 }
 
 export interface AdminComplaintView {
@@ -463,6 +466,7 @@ export interface AdminComplaintView {
     sellerNetAmount: string;
     releaseAt: string | null;
     fundsReleasedAt: string | null;
+    deliveryProofs?: { id: string; url: string; createdAt: string }[];
     order?: { orderNumber: string; paymentMethod: string };
   };
   comments?: AdminComplaintComment[];

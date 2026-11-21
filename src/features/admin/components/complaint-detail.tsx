@@ -201,6 +201,25 @@ export function ComplaintDetail({ id }: { id: string }) {
       <Card className="rounded-2xl">
         <CardContent className="grid gap-2 text-sm">
           <p className="whitespace-pre-wrap">{complaint.description}</p>
+          {complaint.shopOrder?.deliveryProofs?.length ? (
+            <div className="grid gap-1" data-delivery-proofs>
+              <span className="text-xs font-medium">{t("deliveryProof")}</span>
+              <div className="flex flex-wrap gap-2">
+                {complaint.shopOrder.deliveryProofs.map((proof) => (
+                  <button
+                    key={proof.id}
+                    type="button"
+                    onClick={() => setEvidenceUrl(proof.url)}
+                    className="overflow-hidden rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    aria-label={tp4("evidence")}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={proof.url} alt="" className="h-20 w-20 object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {complaint.attachments.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {complaint.attachments.map((attachment) => (
@@ -439,6 +458,22 @@ export function ComplaintDetail({ id }: { id: string }) {
                     {formatLatinDateTime(item.createdAt)}
                   </span>
                   <span>{item.body}</span>
+                  {item.attachments?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {item.attachments.map((photo) => (
+                        <button
+                          key={photo.id}
+                          type="button"
+                          onClick={() => setEvidenceUrl(photo.url)}
+                          className="overflow-hidden rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                          aria-label={tp4("evidence")}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={photo.url} alt="" className="h-16 w-16 object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
             ))}

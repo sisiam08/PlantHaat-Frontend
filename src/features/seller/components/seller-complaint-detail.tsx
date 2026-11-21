@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { uploadsApi } from "@/features/uploads/api";
 import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -24,6 +27,8 @@ export function SellerComplaintDetail({ id }: { id: string }) {
   const tErrors = useTranslations("errors");
   const queryClient = useQueryClient();
   const [body, setBody] = useState("");
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const query = useQuery({
     queryKey: queryKeys.seller.complaints({ id }),
@@ -32,9 +37,10 @@ export function SellerComplaintDetail({ id }: { id: string }) {
   });
 
   const comment = useMutation({
-    mutationFn: () => sellerApi.commentComplaint(id, body.trim()),
+    mutationFn: () => sellerApi.commentComplaint(id, body.trim(), attachments),
     onSuccess: async () => {
       setBody("");
+      setAttachments([]);
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.complaints() });
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.complaints({ id }) });
     },
@@ -130,6 +136,24 @@ export function SellerComplaintDetail({ id }: { id: string }) {
                     {item.authorRole} · {formatLatinDateTime(item.createdAt)}
                   </span>
                   <span>{item.body}</span>
+                  {(item as { attachments?: { id: string; url: string }[] }).attachments?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {(
+                        item as { attachments?: { id: string; url: string }[] }
+                      ).attachments!.map((photo) => (
+                        <a
+                          key={photo.id}
+                          href={photo.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={t("responsePhotos")}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={photo.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
             ))}
@@ -137,6 +161,51 @@ export function SellerComplaintDetail({ id }: { id: string }) {
         )}
 
         <div className="grid gap-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="responsePhotos">{t("responsePhotos")}</Label>
+            <p className="text-xs text-muted-foreground">{t("responsePhotosHelp")}</p>
+            <Input
+              id="responsePhotos"
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={uploading || attachments.length >= 5}
+              onChange={async (event) => {
+                const files = Array.from(event.target.files ?? []).slice(0, 5 - attachments.length);
+                event.target.value = "";
+                if (files.length === 0) return;
+                setUploading(true);
+                try {
+                  const uploaded: string[] = [];
+                  for (const file of files) {
+                    const stored = await uploadsApi.image(file, "complaint");
+                    uploaded.push(stored.url);
+                  }
+                  setAttachments((current) => [...current, ...uploaded].slice(0, 5));
+                } catch (error) {
+                  toastApiError(error, tErrors);
+                } finally {
+                  setUploading(false);
+                }
+              }}
+            />
+            {attachments.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {attachments.map((url) => (
+                  <button
+                    key={url}
+                    type="button"
+                    className="h-16 w-16 overflow-hidden rounded-lg border border-border/60"
+                    onClick={() => setAttachments((current) => current.filter((item) => item !== url))}
+                    aria-label={t("removePhoto")}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value)}

@@ -7,6 +7,7 @@ export type UploadPurpose =
   | "shop-banner"
   | "review"
   | "complaint"
+  | "delivery-proof"
   | "payment"
   | "banner"
   | "category";

@@ -370,6 +370,29 @@ function ShopOrderCard({
           </p>
         ) : null}
 
+        {shopOrder.deliveryProofs?.length ? (
+          <div className="grid gap-2" data-delivery-proofs>
+            <span className="text-sm font-medium">
+              {locale === "bn" ? "ডেলিভারি প্রমাণ" : "Delivery proof"}
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {shopOrder.deliveryProofs.map((proof) => (
+                <a
+                  key={proof.id}
+                  href={proof.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={locale === "bn" ? "ডেলিভারি প্রমাণ" : "Delivery proof"}
+                  className="block size-20 overflow-hidden rounded-lg border border-border/60"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={proof.url} alt="" className="size-full object-cover" loading="lazy" />
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="grid gap-2">
           {shopOrder.items.map((item) => (
             <div key={item.id} className="grid gap-2">

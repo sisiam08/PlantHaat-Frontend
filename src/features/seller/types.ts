@@ -69,8 +69,12 @@ export type ProductImageInput = Schemas["CreateProductImageDto"];
 
 export type SellerOrderItemView = Schemas["SellerOrderItemDto"];
 export type SellerOrderStatusHistoryView = Schemas["SellerOrderStatusHistoryDto"];
-export type SellerShopOrderView = Schemas["SellerShopOrderDto"];
-export type TransitionOrderInput = Schemas["TransitionOrderDto"];
+export type SellerShopOrderView = Schemas["SellerShopOrderDto"] & {
+  deliveryProofs?: { id: string; url: string; createdAt: string }[];
+};
+export type TransitionOrderInput = Schemas["TransitionOrderDto"] & {
+  deliveryProofUrls?: string[];
+};
 export type SellerCancellationRequestView = Schemas["SellerCancellationRequestDto"];
 export type RespondCancellationInput = Schemas["RespondCancellationDto"];
 

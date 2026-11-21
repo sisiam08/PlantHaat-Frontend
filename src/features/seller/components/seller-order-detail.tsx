@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { toastApiError } from "@/features/auth/components/error-toast";
+import { uploadsApi } from "@/features/uploads/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDateTime } from "@/lib/format/date";
 import { PaymentBadge } from "@/features/payments/components/payment-badge";
@@ -48,6 +49,8 @@ export function SellerOrderDetail({ id }: { id: string }) {
   const [trackingCode, setTrackingCode] = useState("");
   const [etaDays, setEtaDays] = useState("");
   const [deliveryNote, setDeliveryNote] = useState("");
+  const [deliveryProofUrls, setDeliveryProofUrls] = useState<string[]>([]);
+  const [proofUploading, setProofUploading] = useState(false);
   const [restock, setRestock] = useState(false);
 
   const order = useQuery({
@@ -65,6 +68,7 @@ export function SellerOrderDetail({ id }: { id: string }) {
       setTrackingCode("");
       setEtaDays("");
       setDeliveryNote("");
+      setDeliveryProofUrls([]);
       setRestock(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.order(id) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.orders() });
@@ -104,6 +108,9 @@ export function SellerOrderDetail({ id }: { id: string }) {
     }
     if (pending === "DELIVERED" && deliveryNote.trim()) {
       input.deliveryNote = deliveryNote.trim();
+    }
+    if (pending === "DELIVERED" && deliveryProofUrls.length > 0) {
+      input.deliveryProofUrls = deliveryProofUrls;
     }
     if (pending === "CANCELLED") {
       input.restock = restock;
@@ -242,6 +249,23 @@ export function SellerOrderDetail({ id }: { id: string }) {
               {t("deliveryNote")}: {data.deliveryNote}
             </p>
           ) : null}
+          {data.deliveryProofs?.length ? (
+            <div className="flex flex-wrap gap-2" data-delivery-proofs>
+              {data.deliveryProofs.map((proof) => (
+                <a
+                  key={proof.id}
+                  href={proof.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t("deliveryProof")}
+                  className="block size-20 overflow-hidden rounded-lg border border-border/60"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={proof.url} alt="" className="size-full object-cover" loading="lazy" />
+                </a>
+              ))}
+            </div>
+          ) : null}
           {data.cancelReason ? (
             <p className="text-destructive">
               {t("cancelReason")}: {data.cancelReason}
@@ -319,14 +343,68 @@ export function SellerOrderDetail({ id }: { id: string }) {
                 ) : null}
 
                 {pending === "DELIVERED" ? (
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="deliveryNote">{t("deliveryNoteOptional")}</Label>
-                    <Input
-                      id="deliveryNote"
-                      value={deliveryNote}
-                      maxLength={500}
-                      onChange={(event) => setDeliveryNote(event.target.value)}
-                    />
+                  <div className="grid gap-2">
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="deliveryNote">{t("deliveryNoteOptional")}</Label>
+                      <Input
+                        id="deliveryNote"
+                        value={deliveryNote}
+                        maxLength={500}
+                        onChange={(event) => setDeliveryNote(event.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="deliveryProof">{t("deliveryProof")}</Label>
+                      <p className="text-xs text-muted-foreground">{t("deliveryProofHelp")}</p>
+                      <Input
+                        id="deliveryProof"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={proofUploading || deliveryProofUrls.length >= 3}
+                        onChange={async (event) => {
+                          const files = Array.from(event.target.files ?? []).slice(
+                            0,
+                            3 - deliveryProofUrls.length,
+                          );
+                          event.target.value = "";
+                          if (files.length === 0) return;
+                          setProofUploading(true);
+                          try {
+                            const uploaded: string[] = [];
+                            for (const file of files) {
+                              const stored = await uploadsApi.image(file, "delivery-proof");
+                              uploaded.push(stored.url);
+                            }
+                            setDeliveryProofUrls((current) => [...current, ...uploaded].slice(0, 3));
+                          } catch (error) {
+                            toastApiError(error, tErrors);
+                          } finally {
+                            setProofUploading(false);
+                          }
+                        }}
+                      />
+                      {deliveryProofUrls.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {deliveryProofUrls.map((url) => (
+                            <button
+                              key={url}
+                              type="button"
+                              className="size-16 overflow-hidden rounded-lg border border-border/60"
+                              onClick={() =>
+                                setDeliveryProofUrls((current) =>
+                                  current.filter((item) => item !== url),
+                                )
+                              }
+                              aria-label={t("deliveryProofRemove")}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={url} alt="" className="size-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
 

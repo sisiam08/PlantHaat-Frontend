@@ -187,9 +187,10 @@ export const sellerApi = {
     apiGet<SellerComplaintView>(`/seller/complaints/${encodeURIComponent(id)}`).then(
       (result) => result.data,
     ),
-  commentComplaint: (id: string, body: string) =>
+  commentComplaint: (id: string, body: string, attachments?: string[]) =>
     apiPost<{ id: string }>(`/seller/complaints/${encodeURIComponent(id)}/comments`, {
       body,
+      ...(attachments?.length ? { attachments } : {}),
     }).then((result) => result.data),
 
   /* ───────────────────────── F6: earnings & analytics ───────────────────────── */

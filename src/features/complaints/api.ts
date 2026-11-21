@@ -25,6 +25,7 @@ export interface ComplaintCommentView {
   authorId: string;
   isInternal: boolean;
   createdAt: string;
+  attachments?: { id: string; url: string }[];
 }
 
 export interface ComplaintView {

@@ -46,6 +46,8 @@ export interface ShopOrderView {
   releaseAt?: string | null;
   fundsReleasedAt?: string | null;
   deliveryNote: string | null;
+  deliveryProofs?: { id: string; url: string; createdAt: string }[];
+  deliveryProofUrl?: string | null;
   delayNotifiedAt: string | null;
   stuckReminderCount: number;
   stuckFlaggedAt: string | null;

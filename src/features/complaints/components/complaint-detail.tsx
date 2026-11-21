@@ -140,6 +140,22 @@ export function ComplaintDetail({ id }: { id: string }) {
                     {item.authorRole} · {formatLatinDateTime(item.createdAt)}
                   </span>
                   <span>{item.body}</span>
+                  {item.attachments?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {item.attachments.map((photo) => (
+                        <a
+                          key={photo.id}
+                          href={photo.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={t("attachmentsTitle")}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={photo.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
             ))}
