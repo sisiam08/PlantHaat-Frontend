@@ -84,6 +84,7 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 - Checkout with an empty cart shows the shared empty state, not a zero-total form.
 - Order detail maps the raw payment enum to the localized label; no raw enums in customer copy.
 - Seller/admin keep the dark-ink `DashboardShell` and 36px compact controls; adopting the customer page shell is deferred.
+- Header/navigation (2026-11-21): exactly one `En | বাং` control, always visible, switches on one click and restores scroll after the document reload; `html lang` follows the locale. Guests see logo/search/toggle/cart/"Log in" (no Register, bell or profile) and the mobile bottom nav hides Account while keeping Orders. Signed-in users see the bell + profile menu and all five tabs. The bell opens an in-place desktop popover or mobile bottom-sheet dialog (never navigates), with unread badge capped at `9+`, mark-all, paging, relative Latin-digit times and realtime/polling refresh. A non-sensitive `ph_has_session=1` cookie only reserves signed-in chrome before `/auth/me` resolves; it is never authorization. `session:expired` clears the cached user so the header goes guest while the inline re-auth dialog remains open.
 - Payment/auth state is never faked in UI; disabled and permission-denied states must remain.
 
 ## 8. Pages and routes
