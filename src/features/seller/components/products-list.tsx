@@ -3,9 +3,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatPriceRange } from "@/lib/format/money";
+import { PLANT_PLACEHOLDER } from "@/lib/images/cloudinary-loader";
 import { sellerApi } from "../api";
 import { productStatusVariant } from "../status";
 import type { ProductStatus } from "../types";
@@ -38,6 +52,8 @@ export function ProductsList({
   const t = useTranslations("seller.products");
   const tStatus = useTranslations("seller.productStatus");
   const tErrors = useTranslations("errors");
+  const tCommon = useTranslations("common");
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
   const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -116,16 +132,18 @@ export function ProductsList({
       ) : null}
 
       {products.isError ? (
-        <p className="text-sm text-muted-foreground">{t("loadError")}</p>
+        <QueryError message={t("loadError")} onRetry={() => void products.refetch()} />
       ) : null}
 
       {!products.isLoading && !products.isError && filtered.length === 0 ? (
-        <Card className="grid place-items-center gap-3 rounded-2xl p-10 text-center">
-          <p className="font-medium">{t("empty")}</p>
-          <Button asChild variant="cta">
-            <Link href="/seller/products/new">{t("add")}</Link>
-          </Button>
-        </Card>
+        <EmptyState
+          title={t("empty")}
+          action={
+            <Button asChild variant="cta">
+              <Link href="/seller/products/new">{t("add")}</Link>
+            </Button>
+          }
+        />
       ) : null}
 
       <div className="grid gap-3">
@@ -136,16 +154,12 @@ export function ProductsList({
           return (
             <Card key={product.id} className="rounded-2xl">
               <CardContent className="flex flex-wrap items-center gap-3">
-                {thumb ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={thumb}
-                    alt=""
-                    className="h-14 w-14 shrink-0 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="h-14 w-14 shrink-0 rounded-xl bg-muted" aria-hidden />
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumb ?? PLANT_PLACEHOLDER}
+                  alt=""
+                  className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                />
                 <div className="grid min-w-0 flex-1 gap-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
@@ -187,11 +201,7 @@ export function ProductsList({
                     variant="ghost"
                     size="sm"
                     disabled={remove.isPending}
-                    onClick={() => {
-                      if (window.confirm(t("removeConfirm"))) {
-                        remove.mutate(product.id);
-                      }
-                    }}
+                    onClick={() => setRemoveTarget(product.id)}
                   >
                     {t("remove")}
                   </Button>
@@ -201,6 +211,29 @@ export function ProductsList({
           );
         })}
       </div>
+
+      <AlertDialog
+        open={removeTarget !== null}
+        onOpenChange={(open) => !open && setRemoveTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeConfirm")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("removeConfirmBody")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (removeTarget) remove.mutate(removeTarget);
+                setRemoveTarget(null);
+              }}
+            >
+              {t("remove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {totalPages > 1 ? (
         <div className="flex items-center justify-between">

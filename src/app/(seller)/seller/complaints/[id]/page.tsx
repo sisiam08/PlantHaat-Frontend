@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+
 import { SellerComplaintDetail } from "@/features/seller/components/seller-complaint-detail";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,8 +17,10 @@ export default async function SellerComplaintDetailPage({
 }) {
   const { id } = await params;
   return (
-    <main className="mx-auto grid w-full max-w-2xl gap-6 px-4 py-8">
-      <SellerComplaintDetail id={id} />
+    <main className="flex-1">
+      <PageContainer width="narrow">
+        <SellerComplaintDetail id={id} />
+      </PageContainer>
     </main>
   );
 }

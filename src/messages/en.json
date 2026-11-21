@@ -1062,6 +1062,7 @@
   },
   "shop": {
    "title": "Shop",
+   "detailsTitle": "Shop details",
    "unavailable": "Create your shop first.",
    "loadError": "Could not load your shop.",
    "goToApply": "Go to application",
@@ -1092,6 +1093,8 @@
   "zones": {
    "title": "Delivery zones",
    "subtitle": "Where you deliver and at what charge.",
+   "removeConfirm": "Delete this delivery zone?",
+   "removeConfirmBody": "Buyers will no longer see this delivery option. This cannot be undone.",
    "needsShop": "Create your shop first.",
    "loadError": "Could not load delivery zones.",
    "add": "Add zone",
@@ -1131,6 +1134,9 @@
   "payouts": {
    "title": "Payout accounts",
    "empty": "No payout accounts yet.",
+   "loadError": "Could not load payout accounts.",
+   "removeConfirm": "Delete this payout account?",
+   "removeConfirmBody": "This account will be removed from your payout options. This cannot be undone.",
    "defaultBadge": "Default",
    "remove": "Delete",
    "add": "Add account",
@@ -1190,6 +1196,7 @@
    "statusUpdated": "Product status updated",
    "removed": "Product removed",
    "removeConfirm": "Remove this product?",
+  "removeConfirmBody": "This removes the product from your shop. This action cannot be undone.",
    "variantsCount": "variants",
    "sold": "sold",
    "edit": "Edit",
@@ -1281,6 +1288,7 @@
   "orders": {
    "title": "Orders",
    "detailTitle": "Order detail",
+   "backToOrders": "Back to orders",
    "all": "All",
    "empty": "No orders yet.",
    "loadError": "Could not load orders.",
@@ -1375,6 +1383,7 @@
   "complaints": {
    "title": "Complaints",
    "detailTitle": "Complaint",
+   "backToComplaints": "Back to complaints",
    "all": "All",
    "loadError": "Could not load complaints.",
    "empty": "No complaints.",

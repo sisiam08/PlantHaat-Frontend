@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,12 +60,12 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
 
   return (
     <div className="grid gap-4">
-      <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-
       {reviews.isLoading ? <Skeleton className="h-32 w-full rounded-2xl" /> : null}
-      {reviews.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
+      {reviews.isError ? (
+        <QueryError message={t("loadError")} onRetry={() => void reviews.refetch()} />
+      ) : null}
       {!reviews.isLoading && !reviews.isError && items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : null}
 
       <div className="grid gap-3">
@@ -83,9 +85,7 @@ export function SellerReviewsClient({ initialPage }: { initialPage: number }) {
               </div>
               <div className="flex items-center gap-2">
                 <StarRating value={review.rating} />
-                {review.status === "HIDDEN" ? (
-                  <Badge variant="outline">{t("hidden")}</Badge>
-                ) : null}
+                {review.status === "HIDDEN" ? <Badge variant="outline">{t("hidden")}</Badge> : null}
               </div>
               {review.title ? <p className="font-medium">{review.title}</p> : null}
               {review.comment ? <p className="text-muted-foreground">{review.comment}</p> : null}

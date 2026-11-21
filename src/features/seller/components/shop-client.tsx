@@ -114,8 +114,7 @@ function ShopForm({ shop }: { shop: SellerShop }) {
     }
   };
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.seller.shop });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.seller.shop });
 
   const save = useMutation({
     mutationFn: (values: Values) =>
@@ -143,7 +142,7 @@ function ShopForm({ shop }: { shop: SellerShop }) {
     <div className="grid gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
+          <CardTitle>{t("detailsTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="grid gap-4" noValidate>
@@ -240,8 +239,7 @@ function VacationCard({ shop }: { shop: SellerShop }) {
   const [message, setMessage] = useState(shop.vacationMessage ?? "");
   const [until, setUntil] = useState("");
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.seller.shop });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.seller.shop });
 
   const enable = useMutation({
     mutationFn: () =>

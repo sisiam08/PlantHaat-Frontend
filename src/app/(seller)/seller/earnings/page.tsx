@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+
 import { WalletClient } from "@/features/seller/components/wallet-client";
 import { getPublicSettings } from "@/server/public-settings";
 
@@ -13,12 +16,11 @@ export default async function SellerEarningsPage() {
   const t = await getTranslations("part4.wallet");
   const settings = await getPublicSettings();
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </div>
-      <WalletClient windowHours={settings["return.windowHours"]} />
+    <main className="flex-1">
+      <PageContainer width="reading">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <WalletClient windowHours={settings["return.windowHours"]} />
+      </PageContainer>
     </main>
   );
 }

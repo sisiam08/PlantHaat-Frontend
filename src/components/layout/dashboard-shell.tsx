@@ -46,6 +46,7 @@ import { Button } from "@/components/ui/button";
 import { adminApi, adminSettlementApi } from "@/features/admin/api";
 import { paymentsApi } from "@/features/payments/api";
 import { sellerApi } from "@/features/seller/api";
+import { useAuth } from "@/features/auth/auth-provider";
 import { queryKeys } from "@/lib/api/query-keys";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "cn";
@@ -65,7 +66,10 @@ interface NavItem {
 }
 
 const SELLER_GROUPS: { key: string; items: NavItem[] }[] = [
-  { key: "groupOverview", items: [{ href: "/seller/dashboard", key: "dashboard", icon: LayoutDashboard }] },
+  {
+    key: "groupOverview",
+    items: [{ href: "/seller/dashboard", key: "dashboard", icon: LayoutDashboard }],
+  },
   {
     key: "groupSell",
     items: [
@@ -100,8 +104,20 @@ const SELLER_GROUPS: { key: string; items: NavItem[] }[] = [
   },
 ];
 
+function groupsFor(role: Role, sellerStatus?: string | null) {
+  const groups = role === "admin" ? ADMIN_GROUPS : SELLER_GROUPS;
+  if (role !== "seller" || sellerStatus !== "APPROVED") return groups;
+  return groups.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => item.key !== "apply"),
+  }));
+}
+
 const ADMIN_GROUPS: { key: string; items: NavItem[] }[] = [
-  { key: "groupOverview", items: [{ href: "/admin", key: "dashboard", icon: LayoutDashboard, exact: true }] },
+  {
+    key: "groupOverview",
+    items: [{ href: "/admin", key: "dashboard", icon: LayoutDashboard, exact: true }],
+  },
   {
     key: "groupPeople",
     items: [
@@ -164,7 +180,8 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
   const t = useTranslations(`${role}.nav`);
   const ts = useTranslations("shell");
   const pathname = usePathname();
-  const groups = role === "admin" ? ADMIN_GROUPS : SELLER_GROUPS;
+  const { user } = useAuth();
+  const groups = groupsFor(role, user?.sellerStatus);
 
   const dashboard = useQuery({
     queryKey: queryKeys.seller.dashboard,
@@ -276,12 +293,11 @@ export function DashboardShell({
   const navT = useTranslations(`${role}.nav`);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const groups = role === "admin" ? ADMIN_GROUPS : SELLER_GROUPS;
+  const { user } = useAuth();
+  const groups = groupsFor(role, user?.sellerStatus);
   const activeItem = groups
     .flatMap((group) => group.items)
-    .find((item) =>
-      item.exact ? pathname === item.href : pathname.startsWith(item.href),
-    );
+    .find((item) => (item.exact ? pathname === item.href : pathname.startsWith(item.href)));
 
   return (
     <div className="flex min-h-dvh flex-1 bg-background">
@@ -326,9 +342,9 @@ export function DashboardShell({
               <span aria-hidden className="hidden text-muted-foreground sm:inline">
                 /
               </span>
-              <h1 className="min-w-0 truncate font-heading text-base font-semibold">
+              <span className="min-w-0 truncate font-heading text-base font-semibold">
                 {navT(activeItem.key)}
-              </h1>
+              </span>
             </>
           ) : null}
 
@@ -347,5 +363,3 @@ export function DashboardShell({
     </div>
   );
 }
-
-

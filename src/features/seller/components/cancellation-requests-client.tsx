@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,7 +54,11 @@ export function CancellationRequestsClient({ initialPage }: { initialPage: numbe
   });
 
   const go = (nextPage: number) => {
-    router.push(nextPage > 1 ? `/seller/cancellation-requests?page=${nextPage}` : "/seller/cancellation-requests");
+    router.push(
+      nextPage > 1
+        ? `/seller/cancellation-requests?page=${nextPage}`
+        : "/seller/cancellation-requests",
+    );
   };
 
   const items = requests.data?.data ?? [];
@@ -60,12 +66,12 @@ export function CancellationRequestsClient({ initialPage }: { initialPage: numbe
 
   return (
     <div className="grid gap-4">
-      <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-
       {requests.isLoading ? <Skeleton className="h-24 w-full rounded-2xl" /> : null}
-      {requests.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
+      {requests.isError ? (
+        <QueryError message={t("loadError")} onRetry={() => void requests.refetch()} />
+      ) : null}
       {!requests.isLoading && !requests.isError && items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : null}
 
       <div className="grid gap-3">

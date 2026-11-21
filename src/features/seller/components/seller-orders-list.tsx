@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Price } from "@/components/product/price";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -91,10 +93,12 @@ export function SellerOrdersList({
         </div>
       ) : null}
 
-      {orders.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
+      {orders.isError ? (
+        <QueryError message={t("loadError")} onRetry={() => void orders.refetch()} />
+      ) : null}
 
       {!orders.isLoading && !orders.isError && items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : null}
 
       <div className="grid gap-3">

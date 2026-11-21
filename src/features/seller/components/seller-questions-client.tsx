@@ -7,6 +7,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "cn";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -145,12 +147,10 @@ export function SellerQuestionsClient() {
       </div>
 
       {query.isLoading ? <Skeleton className="h-32 w-full rounded-2xl" /> : null}
-      {query.isError ? <p className="text-sm text-muted-foreground">{t("loadError")}</p> : null}
-      {!query.isLoading && questions.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-          {t("empty")}
-        </p>
+      {query.isError ? (
+        <QueryError message={t("loadError")} onRetry={() => void query.refetch()} />
       ) : null}
+      {!query.isLoading && questions.length === 0 ? <EmptyState title={t("empty")} /> : null}
 
       <div className="grid gap-3">
         {questions.map((question) => (

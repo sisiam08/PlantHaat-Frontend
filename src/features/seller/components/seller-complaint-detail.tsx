@@ -1,9 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,17 +64,23 @@ export function SellerComplaintDetail({ id }: { id: string }) {
 
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold">{complaint.ticketNumber}</h1>
-          <p className="text-sm text-muted-foreground">
-            {tType(complaint.type)} · {formatLatinDateTime(complaint.createdAt)}
-          </p>
-        </div>
-        <Badge variant={complaintStatusVariant(complaint.status)}>
-          {tStatus(complaint.status)}
-        </Badge>
-      </div>
+      <PageHeader
+        title={complaint.ticketNumber}
+        description={`${tType(complaint.type)} · ${formatLatinDateTime(complaint.createdAt)}`}
+        back={
+          <Link
+            href="/seller/complaints"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
+          >
+            {t("backToComplaints")}
+          </Link>
+        }
+        actions={
+          <Badge variant={complaintStatusVariant(complaint.status)}>
+            {tStatus(complaint.status)}
+          </Badge>
+        }
+      />
 
       <Card className="rounded-2xl">
         <CardContent className="grid gap-2 text-sm">
@@ -89,7 +97,9 @@ export function SellerComplaintDetail({ id }: { id: string }) {
             </p>
           ) : null}
           {complaint.decision && complaint.decision !== "PENDING" ? (
-            <p className="text-xs font-medium">{tp4("decision", { decision: complaint.decision })}</p>
+            <p className="text-xs font-medium">
+              {tp4("decision", { decision: complaint.decision })}
+            </p>
           ) : null}
           {complaint.attachments.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -102,11 +112,7 @@ export function SellerComplaintDetail({ id }: { id: string }) {
                   className="text-primary hover:underline"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={attachment.url}
-                    alt=""
-                    className="h-20 w-20 rounded-lg object-cover"
-                  />
+                  <img src={attachment.url} alt="" className="h-20 w-20 rounded-lg object-cover" />
                 </a>
               ))}
             </div>
@@ -138,20 +144,24 @@ export function SellerComplaintDetail({ id }: { id: string }) {
                   <span>{item.body}</span>
                   {(item as { attachments?: { id: string; url: string }[] }).attachments?.length ? (
                     <div className="flex flex-wrap gap-2">
-                      {(
-                        item as { attachments?: { id: string; url: string }[] }
-                      ).attachments!.map((photo) => (
-                        <a
-                          key={photo.id}
-                          href={photo.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={t("responsePhotos")}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={photo.url} alt="" className="h-16 w-16 rounded-lg object-cover" />
-                        </a>
-                      ))}
+                      {(item as { attachments?: { id: string; url: string }[] }).attachments!.map(
+                        (photo) => (
+                          <a
+                            key={photo.id}
+                            href={photo.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={t("responsePhotos")}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={photo.url}
+                              alt=""
+                              className="h-16 w-16 rounded-lg object-cover"
+                            />
+                          </a>
+                        ),
+                      )}
                     </div>
                   ) : null}
                 </CardContent>
@@ -196,7 +206,9 @@ export function SellerComplaintDetail({ id }: { id: string }) {
                     key={url}
                     type="button"
                     className="h-16 w-16 overflow-hidden rounded-lg border border-border/60"
-                    onClick={() => setAttachments((current) => current.filter((item) => item !== url))}
+                    onClick={() =>
+                      setAttachments((current) => current.filter((item) => item !== url))
+                    }
                     aria-label={t("removePhoto")}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}

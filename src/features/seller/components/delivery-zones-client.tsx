@@ -5,6 +5,18 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +41,8 @@ export function DeliveryZonesClient() {
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<DeliveryZone | "new" | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const tCommon = useTranslations("common");
 
   const zones = useQuery({
     queryKey: queryKeys.seller.deliveryZones,
@@ -48,8 +62,10 @@ export function DeliveryZonesClient() {
   if (zones.isError) {
     const missing =
       zones.error instanceof ApiError && zones.error.code === "SELLER_APPLICATION_INCOMPLETE";
-    return (
-      <p className="text-sm text-muted-foreground">{missing ? t("needsShop") : t("loadError")}</p>
+    return missing ? (
+      <EmptyState title={t("needsShop")} />
+    ) : (
+      <QueryError message={t("loadError")} onRetry={() => void zones.refetch()} />
     );
   }
 
@@ -58,7 +74,6 @@ export function DeliveryZonesClient() {
   return (
     <div className="grid gap-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         <Button type="button" variant="cta" size="sm" onClick={() => setEditing("new")}>
           {t("add")}
         </Button>
@@ -66,7 +81,7 @@ export function DeliveryZonesClient() {
 
       {zones.isLoading ? <Skeleton className="h-24 w-full" /> : null}
       {!zones.isLoading && items.length === 0 && editing === null ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : null}
 
       <div className="grid gap-3">
@@ -113,7 +128,7 @@ export function DeliveryZonesClient() {
                   variant="ghost"
                   size="sm"
                   disabled={remove.isPending}
-                  onClick={() => remove.mutate(zone.id)}
+                  onClick={() => setRemoveTarget(zone.id)}
                 >
                   {t("remove")}
                 </Button>
@@ -122,6 +137,29 @@ export function DeliveryZonesClient() {
           </Card>
         ))}
       </div>
+
+      <AlertDialog
+        open={removeTarget !== null}
+        onOpenChange={(open) => !open && setRemoveTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeConfirm")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("removeConfirmBody")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (removeTarget) remove.mutate(removeTarget);
+                setRemoveTarget(null);
+              }}
+            >
+              {t("remove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {editing !== null ? (
         <Card>

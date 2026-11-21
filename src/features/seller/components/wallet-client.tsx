@@ -34,7 +34,7 @@ const PAGE_SIZE = 12;
 const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "BANK"];
 export function WalletClient({ windowHours }: { windowHours?: number }) {
   const t = useTranslations("part4.wallet");
-  const tErrors = useTranslations("errors");
+  const tPayouts = useTranslations("seller.payouts");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState("overview");
@@ -145,9 +145,6 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
           <TabsTrigger value="transactions" className="text-foreground">
             {t("tabTransactions")}
           </TabsTrigger>{" "}
-          <TabsTrigger value="profile" className="text-foreground">
-            {t("tabProfile")}
-          </TabsTrigger>{" "}
         </TabsList>{" "}
         <TabsContent value="overview" className="grid gap-4">
           {" "}
@@ -196,15 +193,18 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
           {" "}
           <TransactionsList />{" "}
         </TabsContent>{" "}
-        <TabsContent value="profile">
-          {" "}
-          <PayoutProfile
-            wallet={data}
-            onSaved={invalidate}
-            errorFallback={tErrors("generic")}
-          />{" "}
-        </TabsContent>{" "}
       </Tabs>{" "}
+      <Card className="rounded-2xl">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid gap-1">
+            <p className="font-medium">{tPayouts("title")}</p>
+            <p className="text-sm text-muted-foreground">{tPayouts("maskedNote")}</p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/seller/payout-accounts">{tPayouts("title")}</Link>
+          </Button>
+        </CardContent>
+      </Card>{" "}
       <WithdrawDialog
         open={withdrawOpen}
         onOpenChange={setWithdrawOpen}
@@ -676,156 +676,5 @@ function WithdrawDialog({
         </DialogFooter>{" "}
       </DialogContent>{" "}
     </Dialog>
-  );
-}
-function PayoutProfile({
-  wallet,
-  onSaved,
-  errorFallback,
-}: {
-  wallet: SellerWallet;
-  onSaved: () => Promise<void>;
-  errorFallback: string;
-}) {
-  const t = useTranslations("part4.wallet");
-  const tErrors = useTranslations("errors");
-  const [method, setMethod] = useState<PayoutMethod>(
-    (wallet.payoutProfile?.method ?? "BKASH") as PayoutMethod,
-  );
-  const [accountNumber, setAccountNumber] = useState("");
-  const [accountName, setAccountName] = useState(wallet.payoutProfile?.accountName ?? "");
-  const [error, setError] = useState<string | null>(null);
-  const [now, setNow] = useState<number | null>(null);
-  useEffect(() => {
-    const tick = () => setNow(Date.now());
-    const initial = window.setTimeout(tick, 0);
-    const timer = window.setInterval(tick, 60_000);
-    return () => {
-      window.clearTimeout(initial);
-      window.clearInterval(timer);
-    };
-  }, []);
-  const mutation = useMutation({
-    mutationFn: () =>
-      sellerWalletApi.saveProfile({
-        method,
-        accountNumber: accountNumber.trim(),
-        accountName: accountName.trim(),
-      }),
-    onSuccess: async () => {
-      toast.success(t("profileSaved"));
-      setAccountNumber("");
-      setError(null);
-      await onSaved();
-    },
-    onError: (cause) => {
-      const code = cause instanceof ApiError ? cause.code : "generic";
-      setError(tErrors.has(code) ? tErrors(code) : errorFallback);
-    },
-  });
-  const invalidNumber =
-    (method === "BKASH" || method === "NAGAD") &&
-    accountNumber.trim().length > 0 &&
-    !/^01[3-9]\d{8}$/.test(accountNumber.trim());
-  const cooldownActive =
-    wallet.payoutProfile !== null &&
-    now !== null &&
-    new Date(wallet.payoutProfile.cooldownUntil).getTime() > now;
-  return (
-    <Card className="rounded-2xl">
-      {" "}
-      <CardHeader>
-        {" "}
-        <CardTitle>{t("profileTitle")}</CardTitle>{" "}
-      </CardHeader>{" "}
-      <CardContent className="grid gap-4">
-        {" "}
-        {wallet.payoutProfile ? (
-          <div className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
-            {" "}
-            <span className="text-xs text-muted-foreground">{t("currentAccount")}</span>{" "}
-            <span className="font-medium">
-              {" "}
-              {wallet.payoutProfile.method} · {wallet.payoutProfile.accountMasked}{" "}
-            </span>{" "}
-            <span className="text-muted-foreground">{wallet.payoutProfile.accountName}</span>{" "}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">{t("noProfile")}</p>
-        )}{" "}
-        {cooldownActive ? (
-          <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
-            {" "}
-            {t("cooldown", { date: formatLatinDateTime(wallet.payoutProfile!.cooldownUntil) })}{" "}
-          </p>
-        ) : null}{" "}
-        <div className="grid gap-3 sm:grid-cols-2">
-          {" "}
-          <div className="grid gap-1.5">
-            {" "}
-            <Label htmlFor="profile-method">{t("method")}</Label>{" "}
-            <select
-              id="profile-method"
-              className="min-h-11 rounded-full border border-input bg-background px-4 text-sm"
-              value={method}
-              onChange={(event) => setMethod(event.target.value as PayoutMethod)}
-            >
-              {" "}
-              {wallet.settings.methods
-                .filter((value) => METHODS.includes(value))
-                .map((value) => (
-                  <option key={value} value={value}>
-                    {" "}
-                    {value}{" "}
-                  </option>
-                ))}{" "}
-            </select>{" "}
-          </div>{" "}
-          <div className="grid gap-1.5">
-            {" "}
-            <Label htmlFor="profile-name">{t("accountName")}</Label>{" "}
-            <Input
-              id="profile-name"
-              value={accountName}
-              onChange={(event) => setAccountName(event.target.value)}
-              maxLength={80}
-            />{" "}
-          </div>{" "}
-          <div className="grid gap-1.5 sm:col-span-2">
-            {" "}
-            <Label htmlFor="profile-number">{t("accountNumber")}</Label>{" "}
-            <Input
-              id="profile-number"
-              inputMode="numeric"
-              value={accountNumber}
-              onChange={(event) => setAccountNumber(event.target.value)}
-              placeholder={wallet.payoutProfile?.accountMasked ?? "01XXXXXXXXX"}
-              maxLength={34}
-            />{" "}
-            <p className="text-xs text-muted-foreground">{t("profileHint")}</p>{" "}
-          </div>{" "}
-        </div>{" "}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}{" "}
-        <div>
-          {" "}
-          <Button
-            type="button"
-            variant="cta"
-            disabled={accountNumber.trim().length < 6}
-            onClick={() => {
-              if (invalidNumber) {
-                setError(t("invalidNumber"));
-                return;
-              }
-              mutation.mutate();
-            }}
-          >
-            {" "}
-            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}{" "}
-            {t("saveProfile")}{" "}
-          </Button>{" "}
-        </div>{" "}
-      </CardContent>{" "}
-    </Card>
   );
 }

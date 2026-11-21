@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+
 import { ProductEditor } from "@/features/seller/components/product-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,9 +19,11 @@ export default async function SellerEditProductPage({
   const { id } = await params;
   const t = await getTranslations("seller.products");
   return (
-    <main className="mx-auto grid w-full max-w-3xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("editTitle")}</h1>
-      <ProductEditor id={id} />
+    <main className="flex-1">
+      <PageContainer width="form">
+        <PageHeader title={t("editTitle")} />
+        <ProductEditor id={id} />
+      </PageContainer>
     </main>
   );
 }

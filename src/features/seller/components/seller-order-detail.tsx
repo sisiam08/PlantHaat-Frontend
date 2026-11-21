@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/page-header";
 import { Price } from "@/components/product/price";
 import { ProductLine } from "@/components/product/quantity-line";
 
@@ -120,50 +121,50 @@ export function SellerOrderDetail({ id }: { id: string }) {
 
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-2 text-xl font-bold">
-            {data.shopOrderNumber}
-            {data.kind === "REPLACEMENT" ? (
-              <Badge variant="outline">{t("replacement")}</Badge>
+      <PageHeader
+        title={data.shopOrderNumber}
+        description={`${t("orderRef", { number: data.order.orderNumber })} · ${formatDateTime(data.createdAt, locale)}`}
+        back={
+          <Link
+            href="/seller/orders"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
+          >
+            {t("backToOrders")}
+          </Link>
+        }
+        actions={
+          <>
+            {data.codRisk && data.codRisk !== "OK" ? (
+              <Badge variant="destructive">{t("codRiskBadge")}</Badge>
             ) : null}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("orderRef", { number: data.order.orderNumber })} ·{" "}
-            {formatDateTime(data.createdAt, locale)}
-          </p>
-          {data.kind === "REPLACEMENT" && data.parent ? (
+            <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
+            {data.order.paymentMethod === "ADVANCE" ? (
+              <PaymentBadge status={data.order.paymentStatus === "PAID" ? "PAID" : "UNPAID"} />
+            ) : null}
+          </>
+        }
+      />
+      {data.kind === "REPLACEMENT" && data.parent ? (
+        <Link
+          href={`/seller/orders/${data.parent.id}`}
+          className="text-xs text-primary underline-offset-4 hover:underline"
+        >
+          {t("replacementFor", { number: data.parent.shopOrderNumber })}
+        </Link>
+      ) : null}
+      {data.replacements?.length ? (
+        <div className="grid gap-1 text-xs">
+          {data.replacements.map((replacement) => (
             <Link
-              href={`/seller/orders/${data.parent.id}`}
-              className="text-xs text-primary underline-offset-4 hover:underline"
+              key={replacement.id}
+              href={`/seller/orders/${replacement.id}`}
+              className="text-primary underline-offset-4 hover:underline"
             >
-              {t("replacementFor", { number: data.parent.shopOrderNumber })}
+              {t("replacementCreated", { number: replacement.shopOrderNumber })}
             </Link>
-          ) : null}
-          {data.replacements?.length ? (
-            <div className="grid gap-1 text-xs">
-              {data.replacements.map((replacement) => (
-                <Link
-                  key={replacement.id}
-                  href={`/seller/orders/${replacement.id}`}
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {t("replacementCreated", { number: replacement.shopOrderNumber })}
-                </Link>
-              ))}
-            </div>
-          ) : null}
+          ))}
         </div>
-        <div className="flex items-center gap-2">
-          {data.codRisk && data.codRisk !== "OK" ? (
-            <Badge variant="destructive">{t("codRiskBadge")}</Badge>
-          ) : null}
-          <Badge variant={orderStatusVariant(data.status)}>{tStatus(data.status)}</Badge>
-          {data.order.paymentMethod === "ADVANCE" ? (
-            <PaymentBadge status={data.order.paymentStatus === "PAID" ? "PAID" : "UNPAID"} />
-          ) : null}
-        </div>
-      </div>
+      ) : null}
 
       {data.stuckFlaggedAt ? (
         <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
@@ -376,7 +377,9 @@ export function SellerOrderDetail({ id }: { id: string }) {
                               const stored = await uploadsApi.image(file, "delivery-proof");
                               uploaded.push(stored.url);
                             }
-                            setDeliveryProofUrls((current) => [...current, ...uploaded].slice(0, 3));
+                            setDeliveryProofUrls((current) =>
+                              [...current, ...uploaded].slice(0, 3),
+                            );
                           } catch (error) {
                             toastApiError(error, tErrors);
                           } finally {

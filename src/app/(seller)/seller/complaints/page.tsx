@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+
 import { SellerComplaintsClient } from "@/features/seller/components/seller-complaints-client";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,7 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default function SellerComplaintsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default function SellerComplaintsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Suspense fallback={null}>
       <SellerComplaintsPageBody searchParams={searchParams} />
@@ -17,7 +24,11 @@ export default function SellerComplaintsPage({ searchParams }: { searchParams: P
   );
 }
 
-async function SellerComplaintsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+async function SellerComplaintsPageBody({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const t = await getTranslations("seller.complaints");
   const sp = await searchParams;
   const status = typeof sp.status === "string" ? sp.status : "";
@@ -25,9 +36,11 @@ async function SellerComplaintsPageBody({ searchParams }: { searchParams: Promis
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
   return (
-    <main className="mx-auto grid w-full max-w-4xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <SellerComplaintsClient initialStatus={status} initialPage={page} />
+    <main className="flex-1">
+      <PageContainer width="reading">
+        <PageHeader title={t("title")} />
+        <SellerComplaintsClient initialStatus={status} initialPage={page} />
+      </PageContainer>
     </main>
   );
 }

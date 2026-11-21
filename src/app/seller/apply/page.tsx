@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
@@ -17,10 +18,22 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SellerApplyPage() {
   await requireSession();
   const t = await getTranslations("seller.apply");
+  const tCommon = await getTranslations("common");
   return (
     <main id="main" className="flex-1">
       <PageContainer width="form">
-        <PageHeader title={t("title")} description={t("subtitle")} />
+        <PageHeader
+          title={t("title")}
+          description={t("subtitle")}
+          back={
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
+            >
+              {tCommon("backHome")}
+            </Link>
+          }
+        />
         <ApplyWizard />
       </PageContainer>
     </main>

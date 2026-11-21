@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+
 import { ProductsList } from "@/features/seller/components/products-list";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,7 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default function SellerProductsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default function SellerProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Suspense fallback={null}>
       <SellerProductsPageBody searchParams={searchParams} />
@@ -17,7 +24,11 @@ export default function SellerProductsPage({ searchParams }: { searchParams: Pro
   );
 }
 
-async function SellerProductsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+async function SellerProductsPageBody({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const t = await getTranslations("seller.products");
   const sp = await searchParams;
   const status = typeof sp.status === "string" ? sp.status : "";
@@ -25,9 +36,11 @@ async function SellerProductsPageBody({ searchParams }: { searchParams: Promise<
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <ProductsList initialStatus={status} initialPage={page} />
+    <main className="flex-1">
+      <PageContainer width="reading">
+        <PageHeader title={t("title")} />
+        <ProductsList initialStatus={status} initialPage={page} />
+      </PageContainer>
     </main>
   );
 }

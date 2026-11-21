@@ -4,9 +4,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,7 +39,9 @@ const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "BANK"];
 export function PayoutAccountsClient() {
   const t = useTranslations("seller.payouts");
   const tErrors = useTranslations("errors");
+  const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
   const accounts = useQuery({
     queryKey: queryKeys.seller.payoutAccounts,
@@ -74,8 +89,11 @@ export function PayoutAccountsClient() {
     <div className="grid gap-6">
       <div className="grid gap-3">
         {accounts.isLoading ? <Skeleton className="h-20 w-full" /> : null}
-        {!accounts.isLoading && items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        {accounts.isError ? (
+          <QueryError message={t("loadError")} onRetry={() => void accounts.refetch()} />
+        ) : null}
+        {!accounts.isLoading && !accounts.isError && items.length === 0 ? (
+          <EmptyState title={t("empty")} />
         ) : null}
         {items.map((account) => (
           <Card key={account.id}>
@@ -93,7 +111,7 @@ export function PayoutAccountsClient() {
                 variant="ghost"
                 size="sm"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(account.id)}
+                onClick={() => setRemoveTarget(account.id)}
               >
                 {t("remove")}
               </Button>
@@ -101,6 +119,29 @@ export function PayoutAccountsClient() {
           </Card>
         ))}
       </div>
+
+      <AlertDialog
+        open={removeTarget !== null}
+        onOpenChange={(open) => !open && setRemoveTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeConfirm")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("removeConfirmBody")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (removeTarget) remove.mutate(removeTarget);
+                setRemoveTarget(null);
+              }}
+            >
+              {t("remove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Card>
         <CardContent>

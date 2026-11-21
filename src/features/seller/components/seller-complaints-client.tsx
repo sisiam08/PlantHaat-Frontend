@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { EmptyState } from "@/components/feedback/empty-state";
+import { QueryError } from "@/components/feedback/query-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -88,10 +90,10 @@ export function SellerComplaintsClient({
 
       {complaints.isLoading ? <Skeleton className="h-24 w-full rounded-2xl" /> : null}
       {complaints.isError ? (
-        <p className="text-sm text-muted-foreground">{t("loadError")}</p>
+        <QueryError message={t("loadError")} onRetry={() => void complaints.refetch()} />
       ) : null}
       {!complaints.isLoading && !complaints.isError && items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        <EmptyState title={t("empty")} />
       ) : null}
 
       <div className="grid gap-3">
