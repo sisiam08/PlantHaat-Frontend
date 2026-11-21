@@ -112,6 +112,10 @@
   "WITHDRAWAL_DESTINATION_UNAVAILABLE": "No payout account is available for this withdrawal.",
   "DISPUTE_INVALID_STATE": "This dispute was already decided in another tab. Refresh to see the latest state."
  },
+ "dev": {
+  "label": "DEVELOPMENT",
+  "body": "Not real money. Test data only."
+ },
  "auth": {
   "email": "Email",
   "password": "Password",

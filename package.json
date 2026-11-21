@@ -14,7 +14,9 @@
     "api:types": "openapi-typescript openapi/openapi.json -o src/lib/api/schema.d.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:money": "playwright test e2e/part4-dispute-filters.spec.ts e2e/part4-dispute-reject.spec.ts e2e/part4-multi-shop-refund.spec.ts e2e/part4-payout-destination.spec.ts e2e/part4-permissions.spec.ts e2e/part4-reconciliation.spec.ts e2e/part4-window.spec.ts e2e/part4-withdrawal-reject.spec.ts e2e/part4-withdrawal-validation.spec.ts e2e/payments-advance.spec.ts e2e/settings.spec.ts e2e/admin-consolidation.spec.ts e2e/admin-highlights.spec.ts e2e/admin-highlights-ui.spec.ts --project=desktop-chromium --workers=1",
+    "test:e2e:sessions": "playwright test e2e/session-refresh.spec.ts e2e/session-expired.spec.ts e2e/session-cookie-collision.spec.ts --project=desktop-chromium --workers=1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
