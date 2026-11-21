@@ -2,7 +2,6 @@ import { resolve } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002";
 const ADMIN = {
   email: process.env.ADMIN_EMAIL ?? "admin@teststack.local",
   password: process.env.ADMIN_PASSWORD ?? "TestAdmin123!",

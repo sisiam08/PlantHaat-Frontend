@@ -58,6 +58,13 @@ async function PolicyContent({ params }: { params: Promise<{ slug: string }> }) 
 
   return (
     <StaticPage title={t(`${key}.title`)} lead={intro} meta={t("updated")}>
+      <p
+        role="note"
+        data-policy-draft
+        className="max-w-3xl rounded-xl border border-cta/40 bg-cta/15 px-4 py-3 text-sm font-medium text-foreground"
+      >
+        {t("reviewNotice")}
+      </p>
       <div className="grid max-w-3xl gap-4">
         {sections.map((section) => (
           <Card key={section.title} className="rounded-2xl">

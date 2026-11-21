@@ -137,7 +137,6 @@ function runTestScript(script: string, args: string[]) {
 
 test("COD order still works end to end", async ({ page, playwright }) => {
   const buyerApi = await loginApi(playwright, BUYER);
-  const addresses = await (await buyerApi.get("/api/v1/addresses")).json();
   const products = await (await buyerApi.get("/api/v1/products?q=Test&limit=5")).json();
   const detail = await (await buyerApi.get(`/api/v1/products/${products.data[0].slug}`)).json();
   const variant = detail.data.variants[0];
@@ -167,7 +166,6 @@ test("ADVANCE: checkout → payment page → submit → admin verify → seller 
   await buyerApi.put("/api/v1/cart/items", {
     data: { variantId: detail.data.variants[0].id, quantity: 1 },
   });
-  const addresses = await (await buyerApi.get("/api/v1/addresses")).json();
 
   await loginBrowser(page.context(), BUYER);
   await page.goto(`${BASE}/checkout`, { waitUntil: "domcontentloaded" });

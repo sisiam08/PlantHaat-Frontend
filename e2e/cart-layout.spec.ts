@@ -20,7 +20,6 @@ async function seedCart(page: import("@playwright/test").Page, shops: number) {
     await fetch("/api/v1/cart", { method: "DELETE" });
     const list = await fetch("/api/v1/products?limit=50").then((r) => r.json());
     const seen = new Set<string>();
-    let added = 0;
     for (const item of list.data) {
       if (seen.size >= count) break;
       const product = await fetch(`/api/v1/products/${item.slug}`).then((r) => r.json());
@@ -37,7 +36,6 @@ async function seedCart(page: import("@playwright/test").Page, shops: number) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ variantId: variant.id, quantity }),
       });
-      added += 1;
     }
     return seen.size;
   }, shops);

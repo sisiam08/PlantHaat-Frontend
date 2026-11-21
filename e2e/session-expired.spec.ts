@@ -281,7 +281,7 @@ test("dialog is axe clean, keyboard trapped and localized", async ({ page, conte
   }
 });
 
-test("public pages stay quiet until an auth action", async ({ page, context }) => {
+test("public pages stay quiet until an auth action", async ({ page }) => {
   await page.goto(`${BASE}/products`, { waitUntil: "domcontentloaded" });
   await expect(page.locator("[data-session-expired-dialog]")).toHaveCount(0);
   await page.waitForTimeout(2_000);

@@ -5,7 +5,6 @@ import { LinkPending } from "@/components/layout/link-pending";
 import { PlantImage } from "@/components/plant-image";
 import { cn } from "@/lib/utils";
 import { Price } from "@/components/product/price";
-import { formatPriceRange } from "@/lib/format/money";
 import { RailScroller } from "@/features/catalog/components/rail-scroller";
 import { PRODUCT_GRID_CLASS } from "@/features/catalog/components/product-grid";
 
@@ -123,7 +122,6 @@ export function ProductCard({
 }) {
   const featured = variant === "featured";
   const reviews = product.ratingCount ?? 0;
-  const priceLabel = formatPriceRange(product.minPrice, product.maxPrice, locale);
 
   return (
     <div
