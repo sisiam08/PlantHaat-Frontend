@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 
 import { clientEnv } from "@/env/client";
 import { getPublicSettings } from "@/server/public-settings";
-import { LocaleSwitch } from "./locale-switch";
 import { Logo } from "./logo";
 
 function text(value: unknown): string {
@@ -117,10 +116,6 @@ export async function SiteFooter() {
           <p className="text-xs text-muted-foreground">
             © PlantHaat — {t("rights")}
           </p>
-          <div className="flex items-center gap-1">
-            <span className="mr-1 text-xs text-muted-foreground">{t("preferences")}</span>
-            <LocaleSwitch />
-          </div>
         </div>
       </div>
     </footer>

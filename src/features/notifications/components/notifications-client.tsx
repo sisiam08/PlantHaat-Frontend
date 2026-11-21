@@ -13,41 +13,9 @@ import { cn } from "@/lib/utils";
 import { formatCount } from "@/lib/format/number";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { NotificationItem } from "@/lib/api/types";
+import { LOCALIZED_TYPES, notificationHref } from "../notification-content";
 import { notificationsApi } from "../api";
 import { useUnreadCount } from "../use-unread-count";
-
-const LOCALIZED_TYPES = new Set([
-  "QUESTION_ASKED",
-  "QUESTION_ANSWERED",
-  "REPLY_RECEIVED",
-  "ORDER_DELAYED",
-  "REPLACEMENT_CREATED",
-]);
-
-function notificationHref(item: NotificationItem): string | null {
-  const data = (item.data ?? {}) as Record<string, unknown>;
-  const slug = typeof data.productSlug === "string" ? data.productSlug : null;
-  if (item.type === "QUESTION_ASKED") return "/seller/questions";
-  if (item.type === "QUESTION_ANSWERED" && slug) return `/products/${slug}?tab=qa`;
-  if (item.type === "REPLY_RECEIVED" && typeof data.reviewId === "string" && slug) {
-    return `/products/${slug}?tab=reviews`;
-  }
-  if (item.type === "REPLY_RECEIVED" && slug) return `/products/${slug}?tab=qa`;
-  if (
-    (item.type === "ORDER_DELAYED" || item.type === "REPLACEMENT_CREATED") &&
-    typeof data.orderId === "string"
-  ) {
-    return `/orders/${data.orderId}`;
-  }
-  if (typeof data.orderId === "string" && typeof data.intentId === "string") {
-    const status = typeof data.status === "string" ? data.status : "";
-    if (status === "UNDERPAID" || status === "REJECTED") {
-      return `/checkout/payment/${data.orderId}`;
-    }
-    return `/orders/${data.orderId}`;
-  }
-  return null;
-}
 
 export function NotificationsClient() {
   const t = useTranslations("notifications");

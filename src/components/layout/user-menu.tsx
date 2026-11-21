@@ -3,8 +3,7 @@
 import { Heart, LayoutDashboard, LogOut, Package, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,63 +12,27 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/auth-provider";
-import { writeLocaleCookie } from "./locale-switch";
 
 export function UserMenu() {
   const t = useTranslations("shell");
-  const locale = useLocale();
-  const { user, logout } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const router = useRouter();
-  const [, startTransition] = useTransition();
+
+  // Reserve the controls' size while /auth/me resolves so a signed-in user
+  // never sees a "Log in" flash on first paint.
+  if (isLoading) {
+    return <span aria-hidden className="h-11 w-11 shrink-0 rounded-full bg-muted/40 sm:w-16" />;
+  }
 
   if (!user) {
     return (
-      <>
-        <div className="hidden items-center gap-1.5 md:flex">
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/login">{t("login")}</Link>
-          </Button>
-          <Button asChild size="lg">
-            <Link href="/register">{t("register")}</Link>
-          </Button>
-        </div>
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-lg" aria-label={t("accountMenu")}>
-                <User aria-hidden />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem asChild>
-                <Link href="/login">{t("login")}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/register">{t("register")}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
-              <DropdownMenuRadioGroup
-                value={locale}
-                onValueChange={(next) => {
-                  if (next === locale) return;
-                  writeLocaleCookie(next);
-                  startTransition(() => router.refresh());
-                }}
-              >
-                <DropdownMenuRadioItem value="bn">{t("languageBn")}</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="en">{t("languageEn")}</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </>
+      <Button asChild variant="ghost" size="lg" className="min-h-11 px-2.5 sm:px-3">
+        <Link href="/login">{t("login")}</Link>
+      </Button>
     );
   }
 
@@ -84,12 +47,7 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          aria-label={t("accountMenu")}
-        >
+        <Button variant="ghost" size="icon-lg" className="rounded-full" aria-label={t("accountMenu")}>
           <Avatar size="sm">
             {user.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={user.name} /> : null}
             <AvatarFallback>{initial}</AvatarFallback>
@@ -123,19 +81,6 @@ export function UserMenu() {
             <Heart aria-hidden /> {t("wishlist")}
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup
-          value={locale}
-          onValueChange={(next) => {
-            if (next === locale) return;
-            writeLocaleCookie(next);
-            startTransition(() => router.refresh());
-          }}
-        >
-          <DropdownMenuRadioItem value="bn">{t("languageBn")}</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="en">{t("languageEn")}</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"

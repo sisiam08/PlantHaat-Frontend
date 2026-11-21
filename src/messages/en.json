@@ -577,6 +577,10 @@
   "unread": "{count} unread",
   "markRead": "Mark read",
   "markAllRead": "Mark all read",
+  "loadMore": "Load more",
+  "seeAll": "See all notifications",
+  "retry": "Try again",
+  "loadError": "Could not load notifications.",
   "types": {
    "QUESTION_ASKED": {
     "title": "New question",
@@ -2384,8 +2388,8 @@
   "groupFulfil": "Fulfil",
   "groupMoney": "Money",
   "groupShop": "Shop",
-  "switchToEn": "Switch to English",
-  "switchToBn": "Switch to Bangla",
+  "switchToEn": "ইংরেজিতে পরিবর্তন করুন",
+  "switchToBn": "Switch language to Bangla",
   "navLabel": "Main navigation",
   "bottomNavLabel": "Quick navigation",
   "openMenu": "Open menu",

@@ -18,6 +18,7 @@ import type { PublicUser, Role } from "@/lib/api/types";
 import { mergeGuestCart } from "@/features/cart/merge";
 import { broadcastAuth, subscribeAuth } from "@/lib/auth/broadcast";
 import { refreshOnceDetailed } from "@/lib/auth/refresh";
+import { writeSessionHint } from "@/lib/auth/session-hint";
 import { authApi, type LoginInput, type RegisterInput, type RegisterSellerInput } from "./api";
 
 const REFRESH_SKEW_MS = 60_000;
@@ -62,8 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetchOnWindowFocus: false,
   });
 
+  useEffect(() => {
+    if (!meQuery.isLoading) {
+      writeSessionHint(Boolean(meQuery.data));
+    }
+  }, [meQuery.data, meQuery.isLoading]);
+
   const clearSession = useCallback(() => {
     setExpiresAt(null);
+    writeSessionHint(false);
     queryClient.clear();
     router.refresh();
   }, [queryClient, router]);
@@ -71,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const applySession = useCallback(
     (user: PublicUser, accessTokenExpiresAt: number) => {
       setExpiresAt(accessTokenExpiresAt);
+      writeSessionHint(true);
       queryClient.setQueryData(queryKeys.auth.me, user);
     },
     [queryClient],
@@ -128,6 +137,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return subscribeAuth((message) => {
       if (message.type === "logout" || message.type === "session:revoked") {
         clearSession();
+      } else if (message.type === "session:expired") {
+        // Keep the inline re-auth dialog open, but show logged-out chrome.
+        setExpiresAt(null);
+        writeSessionHint(false);
+        queryClient.setQueryData(queryKeys.auth.me, null);
       } else if (message.type === "refresh") {
         if (typeof message.expiresAt === "number") {
           setExpiresAt(message.expiresAt);

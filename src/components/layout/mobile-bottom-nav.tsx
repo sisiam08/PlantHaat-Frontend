@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { cn } from "cn";
+import { useAuth } from "@/features/auth/auth-provider";
 import { LinkPending } from "./link-pending";
 
 const ITEMS = [
@@ -21,6 +22,7 @@ export function MobileBottomNav() {
   const t = useTranslations("nav");
   const tc = useTranslations("shell");
   const pathname = usePathname();
+  const { user, isLoading } = useAuth();
   const [hasFlowBar, setHasFlowBar] = useState(false);
 
   // A page flow bar and the floating nav never coexist.
@@ -41,6 +43,9 @@ export function MobileBottomNav() {
     return null;
   }
 
+  const showAccount = Boolean(user) || isLoading;
+  const items = showAccount ? ITEMS : ITEMS.filter((item) => item.key !== "account");
+
   return (
     <nav
       aria-label={tc("bottomNavLabel")}
@@ -48,7 +53,7 @@ export function MobileBottomNav() {
       className="fixed inset-x-3 z-40 rounded-full border border-border/70 bg-background/95 shadow-[0_12px_32px_-12px_rgb(11_33_22_/_0.35)] backdrop-blur-md md:hidden"
     >
       <ul className="mx-auto flex max-w-7xl items-stretch justify-around px-1.5">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (

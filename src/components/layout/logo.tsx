@@ -7,10 +7,12 @@ import { LinkPending } from "./link-pending";
 export function Logo({
   className,
   showText = true,
+  wordmarkClassName,
   tone = "default",
 }: {
   className?: string;
   showText?: boolean;
+  wordmarkClassName?: string;
   tone?: "default" | "sidebar";
 }) {
   return (
@@ -34,6 +36,7 @@ export function Logo({
           className={cn(
             "font-heading text-base leading-none font-bold tracking-tight sm:text-lg",
             tone === "sidebar" ? "text-sidebar-foreground" : "text-foreground",
+            wordmarkClassName,
           )}
         >
           Plant

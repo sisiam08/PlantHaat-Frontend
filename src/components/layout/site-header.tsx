@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
 import { CartLink } from "./cart-link";
-import { LocaleSwitch } from "./locale-switch";
+import { LanguageToggle } from "./language-toggle";
 import { Logo } from "./logo";
-import { NotificationsBell } from "./notifications-bell";
+import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 import { MobileSearch, SearchBar } from "./search-bar";
 import { UserMenu } from "./user-menu";
 
@@ -38,13 +38,11 @@ export function SiteHeader() {
         {t("skipToContent")}
       </a>
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-1 px-3 sm:gap-2 sm:px-4">
-        <Logo />
+        <Logo wordmarkClassName="hidden sm:inline" />
         <SearchBar className="hidden flex-1 md:block" />
         <div className="ml-auto flex items-center gap-0 sm:gap-1">
-          <div className="hidden items-center gap-1 md:flex">
-            <LocaleSwitch />
-          </div>
           {!onStorefrontSearch ? <MobileSearch compact className="md:hidden" /> : null}
+          <LanguageToggle />
           <NotificationsBell />
           <CartLink />
           <UserMenu />
