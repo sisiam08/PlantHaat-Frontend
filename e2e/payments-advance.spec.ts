@@ -142,6 +142,7 @@ test("COD order still works end to end", async ({ page, playwright }) => {
   const variant = detail.data.variants[0];
   await buyerApi.delete("/api/v1/cart");
   await buyerApi.put("/api/v1/cart/items", { data: { variantId: variant.id, quantity: 1 } });
+  const addresses = await (await buyerApi.get("/api/v1/addresses")).json();
   const order = await buyerApi.post("/api/v1/checkout", {
     headers: { "Idempotency-Key": crypto.randomUUID() },
     data: { addressId: addresses.data[0].id, paymentMethod: "COD" },

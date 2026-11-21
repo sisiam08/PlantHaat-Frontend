@@ -102,7 +102,9 @@ for (const locale of ["bn", "en"] as const) {
       expect(audit.actions.every((action) => action.height >= 44)).toBe(true);
       expect(new Set(audit.actions.map((action) => action.rightGap))).toEqual(new Set([0]));
       expect(audit.heroLeft).toBe(audit.headingLeft);
-      expect(audit.headerPad).toBe(16);
+      // The one-row header uses the compact 12 px gutter below sm so the
+      // logo, search, bell, cart and avatar fit at 360; content stays at 16.
+      expect(audit.headerPad).toBe(width < 768 ? 12 : 16);
       expect(audit.footerPad).toBe(16);
     });
   }

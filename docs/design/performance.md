@@ -197,3 +197,16 @@ Mobile is flat or better; desktop en is ~5% over the old LCP and bn is ~8-24% ov
 low-end environment. The remaining desktop cost is render delay (the palm paints after the hero
 text/fonts), not transfer. Goal within 5% is met for en at the low end of the range but not
 consistently; documented rather than cutting the owner-requested palm.
+
+## 2026-11-21 spot check (no code change)
+
+Production `.next-test` on `:3002`, test API `:5001`, Chromium headless, CDP Slow 4G (1.6/0.75 Mbps, 150 ms RTT) + 4x CPU, cache disabled, 5 runs. This is a **spot check**, not a replacement for the full program; no performance code was changed in this pass.
+
+| Home | 390x844 | 1440x900 |
+|---|---:|---:|
+| LCP median | 2656 ms (2476-3212) | 3240 ms (2516-3692) |
+| LCP vs last documented median | 2632 ms (+24 ms) | 3116-3208 ms (+32 ms low end) |
+| CLS | 0.0001 | 0.0001 |
+| Script transfer (all script responses + headers) | 401 KB | 401 KB |
+
+The 401 KB is the sum of `transferSize` for every script response including headers; the earlier 332-358 KB figure used the build/previous accounting and is not directly comparable. No change was kept because no median improved. P1-1 remains open: the next pass should re-run the full matrix, split first-party bootstrap vs lazy chunks, and try deferring `/auth/me`, the realtime socket and the toaster on public pages with measured deltas.

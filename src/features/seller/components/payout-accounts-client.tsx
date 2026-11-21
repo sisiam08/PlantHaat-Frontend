@@ -19,7 +19,9 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { sellerApi } from "../api";
 import type { PayoutMethod } from "../types";
 
-const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "ROCKET", "BANK"];
+// ROCKET is not in the canonical payout.methods setting, so it must not be
+// offered for new destinations (existing rows still render).
+const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "BANK"];
 
 export function PayoutAccountsClient() {
   const t = useTranslations("seller.payouts");
@@ -33,7 +35,7 @@ export function PayoutAccountsClient() {
   });
 
   const schema = z.object({
-    method: z.enum(["BKASH", "NAGAD", "ROCKET", "BANK"]),
+    method: z.enum(["BKASH", "NAGAD", "BANK"]),
     accountName: z.string().min(1, t("validation.accountName")),
     accountNumber: z.string().min(4, t("validation.accountNumber")),
     isDefault: z.boolean(),
