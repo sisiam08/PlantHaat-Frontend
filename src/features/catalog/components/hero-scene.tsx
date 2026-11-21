@@ -31,7 +31,6 @@ function sizesFor(visibleWidthPct: number) {
  * stage fits that box by height on small screens and centers it.
  */
 export function HeroScene() {
-  const palm = HERO_SCENE.plants.find((plant) => plant.key === "palm")!;
   return (
     <div
       data-hero-stage-outer
@@ -41,15 +40,6 @@ export function HeroScene() {
         data-hero-stage
         className="relative h-full aspect-11/10 max-h-full shrink-0 overflow-hidden"
       >
-        <link
-          rel="preload"
-          as="image"
-          type="image/avif"
-          href="/hero/palm-mobile.avif"
-          imageSrcSet={srcSet(palm, "avif")}
-          imageSizes={sizesFor(palm.visibleWidthPct)}
-          fetchPriority="high"
-        />
         {HERO_SCENE.plants.map((plant) => (
           <span
             key={`shadow-${plant.key}`}

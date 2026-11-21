@@ -866,10 +866,11 @@ export function ProductsBrowser({
               )}
             >
               <div data-product-grid className={PRODUCT_GRID_CLASS}>
-                {products.map((product) => (
+                {products.map((product, index) => (
                   <ProductCard
                     key={product.id}
                     product={product}
+                    priority={index < 4}
                     name={tp("outOfStock")}
                     locale={locale}
                     actionLabels={{

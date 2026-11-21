@@ -7,6 +7,7 @@ import { SectionFallback } from "@/components/section-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryBento } from "@/features/catalog/components/category-bento";
 import { Hero } from "@/features/catalog/components/hero";
+import { HeroPreload } from "@/features/catalog/components/hero-preload";
 import { HomeHighlightsSlot } from "@/features/catalog/components/home-highlights";
 import { HomeRails } from "@/features/catalog/components/home-rails";
 import { ProductFeed } from "@/features/catalog/components/product-feed";
@@ -87,21 +88,21 @@ function HomeSkeleton() {
   );
 }
 
-export default async function HomePage() {
-  const highlights = await getHomeHighlights();
-  const homeHighlights: HomeHighlights | null = highlights;
-
+export default function HomePage() {
   return (
     <>
+      <HeroPreload />
       <Hero />
       <Suspense fallback={<HomeSkeleton />}>
-        <HomeContent highlights={homeHighlights} />
+        <HomeContent />
       </Suspense>
     </>
   );
 }
 
-async function HomeContent({ highlights }: { highlights: HomeHighlights | null }) {
+async function HomeContent() {
+  const highlights = await getHomeHighlights();
+  const homeHighlights: HomeHighlights | null = highlights;
   const th = await getTranslations("home");
   let categories: Awaited<ReturnType<typeof getCategories>> | null = null;
   try {

@@ -63,6 +63,41 @@ async function cls(page: import("@playwright/test").Page, path: string) {
 }
 
 for (const locale of ["en", "bn"] as const) {
+  test(`home and header CLS <= ${CLS_LIMIT} (${locale})`, async ({ page, context }) => {
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 1440, height: 900 },
+    ] as const) {
+      await page.setViewportSize(viewport);
+      await context.addCookies([
+        { name: "NEXT_LOCALE", value: locale, domain: "localhost", path: "/" },
+      ]);
+      await page.addInitScript(() => {
+        (window as unknown as { __clsEntries: unknown[] }).__clsEntries = [];
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as unknown as {
+            value: number;
+            hadRecentInput: boolean;
+          }[]) {
+            (window as unknown as { __clsEntries: unknown[] }).__clsEntries.push({
+              value: entry.value,
+              hadRecentInput: entry.hadRecentInput,
+            });
+          }
+        }).observe({ type: "layout-shift", buffered: true });
+      });
+      const value = await cls(page, "/");
+      expect(value, `home CLS ${viewport.width} ${locale} ${value.toFixed(3)}`).toBeLessThanOrEqual(
+        CLS_LIMIT,
+      );
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        ),
+      ).toBe(true);
+    }
+  });
+
   test(`cart and checkout CLS <= ${CLS_LIMIT} with a slowed API (${locale})`, async ({
     page,
     context,

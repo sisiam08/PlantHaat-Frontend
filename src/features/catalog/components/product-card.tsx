@@ -112,6 +112,7 @@ export function ProductCard({
   actionLabels,
   ratingLabels,
   variant = "compact",
+  priority = false,
 }: {
   product: ProductCardData;
   name: string;
@@ -119,6 +120,7 @@ export function ProductCard({
   actionLabels: CardActionLabels;
   ratingLabels: CardRatingLabels;
   variant?: "compact" | "featured";
+  priority?: boolean;
 }) {
   const featured = variant === "featured";
   const reviews = product.ratingCount ?? 0;
@@ -143,6 +145,7 @@ export function ProductCard({
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            priority={priority}
             className="transition-transform duration-300 group-hover/card:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
           />
           {!product.inStock ? (

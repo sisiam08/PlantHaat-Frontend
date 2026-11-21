@@ -64,7 +64,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       <span
         lang="bn"
         className={cn(
-          "grid h-9 min-w-10 place-items-center rounded-full px-1.5",
+          "bangla-label grid h-9 min-w-10 place-items-center rounded-full px-1.5",
           locale === "bn" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
         )}
       >
