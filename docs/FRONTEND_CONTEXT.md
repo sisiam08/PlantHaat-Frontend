@@ -37,15 +37,15 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 
 ## 4. Non-negotiable rules
 
-- **Architecture (developer decision): client → Next.js server → backend.** Browser code never calls the backend. Client Components call the same-origin Route Handler gateway (`/api/v1/*`); Server Components call the backend through `src/server/backend.ts`. The only direct browser → backend connection is the realtime socket (ticket-authenticated).
+- **Architecture (developer decision): client â†’ Next.js server â†’ backend.** Browser code never calls the backend. Client Components call the same-origin Route Handler gateway (`/api/v1/*`); Server Components call the backend through `src/server/backend.ts`. The only direct browser â†’ backend connection is the realtime socket (ticket-authenticated).
 - **Images:** every upload goes through `uploadsApi` (`POST /uploads/images`, then persist the returned Cloudinary URL). Never construct local `/uploads/...` URLs. `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` must be set in `.env.local` so `next.config.ts` allows the Cloudinary host; restart the dev server after changing it. Product, category, shop logo/banner, review, complaint, payment-proof and admin-banner forms use this path.
-- **Auth:** httpOnly cookies owned by the Next.js origin (`ph_at`, `ph_rt`, issued only by the gateway/`proxy.ts`); tokens never touch client JS. Three-layer silent refresh: proxy → gateway refresh + replay → browser single-flight fallback; no loops. Contract: `backend/docs/auth/sessions.md`.
+- **Auth:** httpOnly cookies owned by the Next.js origin (`ph_at`, `ph_rt`, issued only by the gateway/`proxy.ts`); tokens never touch client JS. Three-layer silent refresh: proxy â†’ gateway refresh + replay â†’ browser single-flight fallback; no loops. Contract: `backend/docs/auth/sessions.md`.
 - **Payments:** COD and manual Advance (bKash/Nagad TrxID verification) are available; there is no gateway SDK. Advance is feature-flagged by Settings and must follow the real server state. Contract: `backend/docs/payments/api.md`.
-- **shadcn/ui through its CLI only.** Search first, then `add`; customize only as allowed in `FRONTEND_DESIGN.md` §6.2. Review `git diff` after `add`.
-- **Colors:** design tokens only (`FRONTEND_DESIGN.md` §6.1 / Appendix B). No hard-coded hex; one marigold CTA per screen region; respect contrast.
+- **shadcn/ui through its CLI only.** Search first, then `add`; customize only as allowed in `FRONTEND_DESIGN.md` Â§6.2. Review `git diff` after `add`.
+- **Colors:** design tokens only (`FRONTEND_DESIGN.md` Â§6.1 / Appendix B). No hard-coded hex; one marigold CTA per screen region; respect contrast.
 - **Light mode only** (`forcedTheme="light"`, `color-scheme: light`, no toggle, no theme storage). QA runs light only.
 - **Typography:** Inter for Latin, Hind Siliguri for Bangla. The supplied `Kalpurush.ttf` has no Bengali glyphs and is not wired. Use one `<Price>` renderer, Latin digits, taka sign before amounts.
-- **UI must look intentional**, not default components. Follow `design/DIRECTION.md` and `FRONTEND_DESIGN.md` §6.5.
+- **UI must look intentional**, not default components. Follow `design/DIRECTION.md` and `FRONTEND_DESIGN.md` Â§6.5.
 - **Look at your work:** Playwright at 360 and 1280 (bn + en), loading/empty/error states, console/network errors, axe where available. A UI task is not done until verified visually.
 - `proxy.ts` is a UX gate, not the security boundary: re-verify sessions in server layouts/data access (`requireSession`); the backend stays authoritative.
 - **No hard-coded UI text:** every string via next-intl (`bn` default, `en`). Server is authoritative for prices/totals/stock/commission; treat money as opaque strings.
@@ -55,7 +55,7 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 ## 5. Working protocol
 
 1. Read the relevant docs above, run `git status`, inspect `src/`, and continue from the current state. Do not redo finished work.
-2. Work in small vertical slices: implement → tests → `npm run lint`, `npm run typecheck`, `npm test`, targeted Playwright → fix → commit locally.
+2. Work in small vertical slices: implement â†’ tests â†’ `npm run lint`, `npm run typecheck`, `npm test`, targeted Playwright â†’ fix â†’ commit locally.
 3. Run a production build once per phase/major step, not after every edit.
 4. Visual QA is part of every UI task; list the pages and viewports actually verified.
 5. Update the canonical docs (`backend/docs/progress.md`, relevant `frontend/docs/design/*`) instead of creating new files.
@@ -66,7 +66,7 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 
 - TypeScript strict; no `any` (use `unknown` + narrowing); no unused code; no `console.log` in committed code.
 - Server Components by default; `"use client"` only where interactivity requires it. Feature logic in `src/features/*`, not route files.
-- Keep loading/empty/error/success/disabled/permission states; guest→authenticated cart; checkout validation; seller-wizard validation.
+- Keep loading/empty/error/success/disabled/permission states; guestâ†’authenticated cart; checkout validation; seller-wizard validation.
 - Accessibility: semantic HTML, accessible names, keyboard support, visible focus, 44px targets, one `<main>` per page (owned by `SiteShell`), one `h1` per page.
 - Money may arrive as strings; display with `Intl.NumberFormat` / `<Price>`, never compute prices as truth.
 - Responsive at 360px, not a scaled desktop; verify mixed Bangla/English wrapping and line-height.
@@ -75,26 +75,27 @@ Next.js 16 App Router (Cache Components / `use cache`, `proxy.ts`, Turbopack), R
 
 - Customer pages use `PageHeader` (one `h1` 24/30) + `PageContainer` (wide/reading/form/narrow); `SiteShell` owns the only `<main>`.
 - Auth forms are `inert` with disabled Submit until hydration and use `method="post"` as a native fallback (no credentials in the URL).
-- One date formatter: `formatLatinDateTime(value, locale)`; `formatDateTime` is a deprecated alias. Latin digits everywhere; ৳ before amounts.
+- One date formatter: `formatLatinDateTime(value, locale)`; `formatDateTime` is a deprecated alias. Latin digits everywhere; à§³ before amounts.
 - Home: all 11 categories + All categories, curated plants-only/in-stock rails, adjacent-rail dedupe, sparse rails hidden below 4 unique cards (`HOME_RAIL_MIN = 4`), All products feed includes accessories honestly.
 - Home hero (2026-11-20): the owner-preferred editorial left side restored from `f100858` (badge, settings headline/subheadline, native GET search, two links) and a borderless right-side scene of four real cutouts (monstera, palm, snake, calathea) with a progressive-enhancement WebGL wind sway. Static `<picture>` (AVIF primary, WebP fallback) is the no-JS/reduced-motion/save-data/no-WebGL result; admin `home.hero.image` overrides the scene statically. The plants/shadows use a fixed 11:10 inner box (300 px phone, 420 px tablet, centered), so composition ratios stay stable. The sway quality monitor reads raw rAF ticks (warmup 3 s, ignore >250 ms, DPR after >28 ms/3 s, static after >150 ms/5 s) and cached clip rects; 60 s dev/prod Chrome logs stay webgl. Edge-feathered clipped cutouts; palm visible 600/padded 672 px; AVIF q50. Chips are unwired/removed from Settings. `src/config/home-banners.ts` remains unused (owner file untouched).
 - Home Highlights (2026-11-19): admin-managed `HOME_HIGHLIGHTS` banners rendered by `HomeHighlightsSlot`; 3:2 mobile / 3:1 desktop aspect boxes, `<picture>` art direction, autoplay off by default, single slide = no carousel JS, multi-slide loads Embla on visibility and only selected-slide images. Off/empty/failure removes the section entirely.
-- Admin: **Home → Highlights** (`/admin/highlights`) edits images, overlay/text/position/colors, button/link, schedule, active state and master autoplay/interval controls; Settings → Home holds the hero copy/chips/image and the highlights on/off/title/max keys.
+- Admin: **Home â†’ Highlights** (`/admin/highlights`) edits images, overlay/text/position/colors, button/link, schedule, active state and master autoplay/interval controls; Settings â†’ Home holds the hero copy/chips/image and the highlights on/off/title/max keys.
 - Shared card surface: `rounded-xl` (feature `rounded-2xl`), `border-border/60`, `shadow-[var(--shadow-soft)]`.
 - Checkout with an empty cart shows the shared empty state, not a zero-total form.
 - Order detail maps the raw payment enum to the localized label; no raw enums in customer copy.
 - Seller/admin keep the dark-ink `DashboardShell` and 36px compact controls; adopting the customer page shell is deferred.
-- Header/navigation (2026-11-21): exactly one `En | বাং` control, always visible, switches on one click and restores scroll after the document reload; `html lang` follows the locale. Guests see logo/search/toggle/cart/"Log in" (no Register, bell or profile) and the mobile bottom nav hides Account while keeping Orders. Signed-in users see the bell + profile menu and all five tabs. The bell opens an in-place desktop popover or mobile bottom-sheet dialog (never navigates), with unread badge capped at `9+`, mark-all, paging, relative Latin-digit times and realtime/polling refresh. A non-sensitive `ph_has_session=1` cookie only reserves signed-in chrome before `/auth/me` resolves; it is never authorization. `session:expired` clears the cached user so the header goes guest while the inline re-auth dialog remains open.
+- Header/navigation (2026-11-21): exactly one `En | à¦¬à¦¾à¦‚` control, always visible, switches on one click and restores scroll after the document reload; `html lang` follows the locale. Guests see logo/search/toggle/cart/"Log in" (no Register, bell or profile) and the mobile bottom nav hides Account while keeping Orders. Signed-in users see the bell + profile menu and all five tabs. The bell opens an in-place desktop popover or mobile bottom-sheet dialog (never navigates), with unread badge capped at `9+`, mark-all, paging, relative Latin-digit times and realtime/polling refresh. A non-sensitive `ph_has_session=1` cookie only reserves signed-in chrome before `/auth/me` resolves; it is never authorization. `session:expired` clears the cached user so the header goes guest while the inline re-auth dialog remains open.
 - Payment/auth state is never faked in UI; disabled and permission-denied states must remain.
+- Performance decisions (2026-11-21): the home palm preload is emitted in the early shell (`HeroPreload`), not inside the hero subtree; catalog cards 1-4 are priority; English uses a 3 KB Hind subset for `৳`/`বাং` instead of downloading full Hind 400+600, while Bangla keeps Hind. The session-expired dynamic-dialog split was measured and reverted (JS +11 KB, one extra chunk). Browser runtime/hydration is the remaining home cost; `/products` API warm p50 356 ms is untouched pending verified index evidence. Guards: `npm run check:bundle` (home 400 / catalog 415 / PDP 430 / cart 395 / checkout 385 KB limits) and home CLS in `e2e/cls.spec.ts`.
 
 ## 8. Pages and routes
 
-Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/catalog/PDP/shops/cart/checkout/payment/auth/static, customer account/orders/wishlist/notifications/complaints, seller onboarding/dashboard/products/orders/earnings, admin dashboard/sellers/products/orders/payments/refunds/payouts/settings/content.
+Authoritative route list: `FRONTEND_DESIGN.md` Â§7. Built areas: public home/catalog/PDP/shops/cart/checkout/payment/auth/static, customer account/orders/wishlist/notifications/complaints, seller onboarding/dashboard/products/orders/earnings, admin dashboard/sellers/products/orders/payments/refunds/payouts/settings/content.
 
 ## 9. Environment and how to run
 
 - `npm install`, then `cp .env.example .env.local` and fill values. Backend default `http://localhost:5000`; use `API_INTERNAL_URL=http://127.0.0.1:5000` (IPv4).
-- `npm run dev` → `:3000`; one supervised API on `:5000`; `:3100` stays off.
+- `npm run dev` â†’ `:3000`; one supervised API on `:5000`; `:3100` stays off.
 - Production build into a throwaway dir: `NEXT_DIST_DIR=.next-prod npm run build`; do not delete `.next` while the dev server runs.
 - Public env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_REALTIME_URL`, `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_SUPPORT_PHONE`, `NEXT_PUBLIC_SUPPORT_EMAIL`. Server-only: `API_INTERNAL_URL`, `BFF_SHARED_SECRET`, `BACKEND_TIMEOUT_MS`, `GATEWAY_MAX_BODY_MB`, `REVALIDATE_SECRET`, `SITE_ORIGINS_EXTRA`.
 
@@ -107,8 +108,8 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 
 ## 11. Known issues and next steps
 
-- Cart/checkout CLS (~0.42/0.40) and checkout LCP ~4.3 s: reserve summary/address geometry or server-render a stable first summary line.
-- Catalog LCP ~3.0 s: first-row image priority candidate; verify it does not delay fonts.
+- Performance (2026-11-21 programme): home LCP medians now **2.86/2.39 s at 390 bn/en** and **2.87/2.87 s at 1440** (was 3.50/3.21 and 4.66/3.16); catalog 390 is **2.51/2.44 s**. Home render delay is ~1.2-1.6 s (hydration), English fonts are 51.6 KB after the Taka/Latin isolation; Bangla is 198 KB. `/products` warm p50 is 356 ms. PDP/cart/checkout image/text LCP still depends on Cloudinary TTFB (0.4-4 s observed) and is the next external bottleneck. Full before/after table and candidate log: `design/performance.md`.
+- Catalog/PDP LCP images: first four catalog cards use `priority`; PDP gallery already uses priority/responsive sizes. Do not add more priority without measuring; Cloudinary variant cold-start dominates desktop catalog noise.
 - Seller/admin consistency pass (page shell) deferred.
 - Real product/category photography is still owner-supplied data; never fabricate or hotlink.
 - Settings Playwright specs need the isolated `:5001`/`:3002` stack and an admin password; never run them against dev settings.
@@ -131,9 +132,9 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 
 - Seller wallet replaces the old earnings screen at `/seller/earnings`: Available/Pending/On hold/
   Total withdrawn/COD dues, per-order release dates, transactions with type filter, payout profile,
-  withdrawal dialog. Nav label is �Wallet�.
-- Buyer order detail shows the snapshot return window, �Report a problem� and (when enabled)
-  �Everything is fine� early release with a consequence dialog. Older delivered orders without a
+  withdrawal dialog. Nav label is ï¿½Walletï¿½.
+- Buyer order detail shows the snapshot return window, ï¿½Report a problemï¿½ and (when enabled)
+  ï¿½Everything is fineï¿½ early release with a consequence dialog. Older delivered orders without a
   snapshot show a legacy-settled note.
 - Admin: new `/admin/withdrawals` pay/reject queue, money-decision panel on complaint detail with
   order summary/evidence lightbox, settlement block + breach banner on reconciliation, dashboard
@@ -150,7 +151,7 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 
 ## 15. Part 4 closing pass (2026-11-19)
 
-- Admin withdrawal destination: masked until �Show payout details�; password re-auth, copy, 60 s
+- Admin withdrawal destination: masked until ï¿½Show payout detailsï¿½; password re-auth, copy, 60 s
   auto-hide/close, no cache. Endpoint contract in `backend/docs/payments/api.md`.
 - Dispute filters (seller/age/amount/status) wired to the server; stale decision tabs show a conflict.
 - Legacy ledger/order explanation and reconciliation help text added bn/en.
@@ -164,3 +165,4 @@ Authoritative route list: `FRONTEND_DESIGN.md` §7. Built areas: public home/cat
 - Admin Settings has an Image storage health card that calls POST /admin/uploads/storage-check (tiny upload, HEAD, delete).
 - Production builds require NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; the build fails early if it is missing.
 - Storefront product/category images already use the custom Cloudinary loader; no loader change was made in this pass.
+

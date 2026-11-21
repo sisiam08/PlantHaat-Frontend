@@ -210,3 +210,83 @@ Production `.next-test` on `:3002`, test API `:5001`, Chromium headless, CDP Slo
 | Script transfer (all script responses + headers) | 401 KB | 401 KB |
 
 The 401 KB is the sum of `transferSize` for every script response including headers; the earlier 332-358 KB figure used the build/previous accounting and is not directly comparable. No change was kept because no median improved. P1-1 remains open: the next pass should re-run the full matrix, split first-party bootstrap vs lazy chunks, and try deferring `/auth/me`, the realtime socket and the toaster on public pages with measured deltas.
+
+## 2026-11-21 ITEM 2 performance programme
+
+### Method and baseline
+
+Production build (`NEXT_DIST_DIR=.next-prod`, Next 16.4.6/Turbopack) served with `next start -p 3000` after stopping the dev server; API `:5000`; `:3100` off. Chromium via Playwright, headless, real Chrome channel, fresh context per route/locale/viewport, browser cache disabled through CDP, Slow 4G (1.6 Mbps down / 0.75 up, 150 ms RTT), CPU 4x. Metrics from buffered PerformanceObserver + Resource Timing after 8 s settle; **5 runs**, medians. Routes: home, catalog, PDP (`/products/money-tree-bonsai-xokk`), cart (logged in, 2 shops), checkout (logged in); 390x844 and 1440x900; bn and en.
+
+Baseline (before this programme) and final (after the kept changes) are the same method and the same database/API.
+
+| Route | Viewport | LCP bn before -> after | LCP en before -> after | CLS max | JS gzip before -> after | Fonts (CSS) before -> after | Images before -> after | Chunks |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Home | 390 | 3496 -> **2856 ms** | 3208 -> **2388 ms** | 0.006 | 417 -> 417 KB | 120/146 -> 123/3 KB | 136 KB | 29 |
+| Home | 1440 | 4660 -> **2872 ms** | 3160 -> **2868 ms** | 0.0003 | 417 -> 417 KB | 120/146 -> 123/3 KB | 238 KB | 29 |
+| Catalog | 390 | 3552 -> **2512 ms** | 2972 -> **2444 ms** | 0.0055 | 432 -> 432 KB | 120/146 -> 123/3 KB | 37 -> 56 KB | 30 |
+| Catalog | 1440 | 4072 -> 4256 ms | 3868 -> 4204 ms | 0.0071 | 432 -> 432/404 KB | 120/146 -> 123/3 KB | 240 -> 280 KB | 25-30 |
+| PDP | 390 | 3236 -> 3264 ms | 2684 -> 4308 ms | 0.001 | 457 -> 457 KB | 120/146 -> 123/3 KB | 12 -> 30 KB | 33 |
+| PDP | 1440 | 2736 -> 3768 ms | 2408 -> 3176 ms | 0.0003 | 457 -> 457 KB | 120/146 -> 123/3 KB | 12 -> 52 KB | 33 |
+| Cart | 390 | 3532 -> 4328 ms | 2276 -> 2152 ms | 0.0114 | 402 -> 402 KB | 120/146 -> 123/3 KB | 2 -> 21 KB | 27 |
+| Cart | 1440 | 3208 -> 3500 ms | 2204 -> 2260 ms | 0.0057 | 402 -> 402 KB | 120/146 -> 123/3 KB | 2 -> 42 KB | 27 |
+| Checkout | 390 | 3540 -> 4092 ms | 2276 -> **2088 ms** | 0.0099 | 467 -> 467 KB | 120/146 -> 123/3 KB | 0 -> 19 KB | 34 |
+| Checkout | 1440 | 2580 -> 2716 ms | 2232 -> 2240 ms | 0.0242 | 467 -> 467 KB | 120/146 -> 123/3 KB | 0 -> 40 KB | 34 |
+
+- LCP element: home palm AVIF; catalog product image; PDP gallery image; cart text/line image; checkout summary/address/H1 (locale-dependent). Home LCP breakdown after: load delay 52-100 ms en / 95-2217 ms bn, render delay 1.2-1.6 s. PDP image LCP after 390 en: CDN load delay 4.9 s in the final run (direct Cloudinary TTFB varied 0.4-3.9 s across three checks).
+- CSS: one render-blocking stylesheet, 24.4 KB transfer home/checkout, 26.1 KB catalog/PDP/cart. Fonts column is Resource Timing for CSS-initiated font files; Inter is a preload (`link`), so the true English font total fell from **195 KB to 51.6 KB** (Inter 48.6 + Taka 3.0), while Bangla is **198 KB** (Hind 400+600 + Inter + Taka). CLS stayed <= 0.0114 on every measured route.
+- The PDP/cart/checkout 1440 regressions are image-CDN/load-delay driven, not code paths changed here: no image URL, `sizes`, cart or checkout code changed, and the same URLs measured 0.4-4 s Cloudinary TTFB during the final window. Kept changes are judged on routes they touch (home/catalog) and on bytes.
+
+### Backend latency, test API `:5001` (`planthaat_test`)
+
+Sequential requests, 20 warm requests each, first request after process start as cold; total response time (not DB-only).
+
+| Endpoint | Cold | p50 | p95 |
+|---|---:|---:|---:|
+| `/health` | 165 ms | 55 ms | 70 ms |
+| `/home` | 107 ms | 106 ms | 112 ms |
+| `/categories` | 658 ms | 55 ms | 61 ms |
+| `/products?limit=12` | 373 ms | **356 ms** | **385 ms** |
+| `/products/test-mint-pot` | 704 ms | 159 ms | 163 ms |
+| `/settings/public` | 67 ms | 2 ms | 4 ms |
+
+`/products` is the clear warm endpoint cost; no N+1/index change was made because `BACKEND_CHANGE_REQUESTS.md` contains no verified N+1/index proposal and an index/migration would need EXPLAIN evidence. Home/categories/settings are cached in the Next server; the catalog first page is cached with `use cache` and tagged.
+
+### Bundle analyzer (built-in `next analyze -o`)
+
+Top 10 client contributors by compressed graph size (includes async graph; not the same accounting as transfer bytes):
+
+| Home | Compressed | PDP add-on | Compressed |
+|---|---:|---|---:|
+| react-dom-client | 62.4 KB | react-dom-client | 62.4 KB |
+| Next polyfills | 38.5 KB | Next polyfills | 38.5 KB |
+| globals.css | 23.4 KB | globals.css | 23.4 KB |
+| react-hook-form | 11.0 KB | react-hook-form | 11.0 KB |
+| sonner | 9.2 KB | yet-another-react-lightbox | 10.1 KB |
+| zod core schemas | 8.8 KB | sonner | 9.2 KB |
+| react-server-dom | 7.6 KB | zod core schemas | 8.8 KB |
+| embla-carousel | 6.7 KB | product-engagement (QA) | 8.6 KB |
+| segment-cache | 6.3 KB | react-server-dom | 7.6 KB |
+| cn engine | 5.6 KB | embla-carousel | 6.7 KB |
+
+### Candidates: kept and reverted
+
+- **Kept - early hero preload.** The palm preload was emitted at byte ~286,885 of the streamed home HTML because it lived inside `HeroScene` after the highlights/settings reads. A static `HeroPreload` now emits it at byte ~302 (head/early shell), and the duplicate link inside the scene was removed. Home LCP: **-18%/-26% at 390 bn/en, -38%/-9% at 1440 bn/en**; load delay fell to 52-100 ms en. Composition unchanged.
+- **Kept - Taka/Latin font isolation.** English pages were downloading Hind 400+600 (146 KB) only for `৳` and the `বাং` toggle label. A 3 KB Hind subset (U+09F3 + বাং glyphs) is now the first font for those glyphs and for every price/heading taka; English loads Inter 48.6 + Taka 3.0 KB and **no full Hind**. Bangla keeps Hind as required. No layout/CLS change; typography suite stays green. LCP effect on English was positive on 390 (-216 ms in the isolated font run) and noisy at 1440 before the hero fix.
+- **Kept - catalog first-row image priority.** The first four cards use `priority`; catalog 390 LCP improved -29%/-18% (bn/en) and 1440 improved in the isolated run (-328/-128 ms). Final 1440 was slower from a cold Cloudinary variant; mobile remains a clear win and the extra bytes are first-row images.
+- **Reverted - session-expired dialog split.** Dynamically importing the dialog+form removed RHF/zod from the graph but Next fetched the dynamic chunk during first load: JS transfer **+11 KB**, chunks 29->30, home LCP 2824/2232 vs 2856/2388 (no improvement), TBT noisy. Reverted rather than keep a chunk-count/byte regression.
+- **Not applied - auth/realtime/toaster deferral.** The realtime socket is already created only for authenticated users; `/auth/me` drives the no-flash header and cannot be skipped without a stale-guest window; deferring the toaster/provider only moved code after hydration with no measured win and risked missing early toasts. No safe change kept.
+- **Not applied - CSS/chunk reduction.** One render-blocking CSS file (24-26 KB transfer) and 25-34 route chunks; no unused-CSS or manual chunk lever exists without a broad refactor or a new dependency. The session split was the evaluated route-split lever and failed its JS budget.
+- **Not applied - server includeTotal/caching/index.** Rails already omit totals; categories/home are `use cache` tagged; the only explicit total is the catalog label. `/products` warm p50 356 ms remains the backend bottleneck but has no verified safe index/N+1 change in the change-request file.
+
+### Guards added
+
+- `npm run check:bundle` (`scripts/check-bundle-budget.mjs`) reads the client-reference manifests + root main files from `NEXT_DIST_DIR`, gzips every referenced chunk and enforces: `/` 400 KB, `/products` 415 KB, `/products/[slug]` 430 KB, `/cart` 395 KB, `/checkout` 385 KB. Current: 372/386/403/371/360 KB.
+- `e2e/cls.spec.ts` now also measures home at 390 and 1440 in bn/en (header/auth state included), alongside the existing slowed-API cart/checkout checks.
+
+### Remaining bottlenecks
+
+1. Home render delay (~1.2-1.6 s) and hydration/TBT; React DOM/Next runtime dominate the graph. Further gains need a deliberate hydration/route-splitting programme, not a micro-change.
+2. Catalog/PDP image LCP depends on Cloudinary TTFB (0.4-4 s observed); preload/sizes are correct. Use a CDN warm-up or an owner-approved image host/SLA check before launch.
+3. English font transfer is now 51.6 KB; Bangla remains 198 KB (Hind 400/600 + Inter). Static Inter weights instead of the variable face is the next safe byte lever.
+4. `/products` API warm p50 356 ms; profile with EXPLAIN ANALYZE before adding an index/migration.
+5. Checkout 1440 CLS 0.024 (under 0.1) remains the highest CLS route; no regression from this pass.
