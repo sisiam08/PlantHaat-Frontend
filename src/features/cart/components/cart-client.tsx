@@ -477,10 +477,11 @@ function ShopCard({
           </div>
         ) : null}
 
-        {shop.items.map((item) => (
+        {shop.items.map((item, index) => (
           <CartLine
             key={item.variantId}
             item={item}
+            priority={index === 0}
             locale={locale}
             onQuantity={(next) => onQuantity(item.variantId, next)}
             onRemove={() => onRemove(item.variantId)}
@@ -564,6 +565,7 @@ function CartLine({
   issueLabel,
   removeLabel,
   quantityError,
+  priority = false,
 }: {
   item: CartItemView;
   locale: string;
@@ -572,6 +574,7 @@ function CartLine({
   issueLabel?: (code: string) => string;
   removeLabel: string;
   quantityError?: string;
+  priority?: boolean;
 }) {
   const t = useTranslations("cart");
   return (
@@ -581,7 +584,13 @@ function CartLine({
     >
       <div className="grid grid-cols-[64px_minmax(0,1fr)_44px] items-start gap-3 md:grid-cols-[72px_minmax(0,1fr)_auto_112px_44px] md:items-center md:gap-4">
         <div className="relative row-span-2 size-16 shrink-0 overflow-hidden rounded-xl bg-muted/40 md:row-span-1 md:size-[72px]">
-          <PlantImage src={item.image} alt={item.productName} fill sizes="72px" />
+          <PlantImage
+            src={item.image}
+            alt={item.productName}
+            fill
+            sizes="72px"
+            priority={priority}
+          />
         </div>
 
         <div data-cart-info className="col-start-2 row-start-1 min-w-0">

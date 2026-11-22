@@ -1,6 +1,7 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { preload } from "react-dom";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
@@ -23,6 +24,10 @@ export default function CartPage() {
 async function CartContent() {
   const t = await getTranslations("cart");
   const server = await getCartServerData();
+  const firstImage = server.cart?.shops[0]?.items[0]?.image;
+  if (firstImage) {
+    preload(firstImage, { as: "image", fetchPriority: "high" });
+  }
   return (
     <PageContainer>
       <PageHeader title={t("title")} />
