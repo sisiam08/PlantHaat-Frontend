@@ -2,7 +2,8 @@ import "server-only";
 
 import { serverGet } from "@/server/backend";
 import { readAuthCookies } from "@/server/cookies";
-import { presetBounds } from "@/components/dashboard/range";
+import { resolveDashboardRange } from "@/server/dashboard-range";
+import type { DateRange } from "@/components/dashboard/range";
 import type { AdminComplaintView, AdminPanels } from "./types";
 
 async function token(): Promise<string | undefined> {
@@ -15,11 +16,12 @@ async function token(): Promise<string | undefined> {
  * paint optimisation, never a second source of truth.
  */
 export async function getAdminPanelsServer(
-  range = presetBounds("30d"),
+  range?: DateRange,
 ): Promise<AdminPanels | undefined> {
+  const resolved = range ?? (await resolveDashboardRange("30d"));
   const accessToken = await token();
   if (!accessToken) return undefined;
-  const params = new URLSearchParams({ from: range.from, to: range.to });
+  const params = new URLSearchParams({ from: resolved.from, to: resolved.to });
   try {
     const result = await serverGet<AdminPanels>(`/admin/analytics/panels?${params.toString()}`, {
       token: accessToken,

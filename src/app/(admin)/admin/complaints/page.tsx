@@ -4,10 +4,10 @@ import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { presetBounds } from "@/components/dashboard/range";
 import { AnalyticsStrip } from "@/features/admin/components/analytics-strip";
 import { ComplaintsList } from "@/features/admin/components/complaints-list";
 import { getAdminComplaintsServer, getAdminPanelsServer } from "@/features/admin/server";
+import { resolveDashboardRange } from "@/server/dashboard-range";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("admin.complaints");
@@ -28,7 +28,7 @@ async function AdminComplaintsPageBody({ searchParams }: { searchParams: Promise
   const status = typeof sp.status === "string" ? sp.status : "";
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
-  const range = presetBounds("30d");
+  const range = await resolveDashboardRange("30d");
   const [initialData, initialPanels] = await Promise.all([
     getAdminComplaintsServer({ status, page, limit: 20 }),
     getAdminPanelsServer(range),

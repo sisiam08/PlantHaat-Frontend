@@ -3,9 +3,9 @@ import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { presetBounds } from "@/components/dashboard/range";
 import { DashboardClient } from "@/features/admin/components/dashboard-client";
 import { getAdminPanelsServer } from "@/features/admin/server";
+import { resolveDashboardRange } from "@/server/dashboard-range";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("admin.dashboard");
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations("admin.dashboard");
-  const range = presetBounds("30d");
+  const range = await resolveDashboardRange("30d");
   const initialPanels = await getAdminPanelsServer(range);
   return (
     <main className="flex-1">

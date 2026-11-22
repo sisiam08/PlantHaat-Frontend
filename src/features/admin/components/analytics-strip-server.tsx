@@ -1,4 +1,4 @@
-import { presetBounds } from "@/components/dashboard/range";
+import { resolveDashboardRange } from "@/server/dashboard-range";
 import { getAdminPanelsServer } from "../server";
 import { AnalyticsStrip, type AnalyticsSection } from "./analytics-strip";
 
@@ -8,7 +8,7 @@ import { AnalyticsStrip, type AnalyticsSection } from "./analytics-strip";
  * page keeps its loading/error states.
  */
 export async function AnalyticsStripServer({ section }: { section: AnalyticsSection }) {
-  const range = presetBounds("30d");
+  const range = await resolveDashboardRange("30d");
   const initialPanels = await getAdminPanelsServer(range);
   return (
     <AnalyticsStrip

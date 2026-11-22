@@ -4,12 +4,12 @@ import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { presetBounds } from "@/components/dashboard/range";
 import { OrdersList } from "@/features/admin/components/orders-list";
 import { getAdminPanelsServer } from "@/features/admin/server";
 import type { AdminShopOrderSummary } from "@/features/admin/types";
 import { serverGet } from "@/server/backend";
 import { readAuthCookies } from "@/server/cookies";
+import { resolveDashboardRange } from "@/server/dashboard-range";
 
 const PAGE_SIZE = 20;
 
@@ -44,7 +44,7 @@ async function AdminOrdersPageBody({
   // First paint from the server: the admin list's LCP was the table text that
   // arrived only after a client fetch. The summary projection + server fetch
   // removes that round trip; the client query seeds from it and stays live.
-  const range = presetBounds("30d");
+  const range = await resolveDashboardRange("30d");
   const [initialData, initialPanels] = await Promise.all([
     (async (): Promise<{ data: AdminShopOrderSummary[]; meta?: unknown } | undefined> => {
       const token = (await readAuthCookies()).accessToken;

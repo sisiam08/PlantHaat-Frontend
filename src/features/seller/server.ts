@@ -2,7 +2,8 @@ import "server-only";
 
 import { serverGet } from "@/server/backend";
 import { readAuthCookies } from "@/server/cookies";
-import { presetBounds } from "@/components/dashboard/range";
+import { resolveDashboardRange } from "@/server/dashboard-range";
+import type { DateRange } from "@/components/dashboard/range";
 import type {
   SellerPanels,
   SellerProductListItem,
@@ -16,11 +17,12 @@ async function token(): Promise<string | undefined> {
 
 /** Server first paint for the seller dashboard/health strips; falls back to the client query. */
 export async function getSellerPanelsServer(
-  range = presetBounds("30d"),
+  range?: DateRange,
 ): Promise<SellerPanels | undefined> {
+  const resolved = range ?? (await resolveDashboardRange("30d"));
   const accessToken = await token();
   if (!accessToken) return undefined;
-  const params = new URLSearchParams({ from: range.from, to: range.to });
+  const params = new URLSearchParams({ from: resolved.from, to: resolved.to });
   try {
     const result = await serverGet<SellerPanels>(`/seller/analytics/panels?${params.toString()}`, {
       token: accessToken,
