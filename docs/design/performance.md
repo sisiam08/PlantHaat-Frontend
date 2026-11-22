@@ -290,3 +290,58 @@ Top 10 client contributors by compressed graph size (includes async graph; not t
 3. English font transfer is now 51.6 KB; Bangla remains 198 KB (Hind 400/600 + Inter). Static Inter weights instead of the variable face is the next safe byte lever.
 4. `/products` API warm p50 356 ms; profile with EXPLAIN ANALYZE before adding an index/migration.
 5. Checkout 1440 CLS 0.024 (under 0.1) remains the highest CLS route; no regression from this pass.
+
+## 2026-11-22 ITEM 5 - regression bisect and cart LCP
+
+### Method: record-and-replay images
+
+The earlier comparison used live Cloudinary requests; that made image LCP depend on CDN TTFB and could not isolate code. This pass records every image response once into a local cache (`route.fulfill` with the recorded bytes/content-type), then serves it from memory/disk for every measured run. The document TTFB and the LCP resource TTFB are reported separately; measured image TTFB is 0-46 ms after replay. Browser cache remains disabled; Slow 4G 1.6/0.75 Mbps + 150 ms RTT and 4x CPU are unchanged.
+
+- Same `customer1@planthaat.test` session and same cart/product for every commit; API `:5000`; production build per commit; 7 runs, median/min/max; fresh browser context per run.
+- LCP element + breakdown: document TTFB, resource start/request/response/end, resource TTFB, resource load duration, render delay.
+- CLS, TBT proxy (long tasks > 50 ms), JS/CSS/font/image transfer bytes, chunk count and image request TTFB are recorded.
+- Raw result files are temporary `.artifacts/perf5/` evidence and were deleted after the written report.
+
+### Git-worktree bisect (7-run medians, image replay)
+
+| Route / viewport | Commit | LCP bn | LCP en | CLS | Notes |
+|---|---|---:|---:|---:|---|
+| Catalog 1440 | before font/priority (`a0ab6a7`) | 3064 | 2768 | 0.007 | image load 2737/2637, no priority |
+| Catalog 1440 | font/priority commit (`214482e`) | 3396 | 4164 | 0.007 | image load 2881/3484; the isolated run showed a catalog slowdown |
+| Catalog 1440 | current tip (`16f17d5`) | **2460** | **2508** | 0.007 | same public priority/font code; regression was not reproducible |
+| PDP 1440 | before | 3032 | 2452 | 0.0001 | render delay 2597/1949 |
+| PDP 1440 | font commit | 2964 | 2504 | 0.0001 | no regression |
+| PDP 1440 | current | **2636** | **2440** | 0.0001 | no regression |
+| Cart 390 | before | 2788 | 2232 | 0.0113 | image LCP in bn |
+| Cart 390 | font commit | 2688 | 2204 | 0.0113 | no regression |
+| Cart 390 | current before cart fix | 3344 | 2268 | 0.0113 | bn image started late |
+| Checkout 390 | before | 2260 | 2292 | 0.0100 | text LCP |
+| Checkout 390 | font commit | 2436 | 2160 | 0.0099 | within noise |
+| Checkout 390 | current | **2424** | **2224** | 0.0099 | within target |
+
+The earlier reported PDP/cart/checkout regressions do **not** reproduce when the image network is replayed. The one font-commit catalog anomaly did not survive on the current tip with the same public font/priority code; it is a server/build/CDN artifact, not a repeatable font or priority cause. The bisect therefore rejects the "font changed every route" hypothesis as the cause of the persistent cart/checkout/PDP numbers.
+
+### Cart fix kept
+
+Cart bn LCP was an image that started after hydration and painted late. A server-side `preload()` for the first cart line image (using the server-rendered cart) plus `priority` on that first line reduced the median from **2600/3344 to 2408 ms** (range 2208-3592), and en stayed at **2172 ms**. This is the only app code change kept in this pass. No other route code was changed.
+
+### Final numbers (current production build, 7 runs)
+
+| Route | 390 bn / en LCP | 390 CLS | 1440 bn / en LCP | 1440 CLS | Target |
+|---|---:|---:|---:|---:|---|
+| Home | 3116 / 3052 | 0.0019 | 3372 / 3152 (recheck 2924/2896) | 0.0002 | no regression |
+| Catalog | 2668 / 2460 | 0.0015 | 2884 / 2976 | 0.007 | desktop back to earlier |
+| PDP | 2656 / 2264 | 0.0019 | 2688 / **2532** | 0.0001 | desktop back to earlier |
+| Cart | **2408 / 2172** | 0.0048/0.0113 | 2396 / 2172 | 0.007/0.0063 | <=2.5 s 390 |
+| Checkout | **2252 / 2128** | 0.0099/0.0089 | 2324 / 2132 | 0.0066/0.0056 | <=2.5 s 390 |
+
+- Cart and checkout now meet the 390 en/bn target; CLS is <=0.0113.
+- Catalog 1440 is back below 3.0 s; PDP en 1440 is 2532 ms, 5% above the old 2408 ms median (bn is better) and within the measured run range. PDP LCP is image-render-delay bound (image load 368 ms, render delay 2.2 s), not font/image transfer.
+- Home remains in its documented 2.9-3.4 s band; no code in this pass changes home.
+- The guard `e2e/performance.spec.ts` enforces cart/checkout 2.75 s (target 2.5 + 10% margin), PDP/catalog 3.3 s, home 3.8 s using the same image replay and CDP settings. It passes 5.3 min serial. `npm run check:bundle` remains green.
+
+### Remaining
+
+- PDP/Catalog desktop LCP is still hydration/render-delay bound; Cloudinary TTFB is controlled in the guard, so this is no longer the explanation for regressions but remains a production risk.
+- Cart bn 2408 ms has a 2208-3592 ms range; the target is met by median, not every run.
+- Bangla fonts remain 198 KB; static Inter weights are still the next byte lever.
