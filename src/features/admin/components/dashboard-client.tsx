@@ -259,7 +259,7 @@ function QueueCard({
     >
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="mt-1 block font-heading text-2xl font-semibold tabular-nums">
-        {loading ? <Skeleton className="h-7 w-10" /> : (value ?? "?")}
+        {loading ? <Skeleton className="h-7 w-10" /> : (value ?? "—")}
       </span>
     </Link>
   );
