@@ -316,6 +316,133 @@ the AVIF quality rationale (q50, slightly below the recommended 55-60, visually 
 
 **Not carried forward:** the marketplace hero (category select, chips, hero product cards, hero trust row), `src/config/home-banners.ts` usage, the old `HeroComposition` and `TrustStrip`. The owner's config file is kept untouched; the root `hero-source/` photos are not committed.
 
+## 6.8 Admin and seller dashboards (2026-11-22, Phase 1)
+
+Scope: make the admin and seller panels feel like one professional SaaS product — visual data instead of bare numbers, animated tab transitions, clear hierarchy and mobile-first layouts — **without losing a single existing field, filter or action**. Page purpose and duplicate/canonical owners stay in `backend/docs/admin-audit.md` and `backend/docs/seller-audit.md`; this section is the dashboard spec, the retention inventory and the shared kit contract.
+
+### 6.8.1 Research decisions (with one-line rationale)
+
+| # | Decision | Rationale |
+|---|---|---|
+| 1 | Overview first, details on demand: the panel home is a scan layer (KPIs → one trend → queues → top lists), every widget links to its list/detail. | The 5-second scan answers "how is the business doing / what needs me" before the user navigates. |
+| 2 | One primary question per chart: trend = line/area, comparison = grouped bar, composition = donut (≤ 5 named slices + Other), pipeline = stage bars/funnel, progress = bullet/gauge, distribution = histogram/bar. | Chart choice follows the question; no pie for many slices and no dual axes. |
+| 3 | KPI cards always show value + delta vs the previous equal-length period + sparkline; the delta has an arrow, a sign and a word, not just colour. | Matches established dashboard practice and keeps meaning accessible without colour vision. |
+| 4 | Period selector is exactly Today / 7d / 30d / 90d / custom plus "compare previous period"; buckets use Asia/Dhaka calendar days and are capped at ≤ 90 points (weekly beyond 90 days, monthly beyond 2 years). | One predictable time model; caps keep payload and rendering fast. |
+| 5 | Every chart has a one-sentence text summary and a "View data" table toggle (CSV where the rows are already in memory). | Satisfies WCAG text-alternative guidance and makes the exact numbers auditable. |
+| 6 | Chart interaction: the plot is one focus stop; ←/→/Home/End move the active point; a live region announces the exact value; tooltips also open on pointer hover. | Avoids 60+ tab stops while keeping every point keyboard-reachable. |
+| 7 | Palette = existing chart tokens in a colour-blind-safe order (forest, info blue, terracotta, sage, marigold) plus shape markers and textures; gridlines use `--border`, axes `--muted-foreground`. | Reuses the design system, keeps ≥ 3:1 element contrast and never encodes by colour alone. |
+| 8 | Tables keep sticky headers, sortable headers, a density toggle and become labelled cards below `md`. | Long admin lists stay scannable and usable at 360 px. |
+| 9 | Animated tabs use the ARIA tabs pattern with one sliding indicator, 150–250 ms transform/opacity only, lazy mounting kept after first visit, URL-synced state and instant switching under reduced motion. | Smooth without layout thrash or motion-sensitivity issues. |
+| 10 | Loading is skeleton-first with the final box size; charts animate only on first visible render (≤ 400 ms); no looping animation; tables never animate. | Preserves CLS and perceived speed on low-end phones. |
+| 11 | Mobile: KPI strip is a horizontal snap rail, tab strips scroll with edge fade and auto-scroll the active tab, page actions stay reachable, targets stay ≥ 44 px. | Sellers mostly use phones; 360 px is the primary breakpoint, not a scaled desktop. |
+| 12 | Empty/zero states say what happened and what to do next; charts show the empty state instead of a flat zero line. | Nielsen heuristic: visibility of system status and a way forward; avoids fake-looking data. |
+| 13 | Never invent data: every added series (aging, conversion, top lists, wallet buckets, release timeline) is computed from real tables; a missing model means the widget is omitted. | Trust: dashboards must equal the underlying money/order tables. |
+| 14 | Charts are hand-built SVG primitives; `recharts` stays installed but unimported. | Smaller route bundles, full keyboard/a11y control and no new dependency. |
+| 15 | Dashboard primitives live in `src/components/dashboard/`, are client-only where interactive, and are never imported by public/customer routes (guard test + bundle check). | Public performance is unchanged and private-only code stays out of the storefront. |
+| 16 | Money always uses `<Price>`; compact axis numbers are Latin-digit (`1.2k`, `3.4M`) with exact values in tooltips/tables; dates use `formatLatinDateTime`/Asia-Dhaka. | One money/date convention across the app. |
+| 17 | Route-level state is URL-driven where it matters (tab param; period stays component state for now and will move to query in Phase 2). | Shareable/reload-safe screens without over-engineering Phase 1. |
+| 18 | Analytics responses are read-only, role-scoped SQL aggregates with a 30 s in-process cache outside tests. | Charts can be refreshed freely without hammering the DB; writes stay in existing services. |
+| 19 | No new indexes in Phase 1: existing model indexes cover the ranges; an index is added only after `EXPLAIN ANALYZE` on `planthaat_test` proves a need. | Avoid speculative migrations on a small dataset. |
+| 20 | Synthetic demo data is seeded only into `planthaat_test` by a marker-tagged, idempotent script with a cleanup counterpart. | Dashboards can be judged with realistic volume without touching dev or production. |
+
+### 6.8.2 Shared dashboard kit (implemented in Phase 1)
+
+Location `frontend/src/components/dashboard/`; tokens only; no global CSS additions.
+
+| Primitive | Contract |
+|---|---|
+| `KpiCard` | label, value slot, delta (value/direction/meaning/label), sparkline, optional target progress, detail link. |
+| `ChartCard` | title/subtitle/actions, one-sentence summary, loading/empty/error+retry, "View data" table toggle, CSV export, exact-size skeleton. |
+| `LineAreaChart` | one or more series (area/line/dashed), Dhaka-day labels, y ticks, direct last-point marker, keyboard point navigation, live announcement. |
+| `BarChart` | vertical grouped/stacked and horizontal ranking bars, texture overlay per series, pointer + keyboard values. |
+| `DonutChart` | composition with ≤ 5 named slices + "Other", centre total, legend with exact value and share. |
+| `FunnelChart` | stage bars with counts and step conversion, not a misleading polygon. |
+| `ProgressBar` / `Gauge` | `role="meter"` with label, min/max, exact value text and optional target marker. |
+| `Sparkline` | decorative inline trend; exact value lives in the KPI text. |
+| `Legend` | colour swatch + shape marker + optional value; can toggle series. |
+| `ChartSummary` | the text alternative also used as the chart's accessible description. |
+| `DataTable` | sticky header, sortable columns, density toggle, mobile card layout, empty text. |
+| `AnimatedTabs` | ARIA tabs, sliding indicator, lazy panels kept after first visit, URL param sync, reduced-motion aware. |
+| `DateRangePicker` | Today/7d/30d/90d/custom + compare toggle; Asia/Dhaka bounds. |
+| `StatusTimeline` | compact done/current/pending/failed timeline for detail screens. |
+| `Skeletons` | KPI/chart/table placeholders with the exact final dimensions. |
+
+Preview: `/dev/dashboard-kit` (dev/test only; returns 404 in production, disallowed in `robots.ts`) renders every primitive with sample data at 1280 and 360. Unit tests cover chart math, Dhaka ranges, KPI deltas, ChartCard states/toggle, donut grouping, funnel conversions, meter semantics, tab keyboard/URL/lazy behaviour and table sorting/density.
+
+### 6.8.3 Analytics API (read-only, Phase 1)
+
+`GET /api/v1/admin/analytics/panels` and `GET /api/v1/seller/analytics/panels`, both `from`/`to` ISO query params. Seller scope is enforced by `requireShop`; admin requires `Role.ADMIN`. All money is a decimal string, buckets are Asia/Dhaka (`YYYY-MM-DD`, or week/month start), series are capped ≤ 90 points. Responses add, without changing existing endpoints:
+
+- KPIs with current/previous/delta: GMV, orders, AOV, delivered orders, commission, new customers/sellers, refunds (admin); revenue, orders, AOV, delivered, commission, cancellations (seller).
+- `series`: orders/GMV/delivered revenue/commission/delivered/cancelled (admin); orders/revenue/delivered revenue/delivered/cancelled (seller).
+- `ordersByStatus`, `paymentMix` (COD vs Advance), verification aging + pending amount, dispute status/type/aging/resolution, refunds queue + advance refund obligations, withdrawals pending/paid/turnaround/aging, reconciliation buckets + A4/A5 conservation, inventory low/out-of-stock, rating distribution, delivery-performance buckets, top shops/products/categories/districts.
+- Seller: wallet buckets from `LedgerService.balances` (same source as the wallet page), release timeline from `SELLER_PENDING.releaseAt`, top products, inventory, ratings, disputes (including evidence due soon), withdrawals, delivery performance.
+- Consistency tests assert chart totals equal the existing overview/table totals for the same range; scope tests assert a seller never sees another shop; a PII test asserts no phone/email/TrxID/sender number appears.
+
+### 6.8.4 Page inventory — everything that must stay reachable
+
+Retention rule: each row's content must map to at least one of KPI tooltip, chart summary/data table, list filter, detail page or action in Phases 2–3. The checklist is ticked page by page in Phase 4.
+
+**Admin**
+
+| Page | Current content (must remain) |
+|---|---|
+| `/admin` | 7/30/90 range; queue counters (open disputes, pending withdrawals, advance refunds, payments to verify, reconciliation); GMV, orders, commission, pending approvals, new customers/sellers, cancellation/complaint rates, stuck orders, suspended-seller open orders, false-delivery flags; daily GMV bars; top shops/products/districts. |
+| `/admin/sellers`, `/admin/sellers/[id]` | Status filter, seller/business/shop/status/submitted rows; detail profile, contacts, shop links, documents viewer, ledger, dues payment/adjustment, bulk cancel, approve/reject/suspend/reactivate, audit trail. |
+| `/admin/suspended-sellers` | Suspended queue and open orders with bulk-cancel links. |
+| `/admin/users`, `/admin/users/[id]` | Role/status filters, email/name/role/status/created rows, create admin, suspend/reactivate; detail profile and actions. |
+| `/admin/shops` | Name/slug/status/seller rows, suspend/reactivate. |
+| `/admin/products` | Status filter, moderation rows (name/shop/status/price), approve/reject/remove. |
+| `/admin/categories` | Category list/CRUD, active/sort/image. |
+| `/admin/orders`, `/admin/orders/[id]` | Status filter; rows with order/shop/customer/total/status/payment; detail items, totals, customer/address, payment, history, transitions, cancellation response. |
+| `/admin/stuck-orders` | Flagged queue, reminder count, overdue filter, age. |
+| `/admin/cod-risk` | Risk profiles, status/whitelist actions, search. |
+| `/admin/refunds` | Status filter; payment refunds with approve/reject/process. |
+| `/admin/payouts` | Manual payout history, create/update status. |
+| `/admin/withdrawals` | Seller requests, status filter, masked destination reveal (re-auth), pay/reject. |
+| `/admin/commission-rules` | Rules/scopes, effective default, create/update/delete. |
+| `/admin/payments`, `/admin/payments/[id]` | Legacy payment filters (status/method/order/date), rows and detail. |
+| `/admin/advance-payments` | Pending verification queue: order, amount, provider, TrxID, sender number, time, proof; verify/reject. |
+| `/admin/advance-refunds` | REFUND_REQUIRED obligations, record refund TrxID. |
+| `/admin/reconciliation` | Period, totals, violations/breach banner, settlement buckets, ledger, help text. |
+| `/admin/complaints`, `/admin/complaints/[id]` | Status/seller/age/amount filters; ticket/customer/shop/type/status/amount rows; thread, attachments/evidence, internal notes, refund/hold decision. |
+| `/admin/content-reports` | Report list and hide/resolve actions. |
+| `/admin/review-reports` | Report list, resolve/hide/unhide review. |
+| `/admin/highlights` | Slides, master switch, autoplay/interval, reorder, duplicate/delete, previews, validation warnings. |
+| `/admin/banners` | Placement rows/CRUD; managed hero/highlights rows hidden with links. |
+| `/admin/homepage-sections` | Read-only section list. |
+| `/admin/announcements` | List/CRUD. |
+| `/admin/audit-logs` | Entity/action/actor filters and rows. |
+| `/admin/settings` | Group tabs, registry fields with help, unsaved bar, re-auth, history, storage health, read-only commission/highlights summaries. |
+
+**Seller**
+
+| Page | Current content (must remain) |
+|---|---|
+| `/seller/dashboard` | Application status/quick links; pending orders, unread notifications, unanswered questions, stuck orders, low-stock variants. |
+| `/seller/products`, `/new`, `/[id]` | List with status/stock/low-stock and delete; editor basics, care, variants, images, status; stock adjustment. |
+| `/seller/orders`, `/[id]` | Status tabs/counts and rows; detail items, customer/address, totals, history, valid transitions, delivery proof. |
+| `/seller/earnings` | Available/pending/on hold/withdrawn/COD dues, per-order release dates, ledger with type filter, withdrawal dialog/history, payout-profile summary/link. |
+| `/seller/payout-accounts` | Canonical masked destination list/add/delete with cooldown messaging. |
+| `/seller/complaints`, `/[id]` | Queue filters; thread, response text/photos, deadlines. |
+| `/seller/reviews` | Review list, reply/report. |
+| `/seller/questions` | Question list and answer. |
+| `/seller/shop` | Shop profile fields, logo/banner, vacation mode. |
+| `/seller/delivery-zones` | Zones with districts/charge/free-above/ETA, CRUD. |
+| `/seller/analytics` | Range selector, delivered/revenue/commission/AOV KPIs, rating, daily revenue bars, orders by status, top products, low stock. |
+| `/seller/cancellation-requests` | Request queue and respond. |
+| `/seller/apply` | Business/docs/shop/zones/payout/review wizard; approved notice; back link. |
+| `/shops/[slug]` | Public storefront read view (not a seller editor). |
+| Notifications | Shared bell only; no seller page exists. |
+
+### 6.8.5 Bundle and performance contract
+
+- `npm run check:bundle` now budgets `/admin` and `/seller/dashboard` (500 KB gzip each in Phase 1, tightened to measured + 10% in Phase 4) and fails if any public route's client manifest imports `components/dashboard`, `features/admin`, `features/seller` or `recharts`.
+- `tests/dashboard-isolation.test.ts` fails if public/customer routes import the kit or if the kit imports admin/seller feature code.
+- Phase 1 baselines (production build, CDP Slow 4G + 4× CPU, 5 runs, medians) are recorded in `design/performance.md`; public-route numbers are the existing documented medians.
+
+---
+
 ## 7. Information architecture and routes
 
 Legend: 🌐 public, 🔑 any logged-in, C customer, S seller, A admin.

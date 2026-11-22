@@ -345,3 +345,24 @@ Cart bn LCP was an image that started after hydration and painted late. A server
 - PDP/Catalog desktop LCP is still hydration/render-delay bound; Cloudinary TTFB is controlled in the guard, so this is no longer the explanation for regressions but remains a production risk.
 - Cart bn 2408 ms has a 2208-3592 ms range; the target is met by median, not every run.
 - Bangla fonts remain 198 KB; static Inter weights are still the next byte lever.
+
+### Admin and seller dashboard baselines (Phase 1, 2026-11-22)
+
+Method unchanged from the table above: production build (`NEXT_DIST_DIR=.next-prod`) served by `next start` on `:3000`, API `:5000`, `:3100` off, real Chrome via Playwright (`channel: chrome`), CDP Slow 4G (1.6/0.75 Mbps, 150 ms RTT) + 4x CPU, cache disabled, `bn` locale, 5 runs, medians. LCP from a buffered `largest-contentful-paint` observer, CLS from `layout-shift` without recent input, TBT proxy = sum(longtask duration - 50 ms), JS = sum of script `transferSize` (compressed transfer, headers included), API p50/p95 from same-origin `/api/v1/*` `PerformanceResourceTiming` durations. Login is a real admin/seller session created against the running API; no credentials are recorded.
+
+| Role | Route | Viewport | LCP | TBT proxy | CLS | JS transfer | API p50 / p95 |
+|---|---|---|---:|---:|---:|---:|---:|
+| admin | `/admin` | 1440x900 | 1816 ms | 136 ms | 0 | 462 KB | 643 / 2578 ms |
+| admin | `/admin` | 390x844 | 1728 ms | 196 ms | 0.001 | 391 KB | 668 / 2267 ms |
+| admin | `/admin/orders` | 1440x900 | 7152 ms | 132 ms | 0 | 446 KB | 704 / 2793 ms |
+| admin | `/admin/complaints` | 1440x900 | 1856 ms | 301 ms | 0 | 466 KB | 514 / 1511 ms |
+| admin | `/admin/reconciliation` | 1440x900 | 5984 ms | 172 ms | 0 | 462 KB | 735 / 2338 ms |
+| seller | `/seller/dashboard` | 1440x900 | 1816 ms | 323 ms | 0.004 | 451 KB | 231 / 1853 ms |
+| seller | `/seller/dashboard` | 390x844 | 1744 ms | 102 ms | 0.009 | 399 KB | 224 / 1353 ms |
+| seller | `/seller/orders` | 390x844 | 5584 ms | 50 ms | 0.001 | 371 KB | 502 / 2975 ms |
+| seller | `/seller/earnings` | 390x844 | 4988 ms | 304 ms | 0.001 | 379 KB | 501 / 1086 ms |
+| seller | `/seller/analytics` | 1440x900 | 1796 ms | 43 ms | 0 | 451 KB | 552 / 1399 ms |
+
+- Public routes are unchanged by this work: `check:bundle` reports home 373 / catalog 387 / PDP 403 / cart 372 / checkout 360 KB gzip, identical to the documented storefront numbers. Admin and seller dashboard budgets are 500 KB each (measured 352 / 351 KB for the route manifests; the larger transfer figures above include the shared root chunks plus font/image transfer in the resource timing sum).
+- The 5-7 s LCP rows (`/admin/orders`, `/admin/reconciliation`, `/seller/orders`, `/seller/earnings`) are **pre-redesign baselines**: their LCP element is table/content text that arrives after the API response, and API p95 is 1.1-3.0 s largely from the Neon pooler in `ap-southeast-1`. Phase 2/3 must keep or improve these while adding charts; Phase 4 re-measures with the same method.
+- TBT stays 43-323 ms and CLS <= 0.009 on every dashboard route, so charts are not competing with the main thread at load.
