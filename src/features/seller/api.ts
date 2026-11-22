@@ -199,6 +199,10 @@ export const sellerApi = {
     apiGet<SellerAnalyticsOverview>("/seller/analytics/overview", { params }).then(
       (result) => result.data,
     ),
+  getPanels: (params?: { from?: string; to?: string }) =>
+    apiGet<import("./types").SellerPanels>("/seller/analytics/panels", { params }).then(
+      (result) => result.data,
+    ),
 };
 
 /* Part 4: wallet, payout profile and withdrawals. */

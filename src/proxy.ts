@@ -135,6 +135,12 @@ function safeAuthReturnTo(request: NextRequest): string | undefined {
 }
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
+  // The dashboard kit preview is a dev/test tool. Block it before any rendering
+  // in production so a prerendered/PPR shell can never answer 200 for /dev.
+  if (process.env.NODE_ENV === "production" && request.nextUrl.pathname.startsWith("/dev")) {
+    return new NextResponse("Not Found", { status: 404 });
+  }
+
   if (isPrefetch(request)) {
     return NextResponse.next();
   }
@@ -275,6 +281,7 @@ export const config = {
     "/complaints/:path*",
     "/seller/:path*",
     "/admin/:path*",
+    "/dev/:path*",
     "/login",
     "/register",
     "/register/seller",

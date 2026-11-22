@@ -60,6 +60,7 @@ export const queryKeys = {
     withdrawals: (filters?: Record<string, unknown>) =>
       ["seller", "wallet", "withdrawals", filters ?? {}] as const,
     analytics: (range?: Record<string, unknown>) => ["seller", "analytics", range ?? {}] as const,
+    panels: (range?: Record<string, unknown>) => ["seller", "panels", range ?? {}] as const,
   },
   admin: {
     sellers: (filters?: Record<string, unknown>) => ["admin", "sellers", filters ?? {}] as const,
@@ -93,5 +94,6 @@ export const queryKeys = {
     auditLogs: (filters?: Record<string, unknown>) =>
       ["admin", "audit-logs", filters ?? {}] as const,
     analytics: (range?: Record<string, unknown>) => ["admin", "analytics", range ?? {}] as const,
+    panels: (range?: Record<string, unknown>) => ["admin", "panels", range ?? {}] as const,
   },
 } as const;

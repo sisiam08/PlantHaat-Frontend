@@ -58,6 +58,10 @@ export const adminApi = {
     apiGet<AdminAnalyticsOverview>("/admin/analytics/overview", qs(params)).then(
       (result) => result.data,
     ),
+  panels: (params?: { from?: string; to?: string }) =>
+    apiGet<import("./types").AdminPanels>("/admin/analytics/panels", qs(params)).then(
+      (result) => result.data,
+    ),
 
   /* ───────────────────────── sellers ───────────────────────── */
   listSellers: (params?: { status?: string; page?: number; limit?: number }) =>

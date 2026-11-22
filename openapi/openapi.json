@@ -745,7 +745,16 @@
       },
       "patch": {
         "operationId": "AdminSettingsController_update",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-settings-reauth",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -786,6 +795,90 @@
         "summary": "Update system settings",
         "tags": [
           "Admin: settings"
+        ]
+      }
+    },
+    "/api/v1/admin/settings/reauth": {
+      "post": {
+        "operationId": "AdminSettingsController_reauthenticate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReauthDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Admin: settings"
+        ]
+      }
+    },
+    "/api/v1/admin/settings/registry": {
+      "get": {
+        "operationId": "AdminSettingsController_registry",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Admin: settings"
+        ]
+      }
+    },
+    "/api/v1/admin/settings/history": {
+      "get": {
+        "operationId": "AdminSettingsController_history",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Admin: settings"
+        ]
+      }
+    },
+    "/api/v1/settings/public": {
+      "get": {
+        "operationId": "PublicSettingsController_getPublic",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Whitelisted public settings",
+        "tags": [
+          "Settings"
         ]
       }
     },
@@ -5078,6 +5171,30 @@
         ]
       }
     },
+    "/api/v1/orders/shop-orders/{id}/confirm-receipt": {
+      "post": {
+        "operationId": "OrdersController_confirmReceipt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Confirm delivery to release seller funds early",
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
     "/api/v1/seller/orders": {
       "get": {
         "operationId": "SellerOrdersController_list",
@@ -5817,6 +5934,21 @@
         ]
       }
     },
+    "/api/v1/admin/commission-rules/effective": {
+      "get": {
+        "operationId": "AdminCommissionRulesController_effective",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Effective default commission (GLOBAL rule or setting fallback)",
+        "tags": [
+          "Admin: commission rules"
+        ]
+      }
+    },
     "/api/v1/admin/commission-rules/{id}": {
       "patch": {
         "operationId": "AdminCommissionRulesController_update",
@@ -5893,6 +6025,229 @@
         ]
       }
     },
+    "/api/v1/advance-payments/orders/{orderId}": {
+      "get": {
+        "operationId": "PaymentsController_info",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Payment amount, snapshotted provider details, submissions and remaining amount",
+        "tags": [
+          "Advance payments"
+        ]
+      }
+    },
+    "/api/v1/advance-payments/orders/{orderId}/submissions": {
+      "post": {
+        "operationId": "PaymentsController_submit",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentSubmissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Submit a bKash/Nagad transaction ID for manual verification",
+        "tags": [
+          "Advance payments"
+        ]
+      }
+    },
+    "/api/v1/admin/advance-payments": {
+      "get": {
+        "operationId": "AdminAdvancePaymentsController_list",
+        "parameters": [
+          {
+            "name": "filter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List advance-payment intents (filter=pending|sla)",
+        "tags": [
+          "Admin: advance payments"
+        ]
+      }
+    },
+    "/api/v1/admin/advance-payments/{id}/verify": {
+      "post": {
+        "operationId": "AdminAdvancePaymentsController_verify",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Verify a submission with the amount received",
+        "tags": [
+          "Admin: advance payments"
+        ]
+      }
+    },
+    "/api/v1/admin/advance-payments/{id}/reject": {
+      "post": {
+        "operationId": "AdminAdvancePaymentsController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reject the pending submission with a reason",
+        "tags": [
+          "Admin: advance payments"
+        ]
+      }
+    },
+    "/api/v1/admin/advance-refunds": {
+      "get": {
+        "operationId": "AdminAdvancePaymentsController_refunds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Refund obligations queue",
+        "tags": [
+          "Admin: advance payments"
+        ]
+      }
+    },
+    "/api/v1/admin/advance-refunds/{id}/complete": {
+      "post": {
+        "operationId": "AdminAdvancePaymentsController_completeRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRefundDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Mark a refund complete with the refund transaction ID",
+        "tags": [
+          "Admin: advance payments"
+        ]
+      }
+    },
+    "/api/v1/seller/orders/{id}/advance-payment": {
+      "get": {
+        "operationId": "SellerPaymentsController_status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Read-only advance payment status for one shop order",
+        "tags": [
+          "Seller: advance payment status"
+        ]
+      }
+    },
     "/api/v1/admin/payouts": {
       "get": {
         "operationId": "AdminPayoutsController_list",
@@ -5926,7 +6281,8 @@
                 "PENDING",
                 "PROCESSING",
                 "PAID",
-                "FAILED"
+                "FAILED",
+                "REJECTED"
               ]
             }
           }
@@ -6109,7 +6465,22 @@
                 "PAYOUT",
                 "DUES_PAYMENT",
                 "REFUND_REVERSAL",
-                "ADJUSTMENT"
+                "ADJUSTMENT",
+                "PAYMENT_RECEIVED",
+                "SELLER_PENDING",
+                "SELLER_RELEASE",
+                "COMMISSION",
+                "DISPUTE_HOLD",
+                "DISPUTE_RELEASE",
+                "WITHDRAWAL_RESERVE",
+                "WITHDRAWAL_PAID",
+                "WITHDRAWAL_REJECTED",
+                "COD_DUES_ACCRUAL",
+                "COD_DUES_PAYMENT",
+                "REFUND_PAYABLE_CREATED",
+                "REFUND_PAID",
+                "ADJUSTMENT_DEBIT",
+                "ADJUSTMENT_CREDIT"
               ]
             }
           }
@@ -6564,6 +6935,348 @@
         "summary": "Process a refund and adjust the ledger",
         "tags": [
           "Admin: refunds"
+        ]
+      }
+    },
+    "/api/v1/seller/wallet": {
+      "get": {
+        "operationId": "SellerWalletController_summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Wallet balances, pending release dates and profile",
+        "tags": [
+          "Seller: wallet"
+        ]
+      }
+    },
+    "/api/v1/seller/wallet/transactions": {
+      "get": {
+        "operationId": "SellerWalletController_transactions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ORDER_EARNING",
+                "COD_COMMISSION_DUE",
+                "PAYOUT",
+                "DUES_PAYMENT",
+                "REFUND_REVERSAL",
+                "ADJUSTMENT",
+                "PAYMENT_RECEIVED",
+                "SELLER_PENDING",
+                "SELLER_RELEASE",
+                "COMMISSION",
+                "DISPUTE_HOLD",
+                "DISPUTE_RELEASE",
+                "WITHDRAWAL_RESERVE",
+                "WITHDRAWAL_PAID",
+                "WITHDRAWAL_REJECTED",
+                "COD_DUES_ACCRUAL",
+                "COD_DUES_PAYMENT",
+                "REFUND_PAYABLE_CREATED",
+                "REFUND_PAID",
+                "ADJUSTMENT_DEBIT",
+                "ADJUSTMENT_CREDIT"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Wallet ledger transactions",
+        "tags": [
+          "Seller: wallet"
+        ]
+      }
+    },
+    "/api/v1/seller/wallet/payout-profile": {
+      "get": {
+        "operationId": "SellerWalletController_profile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get the seller payout profile (masked)",
+        "tags": [
+          "Seller: wallet"
+        ]
+      },
+      "put": {
+        "operationId": "SellerWalletController_updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayoutProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Create or change the payout profile (cooldown applies)",
+        "tags": [
+          "Seller: wallet"
+        ]
+      }
+    },
+    "/api/v1/seller/wallet/withdrawals": {
+      "get": {
+        "operationId": "SellerWalletController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PROCESSING",
+                "PAID",
+                "REJECTED",
+                "FAILED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List the seller's withdrawal requests",
+        "tags": [
+          "Seller: wallet"
+        ]
+      },
+      "post": {
+        "operationId": "SellerWalletController_request",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Request a withdrawal (reserves the amount immediately)",
+        "tags": [
+          "Seller: wallet"
+        ]
+      }
+    },
+    "/api/v1/admin/withdrawals": {
+      "get": {
+        "operationId": "AdminWalletController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PROCESSING",
+                "PAID",
+                "REJECTED",
+                "FAILED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Withdrawal payout queue",
+        "tags": [
+          "Admin: withdrawals"
+        ]
+      }
+    },
+    "/api/v1/admin/withdrawals/{id}/destination": {
+      "post": {
+        "operationId": "AdminWalletController_revealDestination",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-settings-reauth",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reveal the full payout destination for one withdrawal (re-auth)",
+        "tags": [
+          "Admin: withdrawals"
+        ]
+      }
+    },
+    "/api/v1/admin/withdrawals/{id}/pay": {
+      "post": {
+        "operationId": "AdminWalletController_pay",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayWithdrawalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Mark a withdrawal paid and record the transaction reference",
+        "tags": [
+          "Admin: withdrawals"
+        ]
+      }
+    },
+    "/api/v1/admin/withdrawals/{id}/reject": {
+      "post": {
+        "operationId": "AdminWalletController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectWithdrawalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reject a withdrawal and return the reserved amount",
+        "tags": [
+          "Admin: withdrawals"
         ]
       }
     },
@@ -7371,6 +8084,51 @@
                 "CLOSED"
               ]
             }
+          },
+          {
+            "name": "seller",
+            "required": false,
+            "in": "query",
+            "description": "Shop or seller business name contains",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Minimum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Maximum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minAmount",
+            "required": false,
+            "in": "query",
+            "description": "Minimum order total",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "required": false,
+            "in": "query",
+            "description": "Maximum order total",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
@@ -7591,6 +8349,51 @@
                 "CLOSED"
               ]
             }
+          },
+          {
+            "name": "seller",
+            "required": false,
+            "in": "query",
+            "description": "Shop or seller business name contains",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Minimum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Maximum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minAmount",
+            "required": false,
+            "in": "query",
+            "description": "Minimum order total",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "required": false,
+            "in": "query",
+            "description": "Maximum order total",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
@@ -7767,6 +8570,51 @@
                 "REJECTED",
                 "CLOSED"
               ]
+            }
+          },
+          {
+            "name": "seller",
+            "required": false,
+            "in": "query",
+            "description": "Shop or seller business name contains",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Minimum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAgeHours",
+            "required": false,
+            "in": "query",
+            "description": "Maximum age in hours",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minAmount",
+            "required": false,
+            "in": "query",
+            "description": "Minimum order total",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "required": false,
+            "in": "query",
+            "description": "Maximum order total",
+            "schema": {
+              "type": "number"
             }
           }
         ],
@@ -7960,6 +8808,60 @@
         ]
       }
     },
+    "/api/v1/admin/complaints/{id}/decision": {
+      "post": {
+        "operationId": "AdminComplaintsController_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideDisputeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminComplaintDetailDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Decide a Part 4 dispute (reject, refund, return)",
+        "tags": [
+          "Admin: complaints"
+        ]
+      }
+    },
     "/api/v1/admin/complaints/{id}/comment": {
       "post": {
         "operationId": "AdminComplaintsController_comment",
@@ -8106,7 +9008,16 @@
     "/api/v1/admin/banners": {
       "get": {
         "operationId": "AdminContentController_listBanners",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "placement",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -8135,7 +9046,7 @@
             }
           }
         },
-        "summary": "List banners",
+        "summary": "List banners (optionally by placement)",
         "tags": [
           "Admin: content"
         ]
@@ -8179,6 +9090,98 @@
           }
         },
         "summary": "Create a banner",
+        "tags": [
+          "Admin: content"
+        ]
+      }
+    },
+    "/api/v1/admin/banners/reorder": {
+      "patch": {
+        "operationId": "AdminContentController_reorderBanners",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderBannersDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BannerDto"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Reorder banners in one transaction",
+        "tags": [
+          "Admin: content"
+        ]
+      }
+    },
+    "/api/v1/admin/banners/{id}/duplicate": {
+      "post": {
+        "operationId": "AdminContentController_duplicateBanner",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BannerDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Duplicate a banner as a hidden draft",
         "tags": [
           "Admin: content"
         ]
@@ -8414,6 +9417,30 @@
         "summary": "Delete a homepage section",
         "tags": [
           "Admin: content"
+        ]
+      }
+    },
+    "/api/v1/home/highlights": {
+      "get": {
+        "operationId": "PublicContentController_highlights",
+        "parameters": [
+          {
+            "name": "if-none-match",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Active home Highlights slides (public, cached)",
+        "tags": [
+          "Home"
         ]
       }
     },
@@ -8685,6 +9712,58 @@
         ]
       }
     },
+    "/api/v1/seller/analytics/panels": {
+      "get": {
+        "operationId": "SellerAnalyticsController_panels",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SellerPanelsDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Seller dashboard panels (read-only aggregated series)",
+        "tags": [
+          "Seller: analytics"
+        ]
+      }
+    },
     "/api/v1/admin/analytics/overview": {
       "get": {
         "operationId": "AdminAnalyticsController_overview",
@@ -8732,6 +9811,58 @@
           }
         },
         "summary": "Admin analytics overview",
+        "tags": [
+          "Admin: analytics"
+        ]
+      }
+    },
+    "/api/v1/admin/analytics/panels": {
+      "get": {
+        "operationId": "AdminAnalyticsController_panels",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AdminPanelsDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Admin dashboard panels (read-only aggregated series)",
         "tags": [
           "Admin: analytics"
         ]
@@ -10260,6 +11391,21 @@
         ]
       }
     },
+    "/api/v1/admin/uploads/storage-check": {
+      "post": {
+        "operationId": "AdminUploadsController_storageCheck",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Upload, fetch and delete a tiny probe image",
+        "tags": [
+          "Admin uploads"
+        ]
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -11090,6 +12236,14 @@
           "url": {
             "type": "string",
             "description": "Public URL (empty for private objects — fetch via the seller/appropriate route)"
+          },
+          "width": {
+            "type": "number",
+            "description": "Pixel width when known (HEIC may be unknown)"
+          },
+          "height": {
+            "type": "number",
+            "description": "Pixel height when known (HEIC may be unknown)"
           }
         },
         "required": [
@@ -11495,6 +12649,10 @@
         "required": [
           "updated"
         ]
+      },
+      "ReauthDto": {
+        "type": "object",
+        "properties": {}
       },
       "UpdateSettingsDto": {
         "type": "object",
@@ -15267,6 +16425,13 @@
             "type": "string",
             "nullable": true
           },
+          "deliveryProofs": {
+            "description": "Delivery proof photos",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
           "delayNotifiedAt": {
             "type": "string",
             "nullable": true,
@@ -15396,6 +16561,7 @@
           "estimatedDeliveryTo",
           "sellerNote",
           "deliveryNote",
+          "deliveryProofs",
           "delayNotifiedAt",
           "stuckReminderCount",
           "stuckFlaggedAt",
@@ -15555,6 +16721,14 @@
           "deliveryNote": {
             "type": "string",
             "description": "Optional seller note recorded when marking DELIVERED"
+          },
+          "deliveryProofUrls": {
+            "maxItems": 3,
+            "description": "Delivery proof image URLs (1-3)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "estimatedDeliveryFrom": {
             "type": "string"
@@ -15811,6 +16985,69 @@
           }
         }
       },
+      "CreatePaymentSubmissionDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD"
+            ]
+          },
+          "trxId": {
+            "type": "string",
+            "example": "9F7K2M1Q"
+          },
+          "senderNumber": {
+            "type": "string",
+            "example": "01700000000"
+          },
+          "proofUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "trxId",
+          "senderNumber"
+        ]
+      },
+      "VerifyPaymentDto": {
+        "type": "object",
+        "properties": {
+          "amountReceived": {
+            "type": "number",
+            "example": 1970
+          }
+        },
+        "required": [
+          "amountReceived"
+        ]
+      },
+      "RejectPaymentDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "CompleteRefundDto": {
+        "type": "object",
+        "properties": {
+          "refundTrxId": {
+            "type": "string",
+            "example": "BKASHREF1234"
+          }
+        },
+        "required": [
+          "refundTrxId"
+        ]
+      },
       "SellerPayoutDto": {
         "type": "object",
         "properties": {
@@ -15833,7 +17070,8 @@
               "PENDING",
               "PROCESSING",
               "PAID",
-              "FAILED"
+              "FAILED",
+              "REJECTED"
             ]
           },
           "method": {
@@ -15945,7 +17183,8 @@
               "PENDING",
               "PROCESSING",
               "PAID",
-              "FAILED"
+              "FAILED",
+              "REJECTED"
             ]
           },
           "method": {
@@ -15990,7 +17229,22 @@
               "PAYOUT",
               "DUES_PAYMENT",
               "REFUND_REVERSAL",
-              "ADJUSTMENT"
+              "ADJUSTMENT",
+              "PAYMENT_RECEIVED",
+              "SELLER_PENDING",
+              "SELLER_RELEASE",
+              "COMMISSION",
+              "DISPUTE_HOLD",
+              "DISPUTE_RELEASE",
+              "WITHDRAWAL_RESERVE",
+              "WITHDRAWAL_PAID",
+              "WITHDRAWAL_REJECTED",
+              "COD_DUES_ACCRUAL",
+              "COD_DUES_PAYMENT",
+              "REFUND_PAYABLE_CREATED",
+              "REFUND_PAID",
+              "ADJUSTMENT_DEBIT",
+              "ADJUSTMENT_CREDIT"
             ]
           },
           "amount": {
@@ -16317,6 +17571,76 @@
             "type": "string"
           }
         }
+      },
+      "PayoutProfileDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "BANK"
+            ]
+          },
+          "accountNumber": {
+            "type": "string",
+            "example": "01712345678"
+          },
+          "accountName": {
+            "type": "string",
+            "example": "Rahim Uddin"
+          }
+        },
+        "required": [
+          "method",
+          "accountNumber",
+          "accountName"
+        ]
+      },
+      "WithdrawalRequestDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 750
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BKASH",
+              "NAGAD",
+              "ROCKET",
+              "BANK"
+            ]
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "PayWithdrawalDto": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": "BKASH-889912"
+          }
+        },
+        "required": [
+          "reference"
+        ]
+      },
+      "RejectWithdrawalDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
       },
       "WishlistedShopRefDto": {
         "type": "object",
@@ -17124,6 +18448,30 @@
           "shop"
         ]
       },
+      "ComplaintCommentAttachmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "commentId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "commentId",
+          "url",
+          "createdAt"
+        ]
+      },
       "ComplaintCommentResponseDto": {
         "type": "object",
         "properties": {
@@ -17153,6 +18501,12 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintCommentAttachmentDto"
+            }
           }
         },
         "required": [
@@ -17162,7 +18516,8 @@
           "authorRole",
           "body",
           "isInternal",
-          "createdAt"
+          "createdAt",
+          "attachments"
         ]
       },
       "SellerComplaintDetailDto": {
@@ -17446,6 +18801,14 @@
           "isInternal": {
             "type": "boolean",
             "description": "Admin-only internal note"
+          },
+          "attachments": {
+            "maxItems": 20,
+            "description": "Response evidence image URLs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -17632,6 +18995,10 @@
               "$ref": "#/components/schemas/ComplaintCommentResponseDto"
             }
           },
+          "shopOrder": {
+            "type": "object",
+            "description": "Order context including delivery proofs"
+          },
           "refunds": {
             "type": "array",
             "items": {
@@ -17656,6 +19023,7 @@
           "updatedAt",
           "attachments",
           "comments",
+          "shopOrder",
           "refunds"
         ]
       },
@@ -17707,6 +19075,35 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "DecideDisputeDto": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "REJECTED",
+              "REFUND_FULL",
+              "REFUND_PARTIAL",
+              "RETURN_TO_SELLER"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "refundAmount": {
+            "type": "number",
+            "example": 500
+          },
+          "refundTrxId": {
+            "type": "string",
+            "example": "BKASHREF1234"
+          }
+        },
+        "required": [
+          "decision",
+          "reason"
         ]
       },
       "RealtimeTicketDto": {
@@ -17832,6 +19229,142 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imagePublicId": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageWidth": {
+            "type": "number",
+            "nullable": true
+          },
+          "imageHeight": {
+            "type": "number",
+            "nullable": true
+          },
+          "mobileImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobileImagePublicId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobileImageWidth": {
+            "type": "number",
+            "nullable": true
+          },
+          "mobileImageHeight": {
+            "type": "number",
+            "nullable": true
+          },
+          "imageAltBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageAltEn": {
+            "type": "string",
+            "nullable": true
+          },
+          "focalX": {
+            "type": "number"
+          },
+          "focalY": {
+            "type": "number"
+          },
+          "mobileFocalX": {
+            "type": "number"
+          },
+          "mobileFocalY": {
+            "type": "number"
+          },
+          "overlayEnabled": {
+            "type": "boolean"
+          },
+          "headlineBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "headlineEn": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtextBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtextEn": {
+            "type": "string",
+            "nullable": true
+          },
+          "textColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "scrimColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "scrimOpacity": {
+            "type": "number"
+          },
+          "desktopPosition": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobilePosition": {
+            "type": "string",
+            "nullable": true
+          },
+          "desktopAlign": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobileAlign": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonEnabled": {
+            "type": "boolean"
+          },
+          "buttonLabelBn": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonLabelEn": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonHref": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonStyle": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonBgColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "buttonTextColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "openInNewTab": {
+            "type": "boolean"
+          },
+          "createdById": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedById": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -17844,7 +19377,8 @@
           "isActive",
           "startsAt",
           "endsAt",
-          "createdAt"
+          "createdAt",
+          "updatedAt"
         ]
       },
       "CreateBannerDto": {
@@ -17874,10 +19408,123 @@
           },
           "endsAt": {
             "type": "string"
+          },
+          "imagePublicId": {
+            "type": "object"
+          },
+          "imageWidth": {
+            "type": "object"
+          },
+          "imageHeight": {
+            "type": "object"
+          },
+          "mobileImageUrl": {
+            "type": "object"
+          },
+          "mobileImagePublicId": {
+            "type": "object"
+          },
+          "mobileImageWidth": {
+            "type": "object"
+          },
+          "mobileImageHeight": {
+            "type": "object"
+          },
+          "imageAltBn": {
+            "type": "object"
+          },
+          "imageAltEn": {
+            "type": "object"
+          },
+          "focalX": {
+            "type": "number"
+          },
+          "focalY": {
+            "type": "number"
+          },
+          "mobileFocalX": {
+            "type": "number"
+          },
+          "mobileFocalY": {
+            "type": "number"
+          },
+          "overlayEnabled": {
+            "type": "boolean"
+          },
+          "headlineBn": {
+            "type": "object"
+          },
+          "headlineEn": {
+            "type": "object"
+          },
+          "subtextBn": {
+            "type": "object"
+          },
+          "subtextEn": {
+            "type": "object"
+          },
+          "textColor": {
+            "type": "object"
+          },
+          "scrimColor": {
+            "type": "object"
+          },
+          "scrimOpacity": {
+            "type": "number"
+          },
+          "desktopPosition": {
+            "type": "object"
+          },
+          "mobilePosition": {
+            "type": "object"
+          },
+          "desktopAlign": {
+            "type": "object"
+          },
+          "mobileAlign": {
+            "type": "object"
+          },
+          "buttonEnabled": {
+            "type": "boolean"
+          },
+          "buttonLabelBn": {
+            "type": "object"
+          },
+          "buttonLabelEn": {
+            "type": "object"
+          },
+          "buttonHref": {
+            "type": "object"
+          },
+          "buttonStyle": {
+            "type": "object"
+          },
+          "buttonBgColor": {
+            "type": "object"
+          },
+          "buttonTextColor": {
+            "type": "object"
+          },
+          "openInNewTab": {
+            "type": "boolean"
           }
         },
         "required": [
           "imageUrl"
+        ]
+      },
+      "ReorderBannersDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "UpdateBannerDto": {
@@ -17907,6 +19554,105 @@
           },
           "endsAt": {
             "type": "string"
+          },
+          "imagePublicId": {
+            "type": "object"
+          },
+          "imageWidth": {
+            "type": "object"
+          },
+          "imageHeight": {
+            "type": "object"
+          },
+          "mobileImageUrl": {
+            "type": "object"
+          },
+          "mobileImagePublicId": {
+            "type": "object"
+          },
+          "mobileImageWidth": {
+            "type": "object"
+          },
+          "mobileImageHeight": {
+            "type": "object"
+          },
+          "imageAltBn": {
+            "type": "object"
+          },
+          "imageAltEn": {
+            "type": "object"
+          },
+          "focalX": {
+            "type": "number"
+          },
+          "focalY": {
+            "type": "number"
+          },
+          "mobileFocalX": {
+            "type": "number"
+          },
+          "mobileFocalY": {
+            "type": "number"
+          },
+          "overlayEnabled": {
+            "type": "boolean"
+          },
+          "headlineBn": {
+            "type": "object"
+          },
+          "headlineEn": {
+            "type": "object"
+          },
+          "subtextBn": {
+            "type": "object"
+          },
+          "subtextEn": {
+            "type": "object"
+          },
+          "textColor": {
+            "type": "object"
+          },
+          "scrimColor": {
+            "type": "object"
+          },
+          "scrimOpacity": {
+            "type": "number"
+          },
+          "desktopPosition": {
+            "type": "object"
+          },
+          "mobilePosition": {
+            "type": "object"
+          },
+          "desktopAlign": {
+            "type": "object"
+          },
+          "mobileAlign": {
+            "type": "object"
+          },
+          "buttonEnabled": {
+            "type": "boolean"
+          },
+          "buttonLabelBn": {
+            "type": "object"
+          },
+          "buttonLabelEn": {
+            "type": "object"
+          },
+          "buttonHref": {
+            "type": "object"
+          },
+          "buttonStyle": {
+            "type": "object"
+          },
+          "buttonBgColor": {
+            "type": "object"
+          },
+          "buttonTextColor": {
+            "type": "object"
+          },
+          "openInNewTab": {
+            "type": "boolean"
           }
         }
       },
@@ -18379,6 +20125,438 @@
           "stuckOrders"
         ]
       },
+      "AnalyticsMetricDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "string",
+            "description": "Current-period value (decimal string)"
+          },
+          "previous": {
+            "type": "string",
+            "description": "Previous equal-length period value"
+          },
+          "deltaPct": {
+            "type": "number",
+            "nullable": true,
+            "description": "Percent change vs the previous period (null when previous is 0)"
+          }
+        },
+        "required": [
+          "current",
+          "previous",
+          "deltaPct"
+        ]
+      },
+      "SellerPanelsKpisDto": {
+        "type": "object",
+        "properties": {
+          "revenue": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "aov": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "deliveredOrders": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "commission": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "cancelledOrders": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          }
+        },
+        "required": [
+          "revenue",
+          "orders",
+          "aov",
+          "deliveredOrders",
+          "commission",
+          "cancelledOrders"
+        ]
+      },
+      "SellerAnalyticsSeriesPointDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "example": "2026-11-20"
+          },
+          "orders": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "string",
+            "description": "Decimal string"
+          },
+          "deliveredRevenue": {
+            "type": "string",
+            "description": "Delivered-only revenue in the bucket (decimal string)"
+          },
+          "delivered": {
+            "type": "number"
+          },
+          "cancelled": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "orders",
+          "revenue",
+          "deliveredRevenue",
+          "delivered",
+          "cancelled"
+        ]
+      },
+      "AnalyticsCountRowDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Status/type/method/bucket key"
+          },
+          "count": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string amount"
+          },
+          "share": {
+            "type": "number",
+            "description": "Share of the total (0-100)"
+          }
+        },
+        "required": [
+          "key",
+          "count"
+        ]
+      },
+      "SellerWalletSnapshotDto": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "string"
+          },
+          "pending": {
+            "type": "string"
+          },
+          "onHold": {
+            "type": "string"
+          },
+          "withdrawalReserved": {
+            "type": "string"
+          },
+          "totalWithdrawn": {
+            "type": "string"
+          },
+          "codDues": {
+            "type": "string"
+          },
+          "codDuesLimit": {
+            "type": "string"
+          },
+          "net": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "pending",
+          "onHold",
+          "withdrawalReserved",
+          "totalWithdrawn",
+          "codDues",
+          "codDuesLimit",
+          "net"
+        ]
+      },
+      "SellerReleasePointDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "example": "2026-11-25"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "amount",
+          "count"
+        ]
+      },
+      "AnalyticsTopProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "units": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string revenue"
+          }
+        },
+        "required": [
+          "name",
+          "units",
+          "amount"
+        ]
+      },
+      "AdminInventoryHealthDto": {
+        "type": "object",
+        "properties": {
+          "lowStock": {
+            "type": "number"
+          },
+          "outOfStock": {
+            "type": "number"
+          },
+          "activeProducts": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lowStock",
+          "outOfStock",
+          "activeProducts"
+        ]
+      },
+      "AnalyticsRatingDistributionRowDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "description": "Rating 1-5"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rating",
+          "count"
+        ]
+      },
+      "AdminRatingsHealthDto": {
+        "type": "object",
+        "properties": {
+          "avg": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "distribution": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsRatingDistributionRowDto"
+            }
+          }
+        },
+        "required": [
+          "avg",
+          "count",
+          "distribution"
+        ]
+      },
+      "SellerDisputesHealthDto": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "number"
+          },
+          "evidenceDueSoon": {
+            "type": "number"
+          },
+          "avgResolutionHours": {
+            "type": "number",
+            "nullable": true
+          },
+          "byStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          }
+        },
+        "required": [
+          "open",
+          "evidenceDueSoon",
+          "avgResolutionHours",
+          "byStatus"
+        ]
+      },
+      "SellerWithdrawalsHealthDto": {
+        "type": "object",
+        "properties": {
+          "pendingCount": {
+            "type": "number"
+          },
+          "pendingAmount": {
+            "type": "string"
+          },
+          "paidCount": {
+            "type": "number"
+          },
+          "paidAmount": {
+            "type": "string"
+          },
+          "avgTurnaroundHours": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "pendingCount",
+          "pendingAmount",
+          "paidCount",
+          "paidAmount",
+          "avgTurnaroundHours"
+        ]
+      },
+      "AnalyticsDeliveryBucketDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "example": "1-2d"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "count"
+        ]
+      },
+      "AdminDeliveryHealthDto": {
+        "type": "object",
+        "properties": {
+          "avgDays": {
+            "type": "number",
+            "nullable": true
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsDeliveryBucketDto"
+            }
+          }
+        },
+        "required": [
+          "avgDays",
+          "buckets"
+        ]
+      },
+      "SellerPanelsDto": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "type": "object"
+          },
+          "previousRange": {
+            "type": "object"
+          },
+          "bucket": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ]
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/SellerPanelsKpisDto"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerAnalyticsSeriesPointDto"
+            }
+          },
+          "ordersByStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "paymentMix": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "wallet": {
+            "$ref": "#/components/schemas/SellerWalletSnapshotDto"
+          },
+          "releaseTimeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerReleasePointDto"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTopProductDto"
+            }
+          },
+          "inventory": {
+            "$ref": "#/components/schemas/AdminInventoryHealthDto"
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/AdminRatingsHealthDto"
+          },
+          "disputes": {
+            "$ref": "#/components/schemas/SellerDisputesHealthDto"
+          },
+          "withdrawals": {
+            "$ref": "#/components/schemas/SellerWithdrawalsHealthDto"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/AdminDeliveryHealthDto"
+          }
+        },
+        "required": [
+          "range",
+          "previousRange",
+          "bucket",
+          "kpis",
+          "series",
+          "ordersByStatus",
+          "paymentMix",
+          "wallet",
+          "releaseTimeline",
+          "topProducts",
+          "inventory",
+          "ratings",
+          "disputes",
+          "withdrawals",
+          "delivery"
+        ]
+      },
       "AdminAnalyticsTopShopDto": {
         "type": "object",
         "properties": {
@@ -18548,6 +20726,442 @@
           "topProducts",
           "topDistricts",
           "dailySeries"
+        ]
+      },
+      "AdminPanelsKpisDto": {
+        "type": "object",
+        "properties": {
+          "gmv": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "aov": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "deliveredOrders": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "commission": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "newCustomers": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "newSellers": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          },
+          "refundsAmount": {
+            "$ref": "#/components/schemas/AnalyticsMetricDto"
+          }
+        },
+        "required": [
+          "gmv",
+          "orders",
+          "aov",
+          "deliveredOrders",
+          "commission",
+          "newCustomers",
+          "newSellers",
+          "refundsAmount"
+        ]
+      },
+      "AnalyticsSeriesPointDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "example": "2026-11-20"
+          },
+          "orders": {
+            "type": "number"
+          },
+          "gmv": {
+            "type": "string",
+            "description": "Decimal string"
+          },
+          "deliveredRevenue": {
+            "type": "string",
+            "description": "Delivered revenue in the bucket (decimal string)"
+          },
+          "commission": {
+            "type": "string",
+            "description": "Delivered commission (decimal string)"
+          },
+          "delivered": {
+            "type": "number"
+          },
+          "cancelled": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "orders",
+          "gmv",
+          "deliveredRevenue",
+          "commission",
+          "delivered",
+          "cancelled"
+        ]
+      },
+      "AnalyticsAgingBucketDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "example": "6-24h"
+          },
+          "count": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string amount"
+          }
+        },
+        "required": [
+          "bucket",
+          "count",
+          "amount"
+        ]
+      },
+      "AdminVerificationAgingDto": {
+        "type": "object",
+        "properties": {
+          "pendingCount": {
+            "type": "number"
+          },
+          "pendingAmount": {
+            "type": "string",
+            "description": "Decimal string"
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsAgingBucketDto"
+            }
+          }
+        },
+        "required": [
+          "pendingCount",
+          "pendingAmount",
+          "buckets"
+        ]
+      },
+      "AdminDisputesHealthDto": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "number"
+          },
+          "createdInRange": {
+            "type": "number"
+          },
+          "avgResolutionHours": {
+            "type": "number",
+            "nullable": true
+          },
+          "byStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "byType": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "aging": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsAgingBucketDto"
+            }
+          }
+        },
+        "required": [
+          "open",
+          "createdInRange",
+          "avgResolutionHours",
+          "byStatus",
+          "byType",
+          "aging"
+        ]
+      },
+      "AdminRefundsHealthDto": {
+        "type": "object",
+        "properties": {
+          "pendingCount": {
+            "type": "number"
+          },
+          "pendingAmount": {
+            "type": "string"
+          },
+          "processedInRange": {
+            "type": "number"
+          },
+          "processedAmount": {
+            "type": "string"
+          },
+          "advanceRequiredCount": {
+            "type": "number"
+          },
+          "advanceRequiredAmount": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pendingCount",
+          "pendingAmount",
+          "processedInRange",
+          "processedAmount",
+          "advanceRequiredCount",
+          "advanceRequiredAmount"
+        ]
+      },
+      "AdminWithdrawalsHealthDto": {
+        "type": "object",
+        "properties": {
+          "pendingCount": {
+            "type": "number"
+          },
+          "pendingAmount": {
+            "type": "string"
+          },
+          "paidInRangeCount": {
+            "type": "number"
+          },
+          "paidInRangeAmount": {
+            "type": "string"
+          },
+          "avgTurnaroundHours": {
+            "type": "number",
+            "nullable": true
+          },
+          "aging": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsAgingBucketDto"
+            }
+          }
+        },
+        "required": [
+          "pendingCount",
+          "pendingAmount",
+          "paidInRangeCount",
+          "paidInRangeAmount",
+          "avgTurnaroundHours",
+          "aging"
+        ]
+      },
+      "AdminReconciliationHealthDto": {
+        "type": "object",
+        "properties": {
+          "receipts": {
+            "type": "string"
+          },
+          "buckets": {
+            "type": "string"
+          },
+          "difference": {
+            "type": "string"
+          },
+          "balanced": {
+            "type": "boolean"
+          },
+          "platformHoldings": {
+            "type": "string"
+          },
+          "sellerPending": {
+            "type": "string"
+          },
+          "sellerAvailable": {
+            "type": "string"
+          },
+          "sellerOnHold": {
+            "type": "string"
+          },
+          "codDues": {
+            "type": "string"
+          },
+          "refundPayable": {
+            "type": "string"
+          },
+          "commission": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipts",
+          "buckets",
+          "difference",
+          "balanced",
+          "platformHoldings",
+          "sellerPending",
+          "sellerAvailable",
+          "sellerOnHold",
+          "codDues",
+          "refundPayable",
+          "commission"
+        ]
+      },
+      "AnalyticsTopShopDto": {
+        "type": "object",
+        "properties": {
+          "shop": {
+            "type": "object",
+            "example": {
+              "id": "3f1c9b2e-0000-0000-0000-000000000000",
+              "name": "Green Valley",
+              "slug": "green-valley"
+            }
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string"
+          },
+          "orders": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amount",
+          "orders"
+        ]
+      },
+      "AnalyticsTopCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "units": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string revenue"
+          }
+        },
+        "required": [
+          "name",
+          "units",
+          "amount"
+        ]
+      },
+      "AdminPanelsDto": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "type": "object",
+            "example": {
+              "from": "2026-08-24T00:00:00.000Z"
+            }
+          },
+          "previousRange": {
+            "type": "object"
+          },
+          "bucket": {
+            "type": "string",
+            "description": "day | week | month (series bucket size)"
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/AdminPanelsKpisDto"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsSeriesPointDto"
+            }
+          },
+          "ordersByStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "paymentMix": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          },
+          "verification": {
+            "$ref": "#/components/schemas/AdminVerificationAgingDto"
+          },
+          "disputes": {
+            "$ref": "#/components/schemas/AdminDisputesHealthDto"
+          },
+          "refunds": {
+            "$ref": "#/components/schemas/AdminRefundsHealthDto"
+          },
+          "withdrawals": {
+            "$ref": "#/components/schemas/AdminWithdrawalsHealthDto"
+          },
+          "reconciliation": {
+            "$ref": "#/components/schemas/AdminReconciliationHealthDto"
+          },
+          "inventory": {
+            "$ref": "#/components/schemas/AdminInventoryHealthDto"
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/AdminRatingsHealthDto"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/AdminDeliveryHealthDto"
+          },
+          "topShops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTopShopDto"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTopProductDto"
+            }
+          },
+          "topCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTopCategoryDto"
+            }
+          },
+          "topDistricts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountRowDto"
+            }
+          }
+        },
+        "required": [
+          "range",
+          "previousRange",
+          "bucket",
+          "kpis",
+          "series",
+          "ordersByStatus",
+          "paymentMix",
+          "verification",
+          "disputes",
+          "refunds",
+          "withdrawals",
+          "reconciliation",
+          "inventory",
+          "ratings",
+          "delivery",
+          "topShops",
+          "topProducts",
+          "topCategories",
+          "topDistricts"
         ]
       },
       "AdminUserListItemDto": {

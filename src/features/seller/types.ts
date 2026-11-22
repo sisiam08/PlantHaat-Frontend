@@ -96,6 +96,7 @@ export type SellerEarnings = Schemas["SellerEarningsDto"];
 /* ───────────────────────── F6: analytics ───────────────────────── */
 
 export type SellerAnalyticsOverview = Schemas["AnalyticsOverviewDto"];
+export type SellerPanels = Schemas["SellerPanelsDto"];
 
 /* Part 4: settlement wallet (manual contract; see backend/docs/payments/api.md). */
 export type WalletLedgerAccount =

@@ -52,7 +52,9 @@ export type HomepageSectionType =
 
 /* ───────────────────────── Dashboard / analytics ───────────────────────── */
 
-export type AdminAnalyticsOverview = components["schemas"]["AdminAnalyticsOverviewDto"];
+export type AdminAnalyticsOverview =
+  components["schemas"]["AdminAnalyticsOverviewDto"];
+export type AdminPanels = components["schemas"]["AdminPanelsDto"];
 
 /* ───────────────────────── Sellers ───────────────────────── */
 

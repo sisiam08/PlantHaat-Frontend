@@ -246,6 +246,71 @@ export interface paths {
         patch: operations["AdminSettingsController_update"];
         trace?: never;
     };
+    "/api/v1/admin/settings/reauth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_reauthenticate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/registry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminSettingsController_registry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminSettingsController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whitelisted public settings */
+        get: operations["PublicSettingsController_getPublic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/seller/application": {
         parameters: {
             query?: never;
@@ -1327,6 +1392,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/shop-orders/{id}/confirm-receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm delivery to release seller funds early */
+        post: operations["OrdersController_confirmReceipt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/seller/orders": {
         parameters: {
             query?: never;
@@ -1515,6 +1597,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/commission-rules/effective": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Effective default commission (GLOBAL rule or setting fallback) */
+        get: operations["AdminCommissionRulesController_effective"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/commission-rules/{id}": {
         parameters: {
             query?: never;
@@ -1531,6 +1630,142 @@ export interface paths {
         head?: never;
         /** Update a commission rule */
         patch: operations["AdminCommissionRulesController_update"];
+        trace?: never;
+    };
+    "/api/v1/advance-payments/orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Payment amount, snapshotted provider details, submissions and remaining amount */
+        get: operations["PaymentsController_info"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/advance-payments/orders/{orderId}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a bKash/Nagad transaction ID for manual verification */
+        post: operations["PaymentsController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/advance-payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List advance-payment intents (filter=pending|sla) */
+        get: operations["AdminAdvancePaymentsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/advance-payments/{id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify a submission with the amount received */
+        post: operations["AdminAdvancePaymentsController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/advance-payments/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject the pending submission with a reason */
+        post: operations["AdminAdvancePaymentsController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/advance-refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Refund obligations queue */
+        get: operations["AdminAdvancePaymentsController_refunds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/advance-refunds/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a refund complete with the refund transaction ID */
+        post: operations["AdminAdvancePaymentsController_completeRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/orders/{id}/advance-payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read-only advance payment status for one shop order */
+        get: operations["SellerPaymentsController_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/payouts": {
@@ -1715,6 +1950,144 @@ export interface paths {
         put?: never;
         /** Process a refund and adjust the ledger */
         post: operations["AdminRefundsController_process"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/wallet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Wallet balances, pending release dates and profile */
+        get: operations["SellerWalletController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/wallet/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Wallet ledger transactions */
+        get: operations["SellerWalletController_transactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/wallet/payout-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the seller payout profile (masked) */
+        get: operations["SellerWalletController_profile"];
+        /** Create or change the payout profile (cooldown applies) */
+        put: operations["SellerWalletController_updateProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seller/wallet/withdrawals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the seller's withdrawal requests */
+        get: operations["SellerWalletController_list"];
+        put?: never;
+        /** Request a withdrawal (reserves the amount immediately) */
+        post: operations["SellerWalletController_request"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/withdrawals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Withdrawal payout queue */
+        get: operations["AdminWalletController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/withdrawals/{id}/destination": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reveal the full payout destination for one withdrawal (re-auth) */
+        post: operations["AdminWalletController_revealDestination"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/withdrawals/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a withdrawal paid and record the transaction reference */
+        post: operations["AdminWalletController_pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/withdrawals/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a withdrawal and return the reserved amount */
+        post: operations["AdminWalletController_reject"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2101,6 +2474,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/complaints/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide a Part 4 dispute (reject, refund, return) */
+        post: operations["AdminComplaintsController_decide"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/complaints/{id}/comment": {
         parameters: {
             query?: never;
@@ -2159,11 +2549,45 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List banners */
+        /** List banners (optionally by placement) */
         get: operations["AdminContentController_listBanners"];
         put?: never;
         /** Create a banner */
         post: operations["AdminContentController_createBanner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/banners/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Reorder banners in one transaction */
+        patch: operations["AdminContentController_reorderBanners"];
+        trace?: never;
+    };
+    "/api/v1/admin/banners/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate a banner as a hidden draft */
+        post: operations["AdminContentController_duplicateBanner"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2222,6 +2646,23 @@ export interface paths {
         head?: never;
         /** Update a homepage section */
         patch: operations["AdminContentController_updateSection"];
+        trace?: never;
+    };
+    "/api/v1/home/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active home Highlights slides (public, cached) */
+        get: operations["PublicContentController_highlights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/announcements": {
@@ -2294,6 +2735,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/seller/analytics/panels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seller dashboard panels (read-only aggregated series) */
+        get: operations["SellerAnalyticsController_panels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/analytics/overview": {
         parameters: {
             query?: never;
@@ -2303,6 +2761,23 @@ export interface paths {
         };
         /** Admin analytics overview */
         get: operations["AdminAnalyticsController_overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/analytics/panels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin dashboard panels (read-only aggregated series) */
+        get: operations["AdminAnalyticsController_panels"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2739,6 +3214,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/uploads/storage-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload, fetch and delete a tiny probe image */
+        post: operations["AdminUploadsController_storageCheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/register": {
         parameters: {
             query?: never;
@@ -3040,6 +3532,10 @@ export interface components {
             key: string;
             /** @description Public URL (empty for private objects — fetch via the seller/appropriate route) */
             url: string;
+            /** @description Pixel width when known (HEIC may be unknown) */
+            width?: number;
+            /** @description Pixel height when known (HEIC may be unknown) */
+            height?: number;
         };
         PublicUserDto: {
             id: string;
@@ -3172,6 +3668,7 @@ export interface components {
             /** @example 3 */
             updated: number;
         };
+        ReauthDto: Record<string, never>;
         UpdateSettingsDto: Record<string, never>;
         SellerDocumentDto: {
             id: string;
@@ -4248,6 +4745,8 @@ export interface components {
             estimatedDeliveryTo: string | null;
             sellerNote: string | null;
             deliveryNote: string | null;
+            /** @description Delivery proof photos */
+            deliveryProofs: Record<string, never>[];
             /** Format: date-time */
             delayNotifiedAt: string | null;
             stuckReminderCount: number;
@@ -4318,6 +4817,8 @@ export interface components {
             trackingCode?: string;
             /** @description Optional seller note recorded when marking DELIVERED */
             deliveryNote?: string;
+            /** @description Delivery proof image URLs (1-3) */
+            deliveryProofUrls?: string[];
             estimatedDeliveryFrom?: string;
             estimatedDeliveryTo?: string;
             /** @description Restock on cancellation (default false) */
@@ -4388,6 +4889,26 @@ export interface components {
             effectiveFrom?: string;
             isActive?: boolean;
         };
+        CreatePaymentSubmissionDto: {
+            /** @enum {string} */
+            provider: "BKASH" | "NAGAD";
+            /** @example 9F7K2M1Q */
+            trxId: string;
+            /** @example 01700000000 */
+            senderNumber: string;
+            proofUrl?: string;
+        };
+        VerifyPaymentDto: {
+            /** @example 1970 */
+            amountReceived: number;
+        };
+        RejectPaymentDto: {
+            reason: string;
+        };
+        CompleteRefundDto: {
+            /** @example BKASHREF1234 */
+            refundTrxId: string;
+        };
         SellerPayoutDto: {
             id: string;
             payoutNumber: string;
@@ -4395,7 +4916,7 @@ export interface components {
             /** @description Decimal as string */
             amount: string;
             /** @enum {string} */
-            status: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+            status: "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REJECTED";
             /** @enum {string|null} */
             method: "BKASH" | "NAGAD" | "ROCKET" | "BANK" | null;
             accountMasked: string | null;
@@ -4424,7 +4945,7 @@ export interface components {
         };
         UpdatePayoutDto: {
             /** @enum {string} */
-            status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+            status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REJECTED";
             /** @enum {string} */
             method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
             reference?: string;
@@ -4436,7 +4957,7 @@ export interface components {
             shopOrderId: string | null;
             payoutId: string | null;
             /** @enum {string} */
-            type: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT";
+            type: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT" | "PAYMENT_RECEIVED" | "SELLER_PENDING" | "SELLER_RELEASE" | "COMMISSION" | "DISPUTE_HOLD" | "DISPUTE_RELEASE" | "WITHDRAWAL_RESERVE" | "WITHDRAWAL_PAID" | "WITHDRAWAL_REJECTED" | "COD_DUES_ACCRUAL" | "COD_DUES_PAYMENT" | "REFUND_PAYABLE_CREATED" | "REFUND_PAID" | "ADJUSTMENT_DEBIT" | "ADJUSTMENT_CREDIT";
             /** @description Decimal as string (positive = owed to seller) */
             amount: string;
             description: string | null;
@@ -4534,6 +5055,27 @@ export interface components {
             method?: "COD" | "ADVANCE" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
             reference?: string;
             note?: string;
+        };
+        PayoutProfileDto: {
+            /** @enum {string} */
+            method: "BKASH" | "NAGAD" | "BANK";
+            /** @example 01712345678 */
+            accountNumber: string;
+            /** @example Rahim Uddin */
+            accountName: string;
+        };
+        WithdrawalRequestDto: {
+            /** @example 750 */
+            amount: number;
+            /** @enum {string} */
+            method?: "BKASH" | "NAGAD" | "ROCKET" | "BANK";
+        };
+        PayWithdrawalDto: {
+            /** @example BKASH-889912 */
+            reference: string;
+        };
+        RejectWithdrawalDto: {
+            reason: string;
         };
         WishlistedShopRefDto: {
             id: string;
@@ -4751,6 +5293,13 @@ export interface components {
             attachments: components["schemas"]["ComplaintAttachmentDto"][];
             shop: components["schemas"]["ComplaintShopRefDto"];
         };
+        ComplaintCommentAttachmentDto: {
+            id: string;
+            commentId: string;
+            url: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
         ComplaintCommentResponseDto: {
             id: string;
             complaintId: string;
@@ -4761,6 +5310,7 @@ export interface components {
             isInternal: boolean;
             /** Format: date-time */
             createdAt: string;
+            attachments: components["schemas"]["ComplaintCommentAttachmentDto"][];
         };
         SellerComplaintDetailDto: {
             id: string;
@@ -4828,6 +5378,8 @@ export interface components {
             body: string;
             /** @description Admin-only internal note */
             isInternal?: boolean;
+            /** @description Response evidence image URLs */
+            attachments?: string[];
         };
         SellerComplaintListItemDto: {
             id: string;
@@ -4875,6 +5427,8 @@ export interface components {
             attachments: components["schemas"]["ComplaintAttachmentDto"][];
             /** @description Includes internal admin comments */
             comments: components["schemas"]["ComplaintCommentResponseDto"][];
+            /** @description Order context including delivery proofs */
+            shopOrder: Record<string, never>;
             refunds: components["schemas"]["AdminComplaintRefundRefDto"][];
         };
         UpdateComplaintStatusDto: {
@@ -4888,6 +5442,15 @@ export interface components {
             resolutionNote?: string;
             /** @example 1000 */
             refundAmount?: number;
+        };
+        DecideDisputeDto: {
+            /** @enum {string} */
+            decision: "REJECTED" | "REFUND_FULL" | "REFUND_PARTIAL" | "RETURN_TO_SELLER";
+            reason: string;
+            /** @example 500 */
+            refundAmount?: number;
+            /** @example BKASHREF1234 */
+            refundTrxId?: string;
         };
         RealtimeTicketDto: {
             /**
@@ -4936,6 +5499,43 @@ export interface components {
             endsAt: string | null;
             /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            imagePublicId?: string | null;
+            imageWidth?: number | null;
+            imageHeight?: number | null;
+            mobileImageUrl?: string | null;
+            mobileImagePublicId?: string | null;
+            mobileImageWidth?: number | null;
+            mobileImageHeight?: number | null;
+            imageAltBn?: string | null;
+            imageAltEn?: string | null;
+            focalX?: number;
+            focalY?: number;
+            mobileFocalX?: number;
+            mobileFocalY?: number;
+            overlayEnabled?: boolean;
+            headlineBn?: string | null;
+            headlineEn?: string | null;
+            subtextBn?: string | null;
+            subtextEn?: string | null;
+            textColor?: string | null;
+            scrimColor?: string | null;
+            scrimOpacity?: number;
+            desktopPosition?: string | null;
+            mobilePosition?: string | null;
+            desktopAlign?: string | null;
+            mobileAlign?: string | null;
+            buttonEnabled?: boolean;
+            buttonLabelBn?: string | null;
+            buttonLabelEn?: string | null;
+            buttonHref?: string | null;
+            buttonStyle?: string | null;
+            buttonBgColor?: string | null;
+            buttonTextColor?: string | null;
+            openInNewTab?: boolean;
+            createdById?: string | null;
+            updatedById?: string | null;
         };
         CreateBannerDto: {
             title?: string;
@@ -4947,6 +5547,42 @@ export interface components {
             isActive?: boolean;
             startsAt?: string;
             endsAt?: string;
+            imagePublicId?: Record<string, never>;
+            imageWidth?: Record<string, never>;
+            imageHeight?: Record<string, never>;
+            mobileImageUrl?: Record<string, never>;
+            mobileImagePublicId?: Record<string, never>;
+            mobileImageWidth?: Record<string, never>;
+            mobileImageHeight?: Record<string, never>;
+            imageAltBn?: Record<string, never>;
+            imageAltEn?: Record<string, never>;
+            focalX?: number;
+            focalY?: number;
+            mobileFocalX?: number;
+            mobileFocalY?: number;
+            overlayEnabled?: boolean;
+            headlineBn?: Record<string, never>;
+            headlineEn?: Record<string, never>;
+            subtextBn?: Record<string, never>;
+            subtextEn?: Record<string, never>;
+            textColor?: Record<string, never>;
+            scrimColor?: Record<string, never>;
+            scrimOpacity?: number;
+            desktopPosition?: Record<string, never>;
+            mobilePosition?: Record<string, never>;
+            desktopAlign?: Record<string, never>;
+            mobileAlign?: Record<string, never>;
+            buttonEnabled?: boolean;
+            buttonLabelBn?: Record<string, never>;
+            buttonLabelEn?: Record<string, never>;
+            buttonHref?: Record<string, never>;
+            buttonStyle?: Record<string, never>;
+            buttonBgColor?: Record<string, never>;
+            buttonTextColor?: Record<string, never>;
+            openInNewTab?: boolean;
+        };
+        ReorderBannersDto: {
+            ids: string[];
         };
         UpdateBannerDto: {
             title?: string;
@@ -4958,6 +5594,39 @@ export interface components {
             isActive?: boolean;
             startsAt?: string;
             endsAt?: string;
+            imagePublicId?: Record<string, never>;
+            imageWidth?: Record<string, never>;
+            imageHeight?: Record<string, never>;
+            mobileImageUrl?: Record<string, never>;
+            mobileImagePublicId?: Record<string, never>;
+            mobileImageWidth?: Record<string, never>;
+            mobileImageHeight?: Record<string, never>;
+            imageAltBn?: Record<string, never>;
+            imageAltEn?: Record<string, never>;
+            focalX?: number;
+            focalY?: number;
+            mobileFocalX?: number;
+            mobileFocalY?: number;
+            overlayEnabled?: boolean;
+            headlineBn?: Record<string, never>;
+            headlineEn?: Record<string, never>;
+            subtextBn?: Record<string, never>;
+            subtextEn?: Record<string, never>;
+            textColor?: Record<string, never>;
+            scrimColor?: Record<string, never>;
+            scrimOpacity?: number;
+            desktopPosition?: Record<string, never>;
+            mobilePosition?: Record<string, never>;
+            desktopAlign?: Record<string, never>;
+            mobileAlign?: Record<string, never>;
+            buttonEnabled?: boolean;
+            buttonLabelBn?: Record<string, never>;
+            buttonLabelEn?: Record<string, never>;
+            buttonHref?: Record<string, never>;
+            buttonStyle?: Record<string, never>;
+            buttonBgColor?: Record<string, never>;
+            buttonTextColor?: Record<string, never>;
+            openInNewTab?: boolean;
         };
         HomepageSectionDto: {
             id: string;
@@ -5106,6 +5775,121 @@ export interface components {
             /** @description Stuck orders flagged after 3 reminders */
             stuckOrders: number;
         };
+        AnalyticsMetricDto: {
+            /** @description Current-period value (decimal string) */
+            current: string;
+            /** @description Previous equal-length period value */
+            previous: string;
+            /** @description Percent change vs the previous period (null when previous is 0) */
+            deltaPct: number | null;
+        };
+        SellerPanelsKpisDto: {
+            revenue: components["schemas"]["AnalyticsMetricDto"];
+            orders: components["schemas"]["AnalyticsMetricDto"];
+            aov: components["schemas"]["AnalyticsMetricDto"];
+            deliveredOrders: components["schemas"]["AnalyticsMetricDto"];
+            commission: components["schemas"]["AnalyticsMetricDto"];
+            cancelledOrders: components["schemas"]["AnalyticsMetricDto"];
+        };
+        SellerAnalyticsSeriesPointDto: {
+            /** @example 2026-11-20 */
+            bucket: string;
+            orders: number;
+            /** @description Decimal string */
+            revenue: string;
+            /** @description Delivered-only revenue in the bucket (decimal string) */
+            deliveredRevenue: string;
+            delivered: number;
+            cancelled: number;
+        };
+        AnalyticsCountRowDto: {
+            /** @description Status/type/method/bucket key */
+            key: string;
+            count: number;
+            /** @description Decimal string amount */
+            amount?: string;
+            /** @description Share of the total (0-100) */
+            share?: number;
+        };
+        SellerWalletSnapshotDto: {
+            available: string;
+            pending: string;
+            onHold: string;
+            withdrawalReserved: string;
+            totalWithdrawn: string;
+            codDues: string;
+            codDuesLimit: string;
+            net: string;
+        };
+        SellerReleasePointDto: {
+            /** @example 2026-11-25 */
+            bucket: string;
+            amount: string;
+            count: number;
+        };
+        AnalyticsTopProductDto: {
+            id?: string | null;
+            name: string;
+            shopName?: string;
+            units: number;
+            /** @description Decimal string revenue */
+            amount: string;
+        };
+        AdminInventoryHealthDto: {
+            lowStock: number;
+            outOfStock: number;
+            activeProducts: number;
+        };
+        AnalyticsRatingDistributionRowDto: {
+            /** @description Rating 1-5 */
+            rating: number;
+            count: number;
+        };
+        AdminRatingsHealthDto: {
+            avg: string;
+            count: number;
+            distribution: components["schemas"]["AnalyticsRatingDistributionRowDto"][];
+        };
+        SellerDisputesHealthDto: {
+            open: number;
+            evidenceDueSoon: number;
+            avgResolutionHours: number | null;
+            byStatus: components["schemas"]["AnalyticsCountRowDto"][];
+        };
+        SellerWithdrawalsHealthDto: {
+            pendingCount: number;
+            pendingAmount: string;
+            paidCount: number;
+            paidAmount: string;
+            avgTurnaroundHours: number | null;
+        };
+        AnalyticsDeliveryBucketDto: {
+            /** @example 1-2d */
+            bucket: string;
+            count: number;
+        };
+        AdminDeliveryHealthDto: {
+            avgDays: number | null;
+            buckets: components["schemas"]["AnalyticsDeliveryBucketDto"][];
+        };
+        SellerPanelsDto: {
+            range: Record<string, never>;
+            previousRange: Record<string, never>;
+            /** @enum {string} */
+            bucket: "day" | "week" | "month";
+            kpis: components["schemas"]["SellerPanelsKpisDto"];
+            series: components["schemas"]["SellerAnalyticsSeriesPointDto"][];
+            ordersByStatus: components["schemas"]["AnalyticsCountRowDto"][];
+            paymentMix: components["schemas"]["AnalyticsCountRowDto"][];
+            wallet: components["schemas"]["SellerWalletSnapshotDto"];
+            releaseTimeline: components["schemas"]["SellerReleasePointDto"][];
+            topProducts: components["schemas"]["AnalyticsTopProductDto"][];
+            inventory: components["schemas"]["AdminInventoryHealthDto"];
+            ratings: components["schemas"]["AdminRatingsHealthDto"];
+            disputes: components["schemas"]["SellerDisputesHealthDto"];
+            withdrawals: components["schemas"]["SellerWithdrawalsHealthDto"];
+            delivery: components["schemas"]["AdminDeliveryHealthDto"];
+        };
         AdminAnalyticsTopShopDto: {
             /**
              * @example {
@@ -5161,6 +5945,126 @@ export interface components {
             topProducts: components["schemas"]["AdminAnalyticsTopProductDto"][];
             topDistricts: components["schemas"]["AdminAnalyticsTopDistrictDto"][];
             dailySeries: components["schemas"]["AdminAnalyticsDailySeriesDto"][];
+        };
+        AdminPanelsKpisDto: {
+            gmv: components["schemas"]["AnalyticsMetricDto"];
+            orders: components["schemas"]["AnalyticsMetricDto"];
+            aov: components["schemas"]["AnalyticsMetricDto"];
+            deliveredOrders: components["schemas"]["AnalyticsMetricDto"];
+            commission: components["schemas"]["AnalyticsMetricDto"];
+            newCustomers: components["schemas"]["AnalyticsMetricDto"];
+            newSellers: components["schemas"]["AnalyticsMetricDto"];
+            refundsAmount: components["schemas"]["AnalyticsMetricDto"];
+        };
+        AnalyticsSeriesPointDto: {
+            /** @example 2026-11-20 */
+            bucket: string;
+            orders: number;
+            /** @description Decimal string */
+            gmv: string;
+            /** @description Delivered revenue in the bucket (decimal string) */
+            deliveredRevenue: string;
+            /** @description Delivered commission (decimal string) */
+            commission: string;
+            delivered: number;
+            cancelled: number;
+        };
+        AnalyticsAgingBucketDto: {
+            /** @example 6-24h */
+            bucket: string;
+            count: number;
+            /** @description Decimal string amount */
+            amount: string;
+        };
+        AdminVerificationAgingDto: {
+            pendingCount: number;
+            /** @description Decimal string */
+            pendingAmount: string;
+            buckets: components["schemas"]["AnalyticsAgingBucketDto"][];
+        };
+        AdminDisputesHealthDto: {
+            open: number;
+            createdInRange: number;
+            avgResolutionHours: number | null;
+            byStatus: components["schemas"]["AnalyticsCountRowDto"][];
+            byType: components["schemas"]["AnalyticsCountRowDto"][];
+            aging: components["schemas"]["AnalyticsAgingBucketDto"][];
+        };
+        AdminRefundsHealthDto: {
+            pendingCount: number;
+            pendingAmount: string;
+            processedInRange: number;
+            processedAmount: string;
+            advanceRequiredCount: number;
+            advanceRequiredAmount: string;
+        };
+        AdminWithdrawalsHealthDto: {
+            pendingCount: number;
+            pendingAmount: string;
+            paidInRangeCount: number;
+            paidInRangeAmount: string;
+            avgTurnaroundHours: number | null;
+            aging: components["schemas"]["AnalyticsAgingBucketDto"][];
+        };
+        AdminReconciliationHealthDto: {
+            receipts: string;
+            buckets: string;
+            difference: string;
+            balanced: boolean;
+            platformHoldings: string;
+            sellerPending: string;
+            sellerAvailable: string;
+            sellerOnHold: string;
+            codDues: string;
+            refundPayable: string;
+            commission: string;
+        };
+        AnalyticsTopShopDto: {
+            /**
+             * @example {
+             *       "id": "3f1c9b2e-0000-0000-0000-000000000000",
+             *       "name": "Green Valley",
+             *       "slug": "green-valley"
+             *     }
+             */
+            shop?: Record<string, never>;
+            /** @description Decimal string */
+            amount: string;
+            orders: number;
+        };
+        AnalyticsTopCategoryDto: {
+            id?: string | null;
+            name: string;
+            units: number;
+            /** @description Decimal string revenue */
+            amount: string;
+        };
+        AdminPanelsDto: {
+            /**
+             * @example {
+             *       "from": "2026-08-24T00:00:00.000Z"
+             *     }
+             */
+            range: Record<string, never>;
+            previousRange: Record<string, never>;
+            /** @description day | week | month (series bucket size) */
+            bucket: string;
+            kpis: components["schemas"]["AdminPanelsKpisDto"];
+            series: components["schemas"]["AnalyticsSeriesPointDto"][];
+            ordersByStatus: components["schemas"]["AnalyticsCountRowDto"][];
+            paymentMix: components["schemas"]["AnalyticsCountRowDto"][];
+            verification: components["schemas"]["AdminVerificationAgingDto"];
+            disputes: components["schemas"]["AdminDisputesHealthDto"];
+            refunds: components["schemas"]["AdminRefundsHealthDto"];
+            withdrawals: components["schemas"]["AdminWithdrawalsHealthDto"];
+            reconciliation: components["schemas"]["AdminReconciliationHealthDto"];
+            inventory: components["schemas"]["AdminInventoryHealthDto"];
+            ratings: components["schemas"]["AdminRatingsHealthDto"];
+            delivery: components["schemas"]["AdminDeliveryHealthDto"];
+            topShops: components["schemas"]["AnalyticsTopShopDto"][];
+            topProducts: components["schemas"]["AnalyticsTopProductDto"][];
+            topCategories: components["schemas"]["AnalyticsTopCategoryDto"][];
+            topDistricts: components["schemas"]["AnalyticsCountRowDto"][];
         };
         AdminUserListItemDto: {
             id: string;
@@ -6059,7 +6963,9 @@ export interface operations {
     AdminSettingsController_update: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "x-settings-reauth": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -6083,6 +6989,81 @@ export interface operations {
                         };
                     };
                 };
+            };
+        };
+    };
+    AdminSettingsController_reauthenticate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReauthDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminSettingsController_registry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminSettingsController_history: {
+        parameters: {
+            query: {
+                key: string;
+                limit: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PublicSettingsController_getPublic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -8261,6 +9242,25 @@ export interface operations {
             };
         };
     };
+    OrdersController_confirmReceipt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     SellerOrdersController_list: {
         parameters: {
             query?: {
@@ -8596,6 +9596,23 @@ export interface operations {
             };
         };
     };
+    AdminCommissionRulesController_effective: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminCommissionRulesController_remove: {
         parameters: {
             query?: never;
@@ -8645,12 +9662,178 @@ export interface operations {
             };
         };
     };
+    PaymentsController_info: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentsController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePaymentSubmissionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAdvancePaymentsController_list: {
+        parameters: {
+            query: {
+                filter: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAdvancePaymentsController_verify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyPaymentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAdvancePaymentsController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectPaymentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAdvancePaymentsController_refunds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAdvancePaymentsController_completeRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteRefundDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerPaymentsController_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminPayoutsController_list: {
         parameters: {
             query?: {
                 page?: number;
                 limit?: number;
-                status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+                status?: "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REJECTED";
             };
             header?: never;
             path?: never;
@@ -8734,7 +9917,7 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                type?: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT";
+                type?: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT" | "PAYMENT_RECEIVED" | "SELLER_PENDING" | "SELLER_RELEASE" | "COMMISSION" | "DISPUTE_HOLD" | "DISPUTE_RELEASE" | "WITHDRAWAL_RESERVE" | "WITHDRAWAL_PAID" | "WITHDRAWAL_REJECTED" | "COD_DUES_ACCRUAL" | "COD_DUES_PAYMENT" | "REFUND_PAYABLE_CREATED" | "REFUND_PAID" | "ADJUSTMENT_DEBIT" | "ADJUSTMENT_CREDIT";
             };
             header?: never;
             path: {
@@ -8973,6 +10156,212 @@ export interface operations {
                         data: components["schemas"]["RefundProcessedDto"];
                     };
                 };
+            };
+        };
+    };
+    SellerWalletController_summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerWalletController_transactions: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                type?: "ORDER_EARNING" | "COD_COMMISSION_DUE" | "PAYOUT" | "DUES_PAYMENT" | "REFUND_REVERSAL" | "ADJUSTMENT" | "PAYMENT_RECEIVED" | "SELLER_PENDING" | "SELLER_RELEASE" | "COMMISSION" | "DISPUTE_HOLD" | "DISPUTE_RELEASE" | "WITHDRAWAL_RESERVE" | "WITHDRAWAL_PAID" | "WITHDRAWAL_REJECTED" | "COD_DUES_ACCRUAL" | "COD_DUES_PAYMENT" | "REFUND_PAYABLE_CREATED" | "REFUND_PAID" | "ADJUSTMENT_DEBIT" | "ADJUSTMENT_CREDIT";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerWalletController_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerWalletController_updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayoutProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerWalletController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                status?: "PENDING" | "PROCESSING" | "PAID" | "REJECTED" | "FAILED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SellerWalletController_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminWalletController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                status?: "PENDING" | "PROCESSING" | "PAID" | "REJECTED" | "FAILED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminWalletController_revealDestination: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-settings-reauth": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminWalletController_pay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayWithdrawalDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminWalletController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectWithdrawalDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -9359,6 +10748,16 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 status?: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+                /** @description Shop or seller business name contains */
+                seller?: string;
+                /** @description Minimum age in hours */
+                minAgeHours?: number;
+                /** @description Maximum age in hours */
+                maxAgeHours?: number;
+                /** @description Minimum order total */
+                minAmount?: number;
+                /** @description Maximum order total */
+                maxAmount?: number;
             };
             header?: never;
             path?: never;
@@ -9468,6 +10867,16 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 status?: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+                /** @description Shop or seller business name contains */
+                seller?: string;
+                /** @description Minimum age in hours */
+                minAgeHours?: number;
+                /** @description Maximum age in hours */
+                maxAgeHours?: number;
+                /** @description Minimum order total */
+                minAmount?: number;
+                /** @description Maximum order total */
+                maxAmount?: number;
             };
             header?: never;
             path?: never;
@@ -9550,6 +10959,16 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 status?: "OPEN" | "SELLER_RESPONDED" | "UNDER_REVIEW" | "RESOLVED_REFUND" | "RESOLVED_REPLACEMENT" | "REJECTED" | "CLOSED";
+                /** @description Shop or seller business name contains */
+                seller?: string;
+                /** @description Minimum age in hours */
+                minAgeHours?: number;
+                /** @description Maximum age in hours */
+                maxAgeHours?: number;
+                /** @description Minimum order total */
+                minAmount?: number;
+                /** @description Maximum order total */
+                maxAmount?: number;
             };
             header?: never;
             path?: never;
@@ -9655,6 +11074,35 @@ export interface operations {
             };
         };
     };
+    AdminComplaintsController_decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecideDisputeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminComplaintDetailDto"];
+                    };
+                };
+            };
+        };
+    };
     AdminComplaintsController_comment: {
         parameters: {
             query?: never;
@@ -9735,7 +11183,9 @@ export interface operations {
     };
     AdminContentController_listBanners: {
         parameters: {
-            query?: never;
+            query: {
+                placement: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -9768,6 +11218,58 @@ export interface operations {
                 "application/json": components["schemas"]["CreateBannerDto"];
             };
         };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BannerDto"];
+                    };
+                };
+            };
+        };
+    };
+    AdminContentController_reorderBanners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderBannersDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["BannerDto"][];
+                    };
+                };
+            };
+        };
+    };
+    AdminContentController_duplicateBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             201: {
                 headers: {
@@ -9931,6 +11433,25 @@ export interface operations {
             };
         };
     };
+    PublicContentController_highlights: {
+        parameters: {
+            query?: never;
+            header: {
+                "if-none-match": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminAnnouncementsController_list: {
         parameters: {
             query?: {
@@ -10083,6 +11604,32 @@ export interface operations {
             };
         };
     };
+    SellerAnalyticsController_panels: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["SellerPanelsDto"];
+                    };
+                };
+            };
+        };
+    };
     AdminAnalyticsController_overview: {
         parameters: {
             query?: {
@@ -10104,6 +11651,32 @@ export interface operations {
                         /** @example true */
                         success: boolean;
                         data: components["schemas"]["AdminAnalyticsOverviewDto"];
+                    };
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_panels: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success: boolean;
+                        data: components["schemas"]["AdminPanelsDto"];
                     };
                 };
             };
@@ -10853,6 +12426,23 @@ export interface operations {
                         meta: components["schemas"]["PaginationMetaDto"];
                     };
                 };
+            };
+        };
+    };
+    AdminUploadsController_storageCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
