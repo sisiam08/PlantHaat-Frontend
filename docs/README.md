@@ -12,6 +12,7 @@ Canonical docs for the frontend repo (`redesign/phase2`). Documentation lives on
 | `design/performance.md` | Consolidated performance baseline, method, causes and remaining work | frontend | 2026-11-18 |
 | `design/typography.md` | Type system, copy changes, overflow findings | frontend | 2026-11-18 |
 | `design/cart-checkout.md` | Cart/checkout defect/fix record and measured layout rules | frontend | 2026-11-18 |
+| `design/dashboard-guide.md` | Admin/seller dashboard guidelines, shared kit, analytics API and page-by-page retention checklist | frontend | 2026-11-22 |
 | `testing/live-log.md` | Chronological live browser verification log | frontend | 2026-11-18 |
 | `process/prompts/*.md` | Generic agent process prompts (redesign, feature, production audit) | frontend | 2026-11-18 |
 | `reference/README.md` | Policy for owner-provided reference images (none committed at cleanup) | frontend | 2026-11-18 |

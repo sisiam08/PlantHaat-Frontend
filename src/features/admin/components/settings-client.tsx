@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AnimatedTabs } from "@/components/dashboard/animated-tabs";
 import { PaymentPreview } from "@/features/payments/components/payment-preview";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadsApi } from "@/features/uploads/api";
@@ -40,11 +40,11 @@ const GROUPS = ["home", "payments", "orders", "wallet", "payouts", "support", "s
 
 const GROUP_LABELS: Record<(typeof GROUPS)[number], string> = {
   home: "Home",
-  payments: "payments",
-  orders: "orders",
-  wallet: "wallet",
-  payouts: "payouts",
-  support: "support",
+  payments: "Payments",
+  orders: "Orders",
+  wallet: "Wallet",
+  payouts: "Payouts",
+  support: "Support",
   security: "Security & Sessions",
 };
 
@@ -209,6 +209,160 @@ export function SettingsClient() {
     });
   };
 
+  const groupTabs = GROUPS.map((group) => ({
+    value: group,
+    label: GROUP_LABELS[group],
+    content: (
+      <div className="grid gap-5">
+        {group === "security" ? (
+          <div
+            role="note"
+            className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm"
+          >
+            <h3 className="font-heading font-semibold">{t("sessionNoticeTitle")}</h3>
+            <p className="text-muted-foreground">{t("sessionNoticeBody")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("sessionNoticeAccess", {
+                minutes: formatCount(
+                  Number(
+                    values["security.access.ttlMinutes"] ??
+                      definitions.find((entry) => entry.key === "security.access.ttlMinutes")
+                        ?.default ??
+                      15,
+                  ),
+                  locale,
+                ),
+              })}
+            </p>
+          </div>
+        ) : null}
+        {group === "payments" ? (
+          <div className="grid gap-4 xl:grid-cols-2">
+            {[
+              {
+                title: "bKash",
+                keys: ["payment.bkash.enabled", "payment.bkash.number"],
+              },
+              {
+                title: "Nagad",
+                keys: ["payment.nagad.enabled", "payment.nagad.number"],
+              },
+              {
+                title: "Timing & account",
+                keys: [
+                  "payment.expiryHours",
+                  "payment.slaHours",
+                  "payment.lateGraceHours",
+                  "payment.verificationText",
+                  "payment.accountNote",
+                ],
+              },
+              {
+                title: "Checkout methods",
+                keys: ["payment.cod.enabled", "payment.advance.enabled"],
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="grid content-start gap-3 rounded-xl border border-border/60 bg-secondary/20 p-4"
+              >
+                <h3 className="font-heading text-sm font-semibold">{card.title}</h3>
+                {card.keys.map((key) => {
+                  const definition = definitions.find((entry) => entry.key === key);
+                  if (!definition) return null;
+                  return (
+                    <SettingField
+                      key={definition.key}
+                      definition={definition}
+                      value={values[definition.key]}
+                      locale={locale}
+                      last={lastChange(definition.key)}
+                      error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
+                      disabled={
+                        (definition.key === "payment.bkash.enabled" ||
+                          definition.key === "payment.nagad.enabled") &&
+                        !/^01[3-9]\d{8}$/.test(
+                          String(
+                            values[definition.key.replace(".enabled", ".number")] ?? "",
+                          ).trim(),
+                        )
+                      }
+                      onChange={(value) => setValue(definition.key, value)}
+                      onReset={() => setValue(definition.key, definition.default)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        ) : group === "home" ? (
+          <HomeSettingsFields
+            definitions={definitions.filter((entry) => entry.group === "home")}
+            values={values}
+            errors={serverErrors}
+            locale={locale}
+            lastChange={lastChange}
+            onChange={setValue}
+            onReset={(key, value) => setValue(key, value)}
+          />
+        ) : (
+          <div className="grid gap-4">
+            {group === "wallet" ? (
+              <ReadOnlySetting
+                settingKey="commission.default"
+                label={t("commissionManagedTitle")}
+                value={`${formatCount(
+                  effectiveCommission.data?.effectivePercent ??
+                    Number(values["commission.default"] ?? 10),
+                  locale,
+                )}%`}
+                help={`${t("commissionManagedBody")} ${t("commissionManagedFallback", {
+                  value: formatCount(Number(values["commission.default"] ?? 10), locale),
+                })}`}
+                href="/admin/commission-rules"
+                linkLabel={t("commissionRulesLink")}
+              />
+            ) : null}
+            {group === "payouts" ? (
+              <p className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
+                {t("payoutHoldNote")}
+              </p>
+            ) : null}
+            <div className="grid gap-4 md:grid-cols-2">
+              {definitions
+                .filter(
+                  (definition) =>
+                    definition.group === group &&
+                    definition.wired !== false &&
+                    definition.key !== "commission.default",
+                )
+                .map((definition) => (
+                  <SettingField
+                    key={definition.key}
+                    definition={definition}
+                    value={values[definition.key]}
+                    locale={locale}
+                    last={lastChange(definition.key)}
+                    error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
+                    onChange={(value) => setValue(definition.key, value)}
+                    onReset={() => setValue(definition.key, definition.default)}
+                  />
+                ))}
+            </div>
+          </div>
+        )}
+        {group === "payments" ? (
+          <div className="grid gap-3">
+            <PaymentPreview values={values} />
+            <p className="text-xs text-muted-foreground">
+              At least one payment method must stay enabled.
+            </p>
+          </div>
+        ) : null}
+      </div>
+    ),
+  }));
+
   return (
     <div className="grid gap-5">
       <Card className="rounded-2xl">
@@ -229,167 +383,12 @@ export function SettingsClient() {
       </Card>
       <Card className="rounded-2xl py-0">
         <CardContent className="p-5">
-          <Tabs defaultValue="payments">
-            <TabsList className="mb-5 flex h-auto flex-wrap justify-start gap-1">
-              {GROUPS.map((group) => (
-                <TabsTrigger key={group} value={group} className="capitalize">
-                  {GROUP_LABELS[group]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {GROUPS.map((group) => (
-              <TabsContent key={group} value={group} className="grid gap-5">
-                {group === "security" ? (
-                  <div
-                    role="note"
-                    className="grid gap-1 rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm"
-                  >
-                    <h3 className="font-heading font-semibold">{t("sessionNoticeTitle")}</h3>
-                    <p className="text-muted-foreground">{t("sessionNoticeBody")}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {t("sessionNoticeAccess", {
-                        minutes: formatCount(
-                          Number(
-                            values["security.access.ttlMinutes"] ??
-                              definitions.find((entry) => entry.key === "security.access.ttlMinutes")
-                                ?.default ??
-                              15,
-                          ),
-                          locale,
-                        ),
-                      })}
-                    </p>
-                  </div>
-                ) : null}
-                {group === "payments" ? (
-                  <div className="grid gap-4 xl:grid-cols-2">
-                    {[
-                      {
-                        title: "bKash",
-                        keys: ["payment.bkash.enabled", "payment.bkash.number"],
-                      },
-                      {
-                        title: "Nagad",
-                        keys: ["payment.nagad.enabled", "payment.nagad.number"],
-                      },
-                      {
-                        title: "Timing & account",
-                        keys: [
-                          "payment.expiryHours",
-                          "payment.slaHours",
-                          "payment.lateGraceHours",
-                          "payment.verificationText",
-                          "payment.accountNote",
-                        ],
-                      },
-                      {
-                        title: "Checkout methods",
-                        keys: ["payment.cod.enabled", "payment.advance.enabled"],
-                      },
-                    ].map((card) => (
-                      <div
-                        key={card.title}
-                        className="grid content-start gap-3 rounded-xl border border-border/60 bg-secondary/20 p-4"
-                      >
-                        <h3 className="font-heading text-sm font-semibold">{card.title}</h3>
-                        {card.keys.map((key) => {
-                          const definition = definitions.find((entry) => entry.key === key);
-                          if (!definition) return null;
-                          return (
-                            <SettingField
-                              key={definition.key}
-                              definition={definition}
-                              value={values[definition.key]}
-                              locale={locale}
-                              last={lastChange(definition.key)}
-                              error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
-                              disabled={
-                                (definition.key === "payment.bkash.enabled" ||
-                                  definition.key === "payment.nagad.enabled") &&
-                                !/^01[3-9]\d{8}$/.test(
-                                  String(
-                                    values[definition.key.replace(".enabled", ".number")] ?? "",
-                                  ).trim(),
-                                )
-                              }
-                              onChange={(value) => setValue(definition.key, value)}
-                              onReset={() => setValue(definition.key, definition.default)}
-                            />
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                ) : group === "home" ? (
-                  <HomeSettingsFields
-                    definitions={definitions.filter((entry) => entry.group === "home")}
-                    values={values}
-                    errors={serverErrors}
-                    locale={locale}
-                    lastChange={lastChange}
-                    onChange={setValue}
-                    onReset={(key, value) => setValue(key, value)}
-                  />
-                ) : (
-                  <div className="grid gap-4">
-                    {group === "wallet" ? (
-                      <ReadOnlySetting
-                        settingKey="commission.default"
-                        label={t("commissionManagedTitle")}
-                        value={`${formatCount(
-                          effectiveCommission.data?.effectivePercent ??
-                            Number(values["commission.default"] ?? 10),
-                          locale,
-                        )}%`}
-                        help={`${t("commissionManagedBody")} ${t("commissionManagedFallback", {
-                          value: formatCount(
-                            Number(values["commission.default"] ?? 10),
-                            locale,
-                          ),
-                        })}`}
-                        href="/admin/commission-rules"
-                        linkLabel={t("commissionRulesLink")}
-                      />
-                    ) : null}
-                    {group === "payouts" ? (
-                      <p className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
-                        {t("payoutHoldNote")}
-                      </p>
-                    ) : null}
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {definitions
-                        .filter(
-                          (definition) =>
-                            definition.group === group &&
-                            definition.wired !== false &&
-                            definition.key !== "commission.default",
-                        )
-                        .map((definition) => (
-                          <SettingField
-                            key={definition.key}
-                            definition={definition}
-                            value={values[definition.key]}
-                            locale={locale}
-                            last={lastChange(definition.key)}
-                            error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
-                            onChange={(value) => setValue(definition.key, value)}
-                            onReset={() => setValue(definition.key, definition.default)}
-                          />
-                        ))}
-                    </div>
-                  </div>
-                )}
-                {group === "payments" ? (
-                  <div className="grid gap-3">
-                    <PaymentPreview values={values} />
-                    <p className="text-xs text-muted-foreground">
-                      At least one payment method must stay enabled.
-                    </p>
-                  </div>
-                ) : null}
-              </TabsContent>
-            ))}
-          </Tabs>
+          <AnimatedTabs
+            label={t("title")}
+            defaultValue="payments"
+            urlParam="group"
+            tabs={groupTabs}
+          />
           <div className="sticky bottom-0 z-10 -mx-5 -mb-5 mt-6 flex flex-wrap items-center gap-3 border-t border-border/60 bg-card/95 px-5 py-4 backdrop-blur">
             <Button variant="cta" disabled={save.isPending || dirty.length === 0} onClick={onSave}>
               {t("save")}

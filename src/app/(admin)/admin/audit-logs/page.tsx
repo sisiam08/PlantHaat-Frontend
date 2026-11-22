@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { getTranslations } from "next-intl/server";
 
 import { AuditLogsClient } from "@/features/admin/components/audit-logs-client";
@@ -27,14 +29,16 @@ async function AdminAuditLogsPageBody({ searchParams }: { searchParams: Promise<
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+    <main className="flex-1">
+      <PageContainer width="reading">
+      <PageHeader title={t("title")} />
       <AuditLogsClient
         initialEntityType={entityType}
         initialAction={action}
         initialActorId={actorId}
         initialPage={page}
       />
+      </PageContainer>
     </main>
   );
 }

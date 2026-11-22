@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { getTranslations } from "next-intl/server";
 
 import { SellersList } from "@/features/admin/components/sellers-list";
@@ -25,9 +27,11 @@ async function AdminSellersPageBody({ searchParams }: { searchParams: Promise<Re
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+    <main className="flex-1">
+      <PageContainer width="wide">
+      <PageHeader title={t("title")} />
       <SellersList initialStatus={status} initialPage={page} />
+      </PageContainer>
     </main>
   );
 }

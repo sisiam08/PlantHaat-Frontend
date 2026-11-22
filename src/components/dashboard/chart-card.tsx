@@ -77,10 +77,10 @@ export function ChartCard({
   }
 
   return (
-    <section
+    <div
       aria-labelledby={headingId}
       className={cn(
-        "grid gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]",
+        "grid grid-cols-1 min-w-0 gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]",
         className,
       )}
     >
@@ -183,6 +183,6 @@ export function ChartCard({
       ) : (
         children
       )}
-    </section>
+    </div>
   );
 }

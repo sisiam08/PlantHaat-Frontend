@@ -30,7 +30,7 @@ export function PageContainer({
       id={id}
       data-page-container
       className={cn(
-        "mx-auto grid w-full gap-6 px-4 py-8 lg:py-12",
+        "mx-auto grid w-full grid-cols-1 gap-6 px-4 py-8 lg:py-12",
         WIDTHS[width],
         className,
       )}

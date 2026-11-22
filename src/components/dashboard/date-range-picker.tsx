@@ -55,7 +55,7 @@ export function DateRangePicker({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card p-2",
+        "flex min-w-0 max-w-full flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card p-2",
         className,
       )}
       role="group"
@@ -82,7 +82,7 @@ export function DateRangePicker({
         </button>
       ))}
       <span className="hidden h-5 w-px bg-border sm:block" aria-hidden />
-      <label className="inline-flex items-center gap-1 text-xs">
+      <label className="inline-flex min-w-0 items-center gap-1 text-xs">
         <span className="sr-only sm:not-sr-only sm:text-muted-foreground">{labels.from}</span>
         <input
           type="date"
@@ -95,10 +95,10 @@ export function DateRangePicker({
               compare: value.compare,
             })
           }
-          className="min-h-8 rounded-lg border border-input bg-background px-2 text-xs tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="min-h-8 w-[8.5rem] max-w-[42vw] rounded-lg border border-input bg-background px-2 text-xs tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         />
       </label>
-      <label className="inline-flex items-center gap-1 text-xs">
+      <label className="inline-flex min-w-0 items-center gap-1 text-xs">
         <span className="sr-only sm:not-sr-only sm:text-muted-foreground">{labels.to}</span>
         <input
           type="date"
@@ -111,10 +111,10 @@ export function DateRangePicker({
               compare: value.compare,
             })
           }
-          className="min-h-8 rounded-lg border border-input bg-background px-2 text-xs tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="min-h-8 w-[8.5rem] max-w-[42vw] rounded-lg border border-input bg-background px-2 text-xs tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         />
       </label>
-      <label className="ms-auto inline-flex min-h-8 items-center gap-1.5 text-xs text-muted-foreground">
+      <label className="ms-auto inline-flex min-h-8 min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
         <input
           type="checkbox"
           checked={value.compare}

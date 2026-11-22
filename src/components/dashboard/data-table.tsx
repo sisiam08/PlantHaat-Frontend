@@ -71,7 +71,7 @@ export function DataTable<T>({
   const cellPadding = density === "compact" ? "py-1.5" : "py-2.5";
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("grid grid-cols-1 min-w-0 gap-2", className)}>
       <div className="flex justify-end">
         <Button
           type="button"

@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
 import { ReconciliationClient } from "@/features/admin/components/reconciliation-client";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("admin.reconciliation");
+  const t = await getTranslations("part4.reconciliation");
   return { title: t("title"), robots: { index: false } };
 }
 
 export default async function AdminReconciliationPage() {
-  const t = await getTranslations("admin.reconciliation");
+  const t = await getTranslations("part4.reconciliation");
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-8">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </div>
-      <ReconciliationClient />
+    <main className="flex-1">
+      <PageContainer width="wide">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <ReconciliationClient />
+      </PageContainer>
     </main>
   );
 }

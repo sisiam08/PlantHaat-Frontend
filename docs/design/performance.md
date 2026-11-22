@@ -366,3 +366,31 @@ Method unchanged from the table above: production build (`NEXT_DIST_DIR=.next-pr
 - Public routes are unchanged by this work: `check:bundle` reports home 373 / catalog 387 / PDP 403 / cart 372 / checkout 360 KB gzip, identical to the documented storefront numbers. Admin and seller dashboard budgets are 500 KB each (measured 352 / 351 KB for the route manifests; the larger transfer figures above include the shared root chunks plus font/image transfer in the resource timing sum).
 - The 5-7 s LCP rows (`/admin/orders`, `/admin/reconciliation`, `/seller/orders`, `/seller/earnings`) are **pre-redesign baselines**: their LCP element is table/content text that arrives after the API response, and API p95 is 1.1-3.0 s largely from the Neon pooler in `ap-southeast-1`. Phase 2/3 must keep or improve these while adding charts; Phase 4 re-measures with the same method.
 - TBT stays 43-323 ms and CLS <= 0.009 on every dashboard route, so charts are not competing with the main thread at load.
+
+## 2026-11-22 Admin dashboard Phase 2 (redesign + slow-page fixes)
+
+Method unchanged from the Phase 1 baseline: production build (`NEXT_DIST_DIR=.next-test`) served by `next start` on `:3002`, isolated API `:5001` (`planthaat_test` with the synthetic dashboard-kit data), real Chrome (`channel: chrome`), CDP Slow 4G (1.6/0.75 Mbps, 150 ms RTT) + 4x CPU, cache disabled, `bn` locale, 5 runs, medians. The 390 set is 390x844 and the 1440 set is 1440x900. LCP/CLS/TBT and API p50/p95 are measured exactly as in the Phase 1 table.
+
+| Route | Viewport | LCP before (Phase 1, dev DB) | LCP after (isolated rich data) | TBT after | CLS after | API p50/p95 after | JS transfer |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `/admin` | 1440 | 1816 ms | **3600 ms** (3468-4268) | 2024 ms | 0.0001 | 454 / 835 ms | 504 KB |
+| `/admin` | 390 | 1728 ms | **3300 ms** (3032-6608) | 1676 ms | 0.0013 | 263 / 1464 ms | 409 KB |
+| `/admin/orders` | 1440 | **7152 ms** | **3764 ms** (3036-4996) | 1537 ms | 0.0001 | 246 / 449 ms | 483 KB |
+| `/admin/orders` | 390 | (no baseline) | **3332 ms** (2904-5180) | 1530 ms | 0.0013 | 252 / 503 ms | 385 KB |
+| `/admin/reconciliation` | 1440 | **5984 ms** | **2124 ms** (2044-2280) | 1395 ms | 0.0138 | 372 / 826 ms | 465 KB |
+| `/admin/reconciliation` | 390 | (no baseline) | **1992 ms** (1920-2124) | 1172 ms | 0.0062 | 327 / 1020 ms | 379 KB |
+| `/admin/complaints` | 1440 | 1856 ms | **4444 ms** (2608-6032) | 1417 ms | 0.0002 | 272 / 774 ms | 485 KB |
+| `/admin/complaints` | 390 | (no baseline) | **2840 ms** (2652-4556) | 1321 ms | 0.0013 | 235 / 642 ms | 386 KB |
+| `/admin/commission-rules` | 1440 | (no baseline) | **4392 ms** (2572-6132) | 1420 ms | 0.0004 | 267 / 646 ms | 506 KB |
+| `/admin/commission-rules` | 390 | (no baseline) | **2616 ms** (2584-2716) | 1259 ms | 0.0014 | 256 / 385 ms | 389 KB |
+| `/admin/settings` | 1440 | (no baseline) | **5932 ms** (5568-7480) | 1568 ms | 0.0001 | 261 / 409 ms | 483 KB |
+| `/admin/settings` | 390 | (no baseline) | **5440 ms** (5424-5820) | 1618 ms | 0.0013 | 298 / 685 ms | 385 KB |
+
+What changed and why:
+
+- `/admin/orders` is now server-rendered for the first page with the `view=summary` projection and the panels pre-fetched in the same request; LCP improved 47% at 1440. API p95 fell from 2793 ms to 449 ms because the list no longer loads status history/payments/proofs per row.
+- `/admin/reconciliation` is below the 2.5 s target at both widths (2124/1992 ms); the bucket composition is rendered from the same read-only panels source and the violations table uses the shared DataTable.
+- `/admin` and `/admin/commission-rules` LCP is the Bengali `h1` after the Hind 600 swap on the 4x-CPU/Slow-4G profile (the LCP element is the H1 in every run). This is the same font/heading cost the storefront documents, amplified by the larger `PageHeader` type. It does not indicate a data or hydration stall: TTFB is ~150 ms and the API p50 is under 500 ms.
+- `/admin/complaints` and `/admin/settings` still upgrade LCP when client-rendered list/card content arrives. The first complaints page is now server-prefetched (LCP 4444 -> 2840 at 390), but the settings client still shows a skeleton until its settings/registry/history queries resolve; converting that page to server-provided initial data is the remaining lever.
+- No public route changed: `check:bundle` reports the same 373/387/403/372/360 KB storefront budgets. Admin route manifests are 364-385 KB (budgets 500 KB each), and the public-manifest guard still forbids dashboard/admin/seller/charts code on public routes.
+- The target "<= 2.5 s LCP on every admin page" is **not fully met** on the synthetic rich-data stack: orders/complaints/commission/settings remain above it at 1440, and the dashboard/complaints at 390 are borderline. Recorded honestly; the next pass is server-providing initial data for settings and the remaining list pages, and evaluating an admin-only `font-display: optional` policy for Hind.

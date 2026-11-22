@@ -13,6 +13,11 @@ const routes = {
   "/cart": "server/app/(public)/cart/page_client-reference-manifest.js",
   "/checkout": "server/app/(customer)/checkout/page_client-reference-manifest.js",
   "/admin": "server/app/(admin)/admin/page_client-reference-manifest.js",
+  "/admin/orders": "server/app/(admin)/admin/orders/page_client-reference-manifest.js",
+  "/admin/reconciliation":
+    "server/app/(admin)/admin/reconciliation/page_client-reference-manifest.js",
+  "/admin/complaints": "server/app/(admin)/admin/complaints/page_client-reference-manifest.js",
+  "/admin/settings": "server/app/(admin)/admin/settings/page_client-reference-manifest.js",
   "/seller/dashboard":
     "server/app/(seller)/seller/dashboard/page_client-reference-manifest.js",
 };
@@ -26,6 +31,10 @@ const budgetsKb = {
   "/cart": 395,
   "/checkout": 385,
   "/admin": 500,
+  "/admin/orders": 500,
+  "/admin/reconciliation": 500,
+  "/admin/complaints": 500,
+  "/admin/settings": 500,
   "/seller/dashboard": 500,
 };
 

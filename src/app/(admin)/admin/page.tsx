@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+import { presetBounds } from "@/components/dashboard/range";
 import { DashboardClient } from "@/features/admin/components/dashboard-client";
+import { getAdminPanelsServer } from "@/features/admin/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("admin.dashboard");
@@ -10,10 +14,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations("admin.dashboard");
+  const range = presetBounds("30d");
+  const initialPanels = await getAdminPanelsServer(range);
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-8">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <DashboardClient />
+    <main className="flex-1">
+      <PageContainer width="wide">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <DashboardClient
+          initialPanels={initialPanels}
+          initialRange={{ ...range, preset: "30d", compare: true }}
+        />
+      </PageContainer>
     </main>
   );
 }

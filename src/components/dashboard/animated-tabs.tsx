@@ -120,8 +120,8 @@ export function AnimatedTabs({
   }
 
   return (
-    <TabsPrimitive.Root value={value} onValueChange={change} className={cn("grid gap-4", className)}>
-      <div className="relative">
+    <TabsPrimitive.Root value={value} onValueChange={change} className={cn("grid grid-cols-1 min-w-0 gap-4", className)}>
+      <div className="relative min-w-0">
         <TabsPrimitive.List
           ref={listRef}
           aria-label={label}

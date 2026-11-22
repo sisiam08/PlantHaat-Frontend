@@ -180,6 +180,10 @@ export const adminApi = {
   /* ───────────────────────── orders ───────────────────────── */
   listOrders: (params?: { status?: string; page?: number; limit?: number }) =>
     apiGet<AdminShopOrderView[]>("/admin/orders", qs(params)).then((result) => paginated(result)),
+  listOrderSummaries: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiGet<import("./types").AdminShopOrderSummary[]>("/admin/orders", {
+      params: { ...(params ?? {}), view: "summary" },
+    }).then((result) => paginated(result)),
   getOrder: (id: string) =>
     apiGet<AdminShopOrderView>(`/admin/orders/${encodeURIComponent(id)}`).then(
       (result) => result.data,

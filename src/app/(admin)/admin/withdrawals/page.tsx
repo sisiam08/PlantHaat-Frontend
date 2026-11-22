@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+import { AnalyticsStripServer } from "@/features/admin/components/analytics-strip-server";
 import { getTranslations } from "next-intl/server";
 
 import { WithdrawalsClient } from "@/features/admin/components/withdrawals-client";
@@ -32,12 +35,12 @@ async function AdminWithdrawalsPageBody({
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;
   const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-8">
-      <div className="grid gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-      </div>
-      <WithdrawalsClient initialStatus={status} initialPage={page} />
+    <main className="flex-1">
+      <PageContainer width="wide">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <AnalyticsStripServer section="withdrawals" />
+        <WithdrawalsClient initialStatus={status} initialPage={page} />
+      </PageContainer>
     </main>
   );
 }

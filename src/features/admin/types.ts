@@ -297,6 +297,33 @@ export interface AdminShopOrderView {
   };
 }
 
+/**
+ * Lightweight row returned by `GET /admin/orders?view=summary`. The list page
+ * uses it so the browser does not parse status history/payment rows it never
+ * shows; the detail page still uses `AdminShopOrderView`.
+ */
+export interface AdminShopOrderSummary {
+  id: string;
+  shopOrderNumber: string;
+  orderId: string;
+  shopId: string;
+  kind: string;
+  status: OrderStatus;
+  total: string;
+  createdAt: string;
+  shop: { id: string; name: string; slug: string };
+  order: {
+    id: string;
+    orderNumber: string;
+    customerId: string;
+    paymentMethod: string;
+    paymentStatus: string;
+    contactPhone: string;
+  };
+  items: { id: string }[];
+  codRisk?: "OK" | "WATCH" | "RESTRICTED" | "BLOCKED" | null;
+}
+
 export interface TransitionOrderInput {
   status: OrderStatus;
   note?: string;

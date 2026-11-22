@@ -15,7 +15,7 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
 import { adminApi } from "../api";
 import { complaintStatusVariant } from "../status";
-import type { ComplaintStatus } from "../types";
+import type { AdminComplaintView, ComplaintStatus } from "../types";
 import { Pager } from "./pager";
 
 const PAGE_SIZE = 20;
@@ -33,9 +33,11 @@ const FILTERS: ("ALL" | ComplaintStatus)[] = [
 export function ComplaintsList({
   initialStatus,
   initialPage,
+  initialData,
 }: {
   initialStatus: string;
   initialPage: number;
+  initialData?: { data: AdminComplaintView[]; meta?: unknown };
 }) {
   const t = useTranslations("admin.complaints");
   const tStatus = useTranslations("admin.complaintStatus");
@@ -71,6 +73,9 @@ export function ComplaintsList({
         page,
         limit: PAGE_SIZE,
       }),
+    initialData: initialData
+      ? { data: initialData.data, meta: initialData.meta as never }
+      : undefined,
     retry: false,
   });
 
