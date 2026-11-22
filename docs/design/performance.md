@@ -394,3 +394,25 @@ What changed and why:
 - `/admin/complaints` and `/admin/settings` still upgrade LCP when client-rendered list/card content arrives. The first complaints page is now server-prefetched (LCP 4444 -> 2840 at 390), but the settings client still shows a skeleton until its settings/registry/history queries resolve; converting that page to server-provided initial data is the remaining lever.
 - No public route changed: `check:bundle` reports the same 373/387/403/372/360 KB storefront budgets. Admin route manifests are 364-385 KB (budgets 500 KB each), and the public-manifest guard still forbids dashboard/admin/seller/charts code on public routes.
 - The target "<= 2.5 s LCP on every admin page" is **not fully met** on the synthetic rich-data stack: orders/complaints/commission/settings remain above it at 1440, and the dashboard/complaints at 390 are borderline. Recorded honestly; the next pass is server-providing initial data for settings and the remaining list pages, and evaluating an admin-only `font-display: optional` policy for Hind.
+
+## 2026-11-22 Seller dashboard Phase 3
+
+Method unchanged: production build (`NEXT_DIST_DIR=.next-test`) on `:3002`, isolated API `:5001`, real Chrome, CDP Slow 4G (1.6/0.75 Mbps, 150 ms) + 4x CPU, cache off, `bn`, 5 runs, medians. Data is the isolated test stack with the dashboard-kit seller (60 synthetic orders).
+
+| Route | Viewport | LCP before (Phase 1, dev DB) | LCP after | TBT after | CLS after | API p50/p95 after | JS transfer |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `/seller/dashboard` | 1440 | 1816 ms | **1992 ms** (1776-2716) | 2465 ms | 0.0001 | 197 / 501 ms | 473 KB |
+| `/seller/dashboard` | 390 | 1744 ms | **1876 ms** (1716-2588) | 2251 ms | 0.0013 | 180 / 237 ms | 392 KB |
+| `/seller/orders` | 1440 | (no baseline) | **3444 ms** (2712-4268) | 1855 ms | 0.0002 | 182 / 243 ms | 469 KB |
+| `/seller/orders` | 390 | **5584 ms** | **2728 ms** (2640-3268) | 2032 ms | 0.0013 | 183 / 238 ms | 387 KB |
+| `/seller/earnings` | 1440 | (no baseline) | **2556 ms** (2420-3308) | 1042 ms | 0.0001 | 229 / 541 ms | 475 KB |
+| `/seller/earnings` | 390 | **4988 ms** | **2368 ms** (2292-2480) | 1140 ms | 0.0013 | 180 / 481 ms | 393 KB |
+| `/seller/products` | 1440 | (no baseline) | **4208 ms** (4124-4576) | 1243 ms | 0.0001 | 191 / 357 ms | 484 KB |
+| `/seller/products` | 390 | (no baseline) | **3800 ms** (3320-5492) | 1061 ms | 0.0014 | 177 / 251 ms | 402 KB |
+| `/seller/analytics` | 1440 | 1796 ms | **2272 ms** (1988-2352) | 1755 ms | 0.0001 | 180 / 382 ms | 450 KB |
+| `/seller/analytics` | 390 | (no baseline) | **5396 ms** (5232-7820) | 1252 ms | 0.0013 | 179 / 419 ms | 373 KB |
+
+- Seller orders and wallet are the clear wins: orders 390 -51%, earnings 390 -53%, both now under 2.5 s at 390. Both are server-seeded (first page/list + panels/wallet) and no longer wait for a client round trip.
+- Seller dashboard is within ~10% of the Phase 1 baseline at 1440 (+176 ms) and ~8% slower at 390 (+132 ms); it now renders many more widgets (trend/status/wallet/release/disputes/top/ratings/delivery). TBT is higher because of the charts; it is the documented trade-off for the requested dashboard.
+- Products is 3.8-4.2 s; the LCP is the product list content/imagery rather than the server-rendered strip. Analytics was not rebuilt in this pass; its 390 number is on the heavier isolated dataset and noisy.
+- Public bundles are unchanged (373/387/403/372/360 KB). Seller route manifests are 366-372 KB against 500 KB budgets; `check:bundle` now also budgets `/seller/orders`, `/seller/earnings` and `/seller/products`.

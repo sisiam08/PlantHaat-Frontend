@@ -6,6 +6,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 
 import { SellerComplaintsClient } from "@/features/seller/components/seller-complaints-client";
+import { SellerHealthStripServer } from "@/features/seller/components/seller-health-strip-server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("seller.complaints");
@@ -37,8 +38,9 @@ async function SellerComplaintsPageBody({
 
   return (
     <main className="flex-1">
-      <PageContainer width="reading">
+      <PageContainer width="wide">
         <PageHeader title={t("title")} />
+        <SellerHealthStripServer section="disputes" />
         <SellerComplaintsClient initialStatus={status} initialPage={page} />
       </PageContainer>
     </main>

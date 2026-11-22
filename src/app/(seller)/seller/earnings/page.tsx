@@ -5,6 +5,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 
 import { WalletClient } from "@/features/seller/components/wallet-client";
+import { getSellerWalletServer } from "@/features/seller/server";
 import { getPublicSettings } from "@/server/public-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,12 +15,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SellerEarningsPage() {
   const t = await getTranslations("part4.wallet");
-  const settings = await getPublicSettings();
+  const [settings, initialWallet] = await Promise.all([
+    getPublicSettings(),
+    getSellerWalletServer(),
+  ]);
   return (
     <main className="flex-1">
       <PageContainer width="reading">
         <PageHeader title={t("title")} description={t("subtitle")} />
-        <WalletClient windowHours={settings["return.windowHours"]} />
+        <WalletClient
+          windowHours={settings["return.windowHours"]}
+          initialWallet={initialWallet}
+        />
       </PageContainer>
     </main>
   );

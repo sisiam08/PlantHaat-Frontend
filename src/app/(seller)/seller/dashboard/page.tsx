@@ -3,8 +3,10 @@ import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { presetBounds } from "@/components/dashboard/range";
 
 import { DashboardClient } from "@/features/seller/components/dashboard-client";
+import { getSellerPanelsServer } from "@/features/seller/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("seller.dashboard");
@@ -13,11 +15,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SellerDashboardPage() {
   const t = await getTranslations("seller.dashboard");
+  const range = presetBounds("30d");
+  const initialPanels = await getSellerPanelsServer(range);
   return (
     <main className="flex-1">
-      <PageContainer width="reading">
-        <PageHeader title={t("title")} />
-        <DashboardClient />
+      <PageContainer width="wide">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <DashboardClient
+          initialPanels={initialPanels}
+          initialRange={{ ...range, preset: "30d", compare: true }}
+        />
       </PageContainer>
     </main>
   );

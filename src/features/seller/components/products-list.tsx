@@ -29,7 +29,7 @@ import { formatPriceRange } from "@/lib/format/money";
 import { PLANT_PLACEHOLDER } from "@/lib/images/cloudinary-loader";
 import { sellerApi } from "../api";
 import { productStatusVariant } from "../status";
-import type { ProductStatus } from "../types";
+import type { ProductStatus, SellerProductListItem } from "../types";
 
 const PAGE_SIZE = 20;
 
@@ -45,9 +45,11 @@ const FILTERS: ("ALL" | ProductStatus)[] = [
 export function ProductsList({
   initialStatus,
   initialPage,
+  initialData,
 }: {
   initialStatus: string;
   initialPage: number;
+  initialData?: SellerProductListItem[];
 }) {
   const t = useTranslations("seller.products");
   const tStatus = useTranslations("seller.productStatus");
@@ -66,6 +68,7 @@ export function ProductsList({
   const products = useQuery({
     queryKey: queryKeys.seller.products(),
     queryFn: sellerApi.listProducts,
+    initialData: initialData ? { data: initialData, meta: undefined } : undefined,
     retry: false,
   });
 

@@ -20,6 +20,9 @@ const routes = {
   "/admin/settings": "server/app/(admin)/admin/settings/page_client-reference-manifest.js",
   "/seller/dashboard":
     "server/app/(seller)/seller/dashboard/page_client-reference-manifest.js",
+  "/seller/orders": "server/app/(seller)/seller/orders/page_client-reference-manifest.js",
+  "/seller/earnings": "server/app/(seller)/seller/earnings/page_client-reference-manifest.js",
+  "/seller/products": "server/app/(seller)/seller/products/page_client-reference-manifest.js",
 };
 
 // Public budgets are the documented storefront limits; admin/seller budgets are
@@ -36,6 +39,9 @@ const budgetsKb = {
   "/admin/complaints": 500,
   "/admin/settings": 500,
   "/seller/dashboard": 500,
+  "/seller/orders": 500,
+  "/seller/earnings": 500,
+  "/seller/products": 500,
 };
 
 // Public routes must never pull dashboard/chart code (or the private panel

@@ -4,9 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ArrowDownToLine, BadgeCheck, Clock3, Loader2, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
+import { AnimatedTabs } from "@/components/dashboard/animated-tabs";
+import { BarChart } from "@/components/dashboard/bar-chart";
+import { ChartCard } from "@/components/dashboard/chart-card";
+import { DonutChart } from "@/components/dashboard/donut-chart";
+import { Gauge } from "@/components/dashboard/progress";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { QueryError } from "@/components/feedback/query-error";
 import { Price } from "@/components/product/price";
@@ -24,25 +29,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { queryKeys } from "@/lib/api/query-keys";
 import { ApiError } from "@/lib/api/common";
 import { formatLatinDateTime } from "@/lib/format/date";
+import { formatBdt } from "@/lib/format/money";
 import { sellerWalletApi } from "../api";
 import type { PayoutMethod, SellerWallet, SellerWalletTransaction } from "../types";
 const PAGE_SIZE = 12;
 const METHODS: PayoutMethod[] = ["BKASH", "NAGAD", "BANK"];
-export function WalletClient({ windowHours }: { windowHours?: number }) {
+export function WalletClient({
+  windowHours,
+  initialWallet,
+}: {
+  windowHours?: number;
+  initialWallet?: SellerWallet;
+}) {
   const t = useTranslations("part4.wallet");
   const tPayouts = useTranslations("seller.payouts");
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState("overview");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawKey, setWithdrawKey] = useState("");
   const wallet = useQuery({
     queryKey: queryKeys.seller.wallet,
     queryFn: sellerWalletApi.get,
+    initialData: initialWallet,
     retry: false,
   });
   const invalidate = async () => {
@@ -135,65 +146,146 @@ export function WalletClient({ windowHours }: { windowHours?: number }) {
         </div>
       ) : null}{" "}
       <p className="text-sm text-muted-foreground">{t("rule", { window: windowLabel })}</p>{" "}
-      <Tabs value={tab} onValueChange={setTab}>
-        {" "}
-        <TabsList className="w-full justify-start overflow-x-auto">
-          {" "}
-          <TabsTrigger value="overview" className="text-foreground">
-            {t("tabOverview")}
-          </TabsTrigger>{" "}
-          <TabsTrigger value="transactions" className="text-foreground">
-            {t("tabTransactions")}
-          </TabsTrigger>{" "}
-        </TabsList>{" "}
-        <TabsContent value="overview" className="grid gap-4">
-          {" "}
-          <Card className="rounded-2xl">
-            {" "}
-            <CardHeader>
-              {" "}
-              <CardTitle>{t("pendingOrdersTitle")}</CardTitle>{" "}
-            </CardHeader>{" "}
-            <CardContent>
-              {" "}
-              {data.pendingOrders.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t("noPendingOrders")}</p>
-              ) : (
-                <div className="grid gap-2 text-sm">
-                  {" "}
-                  {data.pendingOrders.map((order) => (
-                    <div
-                      key={order.shopOrderId}
-                      className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2 last:border-b-0 last:pb-0"
-                    >
-                      {" "}
-                      <Link
-                        href={`/seller/orders/${order.shopOrderId}`}
-                        className="font-medium underline-offset-4 hover:underline"
-                      >
-                        {" "}
-                        {t("orderRef", { id: order.shopOrderId.slice(0, 8) })}{" "}
-                      </Link>{" "}
-                      <span className="text-xs text-muted-foreground">
-                        {" "}
-                        {order.releaseAt
-                          ? t("releasesAt", { date: formatLatinDateTime(order.releaseAt) })
-                          : t("waitingDelivery")}{" "}
-                      </span>{" "}
-                      <Price value={order.amount} locale={locale} size="sm" />{" "}
+      <AnimatedTabs
+        label={t("title")}
+        defaultValue="overview"
+        urlParam="wallet"
+        tabs={[
+          {
+            value: "overview",
+            label: t("tabOverview"),
+            content: (
+              <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  <ChartCard
+                    title={t("balanceComposition")}
+                    summary={t("compositionSummary", {
+                      available: formatBdt(data.balances.available, locale),
+                      pending: formatBdt(data.balances.pending, locale),
+                      onHold: formatBdt(data.balances.onHold, locale),
+                    })}
+                    labels={{
+                      viewData: t("viewData"),
+                      viewChart: t("viewChart"),
+                      exportCsv: t("exportCsv"),
+                    }}
+                    table={{
+                      columns: [
+                        { key: "label", label: t("balanceComposition") },
+                        { key: "amount", label: t("available"), align: "end" },
+                      ],
+                      rows: [
+                        { label: t("available"), amount: data.balances.available },
+                        { label: t("pending"), amount: data.balances.pending },
+                        { label: t("onHold"), amount: data.balances.onHold },
+                      ],
+                    }}
+                    csvName="wallet-composition"
+                  >
+                    <DonutChart
+                      centerLabel={t("total")}
+                      summary={t("compositionSummary", {
+                        available: formatBdt(data.balances.available, locale),
+                        pending: formatBdt(data.balances.pending, locale),
+                        onHold: formatBdt(data.balances.onHold, locale),
+                      })}
+                      data={[
+                        { label: t("available"), value: Number(data.balances.available) },
+                        { label: t("pending"), value: Number(data.balances.pending) },
+                        { label: t("onHold"), value: Number(data.balances.onHold) },
+                      ]}
+                      otherLabel={t("other")}
+                      formatValue={(value) =>
+                        new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
+                          style: "currency",
+                          currency: "BDT",
+                          currencyDisplay: "narrowSymbol",
+                          numberingSystem: "latn",
+                          maximumFractionDigits: 2,
+                        }).format(value)
+                      }
+                    />
+                  </ChartCard>
+
+                  <ChartCard
+                    title={t("codDuesTitle")}
+                    summary={t("codDuesSummary", {
+                      value: formatBdt(data.balances.codDues, locale),
+                      limit: formatBdt(data.settings.codDuesLimit, locale),
+                    })}
+                    labels={{
+                      viewData: t("viewData"),
+                      viewChart: t("viewChart"),
+                      exportCsv: t("exportCsv"),
+                    }}
+                  >
+                    <div className="grid gap-4">
+                      <Gauge
+                        label={t("codDuesTitle")}
+                        value={Number(data.balances.codDues)}
+                        max={Math.max(1, data.settings.codDuesLimit)}
+                        valueText={`${formatBdt(data.balances.codDues, locale)} / ${formatBdt(
+                          data.settings.codDuesLimit,
+                          locale,
+                        )}`}
+                        tone={
+                          Number(data.balances.codDues) >= data.settings.codDuesLimit
+                            ? "offer"
+                            : "primary"
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t("codDuesBody", { limit: String(data.settings.codDuesLimit) })}
+                      </p>
                     </div>
-                  ))}{" "}
+                  </ChartCard>
                 </div>
-              )}{" "}
-            </CardContent>{" "}
-          </Card>{" "}
-          <WithdrawalsList onChanged={invalidate} />{" "}
-        </TabsContent>{" "}
-        <TabsContent value="transactions">
-          {" "}
-          <TransactionsList />{" "}
-        </TabsContent>{" "}
-      </Tabs>{" "}
+
+                <ReleaseCalendar orders={data.pendingOrders} />
+
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle>{t("pendingOrdersTitle")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {data.pendingOrders.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t("noPendingOrders")}</p>
+                    ) : (
+                      <div className="grid gap-2 text-sm">
+                        {data.pendingOrders.map((order) => (
+                          <div
+                            key={order.shopOrderId}
+                            className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2 last:border-b-0 last:pb-0"
+                          >
+                            <Link
+                              href={`/seller/orders/${order.shopOrderId}`}
+                              className="min-h-11 font-medium underline-offset-4 hover:underline"
+                            >
+                              {t("orderRef", { id: order.shopOrderId.slice(0, 8) })}
+                            </Link>
+                            <span className="text-xs text-muted-foreground">
+                              {order.releaseAt
+                                ? t("releasesAt", { date: formatLatinDateTime(order.releaseAt) })
+                                : t("waitingDelivery")}
+                            </span>
+                            <Price value={order.amount} locale={locale} size="sm" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                <WithdrawalsList onChanged={invalidate} />
+              </div>
+            ),
+          },
+          {
+            value: "transactions",
+            label: t("tabTransactions"),
+            content: <TransactionsList />,
+          },
+        ]}
+      />
       <Card className="rounded-2xl">
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <div className="grid gap-1">
@@ -247,6 +339,85 @@ function Stat({
     </Card>
   );
 }
+function ReleaseCalendar({ orders }: { orders: SellerWallet["pendingOrders"] }) {
+  const t = useTranslations("part4.wallet");
+  const locale = useLocale();
+  const buckets = new Map<string, { count: number; amount: number }>();
+  for (const order of orders) {
+    const key = order.releaseAt ? order.releaseAt.slice(0, 10) : t("waitingDelivery");
+    const entry = buckets.get(key) ?? { count: 0, amount: 0 };
+    entry.count += 1;
+    entry.amount += Number(order.amount) || 0;
+    buckets.set(key, entry);
+  }
+  const rows = [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([bucket, value]) => ({ bucket, ...value }));
+
+  return (
+    <ChartCard
+      title={t("releaseCalendar")}
+      summary={t("releaseSummary", {
+        count: orders.length,
+        amount: new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
+          style: "currency",
+          currency: "BDT",
+          currencyDisplay: "narrowSymbol",
+          numberingSystem: "latn",
+          maximumFractionDigits: 2,
+        }).format(rows.reduce((sum, row) => sum + row.amount, 0)),
+      })}
+      labels={{
+        viewData: t("viewData"),
+        viewChart: t("viewChart"),
+        exportCsv: t("exportCsv"),
+      }}
+      empty={rows.length === 0 ? { message: t("noRelease") } : undefined}
+      table={{
+        columns: [
+          { key: "bucket", label: t("releaseCalendar") },
+          { key: "count", label: t("releaseCount"), align: "end" },
+          { key: "amount", label: t("available"), align: "end" },
+        ],
+        rows: rows.map((row) => ({
+          bucket: row.bucket,
+          count: row.count,
+          amount: new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
+            style: "currency",
+            currency: "BDT",
+            currencyDisplay: "narrowSymbol",
+            numberingSystem: "latn",
+            maximumFractionDigits: 2,
+          }).format(row.amount),
+        })),
+      }}
+      csvName="release-calendar"
+    >
+      <BarChart
+        summary={t("releaseSummary", {
+          count: orders.length,
+          amount: new Intl.NumberFormat(locale === "bn" ? "bn-BD-u-nu-latn" : "en-BD", {
+            style: "currency",
+            currency: "BDT",
+            currencyDisplay: "narrowSymbol",
+            numberingSystem: "latn",
+            maximumFractionDigits: 2,
+          }).format(rows.reduce((sum, row) => sum + row.amount, 0)),
+        })}
+        labels={rows.map((row) => row.bucket)}
+        series={[
+          {
+            key: "amount",
+            label: t("releaseCount"),
+            values: rows.map((row) => row.amount),
+            colorIndex: 2,
+          },
+        ]}
+      />
+    </ChartCard>
+  );
+}
+
 function TransactionsList() {
   const t = useTranslations("part4.wallet");
   const tl = useTranslations("part4.legacy");

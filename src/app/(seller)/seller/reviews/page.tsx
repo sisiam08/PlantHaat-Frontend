@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 
+import { SellerHealthStripServer } from "@/features/seller/components/seller-health-strip-server";
 import { SellerReviewsClient } from "@/features/seller/components/seller-reviews-client";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,8 +37,9 @@ async function SellerReviewsPageBody({
 
   return (
     <main className="flex-1">
-      <PageContainer width="form">
+      <PageContainer width="wide">
         <PageHeader title={t("title")} description={t("subtitle")} />
+        <SellerHealthStripServer section="ratings" />
         <SellerReviewsClient initialPage={page} />
       </PageContainer>
     </main>

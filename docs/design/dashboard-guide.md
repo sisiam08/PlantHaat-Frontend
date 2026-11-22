@@ -105,21 +105,21 @@ list filter, detail page or action. Tick a row only after verifying the item at 
 | `/admin/audit-logs` | Entity/action/actor filters and rows. | ◐ PageHeader applied; list unchanged. |
 | `/admin/settings` | Group tabs, registry fields with help, unsaved bar, re-auth, history, storage health, read-only commission/highlights summaries. | ✅ AnimatedTabs (sliding indicator, URL `?group=`, reduced-motion) replacing the plain tab strip; all fields/history/re-auth/save bar retained. |
 
-**Seller** (Phase 3; not redesigned in this session)
+**Seller** (Phase 3, 2026-11-22)
 
-| Page | What must remain |
-|---|---|
-| `/seller/dashboard` | Application status/quick links; pending orders, unread notifications, unanswered questions, stuck orders, low-stock variants. |
-| `/seller/products`, `/new`, `/[id]` | List with status/stock/low-stock and delete; editor basics, care, variants, images, status; stock adjustment. |
-| `/seller/orders`, `/[id]` | Status tabs/counts and rows; detail items, customer/address, totals, history, transitions, delivery proof. |
-| `/seller/earnings` | Available/pending/on hold/withdrawn/COD dues, per-order release dates, ledger with type filter, withdrawal dialog/history, payout-profile summary/link. |
-| `/seller/payout-accounts` | Canonical masked destination list/add/delete with cooldown messaging. |
-| `/seller/complaints`, `/[id]` | Queue filters; thread, response text/photos, deadlines. |
-| `/seller/reviews`, `/seller/questions` | Review list/reply/report; question list/answer. |
-| `/seller/shop`, `/seller/delivery-zones` | Shop profile fields/logo/banner/vacation; zones CRUD. |
-| `/seller/analytics` | Range selector, delivered/revenue/commission/AOV KPIs, rating, daily revenue bars, orders by status, top products, low stock. |
-| `/seller/cancellation-requests`, `/seller/apply` | Request queue/respond; onboarding wizard + approved notice. |
-| Notifications | Shared bell only; no seller page exists. |
+| Page | What must remain | Phase 3 status / where it lives |
+|---|---|---|
+| `/seller/dashboard` | Application status/quick links; pending orders, unread notifications, unanswered questions, stuck orders, low-stock variants. | ✅ Application status + action queue + KPI strip (revenue/orders/AOV/delivered/commission/cancellations) + sales-trend tabs + orders by status + wallet snapshot + release calendar + COD dues gauge + top products + disputes deadlines + ratings + delivery + stock health + shop summary/quick links. |
+| `/seller/products`, `/new`, `/[id]` | List with status/stock/low-stock and delete; editor basics, care, variants, images, status; stock adjustment. | ✅ PageHeader + server-prefetched stock-health strip + list (server-seeded). Editor unchanged. |
+| `/seller/orders`, `/[id]` | Status tabs/counts and rows; detail items, customer/address, totals, history, transitions, delivery proof. | ✅ Period selector + KPI strip + status chart + sortable/density DataTable with mobile cards; first page server-seeded. Detail unchanged. |
+| `/seller/earnings` | Available/pending/on hold/withdrawn/COD dues, per-order release dates, ledger with type filter, withdrawal dialog/history, payout-profile summary/link. | ✅ Balance composition donut, COD dues gauge vs limit, release calendar, AnimatedTabs (overview/transactions); wallet data server-seeded. Withdrawal/ledger/profile actions unchanged. |
+| `/seller/payout-accounts` | Canonical masked destination list/add/delete with cooldown messaging. | ◐ PageHeader already; actions unchanged (no supporting series). |
+| `/seller/complaints`, `/[id]` | Queue filters; thread, response text/photos, deadlines. | ✅ PageHeader + disputes health strip (open/due soon/avg resolution/status bars); list/thread unchanged. |
+| `/seller/reviews`, `/seller/questions` | Review list/reply/report; question list/answer. | ✅ Reviews: PageHeader + rating distribution strip. Questions: PageHeader + list unchanged (no rating series). |
+| `/seller/shop`, `/seller/delivery-zones` | Shop profile fields/logo/banner/vacation; zones CRUD. | ◐ PageHeader already; forms/actions unchanged. |
+| `/seller/analytics` | Range selector, delivered/revenue/commission/AOV KPIs, rating, daily revenue bars, orders by status, top products, low stock. | ◐ Existing analytics charts retained (not rebuilt in this pass). |
+| `/seller/cancellation-requests`, `/seller/apply` | Request queue/respond; onboarding wizard + approved notice. | ◐ PageHeader already; flows unchanged. |
+| Notifications | Shared bell only; no seller page exists. | ◐ Unchanged (no seller notifications page). |
 
 ## 5. Phase 2 implementation notes
 
@@ -139,3 +139,21 @@ list filter, detail page or action. Tick a row only after verifying the item at 
   dashboard for the same range. No new backend writes; no ledger/payment/commission rule changed.
 - Settings groups use `AnimatedTabs`; the unsaved guard, re-auth flow, history and read-only summaries
   are unchanged.
+
+## 6. Phase 3 implementation notes (seller panel)
+
+- The seller dashboard uses the same kit and a server-prefetched seller panels response. It keeps every
+  legacy counter (pending orders, stuck orders, unanswered questions, low stock, unread
+  notifications), the application status card, shop summary and quick links, and adds the KPI strip,
+  sales-trend tabs, status/action queue, wallet snapshot, release calendar, COD dues gauge, disputes
+  deadlines, top products, ratings, delivery performance and stock health.
+- Seller orders is server-seeded (first page + panels) and uses the shared DataTable; the status filter,
+  pagination and detail actions are unchanged. Products is server-seeded as well and gets a stock-health
+  strip. Wallet gets a balance-composition donut, COD dues gauge, release calendar and AnimatedTabs;
+  withdrawal/ledger/payout actions are untouched.
+- Health strips are shared (`SellerHealthStrip`) for complaints/reviews/products and use the same
+  seller-scoped read-only panels endpoint, so numbers match the dashboard for the same range.
+- Mobile: KPI/action strips are swipeable snap rails with a focusable region, page actions/buttons use
+  larger targets, and no page overflows at 360.
+- Server prefetch never becomes a second source of truth: failures fall back to the existing client
+  loading/error states.
