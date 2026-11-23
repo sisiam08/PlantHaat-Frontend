@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { AnalyticsStripServer } from "@/features/admin/components/analytics-strip-server";
 import { getTranslations } from "next-intl/server";
 
 import { ProductsModeration } from "@/features/admin/components/products-moderation";
@@ -30,7 +31,8 @@ async function AdminProductsPageBody({ searchParams }: { searchParams: Promise<R
     <main className="flex-1">
       <PageContainer width="wide">
       <PageHeader title={t("title")} />
-      <ProductsModeration initialStatus={status} initialPage={page} />
+      <AnalyticsStripServer section="inventory" />
+        <ProductsModeration initialStatus={status} initialPage={page} />
       </PageContainer>
     </main>
   );

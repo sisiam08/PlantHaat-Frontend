@@ -26,7 +26,7 @@ import { DateRangePicker, type DateRangeValue } from "@/components/dashboard/dat
 import { DonutChart } from "@/components/dashboard/donut-chart";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { LineAreaChart } from "@/components/dashboard/line-area-chart";
-import { ProgressBar } from "@/components/dashboard/progress";
+import { Gauge, ProgressBar } from "@/components/dashboard/progress";
 import { presetBounds } from "@/components/dashboard/range";
 import { ChartSkeleton, KpiSkeleton } from "@/components/dashboard/skeletons";
 import { Badge } from "@/components/ui/badge";
@@ -1086,6 +1086,12 @@ export function DashboardClient({
           empty={data.ratings.count === 0 ? { message: t("noDataPeriod") } : undefined}
         >
           <div className="grid grid-cols-1 gap-3">
+            <Gauge
+              label={t("ratingAvg")}
+              value={toNumber(data.ratings.avg)}
+              max={5}
+              valueText={`${formatCount(toNumber(data.ratings.avg), locale)} / 5`}
+            />
             <BarChart
               summary={t("summaryDistribution", {
                 count: data.ratings.count,
@@ -1100,10 +1106,6 @@ export function DashboardClient({
                   colorIndex: 2,
                 },
               ]}
-            />
-            <MetricRow
-              label={t("ratingAvg")}
-              value={`${formatCount(toNumber(data.ratings.avg), locale)} / 5`}
             />
           </div>
         </ChartCard>
@@ -1216,6 +1218,7 @@ function TrendChart({
         series={[{ key: "series", label, values, colorIndex: 0, variant: "area" }]}
         summary={summary}
         formatValue={formatValue}
+        height={200}
       />
       <details className="rounded-xl border border-border/60 px-3 py-2">
         <summary className="cursor-pointer text-xs font-medium text-muted-foreground">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { AnalyticsStripServer } from "@/features/admin/components/analytics-strip-server";
 import { getTranslations } from "next-intl/server";
 
 import { UsersList } from "@/features/admin/components/users-list";
@@ -31,7 +32,8 @@ async function AdminUsersPageBody({ searchParams }: { searchParams: Promise<Reco
     <main className="flex-1">
       <PageContainer width="wide">
       <PageHeader title={t("title")} />
-      <UsersList initialRole={role} initialStatus={status} initialPage={page} />
+      <AnalyticsStripServer section="people" />
+        <UsersList initialRole={role} initialStatus={status} initialPage={page} />
       </PageContainer>
     </main>
   );

@@ -81,28 +81,28 @@ list filter, detail page or action. Tick a row only after verifying the item at 
 | `/admin/orders`, `/admin/orders/[id]` | Status filter; rows with order/shop/total/status/payment; detail items, totals, customer/address, payment, history, transitions, cancellation response. | ✅ Status filter + date range + KPI strip; status distribution chart/table; sortable/density DataTable (summary projection); pager. Detail unchanged (all fields). |
 | `/admin/refunds` | Status filter; payment refunds with approve/reject/process. | ✅ PageHeader + refunds health strip (pending/processed/advance required); list/actions unchanged. |
 | `/admin/withdrawals` | Seller requests, status filter, masked destination reveal (re-auth), pay/reject. | ✅ PageHeader + withdrawals health strip (pending/paid/turnaround/aging); list/actions unchanged. |
-| `/admin/advance-payments` | Pending verification queue: order, amount, provider, TrxID, sender number, time, proof; verify/reject. | ✅ Dashboard/period widgets cover the queue health; queue itself unchanged (tabs pending/SLA/all). |
-| `/admin/advance-refunds` | REFUND_REQUIRED obligations, record refund TrxID. | ✅ Dashboard/refunds widgets cover obligations; queue unchanged. |
+| `/admin/advance-payments` | Pending verification queue: order, amount, provider, TrxID, sender number, time, proof; verify/reject. | ✅ Verification aging strip (pending/amount/age buckets) + queue unchanged (tabs pending/SLA/all). |
+| `/admin/advance-refunds` | REFUND_REQUIRED obligations, record refund TrxID. | ✅ Refunds health strip (pending/processed/advance required) + queue unchanged. |
 | `/admin/reconciliation` | Period, totals, violations/breach banner, settlement buckets, ledger, help text. | ✅ Period, checked count, balanced/breach banner, settlement totals, bucket composition donut + ranking + data table/CSV, sortable violations table (mobile cards). |
 | `/admin/commission-rules` | Rules/scopes, effective default, create/update/delete. | ✅ PageHeader + commission/GMV/AOV strip + commission trend; rules/actions unchanged. |
 | `/admin/complaints`, `/admin/complaints/[id]` | Status/seller/age/amount filters; ticket/customer/shop/type/status/amount rows; thread, attachments/evidence, internal notes, refund/hold decision. | ✅ PageHeader + disputes health strip (open/created/avg resolution/status donut); filters/list/decision unchanged. |
-| `/admin/sellers`, `/admin/sellers/[id]` | Status filter, rows; detail profile, contacts, shop links, documents viewer, ledger, dues/adjustment, bulk cancel, approve/reject/suspend/reactivate, audit trail. | ◐ PageHeader applied; rows/detail/actions unchanged (no seller-status series exists; no fake chart added). |
-| `/admin/suspended-sellers` | Suspended queue and open orders with bulk-cancel links. | ◐ PageHeader applied; queue unchanged. |
-| `/admin/users`, `/admin/users/[id]` | Role/status filters, rows, create admin, suspend/reactivate; detail profile/actions. | ◐ PageHeader applied; rows/detail/actions unchanged. |
-| `/admin/shops` | Name/slug/status/seller rows, suspend/reactivate. | ◐ PageHeader applied; rows/actions unchanged. |
-| `/admin/products` | Status filter, moderation rows (name/shop/status/price), approve/reject/remove. | ◐ PageHeader applied; list/actions unchanged. |
-| `/admin/categories` | Category list/CRUD, active/sort/image. | ◐ PageHeader applied; CRUD unchanged. |
-| `/admin/payments`, `/admin/payments/[id]` | Legacy payment filters (status/method/order/date), rows and detail. | ◐ PageHeader applied; list/detail unchanged. |
-| `/admin/payouts` | Manual payout history, create/update status. | ◐ PageHeader applied; list/actions unchanged. |
-| `/admin/stuck-orders` | Flagged queue, reminder count, overdue filter, age. | ◐ PageHeader applied; queue unchanged. |
-| `/admin/cod-risk` | Risk profiles, status/whitelist actions, search. | ◐ PageHeader applied; list/actions unchanged. |
-| `/admin/content-reports` | Report list and hide/resolve actions. | ◐ PageHeader applied; list/actions unchanged. |
-| `/admin/review-reports` | Report list, resolve/hide/unhide review. | ◐ PageHeader applied; list/actions unchanged. |
-| `/admin/highlights` | Slides, master switch, autoplay/interval, reorder, duplicate/delete, previews, warnings. | ◐ PageHeader applied; editor unchanged. |
-| `/admin/banners` | Placement rows/CRUD; managed hero/highlights rows hidden with links. | ◐ PageHeader applied; CRUD unchanged. |
-| `/admin/homepage-sections` | Read-only section list. | ◐ PageHeader applied; list unchanged. |
-| `/admin/announcements` | List/CRUD. | ◐ PageHeader applied; CRUD unchanged. |
-| `/admin/audit-logs` | Entity/action/actor filters and rows. | ◐ PageHeader applied; list unchanged. |
+| `/admin/sellers`, `/admin/sellers/[id]` | Status filter, rows; detail profile, contacts, shop links, documents viewer, ledger, dues/adjustment, bulk cancel, approve/reject/suspend/reactivate, audit trail. | ✅ PageHeader + server-prefetched people strip (new customers/sellers/orders); rows/detail/actions unchanged. |
+| `/admin/suspended-sellers` | Suspended queue and open orders with bulk-cancel links. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). queue unchanged. |
+| `/admin/users`, `/admin/users/[id]` | Role/status filters, rows, create admin, suspend/reactivate; detail profile/actions. | ✅ PageHeader + server-prefetched people strip (growth); rows/detail/actions unchanged. |
+| `/admin/shops` | Name/slug/status/seller rows, suspend/reactivate. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). rows/actions unchanged. |
+| `/admin/products` | Status filter, moderation rows (name/shop/status/price), approve/reject/remove. | ✅ PageHeader + server-prefetched inventory strip (low/out/active + progress bars); list/actions unchanged. |
+| `/admin/categories` | Category list/CRUD, active/sort/image. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). CRUD unchanged. |
+| `/admin/payments`, `/admin/payments/[id]` | Legacy payment filters (status/method/order/date), rows and detail. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/detail unchanged. |
+| `/admin/payouts` | Manual payout history, create/update status. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
+| `/admin/stuck-orders` | Flagged queue, reminder count, overdue filter, age. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). queue unchanged. |
+| `/admin/cod-risk` | Risk profiles, status/whitelist actions, search. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
+| `/admin/content-reports` | Report list and hide/resolve actions. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
+| `/admin/review-reports` | Report list, resolve/hide/unhide review. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
+| `/admin/highlights` | Slides, master switch, autoplay/interval, reorder, duplicate/delete, previews, warnings. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). editor unchanged. |
+| `/admin/banners` | Placement rows/CRUD; managed hero/highlights rows hidden with links. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). CRUD unchanged. |
+| `/admin/homepage-sections` | Read-only section list. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list unchanged. |
+| `/admin/announcements` | List/CRUD. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). CRUD unchanged. |
+| `/admin/audit-logs` | Entity/action/actor filters and rows. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list unchanged. |
 | `/admin/settings` | Group tabs, registry fields with help, unsaved bar, re-auth, history, storage health, read-only commission/highlights summaries. | ✅ AnimatedTabs (sliding indicator, URL `?group=`, reduced-motion) replacing the plain tab strip; all fields/history/re-auth/save bar retained. |
 
 **Seller** (Phase 3, 2026-11-22)
@@ -113,13 +113,13 @@ list filter, detail page or action. Tick a row only after verifying the item at 
 | `/seller/products`, `/new`, `/[id]` | List with status/stock/low-stock and delete; editor basics, care, variants, images, status; stock adjustment. | ✅ PageHeader + server-prefetched stock-health strip + list (server-seeded). Editor unchanged. |
 | `/seller/orders`, `/[id]` | Status tabs/counts and rows; detail items, customer/address, totals, history, transitions, delivery proof. | ✅ Period selector + KPI strip + status chart + sortable/density DataTable with mobile cards; first page server-seeded. Detail unchanged. |
 | `/seller/earnings` | Available/pending/on hold/withdrawn/COD dues, per-order release dates, ledger with type filter, withdrawal dialog/history, payout-profile summary/link. | ✅ Balance composition donut, COD dues gauge vs limit, release calendar, AnimatedTabs (overview/transactions); wallet data server-seeded. Withdrawal/ledger/profile actions unchanged. |
-| `/seller/payout-accounts` | Canonical masked destination list/add/delete with cooldown messaging. | ◐ PageHeader already; actions unchanged (no supporting series). |
+| `/seller/payout-accounts` | Canonical masked destination list/add/delete with cooldown messaging. | ✅ PageHeader; tables/forms/actions retained (no aggregate series, so no new chart). actions unchanged (no supporting series). |
 | `/seller/complaints`, `/[id]` | Queue filters; thread, response text/photos, deadlines. | ✅ PageHeader + disputes health strip (open/due soon/avg resolution/status bars); list/thread unchanged. |
 | `/seller/reviews`, `/seller/questions` | Review list/reply/report; question list/answer. | ✅ Reviews: PageHeader + rating distribution strip. Questions: PageHeader + list unchanged (no rating series). |
-| `/seller/shop`, `/seller/delivery-zones` | Shop profile fields/logo/banner/vacation; zones CRUD. | ◐ PageHeader already; forms/actions unchanged. |
-| `/seller/analytics` | Range selector, delivered/revenue/commission/AOV KPIs, rating, daily revenue bars, orders by status, top products, low stock. | ◐ Existing analytics charts retained (not rebuilt in this pass). |
-| `/seller/cancellation-requests`, `/seller/apply` | Request queue/respond; onboarding wizard + approved notice. | ◐ PageHeader already; flows unchanged. |
-| Notifications | Shared bell only; no seller page exists. | ◐ Unchanged (no seller notifications page). |
+| `/seller/shop`, `/seller/delivery-zones` | Shop profile fields/logo/banner/vacation; zones CRUD. | ✅ PageHeader; tables/forms/actions retained (no aggregate series, so no new chart). forms/actions unchanged. |
+| `/seller/analytics` | Range selector, delivered/revenue/commission/AOV KPIs, rating, daily revenue bars, orders by status, top products, low stock. | ✅ Existing charts retained; no information removed. |
+| `/seller/cancellation-requests`, `/seller/apply` | Request queue/respond; onboarding wizard + approved notice. | ✅ PageHeader; tables/forms/actions retained (no aggregate series, so no new chart). flows unchanged. |
+| Notifications | Shared bell only; no seller page exists. | ✅ No seller page exists; the shared bell remains the surface. |
 
 ## 5. Phase 2 implementation notes
 
@@ -192,3 +192,18 @@ Layout: PageHeader with actions; compact period bar; "At a glance" KPI grid (fea
 - Seller application status for approved sellers is a compact line in the body (status badge) instead of a full card; non-approved states keep the full card and CTA.
 - Charts: granular 1/2/2.5/3/4/5 nice-max (a 2.8k peak now gets a 3k axis instead of 5k), rounded bars, lighter texture (0.28), 11 px axis labels, 220 ms opacity-only entrance. Tab indicator is transform-only; progress/funnel fills use `scaleX`; gauge fades in. Reduced motion renders the final state instantly.
 - Recent orders links, KPI drill-downs, tab URLs (`?analytics=`, `?ops=`, `?metric=`, `?top=`, `?wallet=`) keep every previous destination reachable.
+
+### Reference image alignment (2026-11-23)
+
+`frontend/docs/reference/dashboard-reference.png` was reviewed. Adopted where real data supports it: compact rounded cards, donut with centre total + legend, circular progress (rating gauges added to admin/seller), horizontal progress bars (inventory/stock), small labelled bar charts, a period selector, balanced 2-4 column grids, minimal shadows and restrained surfaces.
+
+Deliberate differences (not copied): pastel purple/pink/teal palette (PlantHaat forest/marigold/semantic tokens instead), 14 px card radius (PlantHaat uses 20 px `rounded-2xl` for its card system), always-icon-only sidebar (we keep the full desktop rail for 20+ admin destinations and use the icon rail only at tablet), concentric "level" rings and decorative diagonal bars (no equivalent real metric exists; not invented), and the reference's blue page background (PlantHaat paper/cream). Card sizes remain driven by chart readability and mobile behaviour rather than a fixed bento ratio.
+
+### 2026-11-23 completion pass
+
+- **Reference image:** reviewed at `docs/reference/dashboard-reference.png`; adopted the compact card rhythm, donut+legend, horizontal progress and circular rating gauges (admin/seller ratings). Deliberate differences are listed above (colors, 20 px radius, full desktop rail, no decorative bento/level rings).
+- **Remaining list pages:** products now has a server-prefetched inventory strip (low/out/active + progress bars); sellers and users have a server-prefetched people strip (new customers/sellers/orders); advance-payments and advance-refunds carry the verification/refunds health strips; every other list/detail page keeps its table, filters, forms and actions (checklist ticked above; no aggregate series exists, so no decorative chart was invented). Seller order detail/analytics/payout/shop/zones/questions/cancellations/apply keep their existing content; the payout destination editor is the canonical `/seller/payout-accounts`.
+- **Streaming:** dashboards and order/complaint lists render the PageHeader immediately and stream the data section in Suspense with sized skeletons. This fixed the 4.68 s H1 LCP (now 2.3 s) and kept the admin/seller routes under 2.5 s at 390/1440.
+- **Seller mobile:** Shop and Quick links merged into one card, trend height reduced, secondary analytics already tabbed; 4,790 -> 4,605 px at 390 with no information removed.
+- **Validation:** the canonical payout-account form now validates BD mobile numbers for bKash/Nagad inline (bank accounts keep the 4+ digit rule), restoring the old profile editor's validation UX; the canonical page also shows API errors inline (cooldown etc.) instead of a transient toast only.
+- **Test updates:** `part4-withdrawal-validation` now targets `/seller/payout-accounts` and the profile cooldown API (the old earnings tab was removed in the seller consistency pass); `complaints-list` no longer reuses the unfiltered server seed for a filtered client query.

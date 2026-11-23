@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 export function PageHeader({
   title,
   description,
+  descriptionClassName,
   breadcrumbs,
   back,
   actions,
@@ -17,6 +18,7 @@ export function PageHeader({
 }: {
   title: string;
   description?: string;
+  descriptionClassName?: string;
   breadcrumbs?: ReactNode;
   back?: ReactNode;
   actions?: ReactNode;
@@ -35,7 +37,14 @@ export function PageHeader({
             {title}
           </h1>
           {description ? (
-            <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
+            <p
+              className={cn(
+                "max-w-2xl text-sm text-muted-foreground",
+                descriptionClassName,
+              )}
+            >
+              {description}
+            </p>
           ) : null}
         </div>
         {actions ? (

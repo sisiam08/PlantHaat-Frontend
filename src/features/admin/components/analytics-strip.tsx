@@ -10,6 +10,7 @@ import { DateRangePicker, type DateRangeValue } from "@/components/dashboard/dat
 import { DonutChart } from "@/components/dashboard/donut-chart";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { LineAreaChart } from "@/components/dashboard/line-area-chart";
+import { ProgressBar } from "@/components/dashboard/progress";
 import { presetBounds } from "@/components/dashboard/range";
 import { KpiSkeleton } from "@/components/dashboard/skeletons";
 import { Price } from "@/components/product/price";
@@ -19,7 +20,14 @@ import { formatCount } from "@/lib/format/number";
 import { adminApi } from "../api";
 import type { AdminPanels } from "../types";
 
-export type AnalyticsSection = "disputes" | "refunds" | "withdrawals" | "verification" | "commission";
+export type AnalyticsSection =
+  | "disputes"
+  | "refunds"
+  | "withdrawals"
+  | "verification"
+  | "commission"
+  | "inventory"
+  | "people";
 
 /**
  * Reusable health strip for the admin queue/finance pages. It uses the same
@@ -299,6 +307,88 @@ export function AnalyticsStrip({
               formatValue={money}
             />
           </ChartCard>
+        </div>
+      ) : null}
+
+      {data && section === "inventory" ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="grid gap-3">
+            <KpiCard
+              label={t("lowStock")}
+              value={formatCount(data.inventory.lowStock, locale)}
+            />
+            <KpiCard
+              label={t("outOfStock")}
+              value={formatCount(data.inventory.outOfStock, locale)}
+            />
+            <KpiCard
+              label={t("activeProducts")}
+              value={formatCount(data.inventory.activeProducts, locale)}
+            />
+          </div>
+          <ChartCard
+            title={t("inventoryTitle")}
+            summary={`${t("lowStock")} ${data.inventory.lowStock} · ${t("outOfStock")} ${data.inventory.outOfStock}`}
+            labels={labels}
+          >
+            <div className="grid gap-4">
+              <ProgressBar
+                label={t("lowStock")}
+                value={data.inventory.lowStock}
+                max={Math.max(1, data.inventory.activeProducts)}
+                valueText={`${data.inventory.lowStock} / ${data.inventory.activeProducts}`}
+                tone="warning"
+              />
+              <ProgressBar
+                label={t("outOfStock")}
+                value={data.inventory.outOfStock}
+                max={Math.max(1, data.inventory.activeProducts)}
+                valueText={`${data.inventory.outOfStock} / ${data.inventory.activeProducts}`}
+                tone="offer"
+              />
+            </div>
+          </ChartCard>
+        </div>
+      ) : null}
+
+      {data && section === "people" ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <KpiCard
+            label={t("newCustomers")}
+            value={formatCount(Number(data.kpis.newCustomers.current), locale)}
+            delta={
+              range.compare
+                ? {
+                    value: data.kpis.newCustomers.deltaPct,
+                    meaning: "good",
+                    label: t("previous"),
+                  }
+                : undefined
+            }
+            sparkline={data.series.map((point) => point.orders)}
+          />
+          <KpiCard
+            label={t("newSellers")}
+            value={formatCount(Number(data.kpis.newSellers.current), locale)}
+            delta={
+              range.compare
+                ? {
+                    value: data.kpis.newSellers.deltaPct,
+                    meaning: "good",
+                    label: t("previous"),
+                  }
+                : undefined
+            }
+          />
+          <KpiCard
+            label={t("orders")}
+            value={formatCount(Number(data.kpis.orders.current), locale)}
+            delta={
+              range.compare
+                ? { value: data.kpis.orders.deltaPct, meaning: "neutral", label: t("previous") }
+                : undefined
+            }
+          />
         </div>
       ) : null}
     </section>

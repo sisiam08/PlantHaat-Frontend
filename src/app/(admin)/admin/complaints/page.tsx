@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { ListFallback } from "@/components/dashboard/dashboard-fallback";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnalyticsStrip } from "@/features/admin/components/analytics-strip";
@@ -14,16 +15,33 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-export default function AdminComplaintsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function AdminComplaintsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const t = await getTranslations("admin.complaints");
   return (
-    <Suspense fallback={null}>
-      <AdminComplaintsPageBody searchParams={searchParams} />
-    </Suspense>
+    <main className="flex-1">
+      <PageContainer width="wide">
+        <PageHeader
+          title={t("title")}
+          description={t("subtitle")}
+          descriptionClassName="max-w-3xl text-base"
+        />
+        <Suspense fallback={<ListFallback rows={8} />}>
+          <AdminComplaintsData searchParams={searchParams} />
+        </Suspense>
+      </PageContainer>
+    </main>
   );
 }
 
-async function AdminComplaintsPageBody({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const t = await getTranslations("admin.complaints");
+async function AdminComplaintsData({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const sp = await searchParams;
   const status = typeof sp.status === "string" ? sp.status : "";
   const pageRaw = typeof sp.page === "string" ? Number(sp.page) : 1;
@@ -35,16 +53,13 @@ async function AdminComplaintsPageBody({ searchParams }: { searchParams: Promise
   ]);
 
   return (
-    <main className="flex-1">
-      <PageContainer width="wide">
-        <PageHeader title={t("title")} />
-        <AnalyticsStrip
-          section="disputes"
-          initialPanels={initialPanels}
-          initialRange={{ ...range, preset: "30d", compare: true }}
-        />
-        <ComplaintsList initialStatus={status} initialPage={page} initialData={initialData} />
-      </PageContainer>
-    </main>
+    <>
+      <AnalyticsStrip
+        section="disputes"
+        initialPanels={initialPanels}
+        initialRange={{ ...range, preset: "30d", compare: true }}
+      />
+      <ComplaintsList initialStatus={status} initialPage={page} initialData={initialData} />
+    </>
   );
 }

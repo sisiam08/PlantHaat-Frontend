@@ -63,6 +63,9 @@ export function ComplaintsList({
     minAmount: minAmount.trim() ? Number(minAmount) : undefined,
     maxAmount: maxAmount.trim() ? Number(maxAmount) : undefined,
   };
+  // The server seed belongs to the unfiltered first page only; reusing it for
+  // a client filter key would briefly show rows that do not match the filter.
+  const hasClientFilters = Object.values(filters).some(Boolean) || applied > 0;
 
   const query = useQuery({
     queryKey: queryKeys.admin.complaints({ status, page, ...filters, applied }),
@@ -73,9 +76,10 @@ export function ComplaintsList({
         page,
         limit: PAGE_SIZE,
       }),
-    initialData: initialData
-      ? { data: initialData.data, meta: initialData.meta as never }
-      : undefined,
+    initialData:
+      initialData && !hasClientFilters
+        ? { data: initialData.data, meta: initialData.meta as never }
+        : undefined,
     retry: false,
   });
 

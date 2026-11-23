@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { QueryError } from "@/components/feedback/query-error";
 import { Price } from "@/components/product/price";
+import { AnalyticsStrip } from "@/features/admin/components/analytics-strip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +62,8 @@ export function AdvanceRefundsClient() {
         <h1 className="text-2xl font-bold">{t("refundQueueTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("refundQueueSubtitle")}</p>
       </div>
+
+      <AnalyticsStrip section="refunds" />
 
       {list.isLoading ? (
         <Skeleton className="h-28 w-full rounded-2xl" />

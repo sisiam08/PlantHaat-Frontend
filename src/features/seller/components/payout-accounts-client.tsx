@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
+import { toApiError } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
 import { sellerApi } from "../api";
 import type { PayoutMethod } from "../types";
@@ -42,6 +43,7 @@ export function PayoutAccountsClient() {
   const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const accounts = useQuery({
     queryKey: queryKeys.seller.payoutAccounts,
@@ -54,6 +56,17 @@ export function PayoutAccountsClient() {
     accountName: z.string().min(1, t("validation.accountName")),
     accountNumber: z.string().min(4, t("validation.accountNumber")),
     isDefault: z.boolean(),
+  }).superRefine((values, ctx) => {
+    if (
+      (values.method === "BKASH" || values.method === "NAGAD") &&
+      !/^01[3-9]\d{8}$/.test(values.accountNumber.trim())
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["accountNumber"],
+        message: t("validation.accountNumberBd"),
+      });
+    }
   });
   type Values = z.infer<typeof schema>;
 
@@ -66,10 +79,15 @@ export function PayoutAccountsClient() {
     mutationFn: (values: Values) => sellerApi.createPayoutAccount(values),
     onSuccess: async () => {
       form.reset({ method: "BKASH", accountName: "", accountNumber: "", isDefault: false });
+      setFormError(null);
       await queryClient.invalidateQueries({ queryKey: queryKeys.seller.payoutAccounts });
       toast.success(t("created"));
     },
-    onError: (error) => toastApiError(error, tErrors),
+    onError: (error) => {
+      const apiError = toApiError(error);
+      setFormError(tErrors.has(apiError.code) ? tErrors(apiError.code) : tErrors("generic"));
+      toastApiError(error, tErrors);
+    },
   });
 
   const remove = useMutation({
@@ -81,7 +99,10 @@ export function PayoutAccountsClient() {
     onError: (error) => toastApiError(error, tErrors),
   });
 
-  const onCreate = form.handleSubmit((values) => create.mutate(values));
+  const onCreate = form.handleSubmit((values) => {
+    setFormError(null);
+    create.mutate(values);
+  });
   const isDefault = useWatch({ control: form.control, name: "isDefault" });
   const items = accounts.data ?? [];
 
@@ -181,6 +202,11 @@ export function PayoutAccountsClient() {
               <Label htmlFor="payoutDefault">{t("isDefault")}</Label>
             </div>
             <p className="text-sm text-muted-foreground sm:col-span-2">{t("maskedNote")}</p>
+            {formError ? (
+              <p role="alert" className="text-sm text-destructive sm:col-span-2">
+                {formError}
+              </p>
+            ) : null}
             <div className="sm:col-span-2">
               <Button type="submit" disabled={create.isPending}>
                 {t("save")}

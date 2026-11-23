@@ -253,7 +253,7 @@ export function OrdersList({
             <KpiCard
               className="min-w-[15rem] snap-start sm:min-w-0"
               label={td("gmv")}
-              value={<Price value={kpis.gmv.current} locale={locale} size="lg" />}
+              value={<Price value={kpis.gmv.current} locale={locale} size="xl" />}
               delta={
                 range.compare
                   ? { value: kpis.gmv.deltaPct, meaning: "good", label: td("previous") }
@@ -264,7 +264,7 @@ export function OrdersList({
             <KpiCard
               className="min-w-[15rem] snap-start sm:min-w-0"
               label={td("aov")}
-              value={<Price value={kpis.aov.current} locale={locale} size="lg" />}
+              value={<Price value={kpis.aov.current} locale={locale} size="xl" />}
               delta={
                 range.compare
                   ? { value: kpis.aov.deltaPct, meaning: "neutral", label: td("previous") }
@@ -289,7 +289,7 @@ export function OrdersList({
             <KpiCard
               className="min-w-[15rem] snap-start sm:min-w-0"
               label={td("commission")}
-              value={<Price value={kpis.commission.current} locale={locale} size="lg" />}
+              value={<Price value={kpis.commission.current} locale={locale} size="xl" />}
               delta={
                 range.compare
                   ? {

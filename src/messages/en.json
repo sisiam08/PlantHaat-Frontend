@@ -1210,9 +1210,10 @@
     "BANK": "Bank"
    },
    "validation": {
-    "accountName": "Enter the account holder name",
-    "accountNumber": "Enter the account number"
-   }
+   "accountName": "Enter the account holder name",
+   "accountNumber": "Enter the account number",
+   "accountNumberBd": "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)."
+  }
   },
   "validation": {
    "businessName": "Enter at least 2 characters",
@@ -1340,10 +1341,11 @@
     "threshold": "Enter a valid threshold"
    }
   },
-  "orders": {
-   "title": "Orders",
-   "detailTitle": "Order detail",
-   "backToOrders": "Back to orders",
+ "orders": {
+  "title": "Orders",
+  "subtitle": "Incoming orders and the ones that need action.",
+  "detailTitle": "Order detail",
+  "backToOrders": "Back to orders",
    "all": "All",
    "empty": "No orders yet.",
    "loadError": "Could not load orders.",
@@ -2085,10 +2087,11 @@
    "LATE_DELIVERY": "Late delivery",
    "OTHER": "Other"
   },
-  "complaints": {
-   "title": "Complaints",
-   "detailTitle": "Complaint",
-   "loadError": "Could not load complaints.",
+ "complaints": {
+  "title": "Complaints",
+  "subtitle": "Buyer disputes and complaints that need a decision.",
+  "detailTitle": "Complaint",
+  "loadError": "Could not load complaints.",
    "empty": "No complaints.",
    "view": "View",
    "updated": "Complaint updated",

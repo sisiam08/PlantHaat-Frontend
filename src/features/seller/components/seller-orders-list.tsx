@@ -237,7 +237,7 @@ export function SellerOrdersList({
             <KpiCard
               className="min-w-[15rem] snap-start sm:min-w-0"
               label={t("orderRevenue")}
-              value={<Price value={data.kpis.revenue.current} locale={locale} size="lg" />}
+              value={<Price value={data.kpis.revenue.current} locale={locale} size="xl" />}
               delta={
                 range.compare
                   ? { value: data.kpis.revenue.deltaPct, meaning: "good", label: td("previous") }
@@ -259,7 +259,7 @@ export function SellerOrdersList({
             <KpiCard
               className="min-w-[15rem] snap-start sm:min-w-0"
               label={t("orderAov")}
-              value={<Price value={data.kpis.aov.current} locale={locale} size="lg" />}
+              value={<Price value={data.kpis.aov.current} locale={locale} size="xl" />}
               delta={
                 range.compare
                   ? { value: data.kpis.aov.deltaPct, meaning: "neutral", label: td("previous") }

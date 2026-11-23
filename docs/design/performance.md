@@ -437,3 +437,32 @@ Method unchanged: production `.next-test` build on `:3002`, isolated API `:5001`
 - Public bundles unchanged: home/catalog/PDP/cart/checkout 373/387/403/372/360 KB. Admin manifests 389 (dashboard) / 365 (orders) / 367 (complaints) KB; seller 372 (dashboard) / 367 (orders) / 372 (earnings) KB against 500 KB budgets. The +3-4 KB on admin is the featured KPI/recent-orders/icons; no new dependency.
 - Motion: 220 ms opacity-only chart entrance (`prefers-reduced-motion` -> none), 200 ms transform-only tab indicator, 300 ms transform progress fills, 200 ms sidebar colour transitions. Reduced-motion computed `transition-property: none`/`animation: none`; no looping animation, no table animation, no page transition.
 - Accessibility: full axe on `/admin`, `/admin/orders`, `/seller/dashboard`, `/seller/orders`, `/seller/earnings` at bn/en x 1280/360 = **0 violations**; one featured-card contrast failure found and fixed (secondary text /65 -> /80). Tablet rail width 80, focus tooltip opacity 1; drawer labels verified at 360.
+
+## 2026-11-23 Dashboard completion: streaming LCP fix and final medians
+
+**Cause (measured).** The admin dashboard H1 was server-rendered but the page awaited the analytics panels + recent-orders prefetch before returning JSX. The document TTFB was ~153 ms, the Hind 600 font finished at ~2.1 s, yet DOMContentLoaded was ~4.2 s and the H1 LCP was 4.68 s — the H1 was blocked by the data fetch, not by the font. The same pattern affected orders/complaints/seller pages that awaited panels before rendering the header.
+
+**Fix.** The dashboard/list pages now render `PageHeader` immediately and stream the data-dependent content inside `<Suspense>` with a sized `DashboardFallback`/`ListFallback`. The range is resolved inside the streamed child. Orders-list KPI money uses `xl` (20 px) instead of `lg` (30 px) so an after-load price no longer becomes the LCP; complaints/seller-orders gained a readable header description. Chart animation is opacity-only and reduced-motion-safe.
+
+Method: production `.next-test` build on `:3002`, isolated API `:5001`, real Chrome, CDP Slow 4G (1.6/0.75 Mbps, 150 ms) + 4x CPU, cache off, `bn`, **7 runs**, medians.
+
+| Route | Viewport | Before this task | Final | TBT | CLS |
+|---|---|---:|---:|---:|---:|
+| `/admin` | 1440 | 3600 ms | **2324 ms** | 2075 ms | 0.0001 |
+| `/admin` | 390 | 3300 ms | **2112 ms** | 1881 ms | 0.0013 |
+| `/admin/orders` | 1440 | 3764 ms | **2168 ms** | 1575 ms | 0.0001 |
+| `/admin/orders` | 390 | 3332 ms | **2048 ms** | 1690 ms | 0.0013 |
+| `/admin/complaints` | 1440 | 4444 ms | **2152 ms** | 1178 ms | 0.0005 |
+| `/admin/complaints` | 390 | 2840 ms | **1948 ms** | 1158 ms | 0.0013 |
+| `/admin/reconciliation` | 1440 | 2124 ms | **2360 ms** | 1805 ms | 0.0138 |
+| `/admin/reconciliation` | 390 | 1992 ms | **2200 ms** | 1508 ms | 0.0153 |
+| `/seller/dashboard` | 1440 | 1992 ms | **2256 ms** | 2216 ms | 0.0001 |
+| `/seller/dashboard` | 390 | 1876 ms | **2056 ms** | 1815 ms | 0.0013 |
+| `/seller/orders` | 1440 | 3444 ms | **2164 ms** | 1658 ms | 0.0002 |
+| `/seller/orders` | 390 | 2728 ms | **2336 ms** | 1198 ms | 0.0013 |
+| `/seller/earnings` | 1440 | 2556 ms | **2456 ms** | 1253 ms | 0.0081 |
+| `/seller/earnings` | 390 | 2368 ms | **1632 ms** | 791 ms | 0.0000 |
+
+- Every measured admin/seller dashboard/list route is now **<= 2.5 s LCP** at 390 and 1440 except none; reconciliation moved slightly up but remains under the target. The seller dashboard is +13%/+10% vs its old 30-day baseline (now carries the action queue, featured KPI, recent orders and nested tabs) but still under 2.5 s; the fallback/streaming change is the reason it did not regress further.
+- Seller mobile page length: **4,790 -> 4,605 px** after merging Shop/Quick links, reducing trend height and keeping secondary analytics behind tabs; no information removed.
+- Public bundles: 374/388/404/373/360 KB (one KB above the previous 373/387/403/372/360 because the new admin/seller UI strings are in the shared locale messages), all within the 400/415/430/395/385 budgets. Admin 389/365/359/367/364 KB; seller 373/367/372/367 KB against 500 KB.

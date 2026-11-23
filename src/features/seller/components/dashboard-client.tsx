@@ -785,6 +785,12 @@ export function DashboardClient({
                   empty={data.ratings.count === 0 ? { message: t("noDataPeriod") } : undefined}
                 >
                   <div className="grid gap-3">
+                    <Gauge
+                      label={t("ratingAvg")}
+                      value={toNumber(data.ratings.avg)}
+                      max={5}
+                      valueText={`${formatCount(toNumber(data.ratings.avg), locale)} / 5`}
+                    />
                     <BarChart
                       summary={td("summaryDistribution", {
                         count: data.ratings.count,
@@ -802,10 +808,6 @@ export function DashboardClient({
                           colorIndex: 2,
                         },
                       ]}
-                    />
-                    <Metric
-                      label={t("ratingAvg")}
-                      value={`${formatCount(toNumber(data.ratings.avg), locale)} / 5`}
                     />
                   </div>
                 </ChartCard>
@@ -849,50 +851,40 @@ export function DashboardClient({
             </>
           )}
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle>{t("shopSummary")}</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-2 text-sm">
-                {shop.isLoading ? <Skeleton className="h-12 w-full" /> : null}
-                {shop.data ? (
-                  <>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{shop.data.name}</span>
-                      <Badge variant="outline">{shop.data.slug}</Badge>
-                      {shop.data.isOnVacation ? (
-                        <Badge variant="secondary">{t("onVacation")}</Badge>
-                      ) : null}
-                    </div>
-                    <div>
-                      <Button asChild variant="outline" size="lg">
-                        <Link href="/seller/shop">{t("viewShop")}</Link>
-                      </Button>
-                    </div>
-                  </>
-                ) : null}
-                {shop.isError ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-muted-foreground">{t("noShop")}</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      onClick={() => void shop.refetch()}
-                    >
-                      {tc("retry")}
-                    </Button>
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle>{t("quickLinks")}</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-2 sm:grid-cols-2">
+          <Card className="rounded-2xl">
+            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+              <CardTitle className="font-heading text-base font-semibold">
+                {t("shopSummary")}
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm" className="min-h-11">
+                <Link href="/seller/shop">{t("viewShop")}</Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="grid gap-3 text-sm">
+              {shop.isLoading ? <Skeleton className="h-12 w-full" /> : null}
+              {shop.data ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{shop.data.name}</span>
+                  <Badge variant="outline">{shop.data.slug}</Badge>
+                  {shop.data.isOnVacation ? (
+                    <Badge variant="secondary">{t("onVacation")}</Badge>
+                  ) : null}
+                </div>
+              ) : null}
+              {shop.isError ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-muted-foreground">{t("noShop")}</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    onClick={() => void shop.refetch()}
+                  >
+                    {tc("retry")}
+                  </Button>
+                </div>
+              ) : null}
+              <div className="grid gap-2 sm:grid-cols-2">
                 <Button asChild variant="outline" size="lg">
                   <Link href="/seller/shop">{t("manageShop")}</Link>
                 </Button>
@@ -905,9 +897,9 @@ export function DashboardClient({
                 <Button asChild variant="outline" size="lg">
                   <Link href="/seller/payout-accounts">{t("managePayouts")}</Link>
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </>
       ) : null}
     </div>
@@ -944,6 +936,7 @@ function Trend({
         series={[{ key: "series", label, values, colorIndex: 0, variant: "area" }]}
         summary={summary}
         formatValue={formatValue}
+        height={200}
       />
       <details className="rounded-xl border border-border/60 px-3 py-2">
         <summary className="cursor-pointer text-xs font-medium text-muted-foreground">

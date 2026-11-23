@@ -54,22 +54,27 @@ test("withdrawal and payout-profile validation messages in the UI", async ({ pag
   await expect(seller.getByText(/more than your available/i)).toBeVisible();
   await seller.getByRole("button", { name: "Cancel" }).click();
 
-  // Cooldown after a profile change.
-  await seller.getByRole("tab", { name: "Payout profile" }).click();
-  await seller.getByLabel("Account number").fill("01812345678");
-  await seller.getByLabel("Account holder name").fill("Another Holder");
-  await seller.getByRole("button", { name: "Save profile" }).click();
-  await expect(seller.getByText(/changed recently|cooldown/i)).toBeVisible({ timeout: 30_000 });
+  // The canonical destination editor is /seller/payout-accounts. The profile
+  // cooldown is enforced by the profile endpoint; the UI only adds accounts.
+  const profileChange = await sellerApi.put("/api/v1/seller/wallet/payout-profile", {
+    data: { method: "BKASH", accountName: "Another Holder", accountNumber: "01812345678" },
+  });
+  expect(profileChange.ok()).toBeFalsy();
+  expect((await profileChange.json()).error.code).toBe("PAYOUT_PROFILE_COOLDOWN");
 
-  // Invalid BD number (cooldown disabled for this test).
+  // Invalid BD number in the canonical add-account form (cooldown disabled).
   await reauthSetting(adminApi, "payout.cooldownHours", 0);
-  await seller.reload({ waitUntil: "domcontentloaded" });
-  await seller.getByRole("tab", { name: "Payout profile" }).click();
+  await seller.goto(`${BASE}/seller/payout-accounts`, { waitUntil: "domcontentloaded" });
   await seller.getByLabel("Account number").fill("123456");
   await seller.getByLabel("Account holder name").fill("Bad Number");
-  await seller.getByRole("button", { name: "Save profile" }).click();
-  await expect(seller.getByText(/valid Bangladeshi mobile number/i)).toBeVisible();
+  await seller.getByRole("button", { name: "Save account", exact: true }).click();
+  await expect(seller.getByText(/valid Bangladeshi mobile number/i)).toBeVisible({
+    timeout: 30_000,
+  });
   await reauthSetting(adminApi, "payout.cooldownHours", 24);
+
+  // Back to the wallet for the withdrawal limits.
+  await seller.goto(`${BASE}/seller/earnings`, { waitUntil: "domcontentloaded" });
 
   // Pending-request limit (set to 1 for this test).
   await reauthSetting(adminApi, "payout.maxPendingRequests", 1);

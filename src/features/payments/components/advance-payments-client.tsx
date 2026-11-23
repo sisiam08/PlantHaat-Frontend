@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { QueryError } from "@/components/feedback/query-error";
 import { Price } from "@/components/product/price";
+import { AnalyticsStrip } from "@/features/admin/components/analytics-strip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -129,6 +130,8 @@ export function AdvancePaymentsClient() {
           </Link>
         </Button>
       </div>
+
+      <AnalyticsStrip section="verification" />
 
       <div role="tablist" aria-label={t("adminQueueTitle")} className="flex flex-wrap gap-2">
         {(["pending", "sla", "all"] as const).map((value) => (

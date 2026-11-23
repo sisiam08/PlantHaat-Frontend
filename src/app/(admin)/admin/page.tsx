@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { DashboardFallback } from "@/components/dashboard/dashboard-fallback";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -16,11 +18,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminDashboardPage() {
   const t = await getTranslations("admin.dashboard");
-  const range = await resolveDashboardRange("30d");
-  const [initialPanels, initialOrders] = await Promise.all([
-    getAdminPanelsServer(range),
-    getAdminRecentOrdersServer(5),
-  ]);
   return (
     <main className="flex-1">
       <PageContainer width="wide">
@@ -38,12 +35,25 @@ export default async function AdminDashboardPage() {
             </>
           }
         />
-        <DashboardClient
-          initialPanels={initialPanels}
-          initialOrders={initialOrders}
-          initialRange={{ ...range, preset: "30d", compare: true }}
-        />
+        <Suspense fallback={<DashboardFallback />}>
+          <AdminDashboardData />
+        </Suspense>
       </PageContainer>
     </main>
+  );
+}
+
+async function AdminDashboardData() {
+  const range = await resolveDashboardRange("30d");
+  const [initialPanels, initialOrders] = await Promise.all([
+    getAdminPanelsServer(range),
+    getAdminRecentOrdersServer(5),
+  ]);
+  return (
+    <DashboardClient
+      initialPanels={initialPanels}
+      initialOrders={initialOrders}
+      initialRange={{ ...range, preset: "30d", compare: true }}
+    />
   );
 }

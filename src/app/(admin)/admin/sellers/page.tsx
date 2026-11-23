@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
+import { AnalyticsStripServer } from "@/features/admin/components/analytics-strip-server";
 import { getTranslations } from "next-intl/server";
 
 import { SellersList } from "@/features/admin/components/sellers-list";
@@ -30,7 +31,8 @@ async function AdminSellersPageBody({ searchParams }: { searchParams: Promise<Re
     <main className="flex-1">
       <PageContainer width="wide">
       <PageHeader title={t("title")} />
-      <SellersList initialStatus={status} initialPage={page} />
+      <AnalyticsStripServer section="people" />
+        <SellersList initialStatus={status} initialPage={page} />
       </PageContainer>
     </main>
   );

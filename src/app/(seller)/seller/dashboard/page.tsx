@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { DashboardFallback } from "@/components/dashboard/dashboard-fallback";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -19,11 +21,6 @@ export default async function SellerDashboardPage() {
   const t = await getTranslations("seller.dashboard");
   const tOrders = await getTranslations("seller.orders");
   const tWallet = await getTranslations("part4.wallet");
-  const range = await resolveDashboardRange("30d");
-  const [initialPanels, recentOrders] = await Promise.all([
-    getSellerPanelsServer(range),
-    getSellerOrdersServer({ page: 1, limit: 5 }),
-  ]);
   return (
     <main className="flex-1">
       <PageContainer width="wide">
@@ -41,12 +38,25 @@ export default async function SellerDashboardPage() {
             </>
           }
         />
-        <DashboardClient
-          initialPanels={initialPanels}
-          initialOrders={recentOrders?.data}
-          initialRange={{ ...range, preset: "30d", compare: true }}
-        />
+        <Suspense fallback={<DashboardFallback />}>
+          <SellerDashboardData />
+        </Suspense>
       </PageContainer>
     </main>
+  );
+}
+
+async function SellerDashboardData() {
+  const range = await resolveDashboardRange("30d");
+  const [initialPanels, recentOrders] = await Promise.all([
+    getSellerPanelsServer(range),
+    getSellerOrdersServer({ page: 1, limit: 5 }),
+  ]);
+  return (
+    <DashboardClient
+      initialPanels={initialPanels}
+      initialOrders={recentOrders?.data}
+      initialRange={{ ...range, preset: "30d", compare: true }}
+    />
   );
 }
