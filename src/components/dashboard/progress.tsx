@@ -51,8 +51,11 @@ export function ProgressBar({
         className="relative h-2.5 overflow-hidden rounded-full bg-muted"
       >
         <span
-          className={cn("block h-full rounded-full transition-[width] duration-300", TONES[tone])}
-          style={{ width: `${percent}%` }}
+          className={cn(
+            "block h-full w-full origin-left rounded-full transition-transform duration-300 ease-out motion-reduce:transition-none",
+            TONES[tone],
+          )}
+          style={{ transform: `scaleX(${percent / 100})` }}
         />
         {markerPercent !== undefined ? (
           <span
@@ -99,7 +102,7 @@ export function Gauge({
     <div className={cn("grid justify-items-center gap-1", className)}>
       <svg
         viewBox="0 0 100 58"
-        className="w-full max-w-[180px]"
+        className="ph-chart-enter w-full max-w-[180px]"
         role="meter"
         aria-label={label}
         aria-valuemin={0}

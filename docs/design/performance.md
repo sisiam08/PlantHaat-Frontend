@@ -416,3 +416,24 @@ Method unchanged: production build (`NEXT_DIST_DIR=.next-test`) on `:3002`, isol
 - Seller dashboard is within ~10% of the Phase 1 baseline at 1440 (+176 ms) and ~8% slower at 390 (+132 ms); it now renders many more widgets (trend/status/wallet/release/disputes/top/ratings/delivery). TBT is higher because of the charts; it is the documented trade-off for the requested dashboard.
 - Products is 3.8-4.2 s; the LCP is the product list content/imagery rather than the server-rendered strip. Analytics was not rebuilt in this pass; its 390 number is on the heavier isolated dataset and noisy.
 - Public bundles are unchanged (373/387/403/372/360 KB). Seller route manifests are 366-372 KB against 500 KB budgets; `check:bundle` now also budgets `/seller/orders`, `/seller/earnings` and `/seller/products`.
+
+## 2026-11-23 Dashboard UI/UX polish (admin + seller)
+
+Method unchanged: production `.next-test` build on `:3002`, isolated API `:5001`, real Chrome, CDP Slow 4G (1.6/0.75 Mbps, 150 ms) + 4x CPU, cache off, `bn`, 5 runs, medians. Baselines are the Phase 2/3 numbers on this page.
+
+| Route | Viewport | LCP baseline | LCP final | TBT final | CLS final |
+|---|---|---:|---:|---:|---:|
+| `/admin` | 1440 | 3600 ms | **3624 ms** | 2196 ms | 0.0001 |
+| `/admin` | 390 | 3300 ms | **3316 ms** | 2019 ms | 0.0013 |
+| `/admin/orders` | 1440 | 3764 ms | **3176 ms** | 2167 ms | 0.0001 |
+| `/admin/orders` | 390 | 3332 ms | **3016 ms** | 1809 ms | 0.0013 |
+| `/seller/dashboard` | 1440 | 1992 ms | **2096 ms** | 2427 ms | 0.0001 |
+| `/seller/dashboard` | 390 | 1876 ms | **2052 ms** | 2581 ms | 0.0013 |
+| `/seller/orders` | 1440 | 3444 ms | **2564 ms** | 1989 ms | 0.0002 |
+| `/seller/orders` | 390 | 2728 ms | **2404 ms** | 1699 ms | 0.0013 |
+
+- Admin and seller orders improved 9-26%; the admin dashboard is flat (+24/+16 ms, within noise) and the seller dashboard is +104/+176 ms (+5%/+9%) because it now carries a featured KPI, action queue, recent orders and richer charts. This is the documented cost of the requested content and remains far below the public-route targets.
+- Page length (the audit's main mobile issue): admin 1440 4,016 -> **2,745 px**, admin 360 7,327 -> **5,018 px**; seller 1440 3,119 -> **2,733 px**, seller 360 5,162 -> **4,790 px**. Secondary analytics now sit behind tabs/queues (details on demand); every item remains reachable.
+- Public bundles unchanged: home/catalog/PDP/cart/checkout 373/387/403/372/360 KB. Admin manifests 389 (dashboard) / 365 (orders) / 367 (complaints) KB; seller 372 (dashboard) / 367 (orders) / 372 (earnings) KB against 500 KB budgets. The +3-4 KB on admin is the featured KPI/recent-orders/icons; no new dependency.
+- Motion: 220 ms opacity-only chart entrance (`prefers-reduced-motion` -> none), 200 ms transform-only tab indicator, 300 ms transform progress fills, 200 ms sidebar colour transitions. Reduced-motion computed `transition-property: none`/`animation: none`; no looping animation, no table animation, no page transition.
+- Accessibility: full axe on `/admin`, `/admin/orders`, `/seller/dashboard`, `/seller/orders`, `/seller/earnings` at bn/en x 1280/360 = **0 violations**; one featured-card contrast failure found and fixed (secondary text /65 -> /80). Tablet rail width 80, focus tooltip opacity 1; drawer labels verified at 360.

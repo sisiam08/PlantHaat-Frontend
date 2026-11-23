@@ -114,7 +114,12 @@ export function AnimatedTabs({
     requestAnimationFrame(() => {
       const trigger = triggerRefs.current.get(next);
       if (trigger && typeof trigger.scrollIntoView === "function") {
-        trigger.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        trigger.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          behavior: reduce ? "auto" : "smooth",
+        });
       }
     });
   }
@@ -129,8 +134,12 @@ export function AnimatedTabs({
         >
           <span
             aria-hidden
-            className="absolute inset-y-1 left-0 rounded-lg bg-background shadow-sm transition-[transform,width] duration-200 ease-out motion-reduce:transition-none"
-            style={{ width: indicator.width, transform: `translateX(${indicator.left}px)` }}
+            className="absolute inset-y-1 left-0 rounded-lg bg-background shadow-sm transition-transform duration-200 ease-out [will-change:transform] motion-reduce:transition-none"
+            style={{
+              width: 1,
+              transform: `translateX(${indicator.left}px) scaleX(${indicator.width})`,
+              transformOrigin: "left",
+            }}
           />
           {tabs.map((tab) => (
             <TabsPrimitive.Trigger

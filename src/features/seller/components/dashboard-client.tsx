@@ -1,6 +1,18 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import {
+  Banknote,
+  Bell,
+  Clock3,
+  MessagesSquare,
+  Package,
+  PackageSearch,
+  Percent,
+  RotateCcw,
+  ShoppingCart,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -23,10 +35,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Price } from "@/components/product/price";
 import { useAuth } from "@/features/auth/auth-provider";
 import { queryKeys } from "@/lib/api/query-keys";
+import { formatLatinDateTime } from "@/lib/format/date";
 import { formatBdt } from "@/lib/format/money";
 import { formatCount } from "@/lib/format/number";
 import { sellerApi } from "../api";
-import type { SellerPanels, SellerStatus } from "../types";
+import { orderStatusVariant as sellerOrderStatusVariant } from "../status";
+import type { SellerPanels, SellerShopOrderView, SellerStatus } from "../types";
 
 const STATUS_VARIANT: Record<SellerStatus, "default" | "secondary" | "destructive" | "outline"> = {
   DRAFT: "outline",
@@ -43,9 +57,11 @@ function toNumber(value: string | number | null | undefined): number {
 
 export function DashboardClient({
   initialPanels,
+  initialOrders,
   initialRange,
 }: {
   initialPanels?: SellerPanels;
+  initialOrders?: SellerShopOrderView[];
   initialRange?: DateRangeValue;
 } = {}) {
   const t = useTranslations("seller.dashboard");
@@ -117,51 +133,82 @@ export function DashboardClient({
   };
 
   const counters = dashboard.data;
-  const actionTiles = [
-    { href: "/seller/orders?status=PENDING", label: t("pendingOrders"), value: counters?.pendingOrders },
-    { href: "/seller/orders?status=SHIPPED", label: t("stuckOrders"), value: counters?.stuckOrders },
-    { href: "/seller/questions", label: t("unansweredQuestions"), value: counters?.unansweredQuestions },
-    { href: "/seller/products", label: t("lowStock"), value: counters?.lowStockVariants },
+  const actionTiles: {
+    href?: string;
+    label: string;
+    value: number | undefined;
+    icon: LucideIcon;
+  }[] = [
     {
-      href: "/seller/notifications",
+      href: "/seller/orders?status=PENDING",
+      label: t("pendingOrders"),
+      value: counters?.pendingOrders,
+      icon: ShoppingCart,
+    },
+    {
+      href: "/seller/orders?status=SHIPPED",
+      label: t("stuckOrders"),
+      value: counters?.stuckOrders,
+      icon: Clock3,
+    },
+    {
+      href: "/seller/questions",
+      label: t("unansweredQuestions"),
+      value: counters?.unansweredQuestions,
+      icon: MessagesSquare,
+    },
+    {
+      href: "/seller/products",
+      label: t("lowStock"),
+      value: counters?.lowStockVariants,
+      icon: PackageSearch,
+    },
+    {
+      href: undefined,
       label: t("unreadNotifications"),
       value: counters?.unreadNotifications,
+      icon: Bell,
     },
   ];
 
   return (
     <div className="grid grid-cols-1 min-w-0 gap-6">
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle>{t("applicationStatus")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3">
-          <div className="flex items-center gap-2">
-            {status ? <Badge variant={STATUS_VARIANT[status]}>{tSellerStatus(status)}</Badge> : null}
-          </div>
-          {status === "PENDING" ? (
-            <p className="text-sm text-muted-foreground">{t("pendingNotice")}</p>
-          ) : null}
-          {status === "REJECTED" ? (
-            <p className="text-sm text-destructive">
-              {t("rejectedNotice")}
-              {application.data?.rejectionReason
-                ? ` — ${t("rejectionReason", { reason: application.data.rejectionReason })}`
-                : ""}
-            </p>
-          ) : null}
-          {status === "SUSPENDED" ? (
-            <p className="text-sm text-destructive">{t("suspendedNotice")}</p>
-          ) : null}
-          {!approved ? (
+      {approved ? (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span className="text-xs">{t("applicationStatus")}</span>
+          <Badge variant={STATUS_VARIANT.APPROVED}>{tSellerStatus("APPROVED")}</Badge>
+        </div>
+      ) : (
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle>{t("applicationStatus")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            <div className="flex items-center gap-2">
+              {status ? <Badge variant={STATUS_VARIANT[status]}>{tSellerStatus(status)}</Badge> : null}
+            </div>
+            {status === "PENDING" ? (
+              <p className="text-sm text-muted-foreground">{t("pendingNotice")}</p>
+            ) : null}
+            {status === "REJECTED" ? (
+              <p className="text-sm text-destructive">
+                {t("rejectedNotice")}
+                {application.data?.rejectionReason
+                  ? ` — ${t("rejectionReason", { reason: application.data.rejectionReason })}`
+                  : ""}
+              </p>
+            ) : null}
+            {status === "SUSPENDED" ? (
+              <p className="text-sm text-destructive">{t("suspendedNotice")}</p>
+            ) : null}
             <div>
               <Button asChild variant="cta" size="lg">
                 <Link href="/seller/apply">{t("completeApplication")}</Link>
               </Button>
             </div>
-          ) : null}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {approved ? (
         <>
@@ -169,31 +216,44 @@ export function DashboardClient({
 
           <section aria-label={t("actionQueue")} className="grid grid-cols-1 gap-3">
             <h2 className="font-heading text-base font-semibold">{t("actionQueue")}</h2>
-            <div
-              tabIndex={0}
-              aria-label={t("actionQueue")}
-              className="flex min-w-0 snap-x gap-3 overflow-x-auto pb-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-5"
-            >
-              {dashboard.isError ? (
-                <QueryError
-                  message={tc("sectionLoadFailed")}
-                  onRetry={() => void dashboard.refetch()}
-                />
-              ) : (
-                actionTiles.map((tile) => (
-                  <Link
-                    key={tile.href}
-                    href={tile.href}
-                    className="min-w-[13rem] snap-start rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-primary/40 sm:min-w-0"
-                  >
-                    <span className="text-xs text-muted-foreground">{tile.label}</span>
-                    <span className="mt-1 block font-heading text-xl font-bold tabular-nums">
-                      {dashboard.isLoading ? "…" : (tile.value ?? 0)}
-                    </span>
-                  </Link>
-                ))
-              )}
-            </div>
+            {dashboard.isError ? (
+              <QueryError
+                message={tc("sectionLoadFailed")}
+                onRetry={() => void dashboard.refetch()}
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                {actionTiles.map((tile) => {
+                  const Icon = tile.icon;
+                  const body = (
+                    <>
+                      <span className="flex items-start justify-between gap-2">
+                        <span className="text-xs leading-snug text-muted-foreground">
+                          {tile.label}
+                        </span>
+                        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-primary">
+                          <Icon aria-hidden className="size-4" />
+                        </span>
+                      </span>
+                      <span className="mt-3 block font-heading text-xl font-bold tabular-nums">
+                        {dashboard.isLoading ? "…" : (tile.value ?? 0)}
+                      </span>
+                    </>
+                  );
+                  const shell =
+                    "group flex min-h-24 flex-col justify-between rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-primary/40";
+                  return tile.href ? (
+                    <Link key={tile.href} href={tile.href} className={shell}>
+                      {body}
+                    </Link>
+                  ) : (
+                    <div key={tile.label} className={shell}>
+                      {body}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           {panels.isError ? (
@@ -202,98 +262,150 @@ export function DashboardClient({
 
           {panels.isLoading || !data ? (
             <div className="grid gap-5">
-              <div className="flex snap-x gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-6">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 {Array.from({ length: 6 }, (_, index) => (
-                  <KpiSkeleton key={index} className="min-w-[15rem] snap-start sm:min-w-0" />
+                  <KpiSkeleton key={index} />
                 ))}
               </div>
               <ChartSkeleton height={240} />
             </div>
           ) : (
             <>
-              <div
-                role="region"
-                aria-label={t("keyMetrics")}
-                tabIndex={0}
-                className="flex min-w-0 snap-x gap-3 overflow-x-auto pb-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-6"
-              >
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("revenue")}
-                  value={<Price value={data.kpis.revenue.current} locale={locale} size="xl" />}
-                  delta={
-                    range.compare
-                      ? { value: data.kpis.revenue.deltaPct, meaning: "good", label: td("previous") }
-                      : undefined
-                  }
-                  sparkline={data.series.map((point) => toNumber(point.revenue))}
-                />
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("orders")}
-                  value={formatCount(toNumber(data.kpis.orders.current), locale)}
-                  delta={
-                    range.compare
-                      ? { value: data.kpis.orders.deltaPct, meaning: "neutral", label: td("previous") }
-                      : undefined
-                  }
-                  sparkline={data.series.map((point) => point.orders)}
-                />
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("aov")}
-                  value={<Price value={data.kpis.aov.current} locale={locale} size="xl" />}
-                  delta={
-                    range.compare
-                      ? { value: data.kpis.aov.deltaPct, meaning: "neutral", label: td("previous") }
-                      : undefined
-                  }
-                />
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("delivered")}
-                  value={formatCount(toNumber(data.kpis.deliveredOrders.current), locale)}
-                  delta={
-                    range.compare
-                      ? {
-                          value: data.kpis.deliveredOrders.deltaPct,
-                          meaning: "good",
-                          label: td("previous"),
-                        }
-                      : undefined
-                  }
-                  sparkline={data.series.map((point) => point.delivered)}
-                />
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("commission")}
-                  value={<Price value={data.kpis.commission.current} locale={locale} size="xl" />}
-                  delta={
-                    range.compare
-                      ? {
-                          value: data.kpis.commission.deltaPct,
-                          meaning: "good",
-                          label: td("previous"),
-                        }
-                      : undefined
-                  }
-                />
-                <KpiCard
-                  className="min-w-[15rem] snap-start sm:min-w-0"
-                  label={t("cancellations")}
-                  value={formatCount(toNumber(data.kpis.cancelledOrders.current), locale)}
-                  delta={
-                    range.compare
-                      ? {
-                          value: data.kpis.cancelledOrders.deltaPct,
-                          meaning: "bad",
-                          label: td("previous"),
-                        }
-                      : undefined
-                  }
-                  sparkline={data.series.map((point) => point.cancelled)}
-                />
-              </div>
+              <section aria-label={t("keyMetrics")} className="grid grid-cols-1 gap-3">
+                <h2 className="font-heading text-base font-semibold">{t("keyMetrics")}</h2>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                  <KpiCard
+                    featured
+                    icon={<Banknote aria-hidden className="size-4" />}
+                    href="/seller/earnings"
+                    label={t("revenue")}
+                    value={<Price value={data.kpis.revenue.current} locale={locale} size="xl" />}
+                    delta={
+                      range.compare
+                        ? { value: data.kpis.revenue.deltaPct, meaning: "good", label: td("previous") }
+                        : undefined
+                    }
+                    sparkline={data.series.map((point) => toNumber(point.revenue))}
+                  />
+                  <KpiCard
+                    icon={<ShoppingCart aria-hidden className="size-4" />}
+                    href="/seller/orders"
+                    label={t("orders")}
+                    value={formatCount(toNumber(data.kpis.orders.current), locale)}
+                    delta={
+                      range.compare
+                        ? { value: data.kpis.orders.deltaPct, meaning: "neutral", label: td("previous") }
+                        : undefined
+                    }
+                    sparkline={data.series.map((point) => point.orders)}
+                  />
+                  <KpiCard
+                    href="/seller/orders"
+                    label={t("aov")}
+                    value={<Price value={data.kpis.aov.current} locale={locale} size="xl" />}
+                    delta={
+                      range.compare
+                        ? { value: data.kpis.aov.deltaPct, meaning: "neutral", label: td("previous") }
+                        : undefined
+                    }
+                  />
+                  <KpiCard
+                    icon={<Package aria-hidden className="size-4" />}
+                    href="/seller/orders?status=DELIVERED"
+                    label={t("delivered")}
+                    value={formatCount(toNumber(data.kpis.deliveredOrders.current), locale)}
+                    delta={
+                      range.compare
+                        ? {
+                            value: data.kpis.deliveredOrders.deltaPct,
+                            meaning: "good",
+                            label: td("previous"),
+                          }
+                        : undefined
+                    }
+                    sparkline={data.series.map((point) => point.delivered)}
+                  />
+                  <KpiCard
+                    icon={<Percent aria-hidden className="size-4" />}
+                    href="/seller/earnings"
+                    label={t("commission")}
+                    value={<Price value={data.kpis.commission.current} locale={locale} size="xl" />}
+                    delta={
+                      range.compare
+                        ? {
+                            value: data.kpis.commission.deltaPct,
+                            meaning: "good",
+                            label: td("previous"),
+                          }
+                        : undefined
+                    }
+                  />
+                  <KpiCard
+                    icon={<RotateCcw aria-hidden className="size-4" />}
+                    href="/seller/orders?status=CANCELLED"
+                    label={t("cancellations")}
+                    value={formatCount(toNumber(data.kpis.cancelledOrders.current), locale)}
+                    delta={
+                      range.compare
+                        ? {
+                            value: data.kpis.cancelledOrders.deltaPct,
+                            meaning: "bad",
+                            label: td("previous"),
+                          }
+                        : undefined
+                    }
+                    sparkline={data.series.map((point) => point.cancelled)}
+                  />
+                </div>
+              </section>
+
+              <Card className="rounded-2xl">
+                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+                  <CardTitle className="font-heading text-base font-semibold">
+                    {t("recentOrders")}
+                  </CardTitle>
+                  <Button asChild variant="ghost" size="sm" className="min-h-11">
+                    <Link href="/seller/orders">{t("viewAll")}</Link>
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {(initialOrders ?? []).length === 0 ? (
+                    <p className="rounded-xl bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
+                      {t("recentOrdersEmpty")}
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-border/50">
+                      {(initialOrders ?? []).map((order) => (
+                        <li
+                          key={order.id}
+                          className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              href={`/seller/orders/${order.id}`}
+                              className="block truncate font-medium underline-offset-4 hover:underline"
+                            >
+                              {order.shopOrderNumber}
+                            </Link>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {order.order.orderNumber} · {order.items.length} {t("items")}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <Badge variant={sellerOrderStatusVariant(order.status)}>
+                              {tStatus(order.status)}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {formatLatinDateTime(order.createdAt, locale)}
+                            </span>
+                            <Price value={order.total} locale={locale} size="sm" />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
 
               <ChartCard title={t("salesTrend")} labels={labels} empty={data.series.length === 0 ? { message: t("noDataPeriod") } : undefined}>
                 <AnimatedTabs
@@ -474,6 +586,15 @@ export function DashboardClient({
                 </ChartCard>
               </div>
 
+              <AnimatedTabs
+                label={t("keyMetrics")}
+                urlParam="analytics"
+                tabs={[
+                  {
+                    value: "operations",
+                    label: t("operationsSection"),
+                    content: (
+                      <div className="grid grid-cols-1 gap-4">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <ChartCard
                   title={t("releaseTimeline")}
@@ -572,6 +693,14 @@ export function DashboardClient({
                 </ChartCard>
               </div>
 
+                      </div>
+                    ),
+                  },
+                  {
+                    value: "catalogue",
+                    label: t("catalogueDelivery"),
+                    content: (
+                      <div className="grid grid-cols-1 gap-4">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <ChartCard
                   title={t("topProductsTitle")}
@@ -712,6 +841,11 @@ export function DashboardClient({
                   ]}
                 />
               </ChartCard>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </>
           )}
 

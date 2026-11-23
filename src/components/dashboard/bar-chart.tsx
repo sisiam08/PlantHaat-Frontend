@@ -90,7 +90,7 @@ export function BarChart({
           viewBox={`0 0 ${width} ${svgHeight}`}
           width="100%"
           height={svgHeight}
-          className="block w-full"
+          className="ph-chart-enter block w-full"
           preserveAspectRatio="none"
           role="img"
           aria-label={summary}
@@ -119,7 +119,7 @@ export function BarChart({
                 <path
                   d={texturePath(row.colorIndex)}
                   stroke="var(--card)"
-                  strokeOpacity={0.45}
+                  strokeOpacity={0.28}
                   strokeWidth={1.5}
                   fill="none"
                 />
@@ -141,7 +141,7 @@ export function BarChart({
                   x={left - 8}
                   y={y + rowHeight / 2 + 4}
                   textAnchor="end"
-                  fontSize={11}
+                  fontSize={11.5}
                   fill={active === index ? "var(--foreground)" : "var(--muted-foreground)"}
                 >
                   {label.length > maxChars ? `${label.slice(0, maxChars - 1)}…` : label}
@@ -151,7 +151,7 @@ export function BarChart({
                   y={y + rowHeight * 0.22}
                   width={innerWidth}
                   height={rowHeight * 0.56}
-                  rx={4}
+                  rx={5}
                   fill="var(--muted)"
                   fillOpacity={0.5}
                 />
@@ -160,7 +160,7 @@ export function BarChart({
                   y={y + rowHeight * 0.22}
                   width={barWidth}
                   height={rowHeight * 0.56}
-                  rx={4}
+                  rx={5}
                   fill={chartColor(entry.colorIndex)}
                 />
                 <rect
@@ -168,13 +168,13 @@ export function BarChart({
                   y={y + rowHeight * 0.22}
                   width={barWidth}
                   height={rowHeight * 0.56}
-                  rx={4}
+                  rx={5}
                   fill={`url(#${uid}-tex-${0})`}
                 />
                 <text
                   x={left + barWidth + 6}
                   y={y + rowHeight / 2 + 4}
-                  fontSize={11}
+                  fontSize={11.5}
                   fill="var(--foreground)"
                   className="tabular-nums"
                 >
@@ -234,7 +234,7 @@ export function BarChart({
               <path
                 d={texturePath(row.colorIndex)}
                 stroke="var(--card)"
-                strokeOpacity={0.45}
+                strokeOpacity={0.28}
                 strokeWidth={1.5}
                 fill="none"
               />
@@ -257,7 +257,7 @@ export function BarChart({
                 x={PADDING.left - 8}
                 y={y + 3.5}
                 textAnchor="end"
-                fontSize={10}
+                fontSize={11}
                 fill="var(--muted-foreground)"
               >
                 {formatCompact(tick)}
@@ -300,7 +300,7 @@ export function BarChart({
                       y={y}
                       width={barWidth}
                       height={Math.max(1, barHeight)}
-                      rx={2}
+                      rx={5}
                       fill={chartColor(entry.colorIndex)}
                     />
                     <rect
@@ -308,7 +308,7 @@ export function BarChart({
                       y={y}
                       width={barWidth}
                       height={Math.max(1, barHeight)}
-                      rx={2}
+                      rx={5}
                       fill={`url(#${uid}-texv-${seriesIndex})`}
                     />
                   </g>
@@ -318,7 +318,7 @@ export function BarChart({
                 x={PADDING.left + band * index + band / 2}
                 y={height - 10}
                 textAnchor="middle"
-                fontSize={10}
+                fontSize={11}
                 fill="var(--muted-foreground)"
               >
                 {label.length > 10 ? `${label.slice(0, 9)}…` : label}

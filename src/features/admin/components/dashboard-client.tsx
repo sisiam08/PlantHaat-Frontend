@@ -1,6 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import {
+  ArrowDownToLine,
+  Banknote,
+  Clock3,
+  MessagesSquare,
+  Package,
+  Percent,
+  RotateCcw,
+  Scale,
+  ShoppingCart,
+  Store,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
@@ -16,13 +30,16 @@ import { ProgressBar } from "@/components/dashboard/progress";
 import { presetBounds } from "@/components/dashboard/range";
 import { ChartSkeleton, KpiSkeleton } from "@/components/dashboard/skeletons";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Price } from "@/components/product/price";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatBdt } from "@/lib/format/money";
 import { formatCount } from "@/lib/format/number";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../api";
-import type { AdminPanels } from "../types";
+import { orderStatusVariant } from "../status";
+import type { AdminPanels, AdminShopOrderSummary } from "../types";
 
 function toNumber(value: string | number | null | undefined): number {
   const numeric = Number(value ?? 0);
@@ -31,9 +48,11 @@ function toNumber(value: string | number | null | undefined): number {
 
 export function DashboardClient({
   initialPanels,
+  initialOrders,
   initialRange,
 }: {
   initialPanels?: AdminPanels;
+  initialOrders?: AdminShopOrderSummary[];
   initialRange?: DateRangeValue;
 } = {}) {
   const t = useTranslations("admin.dashboard");
@@ -130,35 +149,46 @@ export function DashboardClient({
   const seriesLabels = series.map((point) => point.bucket);
   const noSeries = series.length === 0;
 
-  const queueTiles: { href: string; label: string; value: string; tone?: "danger" }[] = [
+  const queueTiles: {
+    href: string;
+    label: string;
+    value: string;
+    icon: LucideIcon;
+    tone?: "danger";
+  }[] = [
     {
       href: "/admin/complaints?status=OPEN",
       label: t("openDisputes"),
       value: formatCount(data.disputes.open, locale),
+      icon: MessagesSquare,
       tone: data.disputes.open > 0 ? "danger" : undefined,
     },
     {
       href: "/admin/withdrawals?status=PENDING",
       label: t("withdrawalsPending"),
       value: formatCount(data.withdrawals.pendingCount, locale),
+      icon: ArrowDownToLine,
       tone: data.withdrawals.pendingCount > 0 ? "danger" : undefined,
     },
     {
       href: "/admin/advance-refunds",
       label: t("advanceRequired"),
       value: formatCount(data.refunds.advanceRequiredCount, locale),
+      icon: RotateCcw,
       tone: data.refunds.advanceRequiredCount > 0 ? "danger" : undefined,
     },
     {
       href: "/admin/advance-payments",
       label: t("verificationPending"),
       value: formatCount(data.verification.pendingCount, locale),
+      icon: Clock3,
       tone: data.verification.pendingCount > 0 ? "danger" : undefined,
     },
     {
       href: "/admin/reconciliation",
       label: t("reconciliationTitle"),
       value: data.reconciliation.balanced ? t("balanced") : t("breach"),
+      icon: Scale,
       tone: data.reconciliation.balanced ? undefined : "danger",
     },
   ];
@@ -396,110 +426,132 @@ export function DashboardClient({
 
       <section aria-label={t("needsAttention")} className="grid grid-cols-1 gap-3">
         <h2 className="font-heading text-base font-semibold">{t("needsAttention")}</h2>
-        <div
-          tabIndex={0}
-          aria-label={t("needsAttention")}
-          className="flex min-w-0 snap-x gap-3 overflow-x-auto pb-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-5"
-        >
-          {queueTiles.map((tile) => (
-            <Link
-              key={tile.href + tile.label}
-              href={tile.href}
-              className="min-w-[13rem] snap-start rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-primary/40 sm:min-w-0"
-            >
-              <span className="text-xs text-muted-foreground">{tile.label}</span>
-              <span
-                className={cn(
-                  "mt-1 block font-heading text-xl font-bold tabular-nums",
-                  tile.tone === "danger" ? "text-offer" : "text-foreground",
-                )}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {queueTiles.map((tile) => {
+            const Icon = tile.icon;
+            return (
+              <Link
+                key={tile.href + tile.label}
+                href={tile.href}
+                className="group flex min-h-24 flex-col justify-between rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-primary/40"
               >
-                {tile.value}
-              </span>
-            </Link>
-          ))}
+                <span className="flex items-start justify-between gap-2">
+                  <span className="text-xs leading-snug text-muted-foreground">{tile.label}</span>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-primary">
+                    <Icon aria-hidden className="size-4" />
+                  </span>
+                </span>
+                <span
+                  className={cn(
+                    "mt-3 block font-heading text-xl font-bold tabular-nums",
+                    tile.tone === "danger" ? "text-offer" : "text-foreground",
+                  )}
+                >
+                  {tile.value}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      <div
-        role="region"
-        aria-label={t("dashboardSections")}
-        tabIndex={0}
-        className="flex min-w-0 snap-x gap-3 overflow-x-auto pb-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
-      >
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("gmv")}
-          value={<Price value={kpis.gmv.current} locale={locale} size="xl" />}
-          delta={range.compare ? { value: kpis.gmv.deltaPct, meaning: "good", label: t("previous") } : undefined}
-          sparkline={series.map((point) => toNumber(point.gmv))}
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("orders")}
-          value={formatCount(toNumber(kpis.orders.current), locale)}
-          delta={range.compare ? { value: kpis.orders.deltaPct, meaning: "neutral", label: t("previous") } : undefined}
-          sparkline={series.map((point) => point.orders)}
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("aov")}
-          value={<Price value={kpis.aov.current} locale={locale} size="xl" />}
-          delta={range.compare ? { value: kpis.aov.deltaPct, meaning: "neutral", label: t("previous") } : undefined}
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("deliveredOrders")}
-          value={formatCount(toNumber(kpis.deliveredOrders.current), locale)}
-          delta={
-            range.compare
-              ? { value: kpis.deliveredOrders.deltaPct, meaning: "good", label: t("previous") }
-              : undefined
-          }
-          sparkline={series.map((point) => point.delivered)}
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("commission")}
-          value={<Price value={kpis.commission.current} locale={locale} size="xl" />}
-          delta={
-            range.compare
-              ? { value: kpis.commission.deltaPct, meaning: "good", label: t("previous") }
-              : undefined
-          }
-          sparkline={series.map((point) => toNumber(point.commission))}
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("newCustomers")}
-          value={formatCount(toNumber(kpis.newCustomers.current), locale)}
-          delta={
-            range.compare
-              ? { value: kpis.newCustomers.deltaPct, meaning: "good", label: t("previous") }
-              : undefined
-          }
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("newSellers")}
-          value={formatCount(toNumber(kpis.newSellers.current), locale)}
-          delta={
-            range.compare
-              ? { value: kpis.newSellers.deltaPct, meaning: "good", label: t("previous") }
-              : undefined
-          }
-        />
-        <KpiCard
-          className="min-w-[15rem] snap-start sm:min-w-0"
-          label={t("refunds")}
-          value={<Price value={kpis.refundsAmount.current} locale={locale} size="xl" />}
-          delta={
-            range.compare
-              ? { value: kpis.refundsAmount.deltaPct, meaning: "bad", label: t("previous") }
-              : undefined
-          }
-        />
-      </div>
+      <section aria-label={t("atAGlance")} className="grid grid-cols-1 gap-3">
+        <h2 className="font-heading text-base font-semibold">{t("atAGlance")}</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <KpiCard
+            featured
+            icon={<Banknote aria-hidden className="size-4" />}
+            href="/admin/orders"
+            label={t("gmv")}
+            value={<Price value={kpis.gmv.current} locale={locale} size="xl" />}
+            delta={
+              range.compare
+                ? { value: kpis.gmv.deltaPct, meaning: "good", label: t("previous") }
+                : undefined
+            }
+            sparkline={series.map((point) => toNumber(point.gmv))}
+          />
+          <KpiCard
+            icon={<ShoppingCart aria-hidden className="size-4" />}
+            href="/admin/orders"
+            label={t("orders")}
+            value={formatCount(toNumber(kpis.orders.current), locale)}
+            delta={
+              range.compare
+                ? { value: kpis.orders.deltaPct, meaning: "neutral", label: t("previous") }
+                : undefined
+            }
+            sparkline={series.map((point) => point.orders)}
+          />
+          <KpiCard
+            href="/admin/orders"
+            label={t("aov")}
+            value={<Price value={kpis.aov.current} locale={locale} size="xl" />}
+            delta={
+              range.compare
+                ? { value: kpis.aov.deltaPct, meaning: "neutral", label: t("previous") }
+                : undefined
+            }
+          />
+          <KpiCard
+            icon={<Package aria-hidden className="size-4" />}
+            href="/admin/orders?status=DELIVERED"
+            label={t("deliveredOrders")}
+            value={formatCount(toNumber(kpis.deliveredOrders.current), locale)}
+            delta={
+              range.compare
+                ? { value: kpis.deliveredOrders.deltaPct, meaning: "good", label: t("previous") }
+                : undefined
+            }
+            sparkline={series.map((point) => point.delivered)}
+          />
+          <KpiCard
+            icon={<Percent aria-hidden className="size-4" />}
+            href="/admin/commission-rules"
+            label={t("commission")}
+            value={<Price value={kpis.commission.current} locale={locale} size="xl" />}
+            delta={
+              range.compare
+                ? { value: kpis.commission.deltaPct, meaning: "good", label: t("previous") }
+                : undefined
+            }
+            sparkline={series.map((point) => toNumber(point.commission))}
+          />
+          <KpiCard
+            icon={<Users aria-hidden className="size-4" />}
+            href="/admin/users"
+            label={t("newCustomers")}
+            value={formatCount(toNumber(kpis.newCustomers.current), locale)}
+            delta={
+              range.compare
+                ? { value: kpis.newCustomers.deltaPct, meaning: "good", label: t("previous") }
+                : undefined
+            }
+          />
+          <KpiCard
+            icon={<Store aria-hidden className="size-4" />}
+            href="/admin/sellers"
+            label={t("newSellers")}
+            value={formatCount(toNumber(kpis.newSellers.current), locale)}
+            delta={
+              range.compare
+                ? { value: kpis.newSellers.deltaPct, meaning: "good", label: t("previous") }
+                : undefined
+            }
+          />
+          <KpiCard
+            icon={<RotateCcw aria-hidden className="size-4" />}
+            href="/admin/refunds"
+            label={t("refunds")}
+            value={<Price value={kpis.refundsAmount.current} locale={locale} size="xl" />}
+            delta={
+              range.compare
+                ? { value: kpis.refundsAmount.deltaPct, meaning: "bad", label: t("previous") }
+                : undefined
+            }
+          />
+        </div>
+      </section>
 
       <section aria-label={t("operations")} className="grid grid-cols-1 gap-3">
         <h2 className="font-heading text-base font-semibold">{t("operations")}</h2>
@@ -598,6 +650,72 @@ export function DashboardClient({
         </ChartCard>
       </div>
 
+      <Card className="rounded-2xl">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+          <CardTitle className="font-heading text-base font-semibold">
+            {t("recentOrders")}
+          </CardTitle>
+          <Button asChild variant="ghost" size="sm" className="min-h-11">
+            <Link href="/admin/orders">{t("viewAll")}</Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {(initialOrders ?? []).length === 0 ? (
+            <p className="rounded-xl bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
+              {t("recentOrdersEmpty")}
+            </p>
+          ) : (
+            <ul className="divide-y divide-border/50">
+              {(initialOrders ?? []).map((order) => (
+                <li
+                  key={order.id}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="block truncate font-medium underline-offset-4 hover:underline"
+                    >
+                      {order.shopOrderNumber}
+                    </Link>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {order.shop.name} · {order.order.orderNumber}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Badge variant={orderStatusVariant(order.status)}>
+                      {tStatus(order.status)}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {tMethod(order.order.paymentMethod as never)}
+                    </span>
+                    <Price value={order.total} locale={locale} size="sm" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <AnimatedTabs
+        label={t("dashboardSections")}
+        urlParam="analytics"
+        tabs={[
+          {
+            value: "operations",
+            label: t("operationsSection"),
+            content: (
+              <div className="grid grid-cols-1 gap-4">
+                <AnimatedTabs
+                  label={t("operationsSection")}
+                  urlParam="ops"
+                  tabs={[
+                    {
+                      value: "queues",
+                      label: t("queuesTab"),
+                      content: (
+                        <div className="grid grid-cols-1 gap-4">
       <div className="grid gap-4 lg:grid-cols-2">
         <ChartCard
           title={t("verificationAging")}
@@ -673,7 +791,14 @@ export function DashboardClient({
           />
         </ChartCard>
       </div>
-
+                        </div>
+                      ),
+                    },
+                    {
+                      value: "breakdowns",
+                      label: t("breakdownsTab"),
+                      content: (
+                        <div className="grid grid-cols-1 gap-4">
       <div className="grid gap-4 lg:grid-cols-3">
         <ChartCard
           title={t("byType")}
@@ -759,7 +884,14 @@ export function DashboardClient({
           />
         </ChartCard>
       </div>
-
+                        </div>
+                      ),
+                    },
+                    {
+                      value: "refunds",
+                      label: t("refundsTab"),
+                      content: (
+                        <div className="grid grid-cols-1 gap-4">
       <div className="grid gap-4 lg:grid-cols-2">
         <ChartCard
           title={t("refundsTitle")}
@@ -849,7 +981,19 @@ export function DashboardClient({
           />
         </ChartCard>
       </div>
-
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            ),
+          },
+          {
+            value: "settlement",
+            label: t("settlementHealth"),
+            content: (
+              <div className="grid grid-cols-1 gap-4">
       <ChartCard
         title={t("reconciliationTitle")}
         summary={t("summaryRecon", {
@@ -996,10 +1140,20 @@ export function DashboardClient({
         </ChartCard>
       </div>
 
-      <section aria-label={t("topLists")} className="grid grid-cols-1 gap-3">
-        <h2 className="font-heading text-base font-semibold">{t("topLists")}</h2>
-        <AnimatedTabs label={t("topLists")} urlParam="top" tabs={topTabs} />
-      </section>
+              </div>
+            ),
+          },
+          {
+            value: "top",
+            label: t("topLists"),
+            content: (
+              <div className="grid grid-cols-1 gap-4">
+                <AnimatedTabs label={t("topLists")} urlParam="top" tabs={topTabs} />
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

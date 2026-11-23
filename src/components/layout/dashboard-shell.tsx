@@ -224,10 +224,10 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
   });
 
   return (
-    <nav className="grid gap-4" aria-label={t("dashboard")}>
+    <nav className="grid gap-4 md:gap-3" aria-label={ts("navLabel")}>
       {groups.map((group) => (
-        <div key={group.key} className="grid gap-0.5">
-          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-normal text-sidebar-foreground/70 uppercase">
+        <div key={group.key} className="grid gap-0.5 md:gap-1">
+          <p className="px-3 pb-1 text-[0.65rem] font-semibold tracking-normal text-sidebar-foreground/70 uppercase md:sr-only lg:not-sr-only">
             {ts(group.key)}
           </p>
           {group.items.map((item) => {
@@ -253,24 +253,49 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
                 href={item.href}
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
+                aria-label={t(item.key)}
+                title={t(item.key)}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                  "group relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none md:justify-center md:px-0 lg:justify-start lg:px-3",
                   active
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
                 )}
               >
-                <Icon aria-hidden className="size-4 shrink-0" />
-                <span className="truncate">{t(item.key)}</span>
-                {badge ? (
-                  <Badge
-                    variant="destructive"
-                    className="ms-auto rounded-full px-1.5 py-0 text-[10px]"
-                  >
-                    {badge}
-                  </Badge>
+                {active ? (
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-sidebar-primary"
+                  />
                 ) : null}
-                <LinkPending className={cn("shrink-0", badge ? "" : "ms-auto")} />
+                <Icon aria-hidden className="size-5 shrink-0 md:size-5 lg:size-4" />
+                <span className="truncate md:sr-only lg:not-sr-only">{t(item.key)}</span>
+                {badge ? (
+                  <>
+                    <span
+                      aria-hidden
+                      className="absolute right-2 top-2 size-2 rounded-full bg-sidebar-primary md:block lg:hidden"
+                    />
+                    <span className="sr-only">{badge}</span>
+                    <Badge
+                      variant="destructive"
+                      className="ms-auto hidden rounded-full px-1.5 py-0 text-[10px] lg:inline-flex"
+                    >
+                      {badge}
+                    </Badge>
+                  </>
+                ) : null}
+                <LinkPending
+                  className={cn("hidden shrink-0 lg:inline-flex", badge ? "" : "ms-auto")}
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute left-full top-1/2 z-50 ms-3 hidden -translate-y-1/2 md:block lg:hidden"
+                >
+                  <span className="block whitespace-nowrap rounded-md bg-ink px-2 py-1 text-xs font-medium text-cream opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
+                    {t(item.key)}
+                  </span>
+                </span>
               </Link>
             );
           })}
@@ -301,8 +326,11 @@ export function DashboardShell({
 
   return (
     <div className="flex min-h-dvh flex-1 bg-background">
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-4 overflow-y-auto bg-sidebar px-3 py-5 text-sidebar-foreground lg:flex">
-        <div className="px-2">
+      <aside className="sticky top-0 hidden h-dvh w-20 shrink-0 flex-col gap-4 overflow-visible bg-sidebar px-2 py-4 text-sidebar-foreground md:flex lg:w-64 lg:overflow-y-auto lg:px-3 lg:py-5">
+        <div className="grid place-items-center px-0 lg:hidden">
+          <Logo tone="sidebar" showText={false} />
+        </div>
+        <div className="hidden px-2 lg:block">
           <Logo tone="sidebar" />
         </div>
         <DashboardNav role={role} />
@@ -310,7 +338,7 @@ export function DashboardShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/60 bg-background/80 px-4 backdrop-blur-md">
-          <div className="lg:hidden">
+          <div className="md:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <Button
                 variant="ghost"

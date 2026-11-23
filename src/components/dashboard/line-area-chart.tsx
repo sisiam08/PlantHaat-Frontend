@@ -113,7 +113,7 @@ export function LineAreaChart({
         viewBox={`0 0 ${geometry.width} ${geometry.height}`}
         width="100%"
         height={geometry.height}
-        className="block w-full touch-none"
+        className="ph-chart-enter block w-full touch-none"
         preserveAspectRatio="none"
         role="img"
         aria-label={summary}
@@ -153,7 +153,7 @@ export function LineAreaChart({
                 x={geometry.padding.left - 8}
                 y={y + 3.5}
                 textAnchor="end"
-                fontSize={10}
+                fontSize={11}
                 fill="var(--muted-foreground)"
               >
                 {formatCompact(tick)}
@@ -176,7 +176,7 @@ export function LineAreaChart({
               x={x}
               y={geometry.height - 8}
               textAnchor={index === 0 ? "start" : index === count - 1 ? "end" : "middle"}
-              fontSize={10}
+              fontSize={11}
               fill="var(--muted-foreground)"
             >
               {labelFormat(labels[index] ?? "")}

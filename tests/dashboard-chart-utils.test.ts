@@ -25,10 +25,11 @@ describe("dashboard chart utilities", () => {
 
   it("rounds maxima up and builds stable ticks", () => {
     expect(niceMax(87)).toBe(100);
-    expect(niceMax(230)).toBe(500);
+    expect(niceMax(230)).toBe(250);
+    expect(niceMax(2800)).toBe(3000);
     expect(niceMax(0)).toBe(1);
     expect(buildTicks(100, 4)).toEqual([0, 25, 50, 75, 100]);
-    expect(buildTicks(230, 2)).toEqual([0, 250, 500]);
+    expect(buildTicks(230, 2)).toEqual([0, 125, 250]);
   });
 
   it("builds line/area paths and caps series points", () => {

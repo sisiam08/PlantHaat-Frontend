@@ -45,6 +45,8 @@ export function KpiCard({
   href,
   target,
   footnote,
+  icon,
+  featured = false,
   className,
 }: {
   label: string;
@@ -54,6 +56,9 @@ export function KpiCard({
   href?: string;
   target?: { value: number; max: number; label: string; valueText: string };
   footnote?: string;
+  icon?: ReactNode;
+  /** One featured metric per view: forest surface, cream text, marigold accent. */
+  featured?: boolean;
   className?: string;
 }) {
   const direction = delta ? directionOf(delta) : "flat";
@@ -67,25 +72,73 @@ export function KpiCard({
 
   const body = (
     <div className="grid gap-2.5">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="font-heading text-2xl font-bold tracking-normal tabular-nums">{value}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p
+          className={cn(
+            "text-xs font-medium",
+            featured ? "text-sidebar-foreground/80" : "text-muted-foreground",
+          )}
+        >
+          {label}
+        </p>
+        {icon ? (
+          <span
+            aria-hidden
+            className={cn(
+              "grid size-8 shrink-0 place-items-center rounded-full",
+              featured ? "bg-white/10 text-sidebar-foreground" : "bg-secondary text-primary",
+            )}
+          >
+            {icon}
+          </span>
+        ) : href ? (
+          <ArrowUpRight
+            aria-hidden
+            className={cn("size-4 shrink-0", featured ? "text-sidebar-foreground/60" : "text-muted-foreground")}
+          />
+        ) : null}
+      </div>
+      <p
+        className={cn(
+          "font-heading text-2xl font-bold tracking-normal tabular-nums",
+          featured && "text-sidebar-foreground",
+        )}
+      >
+        {value}
+      </p>
       {delta ? (
         <p className="flex flex-wrap items-center gap-1 text-xs">
           <span
-            className={cn("inline-flex items-center gap-0.5 font-semibold", MEANING_CLASS[meaning])}
+            className={cn(
+              "inline-flex items-center gap-0.5 font-semibold",
+              featured
+                ? meaning === "neutral"
+                  ? "text-sidebar-foreground/80"
+                  : "text-sidebar-foreground"
+                : MEANING_CLASS[meaning],
+            )}
           >
             <DeltaIcon aria-hidden className="size-3.5" />
             <span>{deltaText}</span>
           </span>
-          <span className="text-muted-foreground">{delta.label}</span>
+          <span className={featured ? "text-sidebar-foreground/80" : "text-muted-foreground"}>
+            {delta.label}
+          </span>
         </p>
       ) : footnote ? (
-        <p className="text-xs text-muted-foreground">{footnote}</p>
+        <p
+          className={cn(
+            "text-xs",
+            featured ? "text-sidebar-foreground/80" : "text-muted-foreground",
+          )}
+        >
+          {footnote}
+        </p>
       ) : null}
       {sparkline && sparkline.length > 1 ? (
         <Sparkline
           values={sparkline}
-          tone={meaning === "good" ? "success" : meaning === "bad" ? "offer" : "primary"}
+          tone={featured ? "light" : meaning === "good" ? "success" : meaning === "bad" ? "offer" : "primary"}
         />
       ) : null}
       {target ? (
@@ -102,7 +155,10 @@ export function KpiCard({
   );
 
   const shell = cn(
-    "rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-soft)]",
+    "rounded-2xl border border-border/60 p-4 shadow-[var(--shadow-soft)]",
+    featured
+      ? "border-primary/40 bg-primary text-primary-foreground"
+      : "bg-card",
     href && "transition-colors hover:border-primary/40",
     className,
   );

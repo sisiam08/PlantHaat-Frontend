@@ -25,13 +25,30 @@ export function formatDelta(delta: number | null): string {
   return `${sign}${delta.toFixed(1)}%`;
 }
 
-/** Round a maximum up to a friendly 1/2/5 × 10^n tick. */
+/**
+ * Round a maximum up to a friendly 1/2/2.5/3/4/5 × 10^n tick. The extra 2.5/3/4
+ * steps keep dashboard trends from flattening (a 2.8k peak gets a 3k axis, not
+ * a 5k one) while still producing readable tick labels.
+ */
 export function niceMax(value: number): number {
   if (!Number.isFinite(value) || value <= 0) return 1;
   const exponent = Math.floor(Math.log10(value));
   const magnitude = Math.pow(10, exponent);
   const normalized = value / magnitude;
-  const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  const step =
+    normalized <= 1
+      ? 1
+      : normalized <= 2
+        ? 2
+        : normalized <= 2.5
+          ? 2.5
+          : normalized <= 3
+            ? 3
+            : normalized <= 4
+              ? 4
+              : normalized <= 5
+                ? 5
+                : 10;
   return step * magnitude;
 }
 

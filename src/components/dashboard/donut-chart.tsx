@@ -59,7 +59,7 @@ export function DonutChart({
         height={size}
         role="img"
         aria-label={summary}
-        className="shrink-0"
+        className="ph-chart-enter shrink-0"
       >
         <circle
           cx={50}
@@ -96,12 +96,12 @@ export function DonutChart({
           x={50}
           y={47}
           textAnchor="middle"
-          fontSize={9}
+          fontSize={10}
           fill="var(--muted-foreground)"
         >
           {centerLabel}
         </text>
-        <text x={50} y={58} textAnchor="middle" fontSize={11} fontWeight={700} fill="var(--foreground)">
+        <text x={50} y={58} textAnchor="middle" fontSize={12} fontWeight={700} fill="var(--foreground)">
           {formatValue(total)}
         </text>
       </svg>

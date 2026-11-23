@@ -44,8 +44,11 @@ export function FunnelChart({
             </div>
             <div className="h-6 overflow-hidden rounded-md bg-muted">
               <div
-                className="h-full rounded-md transition-[width] duration-300"
-                style={{ width: `${Math.max(2, share)}%`, backgroundColor: chartColor(index) }}
+                className="h-full w-full origin-left rounded-md transition-transform duration-300 ease-out motion-reduce:transition-none"
+                style={{
+                  transform: `scaleX(${Math.max(0.02, share / 100)})`,
+                  backgroundColor: chartColor(index),
+                }}
               />
             </div>
           </li>

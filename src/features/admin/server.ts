@@ -4,7 +4,7 @@ import { serverGet } from "@/server/backend";
 import { readAuthCookies } from "@/server/cookies";
 import { resolveDashboardRange } from "@/server/dashboard-range";
 import type { DateRange } from "@/components/dashboard/range";
-import type { AdminComplaintView, AdminPanels } from "./types";
+import type { AdminComplaintView, AdminPanels, AdminShopOrderSummary } from "./types";
 
 async function token(): Promise<string | undefined> {
   return (await readAuthCookies()).accessToken;
@@ -46,6 +46,27 @@ export async function getAdminComplaintsServer(params: {
       token: accessToken,
     });
     return { data: result.data, meta: result.meta };
+  } catch {
+    return undefined;
+  }
+}
+
+/** Latest shop orders for the dashboard's "recent orders" table (summary projection). */
+export async function getAdminRecentOrdersServer(
+  limit = 5,
+): Promise<AdminShopOrderSummary[] | undefined> {
+  const accessToken = await token();
+  if (!accessToken) return undefined;
+  const params = new URLSearchParams({
+    view: "summary",
+    page: "1",
+    limit: String(limit),
+  });
+  try {
+    const result = await serverGet<AdminShopOrderSummary[]>(`/admin/orders?${params.toString()}`, {
+      token: accessToken,
+    });
+    return result.data;
   } catch {
     return undefined;
   }

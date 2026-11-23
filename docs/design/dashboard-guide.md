@@ -157,3 +157,38 @@ list filter, detail page or action. Tick a row only after verifying the item at 
   larger targets, and no page overflows at 360.
 - Server prefetch never becomes a second source of truth: failures fall back to the existing client
   loading/error states.
+
+## 7. 2026-11-23 visual audit and direction (reference study)
+
+Reference material: the live Fernly demo (`https://demo.codeandchill.store/fernly/`) was inspected in real Chrome at 1440 and 390. The attached dashboard image was not present in the workspace/conversation, so the audit used the characteristics supplied in the brief plus the live reference and the running PlantHaat panels. No PlantHaat data was invented.
+
+### Audit findings (evidence: 1440/1280/768/390/360 renders, computed styles)
+
+| # | Finding | Evidence | Impact | Fix |
+|---|---|---|---|---|
+| 1 | Flat hierarchy: every card is white and the same size; no anchor metric. | Admin 1440: 28 cards, 3 sections, first viewport is queue + 8 KPI + 6 operations tiles. | The 5-second scan does not answer "how are we doing". | One featured forest KPI per view (GMV/Revenue) + stronger section grouping. |
+| 2 | Mobile dashboards are very long. | Admin 1440 4,016 px -> 768 6,902 -> 360 7,327 px; seller 3,119 -> 360 5,162 px. | Excessive scrolling; secondary detail buries actions. | 2-col KPI grid + progressive disclosure (tabs) for secondary analytics. |
+| 3 | Sidebar active state is a loud marigold fill; tablets get only a drawer. | Computed active background `rgb(240,166,60)`; `aside` display `none` at 768. | Navigation dominates the page and tablet users lose persistent context. | Cream/forest active surface + 3 px indicator; icon rail at md, full at lg, drawer below. |
+| 4 | Five radii, 11 font sizes, two card shadows. | Computed radii 12/16.8/21.6/31.2/pill; sizes 9-30 px. | Reads as assembled rather than designed. | Dashboard scale: 12 px controls, 20 px cards, pill chips; 11/12/13/14/16/20/24/30 type; one soft shadow. |
+| 5 | Chart textures are heavy and bars square; axes flatten the data. | Dotted pattern on every series; seller trend max 5k for ~1k data; 9-10 px labels. | Harder to read the trend; noisy first impression. | Lighter texture, rounded bars, granular nice-max (3k not 5k), 11 px labels, direct values. |
+| 6 | No recent-orders/action table on either dashboard. | Dashboard inventory: charts and counters only. | Daily users must navigate to find "what just happened". | Add a compact recent-orders table (real data, drill-down). |
+| 7 | Approved sellers get a full card for one badge. | Seller dashboard first card. | Wastes the first screen. | Status badge in the page header; full card only for non-approved states. |
+| 8 | Tab indicator animates `width`; progress bars animate `width`. | Computed `transition: transform 0.2s, width 0.2s`. | Layout-property animation on every tab/progress change. | Transform-only indicator (`scaleX`) and transform progress fills. |
+| 9 | Action queues are plain number tiles. | Admin/seller queues. | Less scannable and less premium than the rest. | Icon + label + value + optional context, consistent 20 px card surface. |
+
+### Direction
+
+**Calm editorial operations console.** Existing light forest/marigold tokens, white 20 px-radius cards on paper, a single dark-forest featured metric per view, marigold reserved for the primary action and active indicator, semantic colours only for state. Dense but breathable: 16-20 px card padding, 12/16/24 px section rhythm, 4/8 px internal rhythm. Inter + Hind unchanged; Latin digits and taka before amounts unchanged.
+
+Motion: 150-220 ms ease-out for controls, 240 ms one-shot chart/progress entrance only, no looping animation, no table animation, no page transition between operational pages, `prefers-reduced-motion` renders the final state instantly. Sidebar/tab indicators use transform/opacity only.
+
+Layout: PageHeader with actions; compact period bar; "At a glance" KPI grid (featured GMV/Revenue + 2-col mobile); "Needs attention" with icons; recent orders; primary trends/status; secondary analytics grouped in tabs; top lists in tabs. Every previous number, filter, action and table stays reachable via a tab, data table, tooltip or drill-down.
+
+### 2026-11-23 implementation result
+
+- Sidebar: cream/forest active surface with a 3 px marigold indicator (replacing the full marigold fill), 200 ms colour transition, icon rail at 768-1023 px with focus/hover tooltips, full 256 px rail at lg, mobile drawer below md with all labels and counters. Active/hover states remain distinguishable without colour alone (indicator bar + font weight).
+- KPI hierarchy: one featured forest card per view (GMV/Revenue) with icon and drill-down; the rest are white 20 px-radius cards with icon chips, arrows for links, consistent tabular numbers. Mobile uses a 2-col grid instead of a hidden horizontal rail (chosen for discoverability; the 5-second scan no longer hides metrics).
+- Dashboard structure: period bar, needs-action queue with icons, featured KPIs, operations snapshot, trend, status/payment, recent orders, then nested tabs (admin: Operations -> Queues/Breakdowns/Refunds, Settlement & health, Top lists; seller: Operations, Catalogue & delivery). Recent orders are server-seeded real rows with status/payment/amount and a drill-down.
+- Seller application status for approved sellers is a compact line in the body (status badge) instead of a full card; non-approved states keep the full card and CTA.
+- Charts: granular 1/2/2.5/3/4/5 nice-max (a 2.8k peak now gets a 3k axis instead of 5k), rounded bars, lighter texture (0.28), 11 px axis labels, 220 ms opacity-only entrance. Tab indicator is transform-only; progress/funnel fills use `scaleX`; gauge fades in. Reduced motion renders the final state instantly.
+- Recent orders links, KPI drill-downs, tab URLs (`?analytics=`, `?ops=`, `?metric=`, `?top=`, `?wallet=`) keep every previous destination reachable.

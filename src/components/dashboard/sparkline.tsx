@@ -11,7 +11,7 @@ export function Sparkline({
 }: {
   values: number[];
   className?: string;
-  tone?: "primary" | "success" | "offer" | "info";
+  tone?: "primary" | "success" | "offer" | "info" | "light";
   ariaHidden?: boolean;
 }) {
   if (values.length < 2) {
@@ -32,7 +32,9 @@ export function Sparkline({
         ? "text-offer"
         : tone === "info"
           ? "text-info"
-          : "text-primary";
+          : tone === "light"
+            ? "text-sidebar-foreground"
+            : "text-primary";
   return (
     <span className={cn("block", toneClass, className)} aria-hidden={ariaHidden}>
       <svg viewBox="0 0 100 28" preserveAspectRatio="none" className="h-7 w-full overflow-visible">
