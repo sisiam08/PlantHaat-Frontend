@@ -1,4 +1,5 @@
-const COOKIE = "ph_has_session";
+export const SESSION_HINT_COOKIE = "ph_has_session";
+const COOKIE = SESSION_HINT_COOKIE;
 
 /**
  * Non-sensitive layout hint only: lets client chrome reserve signed-in space

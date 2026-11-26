@@ -1,391 +1,252 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
-import { EmptyState } from "@/components/feedback/empty-state";
 import { QueryError } from "@/components/feedback/query-error";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { ApiError } from "@/lib/api/common";
-import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
-import type { District } from "@/lib/api/types";
-import { formatBdt } from "@/lib/format/money";
 import { sellerApi } from "../api";
-import type { DeliveryZone, DeliveryZoneInput } from "../types";
+import type { DeliveryConditionView, DeliveryPaymentMode } from "../types";
 
-export function DeliveryZonesClient() {
+const PAYMENT_MODES: DeliveryPaymentMode[] = ["COD_AND_ADVANCE", "COD_ONLY", "ADVANCE_ONLY"];
+
+const conditionSchema = z.object({
+  freeDeliveryEnabled: z.boolean(),
+  freeDeliveryAbove: z.string(),
+  estimatedDaysMin: z.string(),
+  estimatedDaysMax: z.string(),
+  paymentMode: z.enum(["COD_AND_ADVANCE", "COD_ONLY", "ADVANCE_ONLY"]),
+  isActive: z.boolean(),
+});
+
+type ConditionValues = z.infer<typeof conditionSchema>;
+
+function ConditionCard({
+  item,
+  onSaved,
+}: {
+  item: DeliveryConditionView;
+  onSaved: () => Promise<void>;
+}) {
   const t = useTranslations("seller.zones");
   const tErrors = useTranslations("errors");
-  const locale = useLocale();
-  const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<DeliveryZone | "new" | null>(null);
-  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
-  const tCommon = useTranslations("common");
-
-  const zones = useQuery({
-    queryKey: queryKeys.seller.deliveryZones,
-    queryFn: sellerApi.listZones,
-    retry: false,
+  const form = useForm<ConditionValues>({
+    resolver: zodResolver(conditionSchema),
+    values: {
+      freeDeliveryEnabled: item.freeDeliveryEnabled,
+      freeDeliveryAbove: item.freeDeliveryAbove ?? "",
+      estimatedDaysMin: String(item.estimatedDaysMin),
+      estimatedDaysMax: String(item.estimatedDaysMax),
+      paymentMode: item.paymentMode,
+      isActive: item.isActive,
+    },
   });
-
-  const remove = useMutation({
-    mutationFn: (id: string) => sellerApi.removeZone(id),
+  const active = form.watch("isActive") ?? item.isActive;
+  const save = useMutation({
+    mutationFn: (values: ConditionValues) =>
+      sellerApi.upsertDeliveryCondition(item.condition, {
+        ...(values.freeDeliveryAbove.trim() !== ""
+          ? { freeDeliveryAbove: Number(values.freeDeliveryAbove) }
+          : {}),
+        estimatedDaysMin: Number(values.estimatedDaysMin),
+        estimatedDaysMax: Number(values.estimatedDaysMax),
+        paymentMode: values.paymentMode,
+        freeDeliveryEnabled: values.freeDeliveryEnabled,
+        isActive: form.getValues("isActive") ?? item.isActive,
+      }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.seller.deliveryZones });
-      toast.success(t("removed"));
+      await onSaved();
+      toast.success(t("conditionSaved"));
     },
     onError: (error) => toastApiError(error, tErrors),
   });
 
-  if (zones.isError) {
+  const label =
+    item.condition === "INSIDE_DHAKA" ? t("conditionInsideDhaka") : t("conditionOutsideDhaka");
+  const hint =
+    item.condition === "INSIDE_DHAKA" ? t("conditionInsideHint") : t("conditionOutsideHint");
+
+  return (
+    <Card className="rounded-2xl">
+      <CardHeader className="gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <CardTitle>{label}</CardTitle>
+          <Badge variant={item.configured ? "secondary" : "outline"}>
+            {item.configured ? t("configured") : t("usingDefaults")}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">{hint}</p>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="grid gap-4"
+          onSubmit={form.handleSubmit(function (values) {
+            save.mutate(values);
+          })}
+          noValidate
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 sm:col-span-2">
+              <Switch
+                id={`${item.condition}-free-enabled`}
+                checked={form.watch("freeDeliveryEnabled") ?? false}
+                onCheckedChange={(checked) =>
+                  form.setValue("freeDeliveryEnabled", checked)
+                }
+              />
+              <div className="grid gap-0.5">
+                <Label htmlFor={`${item.condition}-free-enabled`}>
+                  {t("freeDeliveryEnabled")}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t("freeDeliveryEnabledHint")}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor={`${item.condition}-free`}>{t("freeAbove")}</Label>
+              <Input
+                id={`${item.condition}-free`}
+                inputMode="decimal"
+                disabled={!(form.watch("freeDeliveryEnabled") ?? false)}
+                {...form.register("freeDeliveryAbove")}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor={`${item.condition}-eta-min`}>{t("etaMin")}</Label>
+              <Input
+                id={`${item.condition}-eta-min`}
+                inputMode="numeric"
+                {...form.register("estimatedDaysMin")}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor={`${item.condition}-eta-max`}>{t("etaMax")}</Label>
+              <Input
+                id={`${item.condition}-eta-max`}
+                inputMode="numeric"
+                {...form.register("estimatedDaysMax")}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor={`${item.condition}-payment`}>{t("paymentMode")}</Label>
+            <select
+              id={`${item.condition}-payment`}
+              className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm"
+              {...form.register("paymentMode")}
+            >
+              {PAYMENT_MODES.map((mode) => (
+                <option key={mode} value={mode}>
+                  {t(
+                    mode === "COD_AND_ADVANCE"
+                      ? "paymentBoth"
+                      : mode === "COD_ONLY"
+                        ? "paymentCodOnly"
+                        : "paymentAdvanceOnly",
+                  )}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <Switch
+                checked={active}
+                onCheckedChange={(checked) => form.setValue("isActive", checked)}
+              />
+              {t("activeCondition")}
+            </label>
+            <Button type="submit" loading={save.isPending}>
+              {t("save")}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function DeliveryZonesClient() {
+  const t = useTranslations("seller.zones");
+  const queryClient = useQueryClient();
+  const conditions = useQuery({
+    queryKey: queryKeys.seller.deliveryConditions,
+    queryFn: sellerApi.listDeliveryConditions,
+    retry: false,
+  });
+  const shop = useQuery({
+    queryKey: queryKeys.seller.shop,
+    queryFn: sellerApi.getShop,
+    retry: false,
+  });
+  const pickupIncomplete = Boolean(
+    shop.data &&
+      (!shop.data.pickupDistrictId ||
+        ((shop.data.pickupDistrict?.name ?? shop.data.district) === "Dhaka" &&
+          !shop.data.pickupThanaId)),
+  );
+
+  if (conditions.isError) {
     const missing =
-      zones.error instanceof ApiError && zones.error.code === "SELLER_APPLICATION_INCOMPLETE";
+      conditions.error instanceof ApiError &&
+      conditions.error.code === "SELLER_APPLICATION_INCOMPLETE";
     return missing ? (
-      <EmptyState title={t("needsShop")} />
+      <QueryError message={t("needsShop")} onRetry={() => void conditions.refetch()} />
     ) : (
-      <QueryError message={t("loadError")} onRetry={() => void zones.refetch()} />
+      <QueryError message={t("loadError")} onRetry={() => void conditions.refetch()} />
     );
   }
 
-  const items = zones.data ?? [];
+  if (conditions.isLoading) {
+    return (
+      <div className="grid gap-4">
+        <Skeleton className="h-56 w-full rounded-2xl" />
+        <Skeleton className="h-56 w-full rounded-2xl" />
+      </div>
+    );
+  }
 
+  const items = conditions.data ?? [];
   return (
     <div className="grid gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <Button type="button" variant="cta" size="sm" onClick={() => setEditing("new")}>
-          {t("add")}
-        </Button>
-      </div>
-
-      {zones.isLoading ? <Skeleton className="h-24 w-full" /> : null}
-      {!zones.isLoading && items.length === 0 && editing === null ? (
-        <EmptyState title={t("empty")} />
+      {pickupIncomplete ? (
+        <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {t("pickupIncomplete")}
+        </p>
       ) : null}
-
-      <div className="grid gap-3">
-        {items.map((zone) => (
-          <Card key={zone.id}>
-            <CardContent className="grid gap-2 text-sm">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium">{zone.name}</span>
-                {zone.isNationwide ? (
-                  <Badge variant="secondary">{t("nationwideBadge")}</Badge>
-                ) : null}
-                <Badge variant="outline">
-                  {t("chargeBadge", { amount: formatBdt(zone.charge, locale) })}
-                </Badge>
-                {zone.freeDeliveryAbove != null ? (
-                  <Badge variant="outline">
-                    {t("freeBadge", { amount: formatBdt(zone.freeDeliveryAbove, locale) })}
-                  </Badge>
-                ) : null}
-                <Badge variant="outline">
-                  {t("etaBadge", { min: zone.estimatedDaysMin, max: zone.estimatedDaysMax })}
-                </Badge>
-              </div>
-              {!zone.isNationwide ? (
-                <span className="text-muted-foreground">
-                  {zone.districts.length > 0
-                    ? zone.districts
-                        .map((district) => {
-                          const name = locale === "bn" ? district.nameBn : district.name;
-                          const scope = district.areaScope;
-                          if (!scope || scope === "ALL") return name;
-                          return `${name} (${scope === "CITY" ? t("scopeCity") : t("scopeOutside")})`;
-                        })
-                        .join(", ")
-                    : t("noneSelected")}
-                </span>
-              ) : null}
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={() => setEditing(zone)}>
-                  {t("edit")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={remove.isPending}
-                  onClick={() => setRemoveTarget(zone.id)}
-                >
-                  {t("remove")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="rounded-2xl border border-border/60 bg-secondary/30 px-4 py-3 text-sm">
+        <p className="font-medium">{t("courierPricingTitle")}</p>
+        <p className="mt-1 text-muted-foreground">{t("courierPricingBody")}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("quoteUnavailableNote")}</p>
       </div>
-
-      <AlertDialog
-        open={removeTarget !== null}
-        onOpenChange={(open) => !open && setRemoveTarget(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("removeConfirm")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("removeConfirmBody")}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (removeTarget) remove.mutate(removeTarget);
-                setRemoveTarget(null);
-              }}
-            >
-              {t("remove")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {editing !== null ? (
-        <Card>
-          <CardContent>
-            <h2 className="mb-4 text-lg font-semibold">
-              {editing === "new" ? t("formTitle") : t("editTitle")}
-            </h2>
-            <ZoneForm
-              zone={editing === "new" ? undefined : editing}
-              onDone={() => setEditing(null)}
-              onCancel={() => setEditing(null)}
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+      {items.map((item) => (
+        <ConditionCard
+          key={item.condition}
+          item={item}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: queryKeys.seller.deliveryConditions })}
+        />
+      ))}
     </div>
   );
 }
 
-function ZoneForm({
-  zone,
-  onDone,
-  onCancel,
-}: {
-  zone?: DeliveryZone;
-  onDone: () => void;
-  onCancel: () => void;
-}) {
-  const t = useTranslations("seller.zones");
-  const tErrors = useTranslations("errors");
-  const locale = useLocale();
-  const queryClient = useQueryClient();
 
-  const districts = useQuery({
-    queryKey: queryKeys.catalog.districts,
-    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
-    staleTime: 60 * 60 * 1000,
-  });
 
-  const [name, setName] = useState(zone?.name ?? "");
-  const [nationwide, setNationwide] = useState(zone?.isNationwide ?? false);
-  const [districtIds, setDistrictIds] = useState<number[]>(
-    zone?.districts.map((district) => district.id) ?? [],
-  );
-  const [districtScopes, setDistrictScopes] = useState<Record<number, "ALL" | "CITY" | "OUTSIDE">>(
-    Object.fromEntries(
-      (zone?.districts ?? []).map((district) => [
-        district.id,
-        (district.areaScope as "ALL" | "CITY" | "OUTSIDE" | undefined) ?? "ALL",
-      ]),
-    ),
-  );
-  const [charge, setCharge] = useState(zone ? String(zone.charge) : "");
-  const [freeAbove, setFreeAbove] = useState(
-    zone?.freeDeliveryAbove != null ? String(zone.freeDeliveryAbove) : "",
-  );
-  const [etaMin, setEtaMin] = useState(String(zone?.estimatedDaysMin ?? 1));
-  const [etaMax, setEtaMax] = useState(String(zone?.estimatedDaysMax ?? 3));
-  const [error, setError] = useState<string | null>(null);
 
-  const save = useMutation({
-    mutationFn: (input: DeliveryZoneInput) =>
-      zone ? sellerApi.updateZone(zone.id, input) : sellerApi.createZone(input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.seller.deliveryZones });
-      toast.success(zone ? t("saved") : t("created"));
-      onDone();
-    },
-    onError: (mutationError) => toastApiError(mutationError, tErrors),
-  });
 
-  const toggleDistrict = (id: number, checked: boolean) => {
-    setDistrictIds((current) =>
-      checked ? [...current, id] : current.filter((value) => value !== id),
-    );
-  };
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const chargeNumber = Number(charge);
-    const min = Number(etaMin);
-    const max = Number(etaMax);
-    if (!name.trim()) {
-      setError(t("validation.zoneName"));
-      return;
-    }
-    if (!nationwide && districtIds.length === 0) {
-      setError(t("validation.districtsRequired"));
-      return;
-    }
-    if (charge.trim() === "" || !Number.isFinite(chargeNumber) || chargeNumber < 0) {
-      setError(t("validation.charge"));
-      return;
-    }
-    if (!Number.isInteger(min) || min < 0 || !Number.isInteger(max) || max < 0 || max < min) {
-      setError(t("validation.etaRange"));
-      return;
-    }
-    setError(null);
-    save.mutate({
-      name: name.trim(),
-      isNationwide: nationwide,
-      districtIds: nationwide ? [] : districtIds,
-      districtAreaScopes: nationwide
-        ? []
-        : districtIds.map((districtId) => ({
-            districtId,
-            areaScope: districtScopes[districtId] ?? "ALL",
-          })),
-      charge: chargeNumber,
-      freeDeliveryAbove: freeAbove.trim() === "" ? undefined : Number(freeAbove),
-      estimatedDaysMin: min,
-      estimatedDaysMax: max,
-    });
-  };
-
-  return (
-    <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-      <div className="grid gap-1.5">
-        <Label htmlFor="zoneName">{t("name")}</Label>
-        <Input
-          id="zoneName"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          aria-invalid={error ? true : undefined}
-        />
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Switch id="zoneNationwide" checked={nationwide} onCheckedChange={setNationwide} />
-        <Label htmlFor="zoneNationwide">{t("nationwide")}</Label>
-      </div>
-
-      {!nationwide ? (
-        <div className="grid gap-1.5">
-          <Label>{t("districts")}</Label>
-          <div className="max-h-56 overflow-y-auto rounded-xl border border-border p-2">
-            {(districts.data ?? []).map((district) => {
-              const checked = districtIds.includes(district.id);
-              return (
-                <div
-                  key={district.id}
-                  className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-muted"
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={(value) => toggleDistrict(district.id, value === true)}
-                  />
-                  <span className="flex-1">
-                    {locale === "bn" ? district.nameBn : district.name}
-                  </span>
-                  {checked ? (
-                    <select
-                      className="h-9 rounded-md border border-input bg-background px-2 text-xs"
-                      value={districtScopes[district.id] ?? "ALL"}
-                      onChange={(event) =>
-                        setDistrictScopes((current) => ({
-                          ...current,
-                          [district.id]: event.target.value as "ALL" | "CITY" | "OUTSIDE",
-                        }))
-                      }
-                      aria-label={t("areaScope")}
-                    >
-                      <option value="ALL">{t("scopeAll")}</option>
-                      <option value="CITY">{t("scopeCity")}</option>
-                      <option value="OUTSIDE">{t("scopeOutside")}</option>
-                    </select>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
-      <Separator />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
-          <Label htmlFor="zoneCharge">{t("charge")}</Label>
-          <Input
-            id="zoneCharge"
-            inputMode="decimal"
-            value={charge}
-            onChange={(event) => setCharge(event.target.value)}
-          />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="zoneFreeAbove">{t("freeAbove")}</Label>
-          <Input
-            id="zoneFreeAbove"
-            inputMode="decimal"
-            value={freeAbove}
-            onChange={(event) => setFreeAbove(event.target.value)}
-          />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="zoneEtaMin">{t("etaMin")}</Label>
-          <Input
-            id="zoneEtaMin"
-            inputMode="numeric"
-            value={etaMin}
-            onChange={(event) => setEtaMin(event.target.value)}
-          />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="zoneEtaMax">{t("etaMax")}</Label>
-          <Input
-            id="zoneEtaMax"
-            inputMode="numeric"
-            value={etaMax}
-            onChange={(event) => setEtaMax(event.target.value)}
-          />
-        </div>
-      </div>
-
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
-      <div className="flex gap-2">
-        <Button type="submit" disabled={save.isPending}>
-          {t("save")}
-        </Button>
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          {t("cancel")}
-        </Button>
-      </div>
-    </form>
-  );
-}

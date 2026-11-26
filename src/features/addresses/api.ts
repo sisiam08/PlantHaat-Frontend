@@ -1,11 +1,20 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/client";
 
+export interface AddressThana {
+  id: string;
+  name: string;
+  nameBn: string | null;
+  dhakaZone: "CITY" | "SUBURBAN" | null;
+}
+
 export interface AddressDistrict {
   id: number;
   name: string;
   nameBn: string;
   division: string;
   metro: boolean;
+  insideDhaka?: boolean;
+  requiresThana?: boolean;
 }
 
 export interface AddressView {
@@ -14,6 +23,8 @@ export interface AddressView {
   recipientName: string;
   phone: string;
   districtId: number;
+  thanaId: string | null;
+  thana: AddressThana | null;
   district: AddressDistrict;
   area: string;
   addressLine: string;
@@ -28,6 +39,7 @@ export interface CreateAddressInput {
   recipientName: string;
   phone: string;
   districtId: number;
+  thanaId?: string;
   area: string;
   addressLine: string;
   postalCode?: string;

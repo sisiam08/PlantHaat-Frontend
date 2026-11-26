@@ -23,6 +23,7 @@ import {
   Settings,
   ShieldAlert,
   ShoppingCart,
+  Truck,
   Sparkles,
   Star,
   Store,
@@ -153,6 +154,7 @@ const ADMIN_GROUPS: { key: string; items: NavItem[] }[] = [
       { href: "/admin/advance-payments", key: "advancePayments", icon: ClipboardCheck },
       { href: "/admin/advance-refunds", key: "advanceRefunds", icon: RotateCcw },
       { href: "/admin/reconciliation", key: "reconciliation", icon: Scale },
+      { href: "/admin/delivery-rates", key: "deliveryRates", icon: Truck },
     ],
   },
   {
@@ -256,37 +258,49 @@ function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => voi
                 aria-label={t(item.key)}
                 title={t(item.key)}
                 className={cn(
-                  "group relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none md:justify-center md:px-0 lg:justify-start lg:px-3",
+                  "group relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none md:justify-center md:px-0 lg:justify-start lg:px-3",
                   active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                    ? "text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/80 hover:text-sidebar-accent-foreground",
                 )}
               >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute inset-0 rounded-xl bg-sidebar-accent transition-opacity duration-200 ease-out motion-reduce:transition-none",
+                    active
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60",
+                  )}
+                />
                 {active ? (
                   <span
                     aria-hidden
-                    className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-sidebar-primary"
+                    className="absolute inset-y-2 left-0 z-10 w-[3px] rounded-full bg-sidebar-primary"
                   />
                 ) : null}
-                <Icon aria-hidden className="size-5 shrink-0 md:size-5 lg:size-4" />
-                <span className="truncate md:sr-only lg:not-sr-only">{t(item.key)}</span>
+                <Icon aria-hidden className="relative z-10 size-5 shrink-0 md:size-5 lg:size-4" />
+                <span className="relative z-10 truncate md:sr-only lg:not-sr-only">{t(item.key)}</span>
                 {badge ? (
                   <>
                     <span
                       aria-hidden
-                      className="absolute right-2 top-2 size-2 rounded-full bg-sidebar-primary md:block lg:hidden"
+                      className="absolute right-2 top-2 z-10 size-2 rounded-full bg-sidebar-primary md:block lg:hidden"
                     />
                     <span className="sr-only">{badge}</span>
                     <Badge
                       variant="destructive"
-                      className="ms-auto hidden rounded-full px-1.5 py-0 text-[10px] lg:inline-flex"
+                      className="relative z-10 ms-auto hidden rounded-full px-1.5 py-0 text-[10px] lg:inline-flex"
                     >
                       {badge}
                     </Badge>
                   </>
                 ) : null}
                 <LinkPending
-                  className={cn("hidden shrink-0 lg:inline-flex", badge ? "" : "ms-auto")}
+                  className={cn(
+                    "relative z-10 hidden shrink-0 lg:inline-flex",
+                    badge ? "" : "ms-auto",
+                  )}
                 />
                 <span
                   aria-hidden
@@ -391,3 +405,4 @@ export function DashboardShell({
     </div>
   );
 }
+

@@ -440,7 +440,7 @@ Method unchanged: production `.next-test` build on `:3002`, isolated API `:5001`
 
 ## 2026-11-23 Dashboard completion: streaming LCP fix and final medians
 
-**Cause (measured).** The admin dashboard H1 was server-rendered but the page awaited the analytics panels + recent-orders prefetch before returning JSX. The document TTFB was ~153 ms, the Hind 600 font finished at ~2.1 s, yet DOMContentLoaded was ~4.2 s and the H1 LCP was 4.68 s — the H1 was blocked by the data fetch, not by the font. The same pattern affected orders/complaints/seller pages that awaited panels before rendering the header.
+**Cause (measured).** The admin dashboard H1 was server-rendered but the page awaited the analytics panels + recent-orders prefetch before returning JSX. The document TTFB was ~153 ms, the Hind 600 font finished at ~2.1 s, yet DOMContentLoaded was ~4.2 s and the H1 LCP was 4.68 s ï¿½ the H1 was blocked by the data fetch, not by the font. The same pattern affected orders/complaints/seller pages that awaited panels before rendering the header.
 
 **Fix.** The dashboard/list pages now render `PageHeader` immediately and stream the data-dependent content inside `<Suspense>` with a sized `DashboardFallback`/`ListFallback`. The range is resolved inside the streamed child. Orders-list KPI money uses `xl` (20 px) instead of `lg` (30 px) so an after-load price no longer becomes the LCP; complaints/seller-orders gained a readable header description. Chart animation is opacity-only and reduced-motion-safe.
 
@@ -466,3 +466,35 @@ Method: production `.next-test` build on `:3002`, isolated API `:5001`, real Chr
 - Every measured admin/seller dashboard/list route is now **<= 2.5 s LCP** at 390 and 1440 except none; reconciliation moved slightly up but remains under the target. The seller dashboard is +13%/+10% vs its old 30-day baseline (now carries the action queue, featured KPI, recent orders and nested tabs) but still under 2.5 s; the fallback/streaming change is the reason it did not regress further.
 - Seller mobile page length: **4,790 -> 4,605 px** after merging Shop/Quick links, reducing trend height and keeping secondary analytics behind tabs; no information removed.
 - Public bundles: 374/388/404/373/360 KB (one KB above the previous 373/387/403/372/360 because the new admin/seller UI strings are in the shared locale messages), all within the 400/415/430/395/385 budgets. Admin 389/365/359/367/364 KB; seller 373/367/372/367 KB against 500 KB.
+
+## 2026-11-23 seller mobile and motion re-check
+
+- Seller dashboard (`dashboard-demo-seller`, real data, production `.next-test` on `:3002`, real Chrome):
+  **3,466 px at 390** (en) / **3,462** (bn), **3,592** (en) / **3,572** (bn) at 360, down from 4,605;
+  expanded "Performance & orders" 4,232 px. No horizontal overflow; 44 px toggle; axe 0 violations
+  (wcag2a/aa, 2.1a/aa) at en/bn x 390/360.
+- Cause of the reduction: secondary trend/order cards collapsed on mobile (one tap), wallet charts
+  `lg`-only with a compact 2x2 amount list, 180 px chart heights, 3-col KPI/action grids from 380 px.
+  Desktop layout unchanged (both cards visible, donut/gauge visible, 12 px gaps).
+- Motion trace (CDP PerformanceObserver around a tab switch): **0 layout shift**, no long tasks. Tab
+  indicator is `transform`-only (`transition-transform`, 200 ms); tab panels use opacity/translate; the
+  trigger no longer transitions colour. Sidebar active/hover is an opacity overlay on a static 3 px
+  indicator, so no layout/paint-driven size change. `prefers-reduced-motion: reduce` sets
+  `transition-property: none`/`animation: none` and renders the final state instantly.
+
+
+## 2026-11-23 navbar render and locale switch
+
+- Root cause: the header sat behind the cookie-locale Suspense (full-page spinner fallback) and every
+  control then waited on the client `/auth/me`; the locale toggle hard-reloaded the document. Slow
+  `/auth/me` produced a late/blank header and a 20-24 px control shift; every language switch repeated
+  the unmount.
+- Fix: the root fallback now paints the real header shape; `ph_has_session` is read on the server and
+  passed to `AuthProvider`, so signed-in chrome gets 44 px placeholders (bell included on mobile) and
+  guests get the login action immediately. `/auth/me` no longer gates unrelated controls; notification
+  and cart failures are local. Locale uses `router.refresh()` inside `useTransition` (no reload);
+  toggle is 68x44 with two 30x30 circles.
+- Measured (real Chrome, dev production build): with `/auth/me` delayed 2.5 s, 390 toggle x=178 and
+  cart x=290 before/after, bell/user 44x44; guest "Log in" present at first paint. Locale switch at 1440
+  kept the header, `/products?sort=newest#main` and scroll; only one body mutation, no spinner. No
+  horizontal overflow at 1440/1280/768/390/360.

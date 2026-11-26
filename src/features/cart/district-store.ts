@@ -27,3 +27,18 @@ export function rememberDistrictId(districtId: number | null): void {
     window.localStorage.setItem(STORAGE_KEY, String(districtId));
   }
 }
+
+
+const THANA_KEY = "planthaat.cart.thanaId";
+
+export function getRememberedThanaId(): string | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(THANA_KEY);
+  return raw && raw.length > 0 ? raw : null;
+}
+
+export function rememberThanaId(thanaId: string | null): void {
+  if (typeof window === "undefined") return;
+  if (thanaId === null) window.localStorage.removeItem(THANA_KEY);
+  else window.localStorage.setItem(THANA_KEY, thanaId);
+}

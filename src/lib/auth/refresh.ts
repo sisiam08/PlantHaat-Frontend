@@ -3,6 +3,10 @@
 import axios from "axios";
 
 import { broadcastAuth } from "./broadcast";
+import type { SessionEndReason } from "./broadcast-types";
+import { readSessionHint } from "./session-hint";
+import { readAuthState, rememberExpired } from "./session-state";
+import type { Role } from "@/lib/api/types";
 
 export type RefreshOutcome = "refreshed" | "no-session" | "transient";
 /**
@@ -14,6 +18,17 @@ export type RefreshOutcome = "refreshed" | "no-session" | "transient";
  */
 let inflight: Promise<RefreshOutcome> | null = null;
 let noSessionUntil = 0;
+
+export function noteSessionEnd(): { reason: SessionEndReason; role?: Role } {
+  const state = readAuthState();
+  const hadSession =
+    state.status === "authenticated" || state.status === "expired" || readSessionHint();
+  if (hadSession) {
+    rememberExpired(state.role);
+    return { reason: "expired", role: state.role };
+  }
+  return { reason: "required" };
+}
 
 const LOCK_NAME = "planthaat-auth-refresh";
 const LOCK_KEY = "ph_auth_refresh_lock";
@@ -39,7 +54,7 @@ export function refreshOnce(options: { notify?: boolean } = {}): Promise<boolean
 
 export function refreshOnceDetailed(options: { notify?: boolean } = {}): Promise<RefreshOutcome> {
   if (Date.now() < noSessionUntil) {
-    if (options.notify) broadcastAuth("session:expired");
+    if (options.notify) broadcastAuth("session:expired", noteSessionEnd());
     return Promise.resolve("no-session");
   }
   if (!inflight) {
@@ -49,7 +64,7 @@ export function refreshOnceDetailed(options: { notify?: boolean } = {}): Promise
   }
   return inflight.then((outcome) => {
     if (outcome === "no-session" && options.notify) {
-      broadcastAuth("session:expired");
+      broadcastAuth("session:expired", noteSessionEnd());
     }
     return outcome;
   });
@@ -178,6 +193,7 @@ async function run(): Promise<RefreshOutcome> {
         const status = error.response?.status;
         if (status === 401 || status === 403) {
           noSessionUntil = Date.now() + NO_SESSION_MS;
+          noteSessionEnd();
           return "no-session";
         }
       }

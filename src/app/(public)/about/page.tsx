@@ -60,7 +60,7 @@ async function AboutContent() {
         <p className="max-w-3xl text-muted-foreground">{t("trustBody")}</p>
       </section>
 
-      <section className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-border/60 bg-gradient-to-br from-cta/25 to-secondary/50 px-6 py-10 md:flex-row md:items-center md:px-12">
+      <section className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-border/60 bg-linear-to-br from-cta/25 to-secondary/50 px-6 py-10 md:flex-row md:items-center md:px-12">
         <div className="grid gap-2">
           <h2 className="font-heading text-2xl font-semibold">{t("ctaTitle")}</h2>
           <p className="max-w-xl text-muted-foreground">{t("ctaBody")}</p>

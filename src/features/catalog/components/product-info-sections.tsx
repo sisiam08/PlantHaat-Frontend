@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "cn";
@@ -122,7 +123,10 @@ export function ProductInfoSections({
 }) {
   const t = useTranslations("content");
   const tProduct = useTranslations("product");
-  const [active, setActive] = useState<string>("overview");
+  const searchParams = useSearchParams();
+  const [active, setActive] = useState<string>(
+    searchParams.get("tab") === "qa" ? "qa" : "overview",
+  );
   const navRef = useRef<HTMLDivElement | null>(null);
 
   // Scroll-spy over the actual rendered sections (including Reviews/Q&A).
@@ -133,7 +137,12 @@ export function ProductInfoSections({
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible?.target.id) {
-          setActive(visible.target.id);
+          setActive(
+            visible.target.id === "reviews" &&
+              new URLSearchParams(window.location.search).get("tab") === "qa"
+              ? "qa"
+              : visible.target.id,
+          );
         }
       },
       { rootMargin: "-25% 0px -60% 0px", threshold: [0, 0.25, 0.5, 1] },
@@ -145,10 +154,33 @@ export function ProductInfoSections({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const onTab = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail;
+      if (detail === "qa" || detail === "reviews") setActive(detail);
+    };
+    window.addEventListener("ph:pdp-tab", onTab);
+    return () => window.removeEventListener("ph:pdp-tab", onTab);
+  }, []);
+
   const go = (id: string) => {
+    if (id === "qa" || id === "reviews") {
+      const params = new URLSearchParams(window.location.search);
+      if (id === "qa") params.set("tab", "qa");
+      else params.delete("tab");
+      const qs = params.toString();
+      setActive(id);
+      window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}#reviews`);
+      window.dispatchEvent(new CustomEvent("ph:pdp-tab", { detail: id }));
+      document
+        .getElementById("reviews")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(id);
       window.history.replaceState(null, "", `#${id}`);
     }
   };

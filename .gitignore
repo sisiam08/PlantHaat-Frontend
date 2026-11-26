@@ -28,6 +28,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 *.log
+logs/
+tmp/
 
 # env files (commit only the example)
 .env
@@ -65,7 +67,6 @@ skills-lock.json
 .gemini/
 .aider*
 .continue/
-
 # generated artifacts and documentation evidence
 /.next-prod/
 /.next-test/
@@ -78,8 +79,6 @@ skills-lock.json
 *.bak
 *.orig
 *.tmp
-logs/
-tmp/
 /docs/**/*.png
 /docs/**/*.jpg
 /docs/**/*.jpeg

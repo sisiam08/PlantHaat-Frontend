@@ -545,9 +545,9 @@ function ReviewStep({ application }: { application: SellerApplication }) {
   const queryClient = useQueryClient();
   const { user, refreshUser } = useAuth();
 
-  const zones = useQuery({
-    queryKey: queryKeys.seller.deliveryZones,
-    queryFn: sellerApi.listZones,
+  const conditions = useQuery({
+    queryKey: queryKeys.seller.deliveryConditions,
+    queryFn: sellerApi.listDeliveryConditions,
     retry: false,
   });
 
@@ -557,7 +557,8 @@ function ReviewStep({ application }: { application: SellerApplication }) {
   if (!application.businessAddress?.trim()) missing.push("businessAddress");
   if (application.documents.length === 0) missing.push("documents");
   if (!application.shop) missing.push("shop");
-  if ((zones.data?.filter((zone) => zone.isActive).length ?? 0) === 0) missing.push("deliveryZone");
+  if ((conditions.data?.filter((zone) => zone.configured && zone.isActive).length ?? 0) < 2)
+    missing.push("deliveryZone");
 
   const verified = Boolean(user?.emailVerifiedAt);
 
@@ -577,7 +578,10 @@ function ReviewStep({ application }: { application: SellerApplication }) {
         <SummaryRow label={t("business")} value={application.businessName || "—"} />
         <SummaryRow label={t("documents")} value={String(application.documents.length)} />
         <SummaryRow label={t("shop")} value={application.shop?.name ?? "—"} />
-        <SummaryRow label={t("zones")} value={String(zones.data?.length ?? 0)} />
+        <SummaryRow
+          label={t("zones")}
+          value={String(conditions.data?.filter((zone) => zone.configured).length ?? 0)}
+        />
       </dl>
 
       <div className="flex items-center gap-2 text-sm">

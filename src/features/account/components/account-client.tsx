@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PASSWORD_MAX_LENGTH, isStrongPassword } from "@/lib/auth/password-policy";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,13 +44,18 @@ export function AccountClient() {
 
   const passwordSchema = z.object({
     currentPassword: z.string().min(1, t("validation.required")),
-    newPassword: z.string().min(8, t("validation.password")),
+    newPassword: z
+      .string()
+      .min(8, t("validation.passwordMin"))
+      .max(PASSWORD_MAX_LENGTH, t("validation.passwordMax"))
+      .refine(isStrongPassword, t("validation.passwordPolicy")),
   });
   type PasswordValues = z.infer<typeof passwordSchema>;
   const password = useForm<PasswordValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: "", newPassword: "" },
   });
+  const newPasswordValue = password.watch("newPassword");
 
   const onPassword = password.handleSubmit(async (values) => {
     try {
@@ -114,6 +121,8 @@ export function AccountClient() {
               label={t("newPassword")}
               type="password"
               autoComplete="new-password"
+              passwordPolicy
+              policyValue={newPasswordValue}
               error={password.formState.errors.newPassword?.message}
               {...password.register("newPassword")}
             />

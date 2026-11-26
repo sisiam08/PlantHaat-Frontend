@@ -17,10 +17,12 @@ import { ThemeProvider } from "./theme-provider";
 export function AppProviders({
   locale,
   messages,
+  initialHasSession = false,
   children,
 }: {
   locale: string;
   messages: AbstractIntlMessages;
+  initialHasSession?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -33,7 +35,7 @@ export function AppProviders({
         <LocaleLang locale={locale} />
         <MotionProvider>
           <QueryProvider>
-            <AuthProvider>
+            <AuthProvider initialHasSession={initialHasSession}>
               <SessionExpiredProvider>
                 <RealtimeBridge />
                 <TooltipProvider delayDuration={200}>

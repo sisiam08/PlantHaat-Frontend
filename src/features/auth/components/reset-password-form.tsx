@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PASSWORD_MAX_LENGTH, isStrongPassword } from "@/lib/auth/password-policy";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
@@ -28,7 +30,8 @@ export function ResetPasswordForm() {
       newPassword: z
         .string()
         .min(8, t("validation.passwordMin"))
-        .regex(/(?=.*[A-Za-z])(?=.*\d)/, t("validation.passwordStrength")),
+        .max(PASSWORD_MAX_LENGTH, t("validation.passwordMax"))
+        .refine(isStrongPassword, t("validation.passwordPolicy")),
       confirmPassword: z.string(),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
@@ -40,11 +43,13 @@ export function ResetPasswordForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { newPassword: "", confirmPassword: "" },
   });
+  const newPasswordValue = watch("newPassword");
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -77,6 +82,8 @@ export function ResetPasswordForm() {
         label={t("password")}
         type="password"
         autoComplete="new-password"
+        passwordPolicy
+        policyValue={newPasswordValue}
         error={errors.newPassword?.message}
         {...register("newPassword")}
       />

@@ -1,8 +1,7 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   createContext,
@@ -14,7 +13,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,22 +25,25 @@ import {
 } from "@/components/ui/dialog";
 import { subscribeAuth } from "@/lib/auth/broadcast";
 import { isProtectedPath } from "@/lib/auth/paths";
-import type { PublicUser } from "@/lib/api/types";
-import { useAuth } from "./auth-provider";
-import { SessionLoginForm } from "./components/session-login-form";
+import { hasExpiredMarker } from "@/lib/auth/session-state";
+
+export type AuthPromptMode = "expired" | "required";
 
 interface SessionExpiredOptions {
   canDismiss?: boolean;
+  mode?: AuthPromptMode;
+  returnTo?: string;
   source?: "action" | "server";
 }
 
 interface SessionExpiredState extends SessionExpiredOptions {
-  expiredUserId?: string;
+  mode: AuthPromptMode;
   returnTo: string;
 }
 
 interface SessionExpiredContextValue {
   show: (options?: SessionExpiredOptions) => void;
+  showCheckoutPrompt: () => void;
   dismiss: () => void;
 }
 
@@ -50,83 +51,108 @@ const SessionExpiredContext = createContext<SessionExpiredContextValue | null>(n
 
 function currentPath(): string {
   if (typeof window === "undefined") return "/";
-  return `${window.location.pathname}${window.location.search}`;
+  const path = `${window.location.pathname}${window.location.search}`;
+  // Returning to the handoff/auth pages would loop the dialog; fall back home.
+  if (
+    path === "/session-expired" ||
+    path.startsWith("/login") ||
+    path.startsWith("/register")
+  ) {
+    return "/";
+  }
+  return path;
 }
 
 /**
- * Owns the session-expired dialog. A refresh failure on an action opens it on
- * the current page; a dead-session protected navigation opens it on the
- * server-rendered session-expired page. Login happens inline, so the page,
- * form state, cart and scroll are kept. Other tabs learn about the login over
- * BroadcastChannel.
+ * Owns the authentication prompt. "Expired" is for a session that really
+ * existed; "required" is for a guest who asked for an authenticated action.
+ * Detection and refresh stay in the API/auth layers; this component only
+ * coordinates one prompt per tab and hands off to the existing login page.
  */
 export function SessionExpiredProvider({ children }: { children: ReactNode }) {
   const t = useTranslations("auth");
-  const router = useRouter();
   const pathname = usePathname();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const userRef = useRef<PublicUser | null>(user);
   const [state, setState] = useState<SessionExpiredState | null>(null);
-
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+  // A public visitor who dismisses a prompt should not be interrupted by the
+  // next identical 401 burst; a different prompt (e.g. checkout after a guest
+  // warning) can still open. A server-rendered page may always re-open it.
+  const suppressedModeRef = useRef<AuthPromptMode | null>(null);
 
   const dismiss = useCallback(() => setState(null), []);
 
+  const closeManually = useCallback(() => {
+    suppressedModeRef.current = state?.mode ?? null;
+    setState(null);
+  }, [state?.mode]);
+
   const show = useCallback((options: SessionExpiredOptions = {}) => {
-    const path = currentPath();
+    const mode = options.mode ?? "expired";
+    if (options.source !== "server" && suppressedModeRef.current === mode) return;
+    suppressedModeRef.current = null;
+    const path = options.returnTo ?? currentPath();
     setState((current) =>
       current ?? {
         canDismiss: options.canDismiss ?? !isProtectedPath(path),
-        source: options.source ?? "action",
-        expiredUserId: userRef.current?.id,
+        mode,
         returnTo: path,
+        source: options.source ?? "action",
       },
     );
   }, []);
 
-  // Back/forward can move the dialog to a public page; there it can be closed.
-  // Derived rather than stored so no state update is needed on navigation.
+  const showCheckoutPrompt = useCallback(() => {
+    suppressedModeRef.current = null;
+    show({
+      canDismiss: true,
+      mode: hasExpiredMarker() ? "expired" : "required",
+      returnTo: "/checkout",
+      source: "action",
+    });
+  }, [show]);
+
+  // Back/forward can move the prompt to a public page; there it can be closed.
   const canDismiss = state ? state.canDismiss || !isProtectedPath(pathname) : false;
 
   useEffect(() => {
     return subscribeAuth((message) => {
       if (message.type === "session:expired") {
-        show({ source: "action" });
+        show({
+          mode: message.reason === "required" ? "required" : "expired",
+          source: "action",
+        });
       } else if (
         message.type === "refresh" ||
         message.type === "logout" ||
         message.type === "session:revoked"
       ) {
+        suppressedModeRef.current = null;
         dismiss();
       }
     });
   }, [dismiss, show]);
 
-  const complete = useCallback(
-    async (nextUser: PublicUser) => {
-      const source = state?.source;
-      const expiredUserId = state?.expiredUserId;
-      dismiss();
-      if (source === "server") {
-        window.location.reload();
-        return;
-      }
-      if (expiredUserId && nextUser.id !== expiredUserId) {
-        queryClient.clear();
-        window.location.reload();
-        return;
-      }
-      await queryClient.invalidateQueries();
-      router.refresh();
-      toast.success(t("sessionBackAgain"));
-    },
-    [dismiss, queryClient, router, state?.expiredUserId, state?.source, t],
+  const value = useMemo<SessionExpiredContextValue>(
+    () => ({ show, showCheckoutPrompt, dismiss }),
+    [show, showCheckoutPrompt, dismiss],
   );
 
-  const value = useMemo<SessionExpiredContextValue>(() => ({ show, dismiss }), [show, dismiss]);
+  const required = state?.mode === "required";
+  const checkout = Boolean(state?.returnTo.startsWith("/checkout"));
+  const title = required
+    ? t("loginRequiredTitle")
+    : checkout
+      ? t("sessionDialogCheckoutTitle")
+      : t("sessionDialogTitle");
+  const body = required
+    ? checkout
+      ? t("loginRequiredCheckoutBody")
+      : t("loginRequiredBody")
+    : checkout
+      ? t("sessionDialogCheckoutBody")
+      : t("sessionDialogBody");
+  const loginHref = `/login?returnTo=${encodeURIComponent(
+    state?.returnTo ?? "/",
+  )}&reason=${required ? "auth-required" : "session-expired"}`;
 
   return (
     <SessionExpiredContext.Provider value={value}>
@@ -134,12 +160,15 @@ export function SessionExpiredProvider({ children }: { children: ReactNode }) {
       <Dialog
         open={state !== null}
         onOpenChange={(open) => {
-          if (!open && canDismiss) dismiss();
+          if (!open) {
+            if (canDismiss) closeManually();
+          }
         }}
       >
         <DialogContent
           showCloseButton={canDismiss}
           data-session-expired-dialog
+          data-auth-prompt={state?.mode}
           onEscapeKeyDown={(event) => {
             if (!canDismiss) event.preventDefault();
           }}
@@ -151,10 +180,14 @@ export function SessionExpiredProvider({ children }: { children: ReactNode }) {
           }}
         >
           <DialogHeader>
-            <DialogTitle>{t("sessionDialogTitle")}</DialogTitle>
-            <DialogDescription>{t("sessionDialogBody")}</DialogDescription>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{body}</DialogDescription>
           </DialogHeader>
-          <SessionLoginForm onSuccess={complete} />
+          <Button asChild variant="cta" size="lg" className="w-full sm:w-auto">
+            <Link href={loginHref} data-session-login-page onClick={dismiss}>
+              {required ? t("logIn") : t("sessionLoginAgain")}
+            </Link>
+          </Button>
           <DialogFooter className="sm:justify-start">
             <Button asChild variant="outline" size="sm">
               <Link href="/" onClick={dismiss}>
@@ -162,19 +195,11 @@ export function SessionExpiredProvider({ children }: { children: ReactNode }) {
               </Link>
             </Button>
             {canDismiss ? (
-              <Button type="button" variant="ghost" size="sm" onClick={dismiss}>
+              <Button type="button" variant="ghost" size="sm" onClick={closeManually}>
                 {t("sessionDismiss")}
               </Button>
             ) : null}
           </DialogFooter>
-          <Link
-            href={`/login?returnTo=${encodeURIComponent(state?.returnTo ?? "/")}&reason=session-expired`}
-            data-session-login-page
-            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
-            onClick={dismiss}
-          >
-            {t("sessionLoginPage")}
-          </Link>
         </DialogContent>
       </Dialog>
     </SessionExpiredContext.Provider>

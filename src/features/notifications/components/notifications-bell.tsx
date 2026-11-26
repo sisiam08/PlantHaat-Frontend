@@ -192,14 +192,16 @@ function PanelBody({ onClose }: { onClose: () => void }) {
 export function NotificationsBell() {
   const t = useTranslations("notifications");
   const locale = useLocale();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, hasSessionHint } = useAuth();
   const unread = useUnreadCount(Boolean(user));
   const desktop = useDesktop();
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
-  if (isLoading) {
-    return <span aria-hidden className="hidden size-11 shrink-0 rounded-full bg-muted/40 md:inline-block" />;
+  // Keep the slot (and its 44 px width) while the session resolves for a
+  // returning signed-in visitor; guests have no bell and must not see a shift.
+  if (isLoading && hasSessionHint) {
+    return <span aria-hidden className="size-11 shrink-0 rounded-full bg-muted/40" />;
   }
   if (!user) return null;
 

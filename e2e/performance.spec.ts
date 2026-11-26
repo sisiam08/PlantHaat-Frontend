@@ -7,7 +7,7 @@ import { expect, test, type Page } from "@playwright/test";
  * Targets (median of 3): cart/checkout 390 <= 2.5 s + 10% margin; PDP/catalog
  * 1440 back to their earlier medians (<= 3.3 s); home 1440 <= 3.8 s.
  */
-const BASE = "http://localhost:3000";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const IMAGE_CACHE = new Map<string, { body: Buffer; type: string }>();
 const LIMITS = {
   cart: 2750,

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
 import { CartLink } from "./cart-link";
+import { SellerCta } from "./seller-cta";
 import { LanguageToggle } from "./language-toggle";
 import { Logo } from "./logo";
 import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
@@ -44,6 +45,7 @@ export function SiteHeader() {
           {!onStorefrontSearch ? <MobileSearch compact className="md:hidden" /> : null}
           <LanguageToggle />
           <NotificationsBell />
+          <SellerCta />
           <CartLink />
           <UserMenu />
         </div>

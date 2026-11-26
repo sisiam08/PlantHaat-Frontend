@@ -11,6 +11,9 @@ import type {
   SellerShop,
   DeliveryZone,
   DeliveryZoneInput,
+  DeliveryCondition,
+  DeliveryConditionInput,
+  DeliveryConditionView,
   PayoutAccount,
   ProductImageInput,
   RespondCancellationInput,
@@ -65,7 +68,15 @@ export const sellerApi = {
     apiPost<SellerShop>("/seller/shop/vacation", input).then((result) => result.data),
   clearVacation: () => apiDelete<SellerShop>("/seller/shop/vacation").then((result) => result.data),
 
-  // Delivery zones
+  listDeliveryConditions: () =>
+    apiGet<DeliveryConditionView[]>("/seller/delivery-conditions").then((result) => result.data),
+  upsertDeliveryCondition: (condition: DeliveryCondition, input: DeliveryConditionInput) =>
+    apiPut<DeliveryConditionView>(
+      `/seller/delivery-conditions/${encodeURIComponent(condition)}`,
+      input,
+    ).then((result) => result.data),
+
+  // Legacy delivery zones
   listZones: () => apiGet<DeliveryZone[]>("/seller/delivery-zones").then((result) => result.data),
   createZone: (input: DeliveryZoneInput) =>
     apiPost<DeliveryZone>("/seller/delivery-zones", input).then((result) => result.data),

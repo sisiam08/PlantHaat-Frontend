@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { OrdersList } from "@/features/orders/components/orders-list";
+import { OrdersTabs } from "@/features/orders/components/orders-tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("orders");
@@ -15,7 +15,7 @@ export default async function OrdersPage() {
   return (
     <PageContainer width="reading">
       <PageHeader title={t("title")} />
-      <OrdersList />
+      <OrdersTabs />
     </PageContainer>
   );
 }

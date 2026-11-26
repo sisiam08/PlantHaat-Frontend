@@ -19,13 +19,14 @@ import { useAuth } from "@/features/auth/auth-provider";
 
 export function UserMenu() {
   const t = useTranslations("shell");
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, hasSessionHint, logout } = useAuth();
   const router = useRouter();
 
-  // Reserve the controls' size while /auth/me resolves so a signed-in user
-  // never sees a "Log in" flash on first paint.
-  if (isLoading) {
-    return <span aria-hidden className="h-11 w-11 shrink-0 rounded-full bg-muted/40 sm:w-16" />;
+  // Reserve the signed-in control's size while /auth/me resolves. With no
+  // session hint we already know the visitor is a guest and can show the
+  // login action immediately instead of a placeholder that later shifts.
+  if (isLoading && hasSessionHint) {
+    return <span aria-hidden className="size-11 shrink-0 rounded-full bg-muted/40" />;
   }
 
   if (!user) {

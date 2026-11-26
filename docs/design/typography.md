@@ -38,3 +38,17 @@ Kept intentionally: "Add to cart" (not "Add"), "My orders" page title (nav stays
 - Cause 2: footer contact column min-content (unbreakable email) expanded the last grid track. Fixed with `[&>*]:min-w-0`, `min-w-0` on the contact list and `break-all` on phone/email links.
 - Result: **0 overflowing combinations**; `e2e/overflow.spec.ts` 22/22 (six widths, bn/en, public + checkout/seller/admin). No `overflow-x:hidden` masking on `body`.
 - Remaining: symbol glyphs may still use `Segoe UI Symbol`; this is a glyph fallback, not a text family, and causes no layout overflow.
+
+
+## 2026-11-24 Taka subset broke Bangla conjuncts
+
+- Root cause: the general `--font-sans`/`--font-bangla` stacks led with the 4-glyph `Taka` face
+  (`U+0982, U+09AC, U+09BE, U+09F3`). Browsers fall back per glyph, so words containing ব/া (e.g.
+  স্টক স্বাস্থ্য) mixed Taka glyphs with Hind Siliguri and lost the conjunct shaping (the word looked
+  split). `Kalpurush.ttf` remains unwired and is not the cause.
+- Fix: `Taka` is now only used by `.price-currency` (৳) and the `.bangla-label` two-word language
+  control. All normal Bangla text uses `Hind Siliguri → Hind Siliguri Fallback → Noto Sans Bengali`;
+  Inter stays first for Latin/digits. No wrapping rule was disabled.
+- Verified at 390/1280 in the seller products health strip: computed family no longer contains Taka,
+  the word is one shaped run (55.9 px vs the mixed 63.8 px before) and its screenshot is intact.
+  Other compound/caret/ফলা words use the same single-family stack; no horizontal overflow.

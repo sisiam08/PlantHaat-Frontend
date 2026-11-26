@@ -40,11 +40,22 @@ export interface CartShopView {
    */
   deliverable?: boolean | null;
   deliveryCharge: string | null;
+  courierCharge?: string | null;
+  sellerExtraCharge?: string | null;
+  deliveryQuoteSource?: string | null;
+  deliveryQuoteEstimated?: boolean;
+  deliveryReason?: string | null;
+  parcelWeightKg?: string | null;
+  freeDeliveryApplied?: boolean;
+  freeDeliveryEnabled?: boolean | null;
   /** Present when the cart API returns the zone's free-delivery threshold. */
   freeDeliveryAbove?: string | null;
   /** Present when a matching delivery zone was found. */
   estimatedDaysMin?: number | null;
   estimatedDaysMax?: number | null;
+  deliveryCondition?: "INSIDE_DHAKA" | "OUTSIDE_DHAKA" | null;
+  codAllowed?: boolean | null;
+  advanceAllowed?: boolean | null;
 }
 
 export interface CartView {
@@ -58,3 +69,4 @@ export interface CartView {
 }
 
 export const MAX_CART_QUANTITY = 20;
+

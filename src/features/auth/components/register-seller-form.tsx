@@ -2,11 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+
+import { PASSWORD_MAX_LENGTH, isStrongPassword } from "@/lib/auth/password-policy";
 
 import { Button } from "@/components/ui/button";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
@@ -21,7 +22,6 @@ export function RegisterSellerForm() {
   const tErrors = useTranslations("errors");
   const { registerSeller } = useAuth();
   const hydrated = useHydrated();
-  const router = useRouter();
 
   const schema = z.object({
     name: z.string().min(1, t("validation.required")),
@@ -30,15 +30,17 @@ export function RegisterSellerForm() {
     contactPhone: z.string().regex(BD_PHONE, t("validation.phone")),
     sellerType: z.enum(["NURSERY", "INDIVIDUAL_GROWER", "RESELLER"]),
     password: z
-      .string()
-      .min(8, t("validation.passwordMin"))
-      .regex(/(?=.*[A-Za-z])(?=.*\d)/, t("validation.passwordStrength")),
+        .string()
+        .min(8, t("validation.passwordMin"))
+        .max(PASSWORD_MAX_LENGTH, t("validation.passwordMax"))
+        .refine(isStrongPassword, t("validation.passwordPolicy")),
   });
   type Values = z.infer<typeof schema>;
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<Values>({
     resolver: zodResolver(schema),
@@ -51,12 +53,13 @@ export function RegisterSellerForm() {
       password: "",
     },
   });
+  const passwordValue = watch("password");
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       await registerSeller(values);
       toast.success(t("registerSuccess"));
-      router.replace("/seller/apply");
+      window.location.assign("/seller/apply");
     } catch (error) {
       toastApiError(error, tErrors);
     }
@@ -111,6 +114,8 @@ export function RegisterSellerForm() {
         label={t("password")}
         type="password"
         autoComplete="new-password"
+        passwordPolicy
+        policyValue={passwordValue}
         error={errors.password?.message}
         {...register("password")}
       />

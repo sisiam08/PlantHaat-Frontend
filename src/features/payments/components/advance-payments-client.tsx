@@ -44,7 +44,12 @@ import { cn } from "@/lib/utils";
 type Filter = "all" | "pending" | "sla";
 
 function providerLabel(provider: string): string {
-  return provider === "BKASH" ? "bKash" : "Nagad";
+  return (
+    { BKASH: "bKash", NAGAD: "Nagad", ROCKET: "Rocket", UPAY: "Upay" } as Record<
+      string,
+      string
+    >
+  )[provider] ?? provider;
 }
 
 export function AdvancePaymentsClient() {

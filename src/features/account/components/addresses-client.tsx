@@ -16,6 +16,7 @@ import { addressesApi, type CreateAddressInput } from "@/features/addresses/api"
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
 import { apiGet } from "@/lib/api/client";
+import { locationsApi, selectableThanas } from "@/features/locations/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { District } from "@/lib/api/types";
 
@@ -27,7 +28,10 @@ export function AddressesClient() {
   const list = useQuery({ queryKey: queryKeys.addresses, queryFn: addressesApi.list });
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
-    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
+    queryFn: () =>
+      apiGet<(District & { requiresThana?: boolean })[]>(
+        "/locations/districts",
+      ).then((result) => result.data),
     staleTime: 60 * 60 * 1000,
   });
 
@@ -35,6 +39,7 @@ export function AddressesClient() {
     recipientName: z.string().min(2, t("validation.name")),
     phone: z.string().min(6, t("validation.phone")),
     districtId: z.string().min(1, t("validation.district")),
+    thanaId: z.string(),
     area: z.string().min(1, t("validation.required")),
     addressLine: z.string().min(3, t("validation.required")),
     postalCode: z.string().optional(),
@@ -49,6 +54,7 @@ export function AddressesClient() {
       recipientName: "",
       phone: "",
       districtId: "",
+      thanaId: "",
       area: "",
       addressLine: "",
       postalCode: "",
@@ -78,6 +84,13 @@ export function AddressesClient() {
   const selectedDistrict = (districts.data ?? []).find(
     (district) => String(district.id) === form.watch("districtId"),
   );
+  const requiresThana = Boolean(selectedDistrict?.requiresThana);
+  const thanas = useQuery({
+    queryKey: ["locations", "thanas", "address-book", form.watch("districtId")],
+    queryFn: () => locationsApi.thanas(Number(form.watch("districtId"))),
+    enabled: requiresThana,
+    staleTime: 60 * 60 * 1000,
+  });
 
   const setDefault = useMutation({
     mutationFn: (id: string) => addressesApi.setDefault(id),
@@ -86,10 +99,15 @@ export function AddressesClient() {
   });
 
   const onCreate = form.handleSubmit((values) => {
+    if (requiresThana && !values.thanaId) {
+      form.setError("thanaId", { message: t("validation.required") });
+      return;
+    }
     create.mutate({
       recipientName: values.recipientName,
       phone: values.phone,
       districtId: Number(values.districtId),
+      thanaId: values.thanaId || undefined,
       area: values.area,
       addressLine: values.addressLine,
       postalCode: values.postalCode || undefined,
@@ -115,8 +133,14 @@ export function AddressesClient() {
                 </div>
                 <span className="text-muted-foreground">
                   {address.addressLine}, {address.area}, {address.district.name}
+                  {address.thana ? `, ${address.thana.name}` : ""}
                 </span>
                 <span className="text-muted-foreground">{address.phone}</span>
+                {address.district.name === "Dhaka" && !address.thanaId ? (
+                  <span className="text-xs text-warning-foreground">
+                    {t("thanaRequired")}
+                  </span>
+                ) : null}
               </div>
               <div className="flex flex-col gap-2">
                 {!address.isDefault ? (
@@ -165,7 +189,11 @@ export function AddressesClient() {
               <select
                 id="districtId"
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                {...form.register("districtId")}
+                value={form.watch("districtId")}
+                onChange={(event) => {
+                  form.setValue("districtId", event.target.value);
+                  form.setValue("thanaId", "");
+                }}
               >
                 <option value="">{t("selectDistrict")}</option>
                 {(districts.data ?? []).map((district) => (
@@ -180,6 +208,28 @@ export function AddressesClient() {
                 </p>
               ) : null}
             </div>
+            {requiresThana ? (
+              <div className="grid gap-1.5">
+                <Label htmlFor="thanaId">{t("thana")}</Label>
+                <select
+                  id="thanaId"
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  {...form.register("thanaId")}
+                >
+                  <option value="">{t("selectThana")}</option>
+                  {selectableThanas(thanas.data ?? []).map((thana) => (
+                    <option key={thana.id} value={thana.id}>
+                      {thana.name}
+                    </option>
+                  ))}
+                </select>
+                {form.formState.errors.thanaId ? (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.thanaId.message}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             {selectedDistrict?.metro ? (
               <div className="grid gap-1.5">
                 <Label htmlFor="cityScope">{t("cityScope")}</Label>
@@ -225,3 +275,13 @@ export function AddressesClient() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+

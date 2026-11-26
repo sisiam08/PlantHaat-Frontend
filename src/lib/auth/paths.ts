@@ -14,7 +14,8 @@ const PROTECTED_PREFIXES = [
   "/admin",
 ] as const;
 
-export function isProtectedPath(pathname: string): boolean {
+export function isProtectedPath(path: string): boolean {
+  const pathname = path.split(/[?#]/, 1)[0] || "/";
   return PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

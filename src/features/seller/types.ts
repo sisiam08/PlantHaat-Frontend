@@ -35,14 +35,54 @@ export type SellerApplication = Schemas["SellerApplicationDto"];
 export type UpdateApplicationInput = Schemas["UpdateApplicationDto"];
 export type AddDocumentInput = Schemas["AddDocumentDto"];
 
-export type SellerShop = Schemas["SellerShopDto"];
-export type UpdateShopInput = Schemas["UpdateShopDto"];
+export type SellerShop = Schemas["SellerShopDto"] & {
+  pickupDistrictId?: number | null;
+  pickupThanaId?: string | null;
+  pickupThana?: {
+    id: string;
+    name: string;
+    nameBn: string | null;
+    dhakaZone: "CITY" | "SUBURBAN" | null;
+  } | null;
+  pickupDistrict?: { id: number; name: string } | null;
+};
+export type UpdateShopInput = Schemas["UpdateShopDto"] & {
+  pickupDistrictId?: number;
+  pickupThanaId?: string;
+};
 export type SetVacationInput = Schemas["SetVacationDto"];
 
 export type DeliveryZone = Schemas["DeliveryZoneDto"];
 export type DeliveryZoneInput = Schemas["CreateDeliveryZoneDto"];
 
-export type PayoutAccount = Schemas["SellerPayoutAccountDto"];
+export type DeliveryCondition = "INSIDE_DHAKA" | "OUTSIDE_DHAKA";
+export type DeliveryPaymentMode = "COD_AND_ADVANCE" | "COD_ONLY" | "ADVANCE_ONLY";
+export interface DeliveryConditionView {
+  id: string | null;
+  condition: DeliveryCondition;
+  charge: string;
+  freeDeliveryAbove: string | null;
+  estimatedDaysMin: number;
+  estimatedDaysMax: number;
+  paymentMode: DeliveryPaymentMode;
+  freeDeliveryEnabled: boolean;
+  isActive: boolean;
+  configured: boolean;
+}
+export interface DeliveryConditionInput {
+  charge?: number;
+  freeDeliveryAbove?: number;
+  freeDeliveryEnabled?: boolean;
+  estimatedDaysMin?: number;
+  estimatedDaysMax?: number;
+  paymentMode: DeliveryPaymentMode;
+  isActive?: boolean;
+}
+
+export type PayoutAccount = Schemas["SellerPayoutAccountDto"] & {
+  /** Legacy destination that no longer passes validation; replace before withdrawing. */
+  needsUpdate?: boolean;
+};
 export type CreatePayoutAccountInput = Schemas["CreatePayoutAccountDto"];
 
 export type SellerDashboardCounters = Schemas["SellerDashboardDto"];
@@ -52,11 +92,23 @@ export type SellerDashboardCounters = Schemas["SellerDashboardDto"];
 export type SellerCategorySummary = Schemas["SellerProductCategorySummaryDto"];
 export type SellerVariantView = Schemas["SellerVariantDto"];
 export type SellerProductImageView = Schemas["SellerProductImageDto"];
-export type SellerProductView = Schemas["SellerProductDetailDto"];
+export type SellerProductView = Schemas["SellerProductDetailDto"] & {
+  weightKg?: string | null;
+  extraChargeAfterQty?: number | null;
+  extraChargePerUnit?: string | null;
+};
 export type SellerProductListItem = Schemas["SellerProductListItemDto"];
 
-export type CreateProductInput = Schemas["CreateProductDto"];
-export type UpdateProductInput = Schemas["UpdateProductDto"];
+export type CreateProductInput = Schemas["CreateProductDto"] & {
+  weightKg?: number;
+  extraChargeAfterQty?: number;
+  extraChargePerUnit?: number;
+};
+export type UpdateProductInput = Schemas["UpdateProductDto"] & {
+  weightKg?: number;
+  extraChargeAfterQty?: number;
+  extraChargePerUnit?: number;
+};
 
 export type CreateVariantInput = Schemas["CreateVariantDto"];
 export type UpdateVariantInput = Partial<Schemas["UpdateVariantDto"]>;
@@ -174,3 +226,5 @@ export interface PayoutProfileInput {
   accountNumber: string;
   accountName: string;
 }
+
+

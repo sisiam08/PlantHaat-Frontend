@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -15,10 +15,12 @@ import type { CartView } from "../types";
 function Rows({
   view,
   hasDistrict,
+  needsThana,
   updating,
 }: {
   view: CartView;
   hasDistrict: boolean;
+  needsThana?: boolean;
   updating: boolean;
 }) {
   const t = useTranslations("cart");
@@ -56,6 +58,8 @@ function Rows({
                 <Price value={shop.deliveryCharge} locale={locale} size="sm" />
               ) : hasDistrict && updating ? (
                 t("updatingDelivery")
+              ) : needsThana ? (
+                t("selectThanaShort")
               ) : (
                 t("selectDistrictShort")
               )}
@@ -93,6 +97,7 @@ export function CartSummaryBox({
   actions,
   showMobileBar = false,
   hasDistrict = true,
+  needsThana = false,
   updating = false,
   deliveryError = false,
 }: {
@@ -100,6 +105,7 @@ export function CartSummaryBox({
   actions?: ReactNode;
   showMobileBar?: boolean;
   hasDistrict?: boolean;
+  needsThana?: boolean;
   updating?: boolean;
   deliveryError?: boolean;
 }) {
@@ -133,7 +139,7 @@ export function CartSummaryBox({
               <span className="text-xs text-muted-foreground">{t("updatingDelivery")}</span>
             ) : null}
           </div>
-          <Rows view={view} hasDistrict={hasDistrict} updating={updating} />
+          <Rows view={view} hasDistrict={hasDistrict} needsThana={needsThana} updating={updating} />
           {actions ? <div className="pt-1">{actions}</div> : null}
         </CardContent>
       </Card>
@@ -155,13 +161,15 @@ export function CartSummaryBox({
                 <SheetTitle>{t("summary")}</SheetTitle>
               </SheetHeader>
               <div className="grid gap-4 p-5">
-                <Rows view={view} hasDistrict={hasDistrict} updating={updating} />
+                <Rows view={view} hasDistrict={hasDistrict} needsThana={needsThana} updating={updating} />
               </div>
             </SheetContent>
           </Sheet>
-          {actions}
+          <div className="shrink-0 [&_a]:w-auto [&_button]:w-auto">{actions}</div>
         </FixedBar>
       ) : null}
     </>
   );
 }
+
+

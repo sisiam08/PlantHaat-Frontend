@@ -19,6 +19,11 @@ import { mergeGuestCart } from "@/features/cart/merge";
 import { broadcastAuth, subscribeAuth } from "@/lib/auth/broadcast";
 import { refreshOnceDetailed } from "@/lib/auth/refresh";
 import { writeSessionHint } from "@/lib/auth/session-hint";
+import {
+  rememberAuthenticated,
+  rememberExpired,
+  rememberGuest,
+} from "@/lib/auth/session-state";
 import { authApi, type LoginInput, type RegisterInput, type RegisterSellerInput } from "./api";
 
 const REFRESH_SKEW_MS = 60_000;
@@ -38,6 +43,8 @@ export function roleHome(role: Role | undefined): string {
 interface AuthContextValue {
   user: PublicUser | null;
   isLoading: boolean;
+  /** Non-sensitive layout hint from the last known session cookie. */
+  hasSessionHint: boolean;
   login: (input: LoginInput) => Promise<PublicUser>;
   register: (input: RegisterInput) => Promise<PublicUser>;
   registerSeller: (input: RegisterSellerInput) => Promise<PublicUser>;
@@ -48,7 +55,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  initialHasSession = false,
+  children,
+}: {
+  initialHasSession?: boolean;
+  children: ReactNode;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
@@ -63,15 +76,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetchOnWindowFocus: false,
   });
 
+  // While /auth/me loads, reserve chrome from the layout hint; afterwards the
+  // resolved query is the only source of truth. No state mirroring is needed.
+  const hasSessionHint = meQuery.isLoading ? initialHasSession : Boolean(meQuery.data);
+
   useEffect(() => {
-    if (!meQuery.isLoading) {
-      writeSessionHint(Boolean(meQuery.data));
-    }
+    if (!meQuery.isLoading) writeSessionHint(Boolean(meQuery.data));
   }, [meQuery.data, meQuery.isLoading]);
+
+  useEffect(() => {
+    if (meQuery.data) rememberAuthenticated(meQuery.data.role);
+  }, [meQuery.data]);
 
   const clearSession = useCallback(() => {
     setExpiresAt(null);
     writeSessionHint(false);
+    rememberGuest();
     queryClient.clear();
     router.refresh();
   }, [queryClient, router]);
@@ -80,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (user: PublicUser, accessTokenExpiresAt: number) => {
       setExpiresAt(accessTokenExpiresAt);
       writeSessionHint(true);
+      rememberAuthenticated(user.role);
       queryClient.setQueryData(queryKeys.auth.me, user);
     },
     [queryClient],
@@ -138,7 +159,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (message.type === "logout" || message.type === "session:revoked") {
         clearSession();
       } else if (message.type === "session:expired") {
-        // Keep the inline re-auth dialog open, but show logged-out chrome.
+        // Keep the session-expired handoff open, but show logged-out chrome.
+        if (message.reason !== "required") {
+          rememberExpired(message.role ?? meQuery.data?.role);
+        }
         setExpiresAt(null);
         writeSessionHint(false);
         queryClient.setQueryData(queryKeys.auth.me, null);
@@ -160,15 +184,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession, queryClient]);
 
   const onAuthenticated = useCallback(
-    async (user: PublicUser, accessTokenExpiresAt: number) => {
-      applySession(user, accessTokenExpiresAt);
+    async (
+      user: PublicUser,
+      accessTokenExpiresAt: number,
+      options: { refresh?: boolean } = {},
+    ) => {
+      // Merge before publishing the user: AuthEntryGuard redirects as soon as
+      // the auth cache updates, and a checkout return must already see the
+      // guest cart on the server.
       try {
         await mergeGuestCart();
       } catch {
         // Guest-cart merge is best-effort; a failure must not block login.
       }
+      applySession(user, accessTokenExpiresAt);
       broadcastAuth("refresh", { expiresAt: accessTokenExpiresAt, userId: user.id });
-      router.refresh();
+      if (options.refresh !== false) router.refresh();
       return user;
     },
     [applySession, router],
@@ -193,7 +224,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerSeller = useCallback(
     async (input: RegisterSellerInput) => {
       const session = await authApi.registerSeller(input);
-      return onAuthenticated(session.user, session.accessTokenExpiresAt);
+      // The seller form performs a full navigation to /seller/apply after the
+      // session exists; a router.refresh here would let the proxy redirect the
+      // auth-entry page to the seller home before onboarding is reachable.
+      return onAuthenticated(session.user, session.accessTokenExpiresAt, { refresh: false });
     },
     [onAuthenticated],
   );
@@ -224,6 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user: meQuery.data ?? null,
       isLoading: meQuery.isLoading,
+      hasSessionHint,
       login,
       register,
       registerSeller,
@@ -234,6 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       meQuery.data,
       meQuery.isLoading,
+      hasSessionHint,
       login,
       register,
       registerSeller,

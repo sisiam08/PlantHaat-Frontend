@@ -1,7 +1,9 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 
-import { refreshOnce, markAuthSuccess } from "@/lib/auth/refresh";
+import { refreshOnce, markAuthSuccess, noteSessionEnd } from "@/lib/auth/refresh";
+import { broadcastAuth } from "@/lib/auth/broadcast";
 import { isProtectedPath } from "@/lib/auth/paths";
+import { readAuthState } from "@/lib/auth/session-state";
 import {
   ApiError,
   isErrorEnvelope,
@@ -76,19 +78,39 @@ api.interceptors.response.use(
     // first when the access cookie is gone; retrying after a refresh turns it
     // into a real auth result and lets the session-expired dialog open.
     const originBlocked = apiError.status === 403 && apiError.code === "ORIGIN_NOT_ALLOWED";
+    const isMeProbe = config?.url?.startsWith("/auth/me");
     const shouldRefresh =
       (authExpired || (originBlocked && method !== "GET")) &&
       config !== undefined &&
       !config._retried &&
       !isAuthUrl(config.url);
 
+    // /auth/me is the auth probe; never refresh it here (the gateway already
+    // tried). Record the end so a later checkout/protected action can prompt.
+    if (authExpired && isMeProbe && config && !config._retried) {
+      config._retried = true;
+      const role = readAuthState().role;
+      const notify =
+        (typeof window !== "undefined" && isProtectedPath(window.location.pathname)) ||
+        role === "ADMIN" ||
+        role === "SELLER";
+      const payload = noteSessionEnd();
+      if (notify) broadcastAuth("session:expired", payload);
+      return Promise.reject(apiError);
+    }
+
     if (shouldRefresh && config) {
       config._retried = true;
-      // Public pages stay quiet for background GETs; a user action (mutation)
-      // or any protected page opens the session-expired dialog if refresh dies.
+      // Public pages stay quiet for background GETs. A user action (mutation),
+      // a protected page, or an admin/seller background request is allowed to
+      // surface the prompt if refresh dies. Realtime tickets are background.
+      const role = readAuthState().role;
+      const background = config.url?.startsWith("/realtime/") ?? false;
       const notify =
-        (config.method ?? "GET").toUpperCase() !== "GET" ||
-        (typeof window !== "undefined" && isProtectedPath(window.location.pathname));
+        (method !== "GET" && !background) ||
+        (typeof window !== "undefined" && isProtectedPath(window.location.pathname)) ||
+        role === "ADMIN" ||
+        role === "SELLER";
       const refreshed = await refreshOnce({ notify });
       if (refreshed) {
         return api.request(config);

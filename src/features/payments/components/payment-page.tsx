@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { apiGet } from "@/lib/api/client";
-import { paymentsApi, type PaymentProvider } from "../api";
+import { PAYMENT_PROVIDER_LABEL, paymentsApi, type PaymentProvider } from "../api";
 import { formatDateTime } from "@/lib/format/date";
 import { queryKeys } from "@/lib/api/query-keys";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const PHONE_RE = /^(?:\+?88)?01[3-9]\d{8}$/;
 const TRX_RE = /^[A-Za-z0-9]{6,40}$/;
 
 function providerLabel(provider: PaymentProvider): string {
-  return provider === "BKASH" ? "bKash" : "Nagad";
+  return PAYMENT_PROVIDER_LABEL[provider] ?? provider;
 }
 
 function useNow(active: boolean): number {

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -19,10 +20,12 @@ export function LoginForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
   const { login } = useAuth();
+  const queryClient = useQueryClient();
   const hydrated = useHydrated();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = sanitizeReturnTo(searchParams.get("returnTo"));
+  const sessionExpired = searchParams.get("reason") === "session-expired";
 
   const schema = z.object({
     email: z.string().min(1, t("validation.required")).email(t("validation.email")),
@@ -43,6 +46,13 @@ export function LoginForm() {
     try {
       const user = await login(values);
       toast.success(t("loginSuccess"));
+      if (sessionExpired) {
+        // The previous account's cached data must not survive re-auth; a full
+        // document load also re-renders the server-rewritten protected route.
+        queryClient.clear();
+        window.location.assign(returnTo ?? roleHome(user.role));
+        return;
+      }
       router.replace(returnTo ?? roleHome(user.role));
     } catch (error) {
       toastApiError(error, tErrors);

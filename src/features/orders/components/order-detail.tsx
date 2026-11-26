@@ -62,6 +62,7 @@ export function OrderDetail({
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.order(orderId) });
     await queryClient.invalidateQueries({ queryKey: queryKeys.orders() });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.orderCounts });
   };
 
   const cancel = useMutation({

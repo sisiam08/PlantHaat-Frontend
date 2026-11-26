@@ -17,8 +17,8 @@ test.describe("auth", () => {
     await waitForForm(page);
     await page.locator('input[name="name"]').fill("E2E User");
     await page.locator('input[name="email"]').fill(email);
-    await page.locator('input[name="password"]').fill("Str0ngPass1");
-    await page.locator('input[name="confirmPassword"]').fill("Str0ngPass1");
+    await page.locator('input[name="password"]').fill("Str0ngPass1!");
+    await page.locator('input[name="confirmPassword"]').fill("Str0ngPass1!");
     await page.getByRole("button", { name: /register|রেজিস্টার/i }).click();
     await expect(page).toHaveURL("/");
 
@@ -29,7 +29,7 @@ test.describe("auth", () => {
     await page.goto("/login");
     await waitForForm(page);
     await page.locator('input[name="email"]').fill(email);
-    await page.locator('input[name="password"]').fill("Str0ngPass1");
+    await page.locator('input[name="password"]').fill("Str0ngPass1!");
     await page.getByRole("button", { name: /log in|লগ ইন/i }).click();
     await expect(page).toHaveURL("/");
   });
@@ -44,8 +44,8 @@ test.describe("auth", () => {
     await waitForForm(page);
     await page.locator('input[name="name"]').fill("E2E User");
     await page.locator('input[name="email"]').fill(email);
-    await page.locator('input[name="password"]').fill("Str0ngPass1");
-    await page.locator('input[name="confirmPassword"]').fill("Str0ngPass1");
+    await page.locator('input[name="password"]').fill("Str0ngPass1!");
+    await page.locator('input[name="confirmPassword"]').fill("Str0ngPass1!");
     await page.getByRole("button", { name: /register|রেজিস্টার/i }).click();
     await expect(page).toHaveURL("/");
 

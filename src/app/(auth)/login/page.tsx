@@ -28,12 +28,12 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
   return (
     <AuthCard title={t("loginTitle")} subtitle={t("loginSubtitle")}>
-      {params.reason === "session-expired" ? (
+      {params.reason === "session-expired" || params.reason === "auth-required" ? (
         <p
           role="status"
           className="mb-4 rounded-lg border border-border/70 bg-secondary/40 px-3 py-2 text-sm text-muted-foreground"
         >
-          {t("sessionExpired")}
+          {params.reason === "session-expired" ? t("sessionExpired") : t("authRequired")}
         </p>
       ) : null}
       <AuthEntryGuard next={next} />

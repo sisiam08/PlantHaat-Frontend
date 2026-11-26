@@ -411,7 +411,80 @@ export const adminApi = {
     apiPost<CodRiskProfile>("/admin/cod-risk/${encodeURIComponent(id)}/whitelist", input).then(
       (result) => result.data,
     ),
-  reconciliation: (params?: { from?: string; to?: string }) =>
+  deliveryCache: (params?: {
+    from?: number;
+    to?: number;
+    source?: string;
+    stale?: boolean;
+    page?: number;
+    limit?: number;
+  }) =>
+    apiGet<import("./types").AdminCourierQuoteCacheRow[]>(
+      "/admin/delivery-rates/cache",
+      qs(params),
+    ).then((result) => paginated(result)),
+  deliveryHealth: () =>
+    apiGet<import("./types").AdminDeliveryHealth>("/admin/delivery-rates/health").then(
+      (result) => result.data,
+    ),
+  deliveryMapping: () =>
+    apiGet<import("./types").AdminDeliveryMapping>("/admin/delivery-rates/mapping").then(
+      (result) => result.data,
+    ),
+  updateDeliveryMapping: (districtId: number, steadfastLocationId: number | null) =>
+    apiPatch<import("./types").AdminDeliveryMappingRow>(
+      `/admin/delivery-rates/mapping/${districtId}`,
+      { steadfastLocationId },
+    ).then((result) => result.data),
+  deliveryThanas: (districtId?: number) =>
+    apiGet<import("./types").AdminThanaRow[]>(
+      "/admin/delivery-rates/thanas",
+      qs(districtId ? { districtId } : undefined),
+    ).then((result) => result.data),
+  updateDeliveryThana: (
+    id: string,
+    input: {
+      dhakaZone?: "CITY" | "SUBURBAN" | null;
+      isActive?: boolean;
+      nameBn?: string | null;
+      selectableByCustomer?: boolean;
+    },
+  ) =>
+    apiPatch<import("./types").AdminThanaRow>(
+      `/admin/delivery-rates/thanas/${encodeURIComponent(id)}`,
+      input,
+    ).then((result) => result.data),
+  deliveryOverrides: () =>
+    apiGet<import("./types").AdminCourierQuoteCacheRow[]>(
+      "/admin/delivery-rates/overrides",
+    ).then((result) => result.data),
+  upsertDeliveryOverride: (input: import("./types").AdminOverrideInput) =>
+    apiPost<import("./types").AdminCourierQuoteCacheRow>(
+      "/admin/delivery-rates/overrides",
+      input,
+    ).then((result) => result.data),
+  deleteDeliveryOverride: (id: string) =>
+    apiDelete<null>(`/admin/delivery-rates/overrides/${encodeURIComponent(id)}`).then(
+      () => undefined,
+    ),
+  exportDeliveryOverrides: () =>
+    apiGet<{ csv: string }>("/admin/delivery-rates/overrides/export").then(
+      (result) => result.data.csv,
+    ),
+  importDeliveryOverrides: (csv: string, dryRun: boolean) =>
+    apiPost<{
+      dryRun: boolean;
+      valid?: number;
+      imported?: number;
+      errors: { line: number; error: string }[];
+      rows?: unknown[];
+    }>("/admin/delivery-rates/overrides/import", { csv, dryRun }).then(
+      (result) => result.data,
+    ),
+  warmUpDeliveryPickup: (shopId: string) =>
+    apiPost<{ queued: number; liveEnabled: boolean }>("/admin/delivery-rates/warm-up", {
+      shopId,
+    }).then((result) => result.data),  reconciliation: (params?: { from?: string; to?: string }) =>
     apiGet<ReconciliationResult>("/admin/reconciliation", qs(params)).then((result) => result.data),
 };
 
@@ -466,3 +539,5 @@ export const adminWithdrawalDestinationApi = {
       { headers: { "x-settings-reauth": reauthToken } },
     ).then((result) => result.data),
 };
+
+

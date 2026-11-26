@@ -22,7 +22,7 @@ export function MobileBottomNav() {
   const t = useTranslations("nav");
   const tc = useTranslations("shell");
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, hasSessionHint } = useAuth();
   const [hasFlowBar, setHasFlowBar] = useState(false);
 
   // A page flow bar and the floating nav never coexist.
@@ -43,7 +43,7 @@ export function MobileBottomNav() {
     return null;
   }
 
-  const showAccount = Boolean(user) || isLoading;
+  const showAccount = Boolean(user) || hasSessionHint;
   const items = showAccount ? ITEMS : ITEMS.filter((item) => item.key !== "account");
 
   return (

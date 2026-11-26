@@ -6,6 +6,7 @@ export interface CheckoutInput {
   paymentMethod: "COD" | "ADVANCE";
   note?: string;
   expectedGrandTotal?: number;
+  expectedDeliveryTotal?: number;
 }
 
 export const checkoutApi = {
@@ -14,3 +15,5 @@ export const checkoutApi = {
       headers: { "Idempotency-Key": idempotencyKey },
     }).then((result) => result.data),
 };
+
+

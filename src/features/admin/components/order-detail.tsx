@@ -213,6 +213,28 @@ export function OrderDetail({ id, cancelId }: { id: string; cancelId?: string })
               label={t("delivery")}
               value={<Price value={data.deliveryCharge} locale={locale} size="sm" />}
             />
+            {data.courierCharge != null ? (
+              <Row
+                label={t("courierCharge")}
+                value={<Price value={data.courierCharge} locale={locale} size="sm" />}
+              />
+            ) : null}
+            {data.sellerExtraCharge != null && Number(data.sellerExtraCharge) > 0 ? (
+              <Row
+                label={t("sellerExtraCharge")}
+                value={<Price value={data.sellerExtraCharge} locale={locale} size="sm" />}
+              />
+            ) : null}
+            {data.parcelWeightKg != null ? (
+              <Row label={t("parcelWeight")} value={`${data.parcelWeightKg} kg`} />
+            ) : null}
+            {data.courierLane ? <Row label={t("courierLane")} value={data.courierLane} /> : null}
+            {data.quoteSource ? (
+              <Row label={t("quoteSource")} value={data.quoteSource} />
+            ) : null}
+            {data.freeDeliveryApplied ? (
+              <Row label={t("freeDeliveryApplied")} value={t("yes")} />
+            ) : null}
             <Row
               label={t("commission")}
               value={<Price value={data.commissionAmount} locale={locale} size="sm" />}
@@ -333,3 +355,4 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AlertTriangle, ShoppingBag, Trash2 } from "lucide-react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addressesApi } from "@/features/addresses/api";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useSessionExpired } from "@/features/auth/session-expired-provider";
 import { apiGet } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -26,7 +27,13 @@ import { Price } from "@/components/product/price";
 import { QuantityLine } from "@/components/product/quantity-line";
 import { formatCount } from "@/lib/format/number";
 import { cartApi } from "../api";
-import { getRememberedDistrictId, rememberDistrictId } from "../district-store";
+import { locationsApi, selectableThanas } from "@/features/locations/api";
+import {
+  getRememberedDistrictId,
+  getRememberedThanaId,
+  rememberDistrictId,
+  rememberThanaId,
+} from "../district-store";
 import { removeGuestLine, setGuestQuantity } from "../guest-cart";
 import type { CartItemView, CartShopView, CartView } from "../types";
 import { useGuestCart } from "../use-guest-cart";
@@ -101,7 +108,7 @@ export function CartLoading() {
   );
 }
 
-/* ── Guest cart (grouped by shop, delivery-neutral) ─────────────── */
+/* -- Guest cart (grouped by shop, delivery-neutral) --------------- */
 
 function parseGuestPrice(value: string): number | null {
   const normalized = value.replace(/[^0-9.]/g, "");
@@ -111,17 +118,98 @@ function parseGuestPrice(value: string): number | null {
 function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
   const t = useTranslations("cart");
   const locale = useLocale();
+  const { showCheckoutPrompt } = useSessionExpired();
+  const [chosenDistrict, setChosenDistrict] = useState<number | "">("");
+  const [chosenThana, setChosenThana] = useState("");
+
+  const districts = useQuery({
+    queryKey: queryKeys.catalog.districts,
+    queryFn: () =>
+      apiGet<(District & { requiresThana?: boolean })[]>(
+        "/locations/districts",
+      ).then((result) => result.data),
+  });
+  const districtId = chosenDistrict;
+  const districtInfo = districts.data?.find((district) => district.id === districtId);
+  const requiresThana = Boolean(districtInfo?.requiresThana);
+  const thanas = useQuery({
+    queryKey: ["locations", "thanas", "guest", districtId],
+    queryFn: () => locationsApi.thanas(Number(districtId)),
+    enabled: requiresThana && districtId !== "",
+    staleTime: 60 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    const remembered = getRememberedDistrictId();
+    if (remembered) {
+      const frame = requestAnimationFrame(() => setChosenDistrict(remembered));
+      return () => cancelAnimationFrame(frame);
+    }
+    return undefined;
+  }, []);
+
+  useEffect(() => {
+    const remembered = getRememberedThanaId();
+    if (!remembered || !thanas.data?.some((thana) => thana.id === remembered)) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => setChosenThana(remembered));
+    return () => cancelAnimationFrame(frame);
+  }, [thanas.data]);
+
+  const groups = useMemo(() => {
+    const map = new Map<
+      string,
+      { shopId: string | null; shopName: string | null; lines: typeof lines }
+    >();
+    for (const line of lines) {
+      const key = line.snapshot.shopId ?? line.snapshot.shopName ?? "no-shop";
+      const group = map.get(key) ?? {
+        shopId: line.snapshot.shopId ?? null,
+        shopName: line.snapshot.shopName ?? null,
+        lines: [],
+      };
+      group.lines.push(line);
+      map.set(key, group);
+    }
+    return [...map.values()];
+  }, [lines]);
+
+  const quoteInput =
+    districtId !== "" && (!requiresThana || chosenThana !== "")
+      ? groups
+          .filter((group) => group.shopId)
+          .map((group) => ({
+            shopId: group.shopId!,
+            items: group.lines.map((line) => ({
+              variantId: line.variantId,
+              quantity: line.quantity,
+            })),
+          }))
+      : [];
+
+  const preview = useQuery({
+    queryKey: [
+      "guest-quote",
+      districtId,
+      chosenThana,
+      quoteInput.map((shop) => `${shop.shopId}:${shop.items.map((item) => `${item.variantId}x${item.quantity}`).join(",")}`).join("|"),
+    ],
+    queryFn: () =>
+      cartApi.previewGuest({
+        districtId: Number(districtId),
+        ...(chosenThana ? { thanaId: chosenThana } : {}),
+        shops: quoteInput,
+      }),
+    enabled: quoteInput.length > 0,
+    staleTime: 30_000,
+  });
+  const quoteByShop = new Map(
+    (preview.data?.shops ?? []).map((quote) => [quote.shopId, quote]),
+  );
 
   if (lines.length === 0) {
     return <EmptyCart />;
-  }
-
-  const shops = new Map<string, typeof lines>();
-  for (const line of lines) {
-    const key = line.snapshot.shopName ?? "";
-    const grouped = shops.get(key) ?? [];
-    grouped.push(line);
-    shops.set(key, grouped);
   }
 
   return (
@@ -129,54 +217,136 @@ function GuestCart({ lines }: { lines: ReturnType<typeof useGuestCart> }) {
       <p className="rounded-2xl bg-secondary px-4 py-3 text-sm text-secondary-foreground">
         {t("guestNote")}
       </p>
-      <p className="text-sm text-muted-foreground">{t("selectToSee")}</p>
-      {[...shops.entries()].map(([shopName, shopLines]) => (
-        <Card key={shopName || "no-shop"} className="rounded-2xl">
-          <CardContent className="grid gap-3">
-            {shopName ? <p className="font-semibold">{shopName}</p> : null}
-            {shopLines.map((line) => {
-              const unitPrice =
-                line.snapshot.unitPrice != null
-                  ? Number(line.snapshot.unitPrice)
-                  : parseGuestPrice(line.snapshot.priceDisplay);
-              const lineTotal = unitPrice == null ? null : unitPrice * line.quantity;
-              return (
-                <CartLine
-                  key={line.variantId}
-                  item={{
-                    variantId: line.variantId,
-                    productId: "",
-                    productName: line.snapshot.productName,
-                    variantName: line.snapshot.variantName,
-                    slug: line.snapshot.slug,
-                    image: line.snapshot.imageUrl ?? null,
-                    unitPrice: unitPrice == null ? "" : String(unitPrice),
-                    quantity: line.quantity,
-                    lineTotal: lineTotal == null ? "" : String(lineTotal),
-                    stockQty: 0,
-                    priceChanged: false,
-                    priceChangedFrom: null,
-                    priceChangedTo: null,
-                    issues: [],
-                  }}
-                  locale={locale}
-                  onQuantity={(next) => setGuestQuantity(line.variantId, next)}
-                  onRemove={() => removeGuestLine(line.variantId)}
-                  removeLabel={t("remove")}
-                />
-              );
-            })}
-          </CardContent>
-        </Card>
-      ))}
-      <Button asChild variant="cta" size="lg">
-        <Link href="/login?returnTo=/checkout">{t("loginToCheckout")}</Link>
+      <div className="grid gap-3 sm:max-w-md sm:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="guest-district">{t("deliveryDistrict")}</Label>
+          <select
+            id="guest-district"
+            value={districtId}
+            onChange={(event) => {
+              const value = event.target.value === "" ? "" : Number(event.target.value);
+              setChosenDistrict(value);
+              setChosenThana("");
+              rememberDistrictId(value === "" ? null : value);
+              rememberThanaId(null);
+            }}
+            className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm"
+          >
+            <option value="">{t("selectDistrict")}</option>
+            {(districts.data ?? []).map((district) => (
+              <option key={district.id} value={district.id}>
+                {locale === "bn" ? district.nameBn : district.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {requiresThana ? (
+          <div className="grid gap-1.5">
+            <Label htmlFor="guest-thana">{t("deliveryThana")}</Label>
+            <select
+              id="guest-thana"
+              value={chosenThana}
+              onChange={(event) => {
+                setChosenThana(event.target.value);
+                rememberThanaId(event.target.value || null);
+              }}
+              className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm"
+            >
+              <option value="">{t("selectThana")}</option>
+              {selectableThanas(thanas.data ?? []).map((thana) => (
+                <option key={thana.id} value={thana.id}>
+                  {locale === "bn" && thana.nameBn ? thana.nameBn : thana.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+      </div>
+      {districtId === "" || (requiresThana && chosenThana === "") ? (
+        <p className="text-sm text-muted-foreground">{t("selectToSee")}</p>
+      ) : null}
+
+      {groups.map((group) => {
+        const quote = group.shopId ? quoteByShop.get(group.shopId) : undefined;
+        const key = group.shopId ?? group.shopName ?? "no-shop";
+        return (
+          <Card key={key} className="rounded-2xl">
+            <CardContent className="grid gap-3">
+              {group.shopName ? <p className="font-semibold">{group.shopName}</p> : null}
+              {group.lines.map((line) => {
+                const unitPrice =
+                  line.snapshot.unitPrice != null
+                    ? Number(line.snapshot.unitPrice)
+                    : parseGuestPrice(line.snapshot.priceDisplay);
+                const lineTotal = unitPrice == null ? null : unitPrice * line.quantity;
+                return (
+                  <CartLine
+                    key={line.variantId}
+                    item={{
+                      variantId: line.variantId,
+                      productId: "",
+                      productName: line.snapshot.productName,
+                      variantName: line.snapshot.variantName,
+                      slug: line.snapshot.slug,
+                      image: line.snapshot.imageUrl ?? null,
+                      unitPrice: unitPrice == null ? "" : String(unitPrice),
+                      quantity: line.quantity,
+                      lineTotal: lineTotal == null ? "" : String(lineTotal),
+                      stockQty: 0,
+                      priceChanged: false,
+                      priceChangedFrom: null,
+                      priceChangedTo: null,
+                      issues: [],
+                    }}
+                    locale={locale}
+                    onQuantity={(next) => setGuestQuantity(line.variantId, next)}
+                    onRemove={() => removeGuestLine(line.variantId)}
+                    removeLabel={t("remove")}
+                  />
+                );
+              })}
+              <div className="grid gap-1 rounded-xl bg-muted/50 p-3 text-sm">
+                {quote?.available ? (
+                  <div className="flex justify-between gap-3">
+                    <span>{t("delivery")}</span>
+                    <span className="font-medium">
+                      {quote.freeDeliveryApplied ? (
+                        t("freeDelivery.applied")
+                      ) : quote.deliveryCharge != null ? (
+                        <Price value={quote.deliveryCharge} locale={locale} size="sm" />
+                      ) : null}
+                    </span>
+                  </div>
+                ) : quote ? (
+                  <p className="text-muted-foreground">
+                    {quote.reason
+                      ? t(`deliveryReasons.${quote.reason}`)
+                      : t("notDelivering")}
+                  </p>
+                ) : group.shopId ? (
+                  <p className="text-muted-foreground">{t("selectToSee")}</p>
+                ) : (
+                  <p className="text-muted-foreground">{t("loginToCheckout")}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+      <Button
+        type="button"
+        variant="cta"
+        size="lg"
+        data-guest-checkout
+        onClick={showCheckoutPrompt}
+      >
+        {t("loginToCheckout")}
       </Button>
     </div>
   );
 }
 
-/* ── Server cart (per-shop cards + shared summary) ──────────────── */
+/* -- Server cart (per-shop cards + shared summary) ---------------- */
 
 function ServerCart({ initialCart }: { initialCart?: CartView }) {
   const t = useTranslations("cart");
@@ -195,6 +365,7 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
   // Read the remembered district after mount only: localStorage is unavailable
   // during SSR, and touching it in the initial state would mismatch hydration.
   const [chosenDistrict, setChosenDistrict] = useState<number | "">("");
+  const [chosenThana, setChosenThana] = useState<string>("");
   const defaultAddress = addresses.data
     ? (addresses.data.find((address) => address.isDefault) ?? addresses.data[0])
     : undefined;
@@ -212,16 +383,50 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
 
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
-    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
+    queryFn: () =>
+      apiGet<(District & { requiresThana?: boolean; insideDhaka?: boolean })[]>(
+        "/locations/districts",
+      ).then((result) => result.data),
+  });
+  const districtInfo = districts.data?.find((district) => district.id === districtId);
+  const requiresThana = Boolean(districtInfo?.requiresThana);
+  const defaultThana =
+    defaultAddress && defaultAddress.districtId === districtId
+      ? (defaultAddress.thanaId ?? "")
+      : "";
+  const thanaId = requiresThana ? chosenThana || defaultThana : "";
+  const thanas = useQuery({
+    queryKey: ["locations", "thanas", districtId],
+    queryFn: () => locationsApi.thanas(Number(districtId)),
+    enabled: requiresThana && districtId !== "",
+    staleTime: 60 * 60 * 1000,
   });
 
+  useEffect(() => {
+    const remembered = getRememberedThanaId();
+    if (!remembered || !thanas.data?.some((thana) => thana.id === remembered)) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => setChosenThana(remembered));
+    return () => cancelAnimationFrame(frame);
+  }, [thanas.data]);
+
+  const deliveryContextReady = districtId !== "" && (!requiresThana || thanaId !== "");
   const cartKey = useMemo(
-    () => [...queryKeys.cart, districtId === "" ? 0 : districtId],
-    [districtId],
+    () => [
+      ...queryKeys.cart,
+      districtId === "" ? 0 : districtId,
+      thanaId || "none",
+    ],
+    [districtId, thanaId],
   );
   const cart = useQuery({
     queryKey: cartKey,
-    queryFn: () => cartApi.get(districtId === "" ? undefined : districtId),
+    queryFn: () =>
+      cartApi.get(
+        districtId === "" ? undefined : districtId,
+        thanaId === "" ? undefined : thanaId,
+      ),
     placeholderData: keepPreviousData,
     initialData: districtId === "" ? initialCart : undefined,
     staleTime: 30_000,
@@ -319,12 +524,24 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
 
   const changeDistrict = () => {
     districtSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    districtSectionRef.current?.querySelector("select")?.focus();
+    districtSectionRef.current?.querySelector<HTMLSelectElement>("#cart-district")?.focus();
+  };
+
+  const changeThana = () => {
+    districtSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    districtSectionRef.current?.querySelector<HTMLSelectElement>("#cart-thana")?.focus();
   };
 
   const onDistrictChange = (value: number | "") => {
     setChosenDistrict(value);
+    setChosenThana("");
     rememberDistrictId(value === "" ? null : value);
+    rememberThanaId(null);
+  };
+
+  const onThanaChange = (value: string) => {
+    setChosenThana(value);
+    rememberThanaId(value === "" ? null : value);
   };
 
   if (cart.isLoading) {
@@ -358,24 +575,50 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
 
   return (
     <div className="grid gap-4 pb-[calc(var(--flowbar-h)+1.5rem+env(safe-area-inset-bottom))] lg:pb-0">
-      <div ref={districtSectionRef} className="grid gap-1.5 sm:max-w-xs">
-        <Label htmlFor="cart-district">{t("deliveryDistrict")}</Label>
-        <select
-          id="cart-district"
-          value={districtId}
-          onChange={(event) =>
-            onDistrictChange(event.target.value === "" ? "" : Number(event.target.value))
-          }
-          className="h-10 rounded-full border border-input bg-background px-4 text-sm"
-        >
-          <option value="">{t("selectDistrict")}</option>
-          {(districts.data ?? []).map((district) => (
-            <option key={district.id} value={district.id}>
-              {locale === "bn" ? district.nameBn : district.name}
-            </option>
-          ))}
-        </select>
+      <div ref={districtSectionRef} className="grid gap-3 sm:max-w-md sm:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="cart-district">{t("deliveryDistrict")}</Label>
+          <select
+            id="cart-district"
+            value={districtId}
+            onChange={(event) =>
+              onDistrictChange(event.target.value === "" ? "" : Number(event.target.value))
+            }
+            className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm"
+          >
+            <option value="">{t("selectDistrict")}</option>
+            {(districts.data ?? []).map((district) => (
+              <option key={district.id} value={district.id}>
+                {locale === "bn" ? district.nameBn : district.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {requiresThana ? (
+          <div className="grid gap-1.5">
+            <Label htmlFor="cart-thana">{t("deliveryThana")}</Label>
+            <select
+              id="cart-thana"
+              value={thanaId}
+              onChange={(event) => onThanaChange(event.target.value)}
+              className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm"
+              disabled={thanas.isLoading}
+            >
+              <option value="">{t("selectThana")}</option>
+              {selectableThanas(thanas.data ?? []).map((thana) => (
+                <option key={thana.id} value={thana.id}>
+                  {locale === "bn" && thana.nameBn ? thana.nameBn : thana.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
       </div>
+      {requiresThana && thanaId === "" ? (
+        <p className="rounded-2xl bg-secondary px-4 py-3 text-sm text-secondary-foreground">
+          {t("selectThanaHint")}
+        </p>
+      ) : null}
 
       {cart.isError && cart.data ? (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -398,11 +641,14 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
               locale={locale}
               pending={update.isPending || removeShop.isPending || cart.isFetching}
               noDistrictSelected={districtId === ""}
+              awaitingDeliveryContext={!deliveryContextReady}
+              requiresThana={requiresThana}
               onQuantity={(variantId, next) => scheduleQuantity(variantId, next)}
               onRemove={removeNow}
               quantityErrors={quantityErrors}
               onRemoveAll={() => removeShop.mutate(shop)}
               onChangeDistrict={changeDistrict}
+              onChangeThana={changeThana}
               issueLabel={(code) => t(`issues.${code}`)}
               removeLabel={t("remove")}
             />
@@ -412,7 +658,8 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
           view={view}
           actions={checkoutActions}
           showMobileBar
-          hasDistrict={districtId !== ""}
+          hasDistrict={deliveryContextReady}
+          needsThana={deliveryContextReady === false && districtId !== ""}
           updating={cart.isFetching || update.isPending}
           deliveryError={cart.isError && Boolean(cart.data)}
         />
@@ -421,17 +668,20 @@ function ServerCart({ initialCart }: { initialCart?: CartView }) {
   );
 }
 
-/* ── One shop card: header, items, separated footer ─────────────── */
+/* -- One shop card: header, items, separated footer --------------- */
 
 function ShopCard({
   shop,
   locale,
   pending,
   noDistrictSelected,
+  awaitingDeliveryContext,
+  requiresThana,
   onQuantity,
   onRemove,
   onRemoveAll,
   onChangeDistrict,
+  onChangeThana,
   issueLabel,
   removeLabel,
   quantityErrors,
@@ -440,16 +690,19 @@ function ShopCard({
   locale: string;
   pending: boolean;
   noDistrictSelected: boolean;
+  awaitingDeliveryContext: boolean;
+  requiresThana: boolean;
   onQuantity: (variantId: string, quantity: number) => void;
   onRemove: (variantId: string) => void;
   onRemoveAll: () => void;
   onChangeDistrict: () => void;
+  onChangeThana: () => void;
   issueLabel: (code: string) => string;
   removeLabel: string;
   quantityErrors: Record<string, string>;
 }) {
   const t = useTranslations("cart");
-  const notDelivering = shop.deliverable === false;
+  const notDelivering = shop.deliverable === false && !awaitingDeliveryContext;
   const shopTotal =
     shop.subtotal != null && shop.deliveryCharge != null
       ? Number(shop.subtotal) + Number(shop.deliveryCharge)
@@ -464,9 +717,16 @@ function ShopCard({
           <div className="grid gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3">
             <p className="flex items-center gap-2 text-sm font-medium text-warning-foreground">
               <AlertTriangle aria-hidden className="size-4" />
-              {t("notDeliveringTitle")}
+              {shop.deliveryReason
+                ? t(`deliveryReasons.${shop.deliveryReason}`)
+                : t("notDeliveringTitle")}
             </p>
             <div className="flex flex-wrap gap-2">
+              {requiresThana && shop.deliveryReason === "ADDRESS_THANA_REQUIRED" ? (
+                <Button variant="outline" size="sm" onClick={onChangeThana}>
+                  {t("selectThana")}
+                </Button>
+              ) : null}
               <Button variant="outline" size="sm" onClick={onChangeDistrict}>
                 {t("changeDistrict")}
               </Button>
@@ -498,9 +758,9 @@ function ShopCard({
           </div>
           <ShopDeliveryLine
             shop={shop}
-            hint={noDistrictSelected ? t("selectToSee") : t("notDelivering")}
+            hint={awaitingDeliveryContext ? t("selectToSee") : t("notDelivering")}
             unavailable={notDelivering}
-            updating={pending && !noDistrictSelected}
+            updating={pending && !awaitingDeliveryContext}
           />
           <FreeDeliveryProgress shop={shop} locale={locale} />
           {!notDelivering ? (
@@ -517,7 +777,7 @@ function ShopCard({
   );
 }
 
-/* ── Free-delivery progress per shop ────────────────────────────── */
+/* -- Free-delivery progress per shop ------------------------------ */
 
 function FreeDeliveryProgress({ shop, locale }: { shop: CartShopView; locale: string }) {
   const t = useTranslations("cart");
@@ -526,6 +786,7 @@ function FreeDeliveryProgress({ shop, locale }: { shop: CartShopView; locale: st
   // Reserve the bar's height before the delivery quote arrives: appearing in
   // place must never push the shop total and the summary down.
   if (
+    shop.freeDeliveryEnabled !== true ||
     shop.freeDeliveryAbove === null ||
     shop.freeDeliveryAbove === undefined ||
     !Number.isFinite(threshold) ||
@@ -555,7 +816,7 @@ function FreeDeliveryProgress({ shop, locale }: { shop: CartShopView; locale: st
   );
 }
 
-/* ── One cart line ──────────────────────────────────────────────── */
+/* -- One cart line ------------------------------------------------ */
 
 function CartLine({
   item,
@@ -677,6 +938,7 @@ function recomputeCart(view: CartView): CartView {
     let deliveryCharge = shop.deliveryCharge == null ? null : Number(shop.deliveryCharge);
     const freeAbove = shop.freeDeliveryAbove == null ? null : Number(shop.freeDeliveryAbove);
     if (
+      shop.freeDeliveryEnabled === true &&
       deliveryCharge != null &&
       freeAbove != null &&
       Number.isFinite(freeAbove) &&
@@ -732,3 +994,19 @@ function EmptyCart() {
     />
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

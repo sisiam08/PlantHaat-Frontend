@@ -9,6 +9,7 @@ import {
   LEGACY_REFRESH_COOKIE,
   LEGACY_REFRESH_PATH,
   REFRESH_COOKIE,
+  SESSION_EXPIRED_COOKIE,
 } from "@/server/cookie-names";
 import { accessTokenExpiresAt, decodeAccessToken } from "@/server/jwt";
 import { RefreshError, refreshSession } from "@/server/refresh";
@@ -97,9 +98,20 @@ function roleHome(role: string | undefined): string {
  * URL renders the real page. Cookies are cleared so the dialog's login writes a
  * clean session.
  */
+function markExpiredCookie(response: NextResponse): void {
+  response.cookies.set(SESSION_EXPIRED_COOKIE, "1", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+}
+
 function sessionExpiredResponse(request: NextRequest): NextResponse {
   const response = NextResponse.rewrite(new URL("/session-expired", request.url));
   clearSessionCookies(response);
+  markExpiredCookie(response);
   return response;
 }
 
@@ -222,6 +234,12 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   if (!accessToken && !refreshToken) {
+    // A browser that had a session before gets "expired"; a first-time guest
+    // gets the ordinary login-required redirect. Public pages never reach this
+    // matcher.
+    if (request.cookies.get(SESSION_EXPIRED_COOKIE)?.value === "1") {
+      return sessionExpiredResponse(request);
+    }
     return loginRedirect(request, "auth-required");
   }
   if (!accessToken && failedTransiently) {
@@ -252,6 +270,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   requestHeaders.set("x-pathname", pathname + request.nextUrl.search);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
+  // A live/renewed session clears the expired marker.
+  response.cookies.set(SESSION_EXPIRED_COOKIE, "", { ...cookieOptions(), maxAge: 0 });
   if (failedTransiently) {
     response.headers.set("x-auth-refresh", "transient");
   }

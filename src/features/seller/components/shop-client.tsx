@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -22,6 +22,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { FormField } from "@/features/auth/components/form-field";
 import { uploadsApi } from "@/features/uploads/api";
+import { apiGet } from "@/lib/api/client";
+import type { District } from "@/lib/api/types";
+import { locationsApi, selectableThanas } from "@/features/locations/api";
 import { ApiError } from "@/lib/api/common";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatLatinDateTime } from "@/lib/format/date";
@@ -77,6 +80,8 @@ function ShopForm({ shop }: { shop: SellerShop }) {
     bannerUrl: z.string().optional(),
     phone: z.string().optional(),
     district: z.string().optional(),
+    pickupDistrictId: z.string(),
+    pickupThanaId: z.string(),
     address: z.string().optional(),
   });
   type Values = z.infer<typeof schema>;
@@ -90,6 +95,8 @@ function ShopForm({ shop }: { shop: SellerShop }) {
       bannerUrl: shop.bannerUrl ?? "",
       phone: shop.phone ?? "",
       district: shop.district ?? "",
+      pickupDistrictId: shop.pickupDistrictId ? String(shop.pickupDistrictId) : "",
+      pickupThanaId: shop.pickupThanaId ?? "",
       address: shop.address ?? "",
     },
   });
@@ -125,6 +132,10 @@ function ShopForm({ shop }: { shop: SellerShop }) {
         bannerUrl: values.bannerUrl || undefined,
         phone: values.phone || undefined,
         district: values.district || undefined,
+        pickupDistrictId: values.pickupDistrictId
+          ? Number(values.pickupDistrictId)
+          : undefined,
+        pickupThanaId: values.pickupThanaId || undefined,
         address: values.address || undefined,
       }),
     onSuccess: async () => {
@@ -137,6 +148,37 @@ function ShopForm({ shop }: { shop: SellerShop }) {
   const onSubmit = form.handleSubmit((values) => save.mutate(values));
   const logoUrl = useWatch({ control: form.control, name: "logoUrl" });
   const bannerUrl = useWatch({ control: form.control, name: "bannerUrl" });
+  const districts = useQuery({
+    queryKey: queryKeys.catalog.districts,
+    queryFn: () =>
+      apiGet<(District & { requiresThana?: boolean; insideDhaka?: boolean })[]>(
+        "/locations/districts",
+      ).then((result) => result.data),
+    staleTime: 60 * 60 * 1000,
+  });
+  const pickupDistrictId = useWatch({ control: form.control, name: "pickupDistrictId" });
+  const pickupThanaId = useWatch({ control: form.control, name: "pickupThanaId" });
+  const selectedDistrict = districts.data?.find(
+    (district) => String(district.id) === pickupDistrictId,
+  );
+  const requiresThana = Boolean(selectedDistrict?.requiresThana);
+  const thanas = useQuery({
+    queryKey: ["locations", "thanas", "shop", pickupDistrictId],
+    queryFn: () => locationsApi.thanas(Number(pickupDistrictId)),
+    enabled: requiresThana && pickupDistrictId !== "",
+    staleTime: 60 * 60 * 1000,
+  });
+  useEffect(() => {
+    if (
+      shop.pickupThanaId &&
+      thanas.data?.some((thana) => thana.id === shop.pickupThanaId)
+    ) {
+      form.setValue("pickupThanaId", shop.pickupThanaId);
+    }
+  }, [shop.pickupThanaId, thanas.data, form]);
+
+  const pickupIncomplete =
+    !pickupDistrictId || (requiresThana && !pickupThanaId);
 
   return (
     <div className="grid gap-6">
@@ -157,8 +199,54 @@ function ShopForm({ shop }: { shop: SellerShop }) {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField label={t("phone")} inputMode="tel" {...form.register("phone")} />
-              <FormField label={t("district")} {...form.register("district")} />
+              <div className="grid gap-1.5">
+                <Label htmlFor="pickupDistrictId">{t("district")}</Label>
+                <select
+                  id="pickupDistrictId"
+                  className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm"
+                  value={pickupDistrictId}
+                  onChange={(event) => {
+                    const id = event.target.value;
+                    const name =
+                      districts.data?.find((district) => String(district.id) === id)
+                        ?.name ?? "";
+                    form.setValue("pickupDistrictId", id);
+                    form.setValue("pickupThanaId", "");
+                    form.setValue("district", name);
+                  }}
+                >
+                  <option value="">{t("selectDistrict")}</option>
+                  {(districts.data ?? []).map((district) => (
+                    <option key={district.id} value={district.id}>
+                      {district.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+            {requiresThana ? (
+              <div className="grid gap-1.5">
+                <Label htmlFor="pickupThanaId">{t("pickupThana")}</Label>
+                <select
+                  id="pickupThanaId"
+                  className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm"
+                  {...form.register("pickupThanaId")}
+                >
+                  <option value="">{t("selectThana")}</option>
+                  {selectableThanas(thanas.data ?? []).map((thana) => (
+                    <option key={thana.id} value={thana.id}>
+                      {thana.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            {pickupIncomplete ? (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
+                {requiresThana ? t("pickupThanaWarning") : t("pickupDistrictWarning")}
+              </p>
+            ) : null}
+            <p className="text-xs text-muted-foreground">{t("quoteUnavailableNote")}</p>
             <FormField label={t("address")} {...form.register("address")} />
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-1.5">
@@ -337,3 +425,14 @@ function VacationCard({ shop }: { shop: SellerShop }) {
     </Card>
   );
 }
+
+
+
+
+
+
+
+
+
+
+

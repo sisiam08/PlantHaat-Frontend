@@ -8,6 +8,9 @@
 export const ACCESS_COOKIE = "ph_web_at";
 export const REFRESH_COOKIE = "ph_web_rt";
 
+/** Non-sensitive UX marker: this browser had a session that expired. */
+export const SESSION_EXPIRED_COOKIE = "ph_session_expired";
+
 /** Pre-rename names, read as a fallback and cleared on every write. */
 export const LEGACY_ACCESS_COOKIE = "ph_at";
 export const LEGACY_REFRESH_COOKIE = "ph_rt";

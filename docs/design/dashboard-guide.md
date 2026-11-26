@@ -96,6 +96,7 @@ list filter, detail page or action. Tick a row only after verifying the item at 
 | `/admin/payouts` | Manual payout history, create/update status. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
 | `/admin/stuck-orders` | Flagged queue, reminder count, overdue filter, age. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). queue unchanged. |
 | `/admin/cod-risk` | Risk profiles, status/whitelist actions, search. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
+| `/admin/delivery-rates` | Courier quote health, cache table with from/to/source/stale filters, manual overrides (create/delete/CSV dry-run + import), Dhaka thana City/Sub-Urban editor, District → Steadfast mapping (unmapped highlighted), pickup warm-up. | — PageHeader + stacked cards; no chart (operational data). Uses existing tables/inputs; live switch is shown as OFF by default. |
 | `/admin/content-reports` | Report list and hide/resolve actions. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
 | `/admin/review-reports` | Report list, resolve/hide/unhide review. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). list/actions unchanged. |
 | `/admin/highlights` | Slides, master switch, autoplay/interval, reorder, duplicate/delete, previews, warnings. | ✅ PageHeader; tables/filters/actions retained (no aggregate series, so no new chart). editor unchanged. |
@@ -207,3 +208,19 @@ Deliberate differences (not copied): pastel purple/pink/teal palette (PlantHaat 
 - **Seller mobile:** Shop and Quick links merged into one card, trend height reduced, secondary analytics already tabbed; 4,790 -> 4,605 px at 390 with no information removed.
 - **Validation:** the canonical payout-account form now validates BD mobile numbers for bKash/Nagad inline (bank accounts keep the 4+ digit rule), restoring the old profile editor's validation UX; the canonical page also shows API errors inline (cooldown etc.) instead of a transient toast only.
 - **Test updates:** `part4-withdrawal-validation` now targets `/seller/payout-accounts` and the profile cooldown API (the old earnings tab was removed in the seller consistency pass); `complaints-list` no longer reuses the unfiltered server seed for a filtered client query.
+
+### 2026-11-23 seller mobile length pass
+
+- The seller dashboard keeps the action queue, featured KPI, recent orders and wallet snapshot in the first
+  scroll. "Performance & orders" (sales trend + order-status breakdown) is a 44 px outline button below
+  recent orders on mobile, collapsed by default, with `aria-expanded`/`aria-controls` and Enter/Space
+  support; both panels are always visible at `lg` with no button. KPI/action grids stay 2-col at 360 and
+  become 3-col from 380 px with an 8 px gap (widened back to 12 px at `lg`).
+- Wallet keeps all four amounts on mobile as a 2x2 compact list; the donut/gauge charts are `lg`-only, and
+  the card's data table/CSV remains available. Trend and order charts are 180 px tall. No metric, table,
+  filter or drill-down was removed.
+- Result at 390: **4,605 -> 3,466 px** (en; bn 3,462), 360: 3,592/3,572, no horizontal overflow; expanded
+  state 4,232 px. Verified at en/bn x 390/360 with axe 0 violations and 44 px button. Review shots:
+  `_review-shots/seller-dashboard-390-after.png`, `...-390-bn-after.png`,
+  `...-390-performance-open.png`, `...-360-after.png`.
+

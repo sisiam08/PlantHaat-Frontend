@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircleQuestion, Star, Trash2, Pencil, Flag } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -767,31 +767,33 @@ export function ProductEngagement({
   questionCount: number;
 }) {
   const t = useTranslations("engagement");
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initial: Tab = searchParams.get("tab") === "qa" ? "qa" : "reviews";
-  const [tab, setTab] = useState<Tab>(initial);
+  const [tab, setTab] = useState<Tab>(
+    searchParams.get("tab") === "qa" ? "qa" : "reviews",
+  );
   const tablistRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash !== "#qa" && hash !== "#reviews") return;
-    const next: Tab = hash === "#qa" ? "qa" : "reviews";
-    // Defer so this is a state update from an external event, not an effect cascade.
-    const timer = window.setTimeout(() => setTab(next), 0);
-    return () => window.clearTimeout(timer);
+    const onTab = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail;
+      if (detail === "qa" || detail === "reviews") setTab(detail);
+    };
+    window.addEventListener("ph:pdp-tab", onTab);
+    return () => window.removeEventListener("ph:pdp-tab", onTab);
   }, []);
 
   const select = (next: Tab) => {
     setTab(next);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (next === "qa") params.set("tab", "qa");
     else params.delete("tab");
     const qs = params.toString();
-    router.replace(`${pathname}${qs ? `?${qs}` : ""}#${next === "qa" ? "qa" : "reviews"}`, {
-      scroll: false,
-    });
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${qs ? `?${qs}` : ""}#${next === "qa" ? "qa" : "reviews"}`,
+    );
+    window.dispatchEvent(new CustomEvent("ph:pdp-tab", { detail: next }));
   };
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -812,7 +814,8 @@ export function ProductEngagement({
     },
     {
       value: "qa",
-      label: t("qaTab", { count: questionCount }),
+      label:
+        questionCount > 0 ? t("qaTab", { count: questionCount }) : t("qaTabNoCount"),
       count: questionCount,
       icon: MessageCircleQuestion,
     },

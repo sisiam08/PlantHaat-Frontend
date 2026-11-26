@@ -1,7 +1,13 @@
 import { apiGet, apiPost } from "@/lib/api/client";
 import { uploadsApi } from "@/features/uploads/api";
 
-export type PaymentProvider = "BKASH" | "NAGAD";
+export type PaymentProvider = "BKASH" | "NAGAD" | "ROCKET" | "UPAY";
+export const PAYMENT_PROVIDER_LABEL: Record<PaymentProvider, string> = {
+  BKASH: "bKash",
+  NAGAD: "Nagad",
+  ROCKET: "Rocket",
+  UPAY: "Upay",
+};
 
 export type PaymentIntentStatus =
   | "UNPAID"

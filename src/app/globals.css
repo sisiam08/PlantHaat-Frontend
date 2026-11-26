@@ -75,19 +75,20 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Latin font first so Latin letters/digits use it and Bangla glyphs fall
-     through to the Bangla font. "Kalpurush" leads the Bangla stack so it takes
-     over automatically once frontend/src/fonts/Kalpurush.ttf is supplied and
-     @font-face'd; until then Hind Siliguri (self-hosted) renders Bangla. */
+  /* Latin first so Latin letters/digits use Inter and Bangla falls through to
+     Hind Siliguri. The 4-glyph "Taka" subset is deliberately NOT in the
+     general stacks: per-glyph fallback would mix its isolated ব/া glyphs into
+     words and break conjunct shaping (e.g. স্বাস্থ্য). It is used only for the
+     currency sign and the two-label language control. */
   --font-latin: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-bangla:
-    "Taka", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", system-ui, sans-serif;
+    "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali", system-ui, sans-serif;
   --font-sans:
-    "Inter", "Inter Fallback", "Taka", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
+    "Inter", "Inter Fallback", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
     ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading:
-    "Inter", "Inter Fallback", "Taka", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
+    "Inter", "Inter Fallback", "Hind Siliguri", "Hind Siliguri Fallback", "Noto Sans Bengali",
     ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

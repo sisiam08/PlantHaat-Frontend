@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -39,6 +39,7 @@ export interface ProductSnapshot {
   slug: string;
   imageUrl?: string | null;
   shopName?: string | null;
+  shopId?: string | null;
 }
 
 export function VariantPicker({
@@ -127,6 +128,7 @@ export function VariantPicker({
             unitPrice: selected.price,
             imageUrl: product.imageUrl ?? null,
             shopName: product.shopName ?? null,
+            shopId: product.shopId ?? null,
           },
         });
       }
@@ -308,3 +310,5 @@ export function VariantPicker({
     </div>
   );
 }
+
+

@@ -93,7 +93,12 @@ export function AnimatedTabs({
     if (typeof ResizeObserver !== "undefined" && listRef.current) {
       observer = new ResizeObserver(() => requestAnimationFrame(measure));
       observer.observe(listRef.current);
+      // Badges/fonts change individual trigger widths without resizing the
+      // list, and a preceding tab can move the active tab's offsetLeft.
+      for (const trigger of triggerRefs.current.values()) observer.observe(trigger);
     }
+    // Fonts can settle after hydration; measure once more when ready.
+    void document.fonts?.ready.then(() => requestAnimationFrame(measure));
     return () => {
       cancelAnimationFrame(frame);
       observer?.disconnect();
@@ -130,15 +135,14 @@ export function AnimatedTabs({
         <TabsPrimitive.List
           ref={listRef}
           aria-label={label}
-          className="relative flex w-full gap-1 overflow-x-auto rounded-xl bg-muted p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)] sm:[mask-image:none]"
+          className="relative flex w-full gap-1 overflow-x-auto overscroll-x-contain rounded-xl bg-muted p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <span
             aria-hidden
-            className="absolute inset-y-1 left-0 rounded-lg bg-background shadow-sm transition-transform duration-200 ease-out [will-change:transform] motion-reduce:transition-none"
+            className="absolute inset-y-1 left-0 rounded-lg bg-background shadow-sm transition-[transform,width] duration-200 ease-out motion-reduce:transition-none"
             style={{
-              width: 1,
-              transform: `translateX(${indicator.left}px) scaleX(${indicator.width})`,
-              transformOrigin: "left",
+              transform: `translateX(${indicator.left}px)`,
+              width: indicator.width,
             }}
           />
           {tabs.map((tab) => (
@@ -149,7 +153,7 @@ export function AnimatedTabs({
                 if (node) triggerRefs.current.set(tab.value, node);
                 else triggerRefs.current.delete(tab.value);
               }}
-              className="relative z-10 inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none data-[state=active]:text-foreground disabled:pointer-events-none disabled:opacity-50"
+              className="relative z-10 inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none data-[state=active]:text-foreground disabled:pointer-events-none disabled:opacity-50"
             >
               {tab.label}
               {tab.badge ? <span className="shrink-0">{tab.badge}</span> : null}
@@ -165,7 +169,7 @@ export function AnimatedTabs({
             value={tab.value}
             forceMount
             className={cn(
-              "outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-bottom-1 data-[state=active]:duration-200 motion-reduce:animate-none",
+              "outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-bottom-1 data-[state=active]:duration-200 motion-reduce:animate-none",
               panelClassName,
             )}
           >

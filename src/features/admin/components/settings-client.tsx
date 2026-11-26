@@ -36,7 +36,7 @@ import { toApiError } from "@/lib/api/client";
 import { adminApi } from "../api";
 import type { AdminSettingDefinition, AdminSettings } from "../types";
 
-const GROUPS = ["home", "payments", "orders", "wallet", "payouts", "support", "security"] as const;
+const GROUPS = ["home", "payments", "orders", "wallet", "payouts", "support", "security", "delivery"] as const;
 
 const GROUP_LABELS: Record<(typeof GROUPS)[number], string> = {
   home: "Home",
@@ -46,6 +46,7 @@ const GROUP_LABELS: Record<(typeof GROUPS)[number], string> = {
   payouts: "Payouts",
   support: "Support",
   security: "Security & Sessions",
+  delivery: "Delivery",
 };
 
 export function SettingsClient() {
@@ -87,6 +88,8 @@ export function SettingsClient() {
     for (const provider of [
       { enabled: "payment.bkash.enabled", number: "payment.bkash.number", label: "bKash" },
       { enabled: "payment.nagad.enabled", number: "payment.nagad.number", label: "Nagad" },
+      { enabled: "payment.rocket.enabled", number: "payment.rocket.number", label: "Rocket" },
+      { enabled: "payment.upay.enabled", number: "payment.upay.number", label: "Upay" },
     ]) {
       const number = String(values[provider.number] ?? "").trim();
       if (number && !valid(provider.number)) {
@@ -97,11 +100,12 @@ export function SettingsClient() {
           `${provider.label} needs a valid receiving number before it can be enabled.`;
       }
     }
-    const providerReady = ["payment.bkash", "payment.nagad"].some(
+    const providerReady = ["payment.bkash", "payment.nagad", "payment.rocket", "payment.upay"].some(
       (prefix) => values[`${prefix}.enabled`] === true && valid(`${prefix}.number`),
     );
     if (values["payment.advance.enabled"] === true && !providerReady) {
-      issues["payment.advance.enabled"] = "Enable bKash or Nagad with a valid number first.";
+      issues["payment.advance.enabled"] =
+        "Enable at least one mobile wallet with a valid number first.";
     }
     if (values["payment.cod.enabled"] === false) {
       issues["payment.cod.enabled"] =
@@ -248,6 +252,14 @@ export function SettingsClient() {
                 keys: ["payment.nagad.enabled", "payment.nagad.number"],
               },
               {
+                title: "Rocket",
+                keys: ["payment.rocket.enabled", "payment.rocket.number"],
+              },
+              {
+                title: "Upay",
+                keys: ["payment.upay.enabled", "payment.upay.number"],
+              },
+              {
                 title: "Timing & account",
                 keys: [
                   "payment.expiryHours",
@@ -279,8 +291,7 @@ export function SettingsClient() {
                       last={lastChange(definition.key)}
                       error={paymentIssues[definition.key] ?? serverErrors[definition.key]}
                       disabled={
-                        (definition.key === "payment.bkash.enabled" ||
-                          definition.key === "payment.nagad.enabled") &&
+                        /payment\.(bkash|nagad|rocket|upay)\.enabled$/.test(definition.key) &&
                         !/^01[3-9]\d{8}$/.test(
                           String(
                             values[definition.key.replace(".enabled", ".number")] ?? "",
@@ -982,4 +993,5 @@ function HomeSettingsFields({
     </div>
   );
 }
+
 

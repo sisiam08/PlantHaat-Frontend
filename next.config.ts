@@ -4,7 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
 const isProduction = process.env.NODE_ENV === "production";
 // With Cloudinary configured, production only allows its host. Without it
-// (offline/dev or a seed-only deployment) local images keep working.
+// (offline/dev) local images keep working.
 const allowLocalImages = !isProduction || !cloudName;
 
 const nextConfig: NextConfig = {
@@ -15,7 +15,15 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   reactCompiler: true,
   experimental: {
+    // Session-expired dialog for dead sessions on server navigations: render
+    // the segment's unauthorized UI at the same URL instead of redirecting.
     authInterrupts: true,
+    // Next 16.4 false-positives on deliberate redirects from auth-gated layouts
+    // (e.g. /seller/* → /login). Validate only segments that opt in with
+    // `export const instant = true` (public routes); dashboard groups opt out.
+    instantInsights: {
+      validationLevel: "manual-warning",
+    },
   },
   images: {
     // Placeholder home banners are local SVGs (swapped for raster artwork by the
@@ -43,6 +51,8 @@ const nextConfig: NextConfig = {
         ? [
             { protocol: "http" as const, hostname: "localhost", port: "5000" },
             { protocol: "http" as const, hostname: "127.0.0.1", port: "5000" },
+            { protocol: "http" as const, hostname: "localhost", port: "5001" },
+            { protocol: "http" as const, hostname: "127.0.0.1", port: "5001" },
             { protocol: "https" as const, hostname: "picsum.photos" },
           ]
         : []),
@@ -92,7 +102,14 @@ const nextConfig: NextConfig = {
         "data:",
         "blob:",
         ...(cloudName ? ["https://res.cloudinary.com"] : []),
-        ...(allowLocalImages ? ["http://localhost:5000", "http://127.0.0.1:5000"] : []),
+        ...(allowLocalImages
+          ? [
+              "http://localhost:5000",
+              "http://127.0.0.1:5000",
+              "http://localhost:5001",
+              "http://127.0.0.1:5001",
+            ]
+          : []),
       ].join(" ");
       const csp = [
         "default-src 'self'",

@@ -13,6 +13,7 @@ export interface GuestCartLine {
     unitPrice?: string;
     imageUrl?: string | null;
     shopName?: string | null;
+    shopId?: string | null;
   };
 }
 
@@ -133,3 +134,5 @@ export function subscribeGuestCart(listener: () => void): () => void {
     window.removeEventListener("storage", listener);
   };
 }
+
+

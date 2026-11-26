@@ -78,53 +78,47 @@ async function killSession(page: Page, context: BrowserContext) {
   ]);
 }
 
-async function fillLogin(page: Page, user: { email: string; password: string }) {
+async function openLoginPage(page: Page) {
   const dialog = page.locator("[data-session-expired-dialog]");
   await expect(dialog).toBeVisible({ timeout: 30_000 });
-  await dialog.locator('input[name="email"]').fill(user.email);
-  await dialog.locator('input[name="password"]').fill(user.password);
-  await dialog.locator('button[type="submit"]').click();
+  await expect(dialog.locator("input")).toHaveCount(0);
+  await dialog.locator("[data-session-login-page]").click();
+  await page.waitForURL(/\/login\?/, { timeout: 30_000 });
+  await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 30_000 });
 }
 
-test("an expired session on a public-page action opens the dialog and keeps page state", async ({
+async function submitLogin(page: Page, user: { email: string; password: string }) {
+  await page.locator('input[name="email"]').fill(user.email);
+  await page.locator('input[name="password"]').fill(user.password);
+  await page.locator('form:has(input[name="email"]) button[type="submit"]').click();
+}
+
+test("an expired session on a public-page action hands off to login with returnTo", async ({
   page,
   context,
 }) => {
   await signedIn(page, USERS.customer, "/products");
-  const search = page.locator("header input").first();
-  await search.fill("aloe");
-  await page.waitForTimeout(300);
-
   await killSession(page, context);
   const heart = page.locator("[data-card-wishlist]").first();
   await heart.scrollIntoViewIfNeeded();
-  const scrollAtAction = await page.evaluate(() => window.scrollY);
   await heart.click();
 
   const dialog = page.locator("[data-session-expired-dialog]");
   await expect(dialog).toBeVisible({ timeout: 30_000 });
   await expect(dialog).toContainText("Your session has expired.");
   await expect(dialog).toContainText("Log in again to continue.");
+  await expect(dialog.locator("input")).toHaveCount(0);
+  await expect(dialog.getByRole("link", { name: /log in again/i })).toHaveAttribute(
+    "href",
+    /\/login\?returnTo=%2Fproducts.*reason=session-expired/,
+  );
   await expect(page).not.toHaveURL(/\/login/);
 
-  // Wrong password: inline message, dialog stays.
-  await dialog.locator('input[name="email"]').fill(USERS.customer.email);
-  await dialog.locator('input[name="password"]').fill("wrong-password");
-  await dialog.locator('button[type="submit"]').click();
-  await expect(dialog.getByRole("alert")).toContainText(/Incorrect email or password/i);
-  await expect(dialog).toBeVisible();
-
-  // Correct password closes it, refetches and keeps the header search value.
-  await dialog.locator('input[name="password"]').fill(USERS.customer.password);
-  await dialog.locator('button[type="submit"]').click();
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
-  await expect(page.getByText("You're back, please try again.")).toBeVisible();
-  expect(page.url()).toContain("/products");
-  await expect(search).toHaveValue("aloe");
-  // The dialog's scroll lock is released on close; the page keeps its position.
-  await page.waitForTimeout(500);
-  const scrollAfter = await page.evaluate(() => window.scrollY);
-  expect(Math.abs(scrollAfter - scrollAtAction)).toBeLessThan(120);
+  await openLoginPage(page);
+  await expect(page.getByRole("status")).toContainText(/session expired|সেশন শেষ/i);
+  await submitLogin(page, USERS.customer);
+  await expect(page).toHaveURL(/\/products/, { timeout: 30_000 });
+  await expect(dialog).toHaveCount(0);
 });
 
 test("a dead session on a protected navigation renders the dialog at the same URL", async ({
@@ -143,9 +137,10 @@ test("a dead session on a protected navigation renders the dialog at the same UR
   await page.keyboard.press("Escape");
   await expect(dialog).toBeVisible();
 
-  await fillLogin(page, USERS.customer);
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
+  await openLoginPage(page);
+  await submitLogin(page, USERS.customer);
   await expect(page).toHaveURL(/\/orders$/, { timeout: 30_000 });
+  await expect(dialog).toHaveCount(0);
   await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 });
 });
 
@@ -179,8 +174,8 @@ test("a different account logs in: full reload and no previous data", async ({ p
   await page.evaluate(() => {
     (window as unknown as { __docMarker?: boolean }).__docMarker = true;
   });
-  await fillLogin(page, USERS.customer2);
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
+  await openLoginPage(page);
+  await submitLogin(page, USERS.customer2);
   await expect
     .poll(async () => page.evaluate(() => (window as unknown as { __docMarker?: boolean }).__docMarker))
     .toBeUndefined();
@@ -225,13 +220,15 @@ test("two tabs: the dialog opens in both and closes after login", async ({ conte
   await breakSessionLocally(context);
   const firstDialog = first.locator("[data-session-expired-dialog]");
   const secondDialog = second.locator("[data-session-expired-dialog]");
-  // The realtime ticket (a POST) notices the dead session and broadcasts to
-  // both tabs; no page action is needed.
+  // A real user action is what surfaces a prompt for a customer; the broadcast
+  // then opens the same coordinated dialog in the other tab.
+  await first.locator("[data-card-wishlist]").first().click();
   await expect(firstDialog).toBeVisible({ timeout: 30_000 });
   await expect(secondDialog).toBeVisible({ timeout: 30_000 });
 
-  await fillLogin(first, USERS.customer);
-  await expect(firstDialog).toBeHidden({ timeout: 30_000 });
+  await openLoginPage(first);
+  await submitLogin(first, USERS.customer);
+  await expect(firstDialog).toHaveCount(0);
   await expect(secondDialog).toBeHidden({ timeout: 30_000 });
   await second.close();
 });
@@ -248,8 +245,9 @@ test("seller and admin protected navigations use the same dialog", async ({ cont
     expect(new URL(page.url()).pathname).toBe(path);
     const dialog = page.locator("[data-session-expired-dialog]");
     await expect(dialog).toBeVisible({ timeout: 30_000 });
-    await fillLogin(page, user);
-    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    await openLoginPage(page);
+    await submitLogin(page, user);
+    await expect(dialog).toHaveCount(0);
     await expect(page).toHaveURL(new RegExp(`${path.replace("/", "\\/")}$`), { timeout: 30_000 });
     await expect(page.locator("main h1, main h2").first()).toBeVisible({ timeout: 30_000 });
     await page.close();

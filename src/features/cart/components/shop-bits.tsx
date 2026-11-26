@@ -110,10 +110,18 @@ export function ShopDeliveryLine({
   const locale = useLocale();
 
   if (shop.deliveryCharge === null || shop.deliveryCharge === undefined) {
+    const reason = shop.deliveryReason
+      ? t(`deliveryReasons.${shop.deliveryReason}`)
+      : null;
     return (
-      <div className="flex min-h-5 items-center gap-2 text-sm text-muted-foreground">
-        <Truck aria-hidden className="size-4" />
-        <span>{unavailable ? t("notDelivering") : updating ? t("updatingDelivery") : hint}</span>
+      <div className="grid gap-1 text-sm text-muted-foreground">
+        <div className="flex min-h-5 items-center gap-2">
+          <Truck aria-hidden className="size-4" />
+          <span>{unavailable ? (reason ?? t("notDelivering")) : updating ? t("updatingDelivery") : hint}</span>
+        </div>
+        {unavailable && shop.deliveryReason ? (
+          <p className="text-xs">{t("deliveryReasonHint")}</p>
+        ) : null}
       </div>
     );
   }
@@ -122,19 +130,48 @@ export function ShopDeliveryLine({
     typeof shop.estimatedDaysMin === "number" &&
     typeof shop.estimatedDaysMax === "number" &&
     shop.estimatedDaysMax > 0;
+  const extra = Number(shop.sellerExtraCharge ?? 0);
   return (
-    <div className="flex min-h-5 justify-between text-sm">
-      <span className="flex items-center gap-1.5">
-        <Truck aria-hidden className="size-4" />
-        {hasDays
-          ? t("deliveryDays", {
-              range: formatRange(shop.estimatedDaysMin ?? 0, shop.estimatedDaysMax ?? 0, locale),
-            })
-          : t("delivery")}
-      </span>
-      <span className="font-medium">
-        <Price value={shop.deliveryCharge} locale={locale} size="sm" />
-      </span>
+    <div className="grid gap-1 text-sm">
+      <div className="flex min-h-5 justify-between gap-3">
+        <span className="flex items-center gap-1.5">
+          <Truck aria-hidden className="size-4" />
+          {hasDays
+            ? t("deliveryDays", {
+                range: formatRange(shop.estimatedDaysMin ?? 0, shop.estimatedDaysMax ?? 0, locale),
+              })
+            : t("delivery")}
+        </span>
+        <span className="font-medium">
+          {shop.freeDeliveryApplied ? (
+            t("freeDelivery.applied")
+          ) : (
+            <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+          )}
+        </span>
+      </div>
+      {shop.deliveryQuoteEstimated ? (
+        <p className="text-xs text-muted-foreground">{t("deliveryEstimated")}</p>
+      ) : null}
+      {extra > 0 && shop.courierCharge != null ? (
+        <details className="group">
+          <summary className="cursor-pointer text-xs font-medium text-primary marker:content-none">
+            {t("deliveryBreakdown")}
+          </summary>
+          <div className="mt-1 grid gap-1 rounded-lg bg-background/70 p-2 text-xs">
+            <div className="flex justify-between gap-2">
+              <span>{t("courierCharge")}</span>
+              <Price value={shop.courierCharge} locale={locale} size="sm" />
+            </div>
+            <div className="flex justify-between gap-2">
+              <span>{t("sellerExtra")}</span>
+              <Price value={shop.sellerExtraCharge ?? "0"} locale={locale} size="sm" />
+            </div>
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }
+
+

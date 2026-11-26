@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { clientEnv } from "@/env/client";
 import { getPublicSettings } from "@/server/public-settings";
 import { Logo } from "./logo";
+import { SellerCta } from "./seller-cta";
 
 function text(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -41,6 +42,7 @@ export async function SiteFooter() {
         <div className="grid content-start gap-3 lg:col-span-2">
           <Logo />
           <p className="max-w-sm text-sm text-muted-foreground">{t("tagline")}</p>
+        <SellerCta variant="footer" />
         </div>
 
         <nav aria-label={t("company")} className="grid content-start gap-3">

@@ -170,10 +170,11 @@ test("revoked session shows the dialog at the same URL and resumes after login",
   const fallback = dialog.locator("[data-session-login-page]");
   await expect(fallback).toHaveAttribute("href", /returnTo=%2Forders/);
 
-  await dialog.locator('input[name="email"]').fill(USERS.customer.email);
-  await dialog.locator('input[name="password"]').fill(USERS.customer.password);
-  await dialog.locator('button[type="submit"]').click();
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
+  await fallback.click();
+  await page.waitForURL(/\/login\?/, { timeout: 30_000 });
+  await page.locator('input[name="email"]').fill(USERS.customer.email);
+  await page.locator('input[name="password"]').fill(USERS.customer.password);
+  await page.locator('form button[type="submit"]').click();
   await page.waitForURL(/\/orders$/, { timeout: 30_000 });
   await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 });
 });

@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductRailSkeleton } from "@/features/catalog/components/product-card";
-import { DeliveryEstimator } from "@/features/catalog/components/delivery-estimator";
 import { StarRating } from "@/features/catalog/components/product-card";
 import { ProductGallery } from "@/features/catalog/components/product-gallery";
 import {
@@ -30,7 +29,7 @@ import { RelatedProducts } from "@/features/catalog/components/related-products"
 import { ProductEngagement } from "@/features/qa/components/product-engagement";
 import { VariantPicker, type VariantView } from "@/features/catalog/components/variant-picker";
 import { ProductViewBeacon } from "@/features/catalog/components/product-view-beacon";
-import { getDistricts, getProduct } from "@/features/catalog/server";
+import { getProduct } from "@/features/catalog/server";
 import type { ProductDetail } from "@/lib/api/types";
 import { formatBdt } from "@/lib/format/money";
 import { formatCount } from "@/lib/format/number";
@@ -116,7 +115,7 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
   const tc = await getTranslations("catalog");
   const settings = await getPublicSettings();
   const returnHours = Number(settings["return.windowHours"] ?? 48);
-  const [images, districts] = [product.images as unknown as DetailImage[], await getDistricts()];
+  const images = product.images as unknown as DetailImage[];
   const variants = product.variants as unknown as VariantView[];
   const shop = product.shop as unknown as DetailShop;
 
@@ -145,7 +144,6 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
           <p className="text-muted-foreground">{shop.name}</p>
         </div>
       </div>
-      <DeliveryEstimator shopSlug={shop.slug} districts={districts} />
     </div>
   );
 
@@ -263,6 +261,7 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
                 slug: product.slug,
                 imageUrl: images[0]?.url ?? null,
                 shopName: shop.name,
+                shopId: shop.id,
               }}
             />
           </div>
@@ -319,3 +318,5 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
     </div>
   );
 }
+
+

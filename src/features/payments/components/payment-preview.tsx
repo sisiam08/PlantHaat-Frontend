@@ -12,6 +12,10 @@ interface DraftValues {
   "payment.bkash.number"?: unknown;
   "payment.nagad.enabled"?: unknown;
   "payment.nagad.number"?: unknown;
+  "payment.rocket.enabled"?: unknown;
+  "payment.rocket.number"?: unknown;
+  "payment.upay.enabled"?: unknown;
+  "payment.upay.number"?: unknown;
   "payment.warningText"?: unknown;
   "payment.accountNote"?: unknown;
   "payment.verificationText"?: unknown;
@@ -24,19 +28,18 @@ export function PaymentPreview({ values }: { values: Record<string, unknown> }) 
   const t = useTranslations("payments");
   const draft = values as DraftValues;
   const providers = [
-    {
-      provider: "BKASH" as const,
-      label: "bKash",
-      number: String(draft["payment.bkash.number"] ?? "").trim(),
-      enabled: draft["payment.bkash.enabled"] === true,
-    },
-    {
-      provider: "NAGAD" as const,
-      label: "Nagad",
-      number: String(draft["payment.nagad.number"] ?? "").trim(),
-      enabled: draft["payment.nagad.enabled"] === true,
-    },
-  ].filter((entry) => entry.enabled && PHONE_RE.test(entry.number));
+    { provider: "BKASH", label: "bKash" },
+    { provider: "NAGAD", label: "Nagad" },
+    { provider: "ROCKET", label: "Rocket" },
+    { provider: "UPAY", label: "Upay" },
+  ].map((entry) => {
+    const prefix = `payment.${entry.provider.toLowerCase()}`;
+    return {
+      ...entry,
+      number: String(draft[`${prefix}.number` as keyof DraftValues] ?? "").trim(),
+      enabled: draft[`${prefix}.enabled` as keyof DraftValues] === true,
+    };
+  }).filter((entry) => entry.enabled && PHONE_RE.test(entry.number));
   const [selected, setSelected] = useState<string>(providers[0]?.provider ?? "");
   const active = providers.find((entry) => entry.provider === selected) ?? providers[0];
   const warning = String(draft["payment.warningText"] ?? "").trim();

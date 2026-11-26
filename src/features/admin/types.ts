@@ -31,7 +31,15 @@ export type ComplaintStatus =
 export type ComplaintType =
   "DAMAGED_PLANT" | "WRONG_ITEM" | "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "LATE_DELIVERY" | "OTHER";
 export type RefundStatus = "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED";
-export type PaymentMethod = "COD" | "PIPRAPAY" | "BKASH" | "NAGAD" | "CARD" | "BANK_TRANSFER";
+export type PaymentMethod =
+  | "COD"
+  | "PIPRAPAY"
+  | "BKASH"
+  | "NAGAD"
+  | "ROCKET"
+  | "UPAY"
+  | "CARD"
+  | "BANK_TRANSFER";
 export type PaymentStatus =
   "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
 export type ReportStatus = "OPEN" | "RESOLVED_HIDDEN" | "RESOLVED_KEPT";
@@ -269,6 +277,13 @@ export interface AdminShopOrderView {
   commissionAmount: string;
   sellerNetAmount: string;
   courierName: string | null;
+  courierCharge?: string | null;
+  sellerExtraCharge?: string | null;
+  parcelWeightKg?: string | null;
+  courierLane?: string | null;
+  quoteSource?: string | null;
+  quoteFetchedAt?: string | null;
+  freeDeliveryApplied?: boolean;
   trackingCode: string | null;
   estimatedDeliveryFrom: string | null;
   estimatedDeliveryTo: string | null;
@@ -876,3 +891,82 @@ export interface AdminHighlightInput {
   buttonTextColor?: string | null;
   openInNewTab?: boolean;
 }
+
+
+/* Courier delivery rates (Prompt 1: Steadfast delivery charges) */
+
+export interface AdminCourierQuoteCacheRow {
+  id: string;
+  fromSteadfastId: number;
+  toSteadfastId: number;
+  weightStep: string;
+  charge: string | null;
+  available: boolean;
+  lane: string | null;
+  base: string | null;
+  weightExtra: string;
+  fetchedAt: string;
+  source: "LIVE" | "IMPORTED" | "ADMIN";
+  isOverride: boolean;
+  fromName: string | null;
+  toName: string | null;
+  stale: boolean;
+}
+
+export interface AdminDeliveryHealth {
+  liveEnabled: boolean;
+  circuitState: "CLOSED" | "OPEN";
+  circuitOpenUntil: string | null;
+  consecutiveFailures: number;
+  lastSuccessAt: string | null;
+  lastErrorAt: string | null;
+  lastError: string | null;
+  requestsToday: number;
+  cooldownUntil: string | null;
+  locations: number;
+  cached: number;
+  stale: number;
+  overrides: number;
+  freshHours: number;
+  fallbackInside: number;
+  fallbackOutside: number;
+}
+
+export interface AdminDeliveryMappingRow {
+  id: number;
+  name: string;
+  nameBn: string;
+  division: string;
+  steadfastLocationId: number | null;
+  steadfastLocation: { id: number; name: string; kind: string } | null;
+  isDhaka: boolean;
+  thanaCount: number;
+  mapped: boolean;
+}
+
+export interface AdminDeliveryMapping {
+  districts: AdminDeliveryMappingRow[];
+  locations: { id: number; name: string; kind: string }[];
+}
+
+export interface AdminThanaRow {
+  id: string;
+  steadfastPoliceStationId: number | null;
+  name: string;
+  nameBn: string | null;
+  dhakaZone: "CITY" | "SUBURBAN" | null;
+  classificationSource: "DEFAULT_UNVERIFIED" | "ADMIN_VERIFIED";
+  selectableByCustomer: boolean;
+  district: { id: number; name: string };
+}
+
+export interface AdminOverrideInput {
+  fromSteadfastId: number;
+  toSteadfastId: number;
+  weightStep: number;
+  charge: number;
+  available?: boolean;
+  lane?: string | null;
+}
+
+

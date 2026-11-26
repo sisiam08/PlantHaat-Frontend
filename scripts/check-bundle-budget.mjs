@@ -18,6 +18,8 @@ const routes = {
     "server/app/(admin)/admin/reconciliation/page_client-reference-manifest.js",
   "/admin/complaints": "server/app/(admin)/admin/complaints/page_client-reference-manifest.js",
   "/admin/settings": "server/app/(admin)/admin/settings/page_client-reference-manifest.js",
+  "/admin/delivery-rates":
+    "server/app/(admin)/admin/delivery-rates/page_client-reference-manifest.js",
   "/seller/dashboard":
     "server/app/(seller)/seller/dashboard/page_client-reference-manifest.js",
   "/seller/orders": "server/app/(seller)/seller/orders/page_client-reference-manifest.js",
@@ -38,6 +40,7 @@ const budgetsKb = {
   "/admin/reconciliation": 500,
   "/admin/complaints": 500,
   "/admin/settings": 500,
+  "/admin/delivery-rates": 500,
   "/seller/dashboard": 500,
   "/seller/orders": 500,
   "/seller/earnings": 500,
@@ -113,3 +116,4 @@ for (const [route, manifestPath] of Object.entries(routes)) {
 }
 
 if (failed) process.exitCode = 1;
+

@@ -29,7 +29,15 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
   return "secondary";
 }
 
-export function OrdersList() {
+export function OrdersList({
+  overallStatus,
+  emptyTitle,
+  emptyDescription,
+}: {
+  overallStatus?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+} = {}) {
   const t = useTranslations("orders");
   const tc = useTranslations("common");
   const tCatalog = useTranslations("catalog");
@@ -37,9 +45,10 @@ export function OrdersList() {
   const locale = useLocale();
 
   const orders = useInfiniteQuery({
-    queryKey: queryKeys.orders(),
+    queryKey: queryKeys.orders(overallStatus ? { overallStatus } : {}),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => ordersApi.list({ page: pageParam }),
+    queryFn: ({ pageParam }) =>
+      ordersApi.list({ overallStatus, page: pageParam }),
     getNextPageParam: (last) => {
       const meta = last.meta;
       if (!meta) return undefined;
@@ -74,7 +83,8 @@ export function OrdersList() {
     return (
       <EmptyState
         icon={Package}
-        title={t("empty")}
+        title={emptyTitle ?? t("empty")}
+        description={emptyDescription}
         action={
           <Button asChild variant="cta">
             <Link href="/products">{t("startShopping")}</Link>
@@ -84,8 +94,15 @@ export function OrdersList() {
     );
   }
 
+  const total = orders.data?.pages[0]?.meta?.total;
+
   return (
     <div className="grid gap-3">
+      {typeof total === "number" ? (
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          {t("resultCount", { count: total })}
+        </p>
+      ) : null}
       {list.map((order) => (
         <Card key={order.id} className="rounded-2xl">
           <CardContent className="flex flex-wrap items-center justify-between gap-3">

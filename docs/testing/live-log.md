@@ -134,3 +134,102 @@ editor; the commission/highlights/banners pages now pass at both widths with no 
 ## 2026-11-21 evidence proof (Task 1)
 
 Real Chrome (`channel: chrome`) against the isolated production frontend `:3002` and test API `:5001` (Cloudinary `planthaat/teststack` for this run): seller marked a COD order DELIVERED through the real dialog with one uploaded photo, then replied to a dispute with one photo. `evidence-proof-ui.spec.ts` **1/1** verified ATTACHED rows, buyer order proof, buyer timeline photo, seller order/complaint rendering, admin dispute proof + conversation photo, 1280/360 axe clean and no horizontal overflow; screenshots viewed (`seller-order-1280`, `seller-complaint-1280/360`, `admin-complaint-1280/360`, `buyer-order-1280`). Test-prefix assets were deleted and `.env.test` restored to local.
+
+## 2026-11-23 regression closure on the isolated stack
+
+- Fixture: `test-stack.ps1 start` now seeds `[seed:e2e-demo]` (admin/customer/seller, `demo-nursery`,
+  `money-tree-bonsai-xokk`, cart, address) on `planthaat_test` only; cleanup command documented in
+  `backend/docs/testing/baseline.md`. Dev data was not modified.
+- Security/core, real Chrome, serial: header-nav **5/5**, access-control **9/9**, auth-redirect **5/5**,
+  session-expired **8/8** (27/27); `design-conformance` **86/86** (desktop + mobile projects);
+  `performance.spec.ts` **1/1**. Short-TTL API: session-refresh **8/8**, session-expired **8/8**,
+  session-cookie-collision **2/2** (18/18).
+- `seller-panel.spec.ts` was run as an extra check but its `BASE` is hardcoded to `:3000`/dev; the 2
+  failures were fixture/rate-limit (no product for seller1, 429) and not reproducible on the isolated
+  stack. The equivalent isolated check was done with axe on `/seller/dashboard` (0 violations at
+  en/bn x 390/360) plus the length/motion script.
+- Seller mobile: **3,466/3,462 px at 390**, **3,592/3,572 at 360**, no overflow, 44 px toggle; expanded
+  4,232. Tab-switch trace 0 layout shift / no long tasks; reduced motion instant.
+- Backend: payout validator unit **4/4**; settlement payout e2e **2 passed** (11 filtered); typecheck
+  clean. Frontend typecheck/build green; no new dependency. Test stack stopped before backend e2e and
+  restarted afterwards; dev `:3000`/`:5000` restored, `:3100` off.
+
+
+## 2026-11-23 cancellation, session handoff and navbar
+
+- Isolated production stack (real Chrome): session-expired **16/16** (8 x desktop/mobile), header-nav **5/5**,
+  design-conformance **86/86**, a11y/typography/overflow **130 passed, 2 skipped**, CLS cart/checkout **2/2**
+  on rerun. Session-refresh was 14/16 in the serial run; the revoked test passed alone on both projects
+  and a direct cookie debug showed `/orders` + dialog. Login throttle (10/min) makes long serial runs flaky.
+- Dev real Chrome: cart-persistence **2/2**. An ADVANCE checkout, a cart line added afterwards and a
+  customer cancel left only that new line; the ordered variants were not restored. Probe order deleted.
+- Browser checks: slow `/auth/me` (2.5 s) on a returning session kept toggle/cart positions and 44 px
+  bell/avatar placeholders; guest shows "Log in" immediately; unread/cart 500s did not hide other controls.
+  Locale switch kept `/products?sort=newest#main`, header and scroll, no full reload. Toggle 68x44 with
+  30x30 circles at 1440/1280/768/390/360; no horizontal overflow.
+- Session dialog: 0 inputs, primary link `/login?returnTo=%2Forders&reason=session-expired`, 2 actions,
+  axe-clean; login returned to `/orders` with no dialog.
+- Screenshots: `_review-shots/navbar-{guest,signed}-{1440,390,360}.png`, `navbar-bn-1440.png`,
+  `session-dialog-390.png`.
+
+
+## 2026-11-24 role-aware auth prompts
+
+- New `auth-prompts.spec.ts` **6/6** (desktop+mobile): guest public browsing has no prompt; guest cart checkout shows **Login required** and returns to `/checkout` with the merged cart; a previously authenticated customer browses `/products` quietly, then `/checkout` shows **Session expired** at the same URL and returns after login.
+- `session-expired.spec.ts` **16/16** with the default test TTL after updating the two-tab test to trigger the customer action explicitly. `session-refresh.spec.ts` remains flaky in long serial runs under the 10 s TTL (9/16 latest, 14/16 earlier; revoked/admin pass alone); no code assertion weakened.
+- Browser checks: `ph_session_expired` is set by the same-URL expired proxy and client `/auth/me` 401; guest has no marker; `AuthProvider`/localStorage role survives a reload; no global customer prompt on public routes. Screenshots: `_review-shots/login-required-390.png`, `session-expired-checkout-390.png`.
+
+
+## 2026-11-24 typography, tabs, orders and passwords
+
+- Bangla: seller/products `স্টক স্বাস্থ্য` computed family and shaped width verified before/after
+  (`bangla-before.png` / `bangla-after.png`); no wrapping was disabled.
+- Orders: customer1 browser run — default **Completed** shows 1, All 6, Cancelled 5, Pending empty with
+  its own copy; one panel visible at a time; 1440/1280/768/390/360 no page overflow.
+- Password: register page at 390 shows the info popover, missing-only warnings for `plantHaat`
+  (number + special), then “Password meets all requirements” for `Str0ngPass1!`; screenshot
+  `password-policy-390.png`.
+- Tests: Vitest includes `tests/password-policy.test.ts`; backend `password.spec.ts`, auth+checkout e2e
+  pass; visual evidence in `_review-shots`.
+
+
+- Final counts for this pass: backend unit **281/281**, auth+checkout e2e **18/18**; frontend Vitest
+  **120/120**, typecheck/lint/build green. Browser: Completed default/All/Cancelled/Pending verified,
+  password policy popover/warnings/valid state verified, seller/products Bangla word intact.
+
+
+### 2026-11-24 My Orders active pill/counts final
+
+- Measured active trigger and indicator at 390/360/1280: trigger 44 px high, indicator 44 px high and
+  width matches trigger within 0.2 px before/after tab switch and after horizontal scroll; list 52 px,
+  page overflow 0. The fixed indicator uses `left` + `width` with a ResizeObserver, not scaleX (which
+  was distorting the rounded background).
+- `GET /orders/status-counts` returned `{all: 6, counts: {CANCELLED: 5, DELIVERED: 1}}` for customer1;
+  tab badges display 1/6/5 with zero-status badges omitted. Screenshot: `orders-tabs-final-390.png`.
+
+
+## 2026-11-25 seller/PDP/delivery/wallet checks
+
+- Seller CTA: 1440/1280 header+footer visible, 390 footer only, seller hidden, 0 overflow.
+- Seller registration: guest `/register/seller` completed to `/seller/apply` (account cleaned after); no approval bypass.
+- PDP: Q&A click sets active Q&A/panel, Delivery tab no district/charge UI, no delivery quote request.
+- Conditions: seller1 API defaults both methods; inside/outside cart flags and checkout COD/Advance restrictions verified; backend rejects wrong method with 400.
+- Screenshots: `seller-cta-1440.png`, `seller-cta-footer-390.png`, `pdp-tabs-final.png`, `seller-delivery-conditions-390.png`, `checkout-inside-cod-only.png`.
+
+
+### 2026-11-25 existing-seller delivery backfill
+
+- Seller3 (Sylhet, previously legacy-only) opens /seller/delivery-zones with both **Configured** cards and no manual setup; API rows carry 90/1800/2–5, COD+Advance.
+- Customer cart for that shop at district 18 returns 90, INSIDE_DHAKA, COD/Advance allowed; checkout shows both methods and the 90 fee.
+- Screenshot: `_review-shots/migrated-seller-conditions.png`.
+
+## 2026-11-26 delivery-quote verification (Prompt 1B)
+
+Isolated production stack (:5001 API, :3002 frontend), real Chrome (`PW_CHANNEL=chrome`), test DB only.
+
+- `e2e/delivery-quote.spec.ts` **7/7 desktop (1280)** and **7/7 mobile (360)**, serial, one worker.
+- Covered: logged-in two-shop cart with Dhaka + Sylhet pickups and courier/seller-extra breakdown; guest cart district+thana with no login; saved Dhaka address without thana blocked with a prompt; COD_ONLY removes Advance and restores; seller product weight/extra live example; seller pickup thana and delivery-zones info; admin delivery-rates ids/unverified/override/CSV; admin order delivery snapshot.
+- Axe clean on the touched pages; no horizontal overflow at 1280/360; no console errors or failed requests besides the known test-stack realtime CSP warning (`ws://localhost:5000`, already tracked in FRONTEND_CONTEXT).
+- Unit: `tests/locations.test.ts` verifies placeholder filtering and duplicate-name de-duplication (2/2).
+- Regression found and fixed in this pass: cart fixed-bar Checkout link overflow at 360; long district/thana selects overflow at 360; seller pickup-thana select lost its initial value after async options; admin override number inputs had no accessible name.
+- Test-stack seed: `npm run db:seed:delivery-test-stack` (test DB only) sets live OFF, override 1?1 = 55, outside fallback 90, Mirpur/Savar/Zone Not Clear thanas, buyer2 without thana, and a second Sylhet pickup shop.

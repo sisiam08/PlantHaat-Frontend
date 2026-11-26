@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -29,6 +29,7 @@ import { addressesApi, type AddressView, type CreateAddressInput } from "@/featu
 import { FormField } from "@/features/auth/components/form-field";
 import { toastApiError } from "@/features/auth/components/error-toast";
 import { cartApi } from "@/features/cart/api";
+import { locationsApi, selectableThanas } from "@/features/locations/api";
 import { clearGuestCart, markGuestCartHandled } from "@/features/cart/guest-cart";
 import type { CartView } from "@/features/cart/types";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -56,6 +57,21 @@ interface PriceChangeDetails {
   changedLines: PriceChangeLine[];
 }
 
+interface DeliveryChangeDetails {
+  expectedDeliveryTotal: string;
+  deliveryTotal: string;
+  grandTotal: string;
+  shops: {
+    shopId: string;
+    deliveryCharge: string;
+    courierCharge: string | null;
+    sellerExtraCharge: string;
+    freeDeliveryApplied: boolean;
+    source: string | null;
+    reason: string | null;
+  }[];
+}
+
 export interface CheckoutInitialData {
   signedIn?: boolean;
   addresses?: AddressView[];
@@ -77,6 +93,7 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [priceChange, setPriceChange] = useState<PriceChangeDetails | null>(null);
+  const [deliveryChange, setDeliveryChange] = useState<DeliveryChangeDetails | null>(null);
 
   const addresses = useQuery({
     queryKey: queryKeys.addresses,
@@ -86,7 +103,10 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
   });
   const districts = useQuery({
     queryKey: queryKeys.catalog.districts,
-    queryFn: () => apiGet<District[]>("/locations/districts").then((result) => result.data),
+    queryFn: () =>
+      apiGet<(District & { requiresThana?: boolean; insideDhaka?: boolean })[]>(
+        "/locations/districts",
+      ).then((result) => result.data),
   });
 
   const list = addresses.data ?? [];
@@ -95,18 +115,31 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
     list.find((address) => address.isDefault) ??
     list[0];
 
-  const addressSchema = z.object({
-    recipientName: z.string().trim().min(1, t("required")),
-    phone: z
-      .string()
-      .trim()
-      .regex(/^(?:\+?88)?01[3-9]\d{8}$/, t("invalidPhone")),
-    districtId: z.string().min(1, t("required")),
-    area: z.string().trim().min(1, t("required")),
-    addressLine: z.string().trim().min(1, t("required")),
-    postalCode: z.string().trim().max(10).optional(),
-    cityScope: z.enum(["CITY", "OUTSIDE", "NA"]),
-  });
+  const addressSchema = z
+    .object({
+      recipientName: z.string().trim().min(1, t("required")),
+      phone: z
+        .string()
+        .trim()
+        .regex(/^(?:\+?88)?01[3-9]\d{8}$/, t("invalidPhone")),
+      districtId: z.string().min(1, t("required")),
+      thanaId: z.string(),
+      area: z.string().trim().min(1, t("required")),
+      addressLine: z.string().trim().min(1, t("required")),
+      postalCode: z.string().trim().max(10).optional(),
+    })
+    .superRefine((values, ctx) => {
+      const district = districts.data?.find(
+        (entry) => String(entry.id) === values.districtId,
+      );
+      if (district?.requiresThana && values.thanaId.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["thanaId"],
+          message: t("required"),
+        });
+      }
+    });
   type AddressForm = z.infer<typeof addressSchema>;
 
   const form = useForm<AddressForm>({
@@ -115,14 +148,23 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
       recipientName: "",
       phone: "",
       districtId: "",
+      thanaId: "",
       area: "",
       addressLine: "",
       postalCode: "",
-      cityScope: "NA",
     },
   });
-
-  const formDistrictId = form.watch("districtId");
+  const formDistrictId = useWatch({ control: form.control, name: "districtId" });
+  const formRequiresThana = Boolean(
+    districts.data?.find((district) => String(district.id) === formDistrictId)
+      ?.requiresThana,
+  );
+  const formThanas = useQuery({
+    queryKey: ["locations", "thanas", "form", formDistrictId],
+    queryFn: () => locationsApi.thanas(Number(formDistrictId)),
+    enabled: formRequiresThana && formDistrictId !== "",
+    staleTime: 60 * 60 * 1000,
+  });
 
   const publicSettings = useQuery({
     queryKey: ["settings", "public"],
@@ -135,8 +177,16 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
   // The delivery-neutral preview (or the previous quote) keeps the summary
   // painted while the district-scoped quote refreshes; heights never collapse.
   const cart = useQuery({
-    queryKey: [...queryKeys.cart, selectedAddress?.districtId ?? 0],
-    queryFn: () => cartApi.get(selectedAddress?.districtId),
+    queryKey: [
+      ...queryKeys.cart,
+      selectedAddress?.districtId ?? 0,
+      selectedAddress?.thanaId ?? "none",
+    ],
+    queryFn: () =>
+      cartApi.get(
+        selectedAddress?.districtId,
+        selectedAddress?.thanaId ?? undefined,
+      ),
     enabled: Boolean(selectedAddress),
     placeholderData: (previous: CartView | undefined) => previous ?? initial?.previewCart,
     staleTime: 30_000,
@@ -156,14 +206,25 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
   const codEnabled = publicSettings.data?.["payment.cod.enabled"] !== false;
   const codMax = Number(publicSettings.data?.["order.codMaxAmount"] ?? 0);
   const codOverLimit = codMax > 0 && Number(cart.data?.grandTotal ?? 0) > codMax;
-  const codBlocked = !codEnabled || codOverLimit;
+  const shops = cart.data?.shops ?? [];
+  const codAllowedByShops = shops.length > 0 && shops.every((shop) => shop.codAllowed !== false);
+  const advanceAllowedByShops =
+    shops.length > 0 && shops.every((shop) => shop.advanceAllowed !== false);
+  const codBlocked = !codEnabled || codOverLimit || !codAllowedByShops;
   const advanceEnabled =
     publicSettings.data?.["payment.advance.enabled"] === true &&
     (publicSettings.data?.["payment.bkash.enabled"] === true ||
-      publicSettings.data?.["payment.nagad.enabled"] === true);
+      publicSettings.data?.["payment.nagad.enabled"] === true ||
+      publicSettings.data?.["payment.rocket.enabled"] === true ||
+      publicSettings.data?.["payment.upay.enabled"] === true) &&
+    advanceAllowedByShops;
   const [method, setMethod] = useState<"COD" | "ADVANCE">("COD");
   const effectiveMethod: "COD" | "ADVANCE" =
-    method === "COD" && codBlocked && advanceEnabled ? "ADVANCE" : method;
+    method === "ADVANCE" && !advanceEnabled && !codBlocked
+      ? "COD"
+      : method === "COD" && codBlocked && advanceEnabled
+        ? "ADVANCE"
+        : method;
 
   const placeOrder = useMutation({
     mutationFn: () =>
@@ -172,6 +233,7 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
           addressId: selectedAddress!.id,
           paymentMethod: effectiveMethod,
           expectedGrandTotal: Number(expectedGrandTotal.current ?? cart.data?.grandTotal ?? 0),
+          expectedDeliveryTotal: Number(cart.data?.deliveryTotal ?? 0),
         },
         idempotencyKey.current,
       ),
@@ -181,6 +243,7 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
       queryClient.removeQueries({ queryKey: queryKeys.cart });
       await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       await queryClient.invalidateQueries({ queryKey: queryKeys.orders() });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.orderCounts });
       toast.success(t("orderPlaced"));
       router.push(
         effectiveMethod === "ADVANCE" ? `/checkout/payment/${order.id}` : `/orders/${order.id}`,
@@ -190,6 +253,11 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
       const apiError = toApiError(error);
       if (apiError.code === "PRICE_CHANGED" && apiError.details) {
         setPriceChange(apiError.details as PriceChangeDetails);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+        return;
+      }
+      if (apiError.code === "DELIVERY_CHARGE_CHANGED" && apiError.details) {
+        setDeliveryChange(apiError.details as DeliveryChangeDetails);
         await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
         return;
       }
@@ -230,10 +298,10 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
       recipientName: values.recipientName,
       phone: values.phone,
       districtId: Number(values.districtId),
+      thanaId: values.thanaId || undefined,
       area: values.area,
       addressLine: values.addressLine,
       postalCode: values.postalCode || undefined,
-      cityScope: values.cityScope,
       isDefault: list.length === 0,
     });
   });
@@ -302,6 +370,17 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
               </div>
             ))}
 
+          {selectedAddress?.district?.name === "Dhaka" && !selectedAddress.thanaId ? (
+            <div className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+              <p>{t("thanaRequiredAddress")}</p>
+              <Link
+                href="/account/addresses"
+                className="mt-1 inline-flex min-h-11 items-center font-medium text-primary underline-offset-4 hover:underline"
+              >
+                {t("edit")}
+              </Link>
+            </div>
+          ) : null}
           {!addresses.isLoading && (showForm || list.length === 0) ? (
             <Card data-section-card className="rounded-2xl [--card-spacing:0px]">
               <CardContent className="p-4">
@@ -329,10 +408,14 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
                       aria-describedby={
                         form.formState.errors.districtId ? "districtId-error" : undefined
                       }
-                      className="h-11 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-                      {...form.register("districtId", {
-                        onChange: () => form.setValue("cityScope", "CITY"),
-                      })}
+                      className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                      value={formDistrictId}
+                      onChange={(event) => {
+                        form.setValue("districtId", event.target.value, {
+                          shouldValidate: true,
+                        });
+                        form.setValue("thanaId", "");
+                      }}
                     >
                       <option value="">{t("district")}</option>
                       {(districts.data ?? []).map((district) => (
@@ -347,23 +430,34 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
                       </p>
                     ) : null}
                   </div>
-                  {(districts.data ?? []).find((district) => String(district.id) === formDistrictId)
-                    ?.metro ? (
+
+                  {formRequiresThana ? (
                     <div className="grid gap-1.5">
-                      <Label htmlFor="cityScope">{t("cityScope")}</Label>
+                      <Label htmlFor="thanaId">{t("thana")}</Label>
                       <select
-                        id="cityScope"
-                        className="h-11 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-                        {...form.register("cityScope")}
+                        id="thanaId"
+                        aria-invalid={form.formState.errors.thanaId ? true : undefined}
+                        aria-describedby={
+                          form.formState.errors.thanaId ? "thanaId-error" : undefined
+                        }
+                        className="h-11 w-full min-w-0 rounded-full border border-input bg-background px-4 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                        {...form.register("thanaId")}
                       >
-                        <option value="NA" disabled>
-                          {t("cityScope")}
-                        </option>
-                        <option value="CITY">{t("insideCity")}</option>
-                        <option value="OUTSIDE">{t("outsideCity")}</option>
+                        <option value="">{t("selectThana")}</option>
+                        {selectableThanas(formThanas.data ?? []).map((thana) => (
+                          <option key={thana.id} value={thana.id}>
+                            {locale === "bn" && thana.nameBn ? thana.nameBn : thana.name}
+                          </option>
+                        ))}
                       </select>
+                      {form.formState.errors.thanaId ? (
+                        <p id="thanaId-error" className="text-sm text-destructive">
+                          {form.formState.errors.thanaId.message}
+                        </p>
+                      ) : null}
                     </div>
                   ) : null}
+
                   <FormField
                     label={t("area")}
                     autoComplete="address-level2"
@@ -554,6 +648,43 @@ export function CheckoutClient({ initial }: { initial?: CheckoutInitialData }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={deliveryChange !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeliveryChange(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("deliveryChangedTitle")}</DialogTitle>
+            <DialogDescription>{t("deliveryChangedBody")}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 text-sm">
+            {deliveryChange?.shops.map((shop) => (
+              <div key={shop.shopId} className="flex items-center justify-between gap-3">
+                <span className="min-w-0 truncate">{shop.shopId}</span>
+                <span className="shrink-0">
+                  <Price value={shop.deliveryCharge} locale={locale} size="sm" />
+                </span>
+              </div>
+            ))}
+            <div className="flex justify-between border-t border-border pt-2 font-semibold">
+              <span>{t("newTotal")}</span>
+              <span>
+                {deliveryChange ? (
+                  <Price value={deliveryChange.grandTotal} locale={locale} size="sm" />
+                ) : null}
+              </span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="cta" onClick={() => setDeliveryChange(null)}>
+              {t("ok")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -597,3 +728,18 @@ function CheckoutSummarySkeleton() {
     </Card>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

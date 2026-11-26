@@ -150,6 +150,22 @@ function ProductBasicsForm({
     isIndoor: z.boolean(),
     isPetSafe: z.boolean(),
     matureHeightCm: z.string(),
+    weightKg: z.string().refine(
+      (value) => value.trim() === "" || (Number(value) > 0 && Number(value) <= 600),
+      "weightKg",
+    ),
+    extraChargeAfterQty: z.string().refine(
+      (value) =>
+        value.trim() === "" ||
+        (Number.isInteger(Number(value)) && Number(value) >= 1),
+      "extraChargeAfterQty",
+    ),
+    extraChargePerUnit: z.string().refine(
+      (value) =>
+        value.trim() === "" ||
+        (Number.isInteger(Number(value)) && Number(value) >= 0),
+      "extraChargePerUnit",
+    ),
     tags: z.string(),
   });
   type Values = z.infer<typeof schema>;
@@ -169,12 +185,23 @@ function ProductBasicsForm({
       isIndoor: product?.isIndoor ?? false,
       isPetSafe: product?.isPetSafe ?? false,
       matureHeightCm: product?.matureHeightCm != null ? String(product.matureHeightCm) : "",
+      weightKg: product?.weightKg != null ? String(product.weightKg) : "",
+      extraChargeAfterQty:
+        product?.extraChargeAfterQty != null ? String(product.extraChargeAfterQty) : "",
+      extraChargePerUnit:
+        product?.extraChargePerUnit != null ? String(product.extraChargePerUnit) : "",
       tags: product?.tags?.join(", ") ?? "",
     },
   });
 
   const isIndoor = useWatch({ control: form.control, name: "isIndoor" });
   const isPetSafe = useWatch({ control: form.control, name: "isPetSafe" });
+  const extraAfter = Number(
+    useWatch({ control: form.control, name: "extraChargeAfterQty" }) || 0,
+  );
+  const extraPerUnit = Number(
+    useWatch({ control: form.control, name: "extraChargePerUnit" }) || 0,
+  );
 
   const submit = form.handleSubmit((values) => {
     const height = Number(values.matureHeightCm);
@@ -191,6 +218,16 @@ function ProductBasicsForm({
       isIndoor: values.isIndoor,
       isPetSafe: values.isPetSafe,
       matureHeightCm: values.matureHeightCm.trim() && Number.isFinite(height) ? height : undefined,
+      weightKg:
+        values.weightKg.trim() && Number.isFinite(Number(values.weightKg))
+          ? Number(values.weightKg)
+          : undefined,
+      extraChargeAfterQty: values.extraChargeAfterQty.trim()
+        ? Number(values.extraChargeAfterQty)
+        : undefined,
+      extraChargePerUnit: values.extraChargePerUnit.trim()
+        ? Number(values.extraChargePerUnit)
+        : undefined,
       tags: values.tags
         .split(",")
         .map((tag) => tag.trim())
@@ -329,6 +366,47 @@ function ProductBasicsForm({
 
           <FormField label={t("tags")} placeholder={t("tagsHint")} {...form.register("tags")} />
 
+          <div className="grid gap-4 rounded-xl border border-border/60 p-3 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="weightKg">{t("weightKg")}</Label>
+              <Input
+                id="weightKg"
+                inputMode="decimal"
+                placeholder="1.2"
+                {...form.register("weightKg")}
+              />
+              <p className="text-xs text-muted-foreground">{t("weightKgHint")}</p>
+              {form.formState.errors.weightKg ? (
+                <p className="text-xs text-destructive">{t("validation.weightKg")}</p>
+              ) : null}
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="extraChargeAfterQty">{t("extraChargeAfterQty")}</Label>
+              <Input
+                id="extraChargeAfterQty"
+                inputMode="numeric"
+                placeholder="10"
+                {...form.register("extraChargeAfterQty")}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="extraChargePerUnit">{t("extraChargePerUnit")}</Label>
+              <Input
+                id="extraChargePerUnit"
+                inputMode="numeric"
+                placeholder="10"
+                {...form.register("extraChargePerUnit")}
+              />
+            </div>
+            <p className="self-end rounded-lg bg-secondary px-3 py-2 text-xs text-secondary-foreground">
+              {t("extraExample", {
+                qty: 13,
+                extraQty: Math.max(0, 13 - (extraAfter || 10)),
+                unit: extraPerUnit || 10,
+                total: Math.max(0, 13 - (extraAfter || 10)) * (extraPerUnit || 10),
+              })}
+            </p>
+          </div>
           <div>
             <Button type="submit" variant="cta" disabled={pending}>
               {product ? t("save") : t("create")}
@@ -805,3 +883,5 @@ function VariantForm({
     </form>
   );
 }
+
+

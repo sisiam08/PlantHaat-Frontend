@@ -85,6 +85,18 @@ export function PayoutAccountsClient() {
     },
     onError: (error) => {
       const apiError = toApiError(error);
+      const details = apiError.details;
+      if (
+        details &&
+        typeof details === "object" &&
+        "accountNumber" in details &&
+        typeof (details as { accountNumber?: unknown }).accountNumber === "string"
+      ) {
+        form.setError("accountNumber", {
+          type: "server",
+          message: (details as { accountNumber: string }).accountNumber,
+        });
+      }
       setFormError(tErrors.has(apiError.code) ? tErrors(apiError.code) : tErrors("generic"));
       toastApiError(error, tErrors);
     },
@@ -123,6 +135,9 @@ export function PayoutAccountsClient() {
                 <div className="flex items-center gap-2 font-medium">
                   {t(`methods.${account.method}`)}
                   {account.isDefault ? <Badge>{t("defaultBadge")}</Badge> : null}
+                  {account.needsUpdate ? (
+                    <Badge variant="destructive">{t("needsUpdate")}</Badge>
+                  ) : null}
                 </div>
                 <span className="text-muted-foreground">{account.accountName}</span>
                 <span className="text-muted-foreground">{account.accountMasked}</span>

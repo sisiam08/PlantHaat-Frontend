@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Banknote,
   Bell,
+  ChevronDown,
+  ChevronUp,
   Clock3,
   MessagesSquare,
   Package,
@@ -70,12 +72,16 @@ export function DashboardClient({
   const tSellerStatus = useTranslations("seller.status");
   const tComplaintStatus = useTranslations("seller.complaintStatus");
   const tWallet = useTranslations("part4.wallet");
+  const tShop = useTranslations("seller.shop");
   const tc = useTranslations("common");
   const locale = useLocale();
   const { user } = useAuth();
   const [range, setRange] = useState<DateRangeValue>(
     initialRange ?? { ...presetBounds("30d"), preset: "30d", compare: true },
   );
+  // Mobile-first: the trend and order breakdown are secondary; the first
+  // screen keeps action queue, KPIs, recent orders and the wallet snapshot.
+  const [showPerformance, setShowPerformance] = useState(false);
 
   const application = useQuery({
     queryKey: queryKeys.seller.application,
@@ -171,8 +177,23 @@ export function DashboardClient({
     },
   ];
 
+  const pickupIncomplete = Boolean(
+    shop.data &&
+      (!shop.data.pickupDistrictId ||
+        ((shop.data.pickupDistrict?.name ?? shop.data.district) === "Dhaka" &&
+          !shop.data.pickupThanaId)),
+  );
+
   return (
     <div className="grid grid-cols-1 min-w-0 gap-6">
+      {approved && pickupIncomplete ? (
+        <p className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+          {tShop("pickupIncomplete")}{" "}
+          <Link href="/seller/shop" className="font-medium underline underline-offset-4">
+            {tShop("title")}
+          </Link>
+        </p>
+      ) : null}
       {approved ? (
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span className="text-xs">{t("applicationStatus")}</span>
@@ -222,7 +243,7 @@ export function DashboardClient({
                 onRetry={() => void dashboard.refetch()}
               />
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 min-[380px]:grid-cols-3 min-[380px]:gap-2 lg:gap-3 lg:grid-cols-3 xl:grid-cols-5">
                 {actionTiles.map((tile) => {
                   const Icon = tile.icon;
                   const body = (
@@ -262,7 +283,7 @@ export function DashboardClient({
 
           {panels.isLoading || !data ? (
             <div className="grid gap-5">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="grid grid-cols-2 gap-3 min-[380px]:grid-cols-3 min-[380px]:gap-2 lg:gap-3 lg:grid-cols-3 xl:grid-cols-6">
                 {Array.from({ length: 6 }, (_, index) => (
                   <KpiSkeleton key={index} />
                 ))}
@@ -407,7 +428,28 @@ export function DashboardClient({
                 </CardContent>
               </Card>
 
-              <ChartCard title={t("salesTrend")} labels={labels} empty={data.series.length === 0 ? { message: t("noDataPeriod") } : undefined}>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="lg:hidden"
+                aria-expanded={showPerformance}
+                aria-controls="seller-performance-trend seller-performance-orders"
+                onClick={() => setShowPerformance((value) => !value)}
+              >
+                {t("performanceSection")}
+                {showPerformance ? (
+                  <ChevronUp aria-hidden className="ms-2 size-4" />
+                ) : (
+                  <ChevronDown aria-hidden className="ms-2 size-4" />
+                )}
+              </Button>
+
+              <div
+                id="seller-performance-trend"
+                className={showPerformance ? "block" : "hidden lg:block"}
+              >
+                <ChartCard title={t("salesTrend")} labels={labels} empty={data.series.length === 0 ? { message: t("noDataPeriod") } : undefined}>
                 <AnimatedTabs
                   label={t("salesTrend")}
                   urlParam="metric"
@@ -482,9 +524,14 @@ export function DashboardClient({
                     },
                   ]}
                 />
-              </ChartCard>
+                </ChartCard>
+              </div>
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div
+                  id="seller-performance-orders"
+                  className={showPerformance ? "block" : "hidden lg:block"}
+                >
                 <ChartCard
                   title={t("orders")}
                   summary={t("summaryStatus", {
@@ -525,8 +572,10 @@ export function DashboardClient({
                         colorIndex: 0,
                       },
                     ]}
+                    height={180}
                   />
                 </ChartCard>
+                </div>
 
                 <ChartCard
                   title={t("walletSnapshot")}
@@ -555,7 +604,20 @@ export function DashboardClient({
                   }}
                   csvName="seller-wallet"
                 >
-                  <div className="grid gap-4">
+                  <ul className="grid grid-cols-2 gap-3 lg:hidden">
+                    {[
+                      { label: t("available"), value: data.wallet.available },
+                      { label: t("pending"), value: data.wallet.pending },
+                      { label: t("onHold"), value: data.wallet.onHold },
+                      { label: t("codDues"), value: data.wallet.codDues },
+                    ].map((row) => (
+                      <li key={row.label} className="rounded-xl border border-border bg-muted/30 p-3">
+                        <p className="text-xs text-muted-foreground">{row.label}</p>
+                        <Price value={row.value} locale={locale} size="sm" />
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="hidden gap-4 lg:grid">
                     <DonutChart
                       centerLabel={t("revenue")}
                       summary={t("summaryWallet", {
@@ -936,7 +998,7 @@ function Trend({
         series={[{ key: "series", label, values, colorIndex: 0, variant: "area" }]}
         summary={summary}
         formatValue={formatValue}
-        height={200}
+        height={180}
       />
       <details className="rounded-xl border border-border/60 px-3 py-2">
         <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
@@ -964,3 +1026,4 @@ function Trend({
     </div>
   );
 }
+
